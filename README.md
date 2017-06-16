@@ -1,2 +1,2 @@
-# Wright-lang
-The Wright Programming language
+# The Wright Programming language
+### A Programming language that flies
