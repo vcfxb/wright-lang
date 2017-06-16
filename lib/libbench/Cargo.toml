@@ -1,0 +1,6 @@
+[package]
+name = "libbench"
+version = "0.1.0"
+authors = ["Antonia Calia-Bogan <alfriadox@gmail.com>"]
+
+[dependencies]
