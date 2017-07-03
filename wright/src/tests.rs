@@ -1,5 +1,7 @@
+use lexer;
+
 #[cfg(test)]
-mod tests {
+pub mod tests {
     #[test]
     fn it_works() {
     }
