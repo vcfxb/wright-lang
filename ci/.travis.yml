@@ -1,0 +1,4 @@
+language: rust
+
+script:
+- cd wright && cargo build --release && cargo test && cargo bench
