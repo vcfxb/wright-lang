@@ -1,6 +1,8 @@
 [package]
-name = "libtest"
+name = "wright"
 version = "0.1.0"
 authors = ["Antonia Calia-Bogan <alfriadox@gmail.com>"]
 
-[dependencies]
+[lib]
+name = "wright"
+crate-type = ["rlib","dylib"]
