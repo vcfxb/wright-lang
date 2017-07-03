@@ -1,4 +1,9 @@
 language: rust
 
+rust:
+- stable
+- beta
+- nightly
+
 script:
 - cd wright && cargo build --release && cargo test && cargo bench
