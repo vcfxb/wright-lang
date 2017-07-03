@@ -7,3 +7,7 @@ rust:
 
 script:
 - cd wright && cargo build --release && cargo test && cargo bench
+
+matrix:
+  allow_failures:
+    - rust: nightly
