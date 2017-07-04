@@ -22,7 +22,7 @@ parser.add_argument('file', nargs='?', default=None, help="BlackRose file to use
 args = parser.parse_args()
 
 if args.version:
-    print( "[ Wright programming language ]\nVersion: "+version )
+    print("[ Wright programming language ]\nVersion: "+version)
     sys.exit(0)
 elif args.version_number:
     print(version)
