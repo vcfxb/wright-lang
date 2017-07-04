@@ -9,9 +9,10 @@ os:
   - linux
   - osx
 
-
 script:
-- cd wright && cargo build --release && cargo test && cargo bench
+- cd wright && cargo build --release
+- cd wright && cargo test
+- cd wright && cargo bench
 
 matrix:
   allow_failures:
