@@ -1,2 +1,9 @@
 extern crate wright;
-fn main() {/* do nothing */ }
+
+use std::env;
+use wright::argparse;
+
+fn main() {
+    // todo
+    //match argparse::argparse()
+}

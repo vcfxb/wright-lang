@@ -30,3 +30,11 @@ The core ideals of the language are:
     
 ### Community:
 Wright promotes a happy and healthy community that is free of bullying and discrimination. 
+
+### Dependencies:
+* Rust (most recent stable)
+
+### Building from source:
+1. Clone or download a copy of this repository, open the terminal and move into its directory.
+2. Move into the "wright" directory and run `cargo build --release`
+3. Add target/release to your PATH environmental variable.
