@@ -23,7 +23,7 @@ The core ideals of the language are:
 * Speed: 
     * Wright should be as fast as possible, at minimum being comprable to python, and hopefully closer to Rust and C in most cases.
 * Safety:
-    * Rust should inherit the resource safety that Rust is known for
+    * Rust should inherit the resource safety that Rust is known for.
 * Versatility:
     * Rust should be able to be used and hopefully will be used as widely as Java.
     
@@ -32,7 +32,7 @@ The core ideals of the language are:
 Wright promotes a happy and healthy community that is free of bullying and discrimination. 
 
 ### Dependencies:
-* Rust (most recent stable)
+* Rust (1.18.0 or greater)
 
 ### Building from source:
 1. Clone or download a copy of this repository, open the terminal and move into its directory.
