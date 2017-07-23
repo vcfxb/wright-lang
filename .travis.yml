@@ -11,6 +11,7 @@ os:
 
 script:
 - cd wright
+- cargo build
 - cargo build --release
 - cargo test
 - cargo bench
