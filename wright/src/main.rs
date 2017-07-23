@@ -5,5 +5,9 @@ use wright::argparse;
 
 fn main() {
     // todo
-    //match argparse::argparse()
+    if let Some(i) = argparse::argparse(env::args()) {
+        if i.input == argparse::InputMode::Interactive {
+
+        }
+    }
 }
