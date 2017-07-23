@@ -32,7 +32,7 @@ The core ideals of the language are:
 Wright promotes a happy and healthy community that is free of bullying and discrimination. 
 
 ### Dependencies:
-* Rust (1.18.0 or greater)
+* Rust (1.15.0 or greater)
 
 ### Building from source:
 1. Clone or download a copy of this repository, open the terminal and move into its directory.
