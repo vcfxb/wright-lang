@@ -6,3 +6,14 @@ authors = ["Antonia Calia-Bogan <alfriadox@gmail.com>"]
 [lib]
 name = "wright"
 crate-type = ["rlib","dylib"]
+
+[dependencies]
+regex = "0.2"
+
+[[bin]]
+name = "radon"
+path = "src/radon/radon.rs"
+
+[[bin]]
+name = "wright"
+path = "src/main.rs"
