@@ -26,12 +26,24 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
         let mut o: Option<String> = None;
         let mut out_now = false;
         let mut opt = 0;
+        let mut radon = false;
         let re = Regex::new(r"[[:alnum:]].wright").unwrap();
         let alt_re = Regex::new(r"[[:alnum:]].wr").unwrap();
         let o_re = Regex::new(r"[[:alnum:]].radon").unwrap();
         for a in all_args {
             if o_now {
-                opt = a.to_string().parse::<u8>().unwrap();
+                opt = if let Ok(s) = a.to_string().parse::<u8>() {
+                    if s > 2 {
+                        println!("Optimization defaulting to 2, as {} is not a number between 0 and 3", a);
+                        2
+                    }
+                    else {
+                        s
+                    }
+                } else {
+                    println!("Optimization defaulting to 0, as {} is not a number between 0 and 3", a);
+                    0
+                };
                 o_now = false;
             }
             else if out_now {
@@ -57,6 +69,7 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
             }
             else if a == "run".to_string() {
                 r = true;
+                o = None;
             }
             else if a == "-O".to_string() || a == "--optimize".to_string() {
                 o_now = true;
@@ -64,7 +77,13 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
             }
             else if a == "-o".to_string() || a == "--output".to_string() {
                 out_now = true;
+                if r {
+                    println!("\nPlease note that running your file will not compile to an output file.\n");
+                }
                 continue;
+            }
+            else if a == "--radon".to_string() {
+                radon = true;
             }
         }
         if contains_file {
@@ -83,7 +102,24 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
                 Some(CourseOfAction {input : InputMode::File, mode: ProcessingMode::LLVM_IR, file: file_name, optimization: opt , run: false, output: o})
             }
             else if r {
-                Some(CourseOfAction {input : InputMode::File, mode: ProcessingMode::RadonBytecode, file: file_name, optimization: opt , run: true, output: o})
+                if radon {
+                    Some(CourseOfAction {
+                        input : InputMode::File,
+                        mode: ProcessingMode::RadonBytecode,
+                        file: file_name,
+                        optimization: opt,
+                        run: true,
+                        output: None
+                    })
+                } else {
+                    Some(CourseOfAction {
+                        input : InputMode::File,
+                        mode: ProcessingMode::TreeWalk,
+                        file: file_name, optimization: 0,
+                        run: true,
+                        output: None
+                    })
+                }
             }
             else {
                 Some(CourseOfAction {input : InputMode::File, mode: ProcessingMode::RadonBytecode, file: file_name, optimization: opt, run: false, output: o})
@@ -137,12 +173,17 @@ Options:
     run                         Runs file immediately, using Radon byte-code.
     -h, --help                  Display this message.
     -v, --version               Display version information
-    -I, --interactive           Run in interactive interpreted mode. Will automatically use a tree-walk interpreter, with optimization set to 0.
+    -I, --interactive           Run in interactive interpreted mode. Will automatically use a tree-walk interpreter,
+                                    with optimization set to 0.
     -o, --output [FILE]         Specifies output filename.
     -O, --optimize [NUMBER]     Optimized compilation based on number 0, 1 or 2. Defaults to 0.
         --llvm                  Use LLVM.
         --emit-llvm-ir          Emits LLVM IR code. Implies --llvm.
-        --radon                 Use Radon byte-code, emitting a .radon file. (default)
+        --radon                 Use Radon byte-code, emitting a .radon file. Radon is the default for compiling,
+                                    but is not the default wen using 'run'. Specify if you would like to use it
+                                    otherwise running the file just defaults to a tree-walk interpreter with
+                                    optimization set to 0.
+
 
 "
 );
