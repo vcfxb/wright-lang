@@ -3,6 +3,7 @@ extern crate regex;
 use std::env;
 use std::path::Path;
 use self::regex::Regex;
+use version;
 
 pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
     let all_args : Vec<String> = args.collect();
@@ -133,6 +134,7 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
 
     }
 }
+
 #[derive(Debug)] // for debugging (of course)
 pub struct CourseOfAction {
     pub input: InputMode,
@@ -159,7 +161,7 @@ pub enum ProcessingMode {
 }
 
 fn version() {
-    println!("Wright language version 0.1");
+    println!("Wright language version {}", version::get_version().as_str());
 }
 
 fn help() {
@@ -183,8 +185,6 @@ Options:
                                     but is not the default wen using 'run'. Specify if you would like to use it
                                     otherwise running the file just defaults to a tree-walk interpreter with
                                     optimization set to 0.
-
-
 "
 );
 }
