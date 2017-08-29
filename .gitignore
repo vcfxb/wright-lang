@@ -1,0 +1,6 @@
+/.idea/
+/.vscode/
+/wright/target/
+/wright/Cargo.lock
+/wright/wright.iml
+

@@ -1,4 +1,3 @@
-
 use super::argparse::ProcessingMode;
 
 pub fn interactive() -> i32 { // the i32 is exit code
