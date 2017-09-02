@@ -21,11 +21,9 @@ The core ideals of the language are:
 * Power:
     * Wright should be able to do as much as C / C++ and Haskell and more
 * Speed: 
-    * Wright should be as fast as possible, at minimum being comprable to python, and hopefully closer to Rust and C in most cases.
+    * Wright should be as fast as possible, at minimum being comprable to Python, and hopefully closer to Rust and C in most cases.
 * Safety:
-    * Rust should inherit the resource safety that Rust is known for.
-* Versatility:
-    * Rust should be able to be used and hopefully will be used as widely as Java.
+    * Wright should inherit the resource safety that Rust is known for.
     
     
 ### Community:
