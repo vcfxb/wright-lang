@@ -7,7 +7,11 @@ use version;
 
 pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
     let all_args : Vec<String> = args.collect();
-    if (all_args.contains(&"-h".to_string())) || (all_args.contains(&"--help".to_string()))  {
+    if all_args.len() == 1 {
+        version();
+        help();
+        None
+    } else if (all_args.contains(&"-h".to_string())) || (all_args.contains(&"--help".to_string()))  {
         version();
         help();
         None
@@ -21,8 +25,9 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
         let mut o_now = false;
         let mut contains_file = false;
         let mut file_name = None;
-        let mut use_llvm = false;
-        let mut llvm_ir = false;
+        // Commented because its not implemented yet
+        //let mut use_llvm = false;
+        //let mut llvm_ir = false;
         let mut r = false;
         let mut o: Option<String> = None;
         let mut out_now = false;
@@ -62,12 +67,15 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
                 contains_file = true;
                 file_name = Some(a.clone());
             }
+            // Commented out because llvm is not yet implemented
+            /*
             else if a == "--llvm".to_string() {
                 use_llvm = true;
             }
             else if a == "--emit-llvm-ir".to_string() {
                 llvm_ir = true;
             }
+            */
             else if a == "run".to_string() {
                 r = true;
                 o = None;
@@ -96,13 +104,17 @@ pub fn argparse(args : env::Args) -> Option<CourseOfAction> {
                 t.push_str(".radon");
                 o = Some(t);
             }
+            // Not yet implemented
+            /*
             if use_llvm {
                 Some(CourseOfAction {input : InputMode::File, mode: ProcessingMode::LLVM, file: file_name, optimization: opt , run: false, output: o})
             }
             else if llvm_ir {
                 Some(CourseOfAction {input : InputMode::File, mode: ProcessingMode::LLVM_IR, file: file_name, optimization: opt , run: false, output: o})
             }
-            else if r {
+            */
+            // add an 'else' before the 'if' here and uncomment above if llvm is ever implemented
+            if r {
                 if radon {
                     Some(CourseOfAction {
                         input : InputMode::File,
@@ -155,8 +167,9 @@ pub enum InputMode {
 #[derive(Debug)]
 pub enum ProcessingMode {
     TreeWalk,
-    LLVM,
-    LLVM_IR,
+    // Not implemented
+    //LLVM,
+    //LlvmIr,
     RadonBytecode,
 }
 
@@ -166,25 +179,27 @@ fn version() {
 
 fn help() {
     println!("
-wright [OPTIONS] [INPUT]
+    wright [OPTIONS] [INPUT]
 
-Input:
-    Files are valid if they have a \".wr\" or \".wright\" extension.
+    Input:
+        Files are valid if they have a \".wr\" or \".wright\" extension.
 
-Options:
-    run                         Runs file immediately, using Radon byte-code.
-    -h, --help                  Display this message.
-    -v, --version               Display version information
-    -I, --interactive           Run in interactive interpreted mode. Will automatically use a tree-walk interpreter,
-                                    with optimization set to 0.
-    -o, --output [FILE]         Specifies output filename.
-    -O, --optimize [NUMBER]     Optimized compilation based on number 0, 1 or 2. Defaults to 0.
-        --llvm                  Use LLVM.
-        --emit-llvm-ir          Emits LLVM IR code. Implies --llvm.
-        --radon                 Use Radon byte-code, emitting a .radon file. Radon is the default for compiling,
-                                    but is not the default wen using 'run'. Specify if you would like to use it
-                                    otherwise running the file just defaults to a tree-walk interpreter with
-                                    optimization set to 0.
-"
-);
+    Options:
+        run                         Runs file immediately, using Radon byte-code.
+        -h, --help                  Display this message.
+        -v, --version               Display version information
+        -I, --interactive           Run in interactive interpreted mode. Will automatically use a tree-walk interpreter,
+                                        with optimization set to 0.
+        -o, --output [FILE]         Specifies output filename.
+        -O, --optimize [NUMBER]     Optimized compilation based on number 0, 1 or 2. Defaults to 0.
+                                        0: No optimizations. Also gives debug info.
+                                        1: Optimizations done only to bytecode, leaving actual evaluation for execution time.
+                                        2: All possible optimizations done at compile time,
+                                            sometimes executing everything before runtime if possible.
+            --radon                 Use Radon byte-code, emitting a .radon file. Radon is the default for compiling,
+                                        but is not the default wen using 'run'. Specify if you would like to use it
+                                        otherwise running the file just defaults to a tree-walk interpreter with
+                                        optimization set to 0.
+    "
+    );
 }
