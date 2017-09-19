@@ -50,7 +50,7 @@ pub fn interactive() -> i32 { // the i32 is exit code
         // put analysis code here
         // todo : analysis of interactive input.
         let preprocessed_input = preproc::preproc(input_buffer);
-        print!("{}", preprocessed_input);
+        print!("{}", preprocessed_input[0].line);
         // end analysis here
         if let Ok(_) = io::stdout().flush() {
             // Do nothing
