@@ -14,5 +14,6 @@ pub trait WrightError {
 
 #[derive(Debug, Copy, Clone)]
 pub enum WrightErrorLevels {
+    Warning,
     Fatal,
 }
