@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
 
-Wright is a Functional and Object Oriented programming languge 
+Wright is a programming languge 
 that is significantly influenced by:
 * Rust
 * Java
