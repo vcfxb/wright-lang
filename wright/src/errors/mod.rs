@@ -16,4 +16,5 @@ pub trait WrightError {
 pub enum WrightErrorLevels {
     Warning,
     Fatal,
+    Compiler,  // Compiler error, not user error
 }
