@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
 
-Wright is a programming languge 
+Wright is a programming language 
 that is significantly influenced by:
 * Rust
 * Java
