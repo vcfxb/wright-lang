@@ -4,6 +4,7 @@ use std::{env, process};
 use wright::argparse;
 use wright::run;
 
+
 fn main() {
     if let Some(i) = argparse::argparse(env::args()) {
         //println!("{:?}", i);

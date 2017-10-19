@@ -15,10 +15,19 @@ os:
   - linux
   - osx
 
+before_install:
+  - wget https://llvm.org/releases/5.0.0/llvm-5.0.0.src.tar.xz
+  - tar xJf llvm-5.0.0.src.tar.xz
+  - mkdir -p llvm-5.0.0.src/build
+  - cd llvm-5.0.0.src/build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/llvm-5.0.0
+  - cmake --build . --target install
+  -
+
 script:
 - cd wright
+- LLVM_SYS_50_PREFIX=$HOME/llvm-5.0.0
 - cargo build
-- cargo build --release
 - cargo test
 
 matrix:

@@ -1,7 +1,7 @@
-extern crate wright;
+//extern crate wright;
 extern crate regex;
 use regex::*;
-use wright::parser::*;
+use self::parser::*;
 
 // tests
 
