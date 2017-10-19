@@ -1,3 +1,3 @@
 extern crate wright;
-use wright::lexer::*;
+//use wright::lexer::*;
 
