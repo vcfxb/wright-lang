@@ -9,11 +9,7 @@ crate-type = ["rlib","dylib"]
 
 [dependencies]
 regex = "0.2"
-llvm-sys = "50"
 
-[[bin]]
-name = "radon"
-path = "src/radon/radon.rs"
 
 [[bin]]
 name = "wright"
