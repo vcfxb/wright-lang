@@ -16,6 +16,8 @@ os:
   - osx
 
 before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -y install cmake
   - wget https://llvm.org/releases/5.0.0/llvm-5.0.0.src.tar.xz
   - tar xJf llvm-5.0.0.src.tar.xz
   - mkdir -p llvm-5.0.0.src/build
