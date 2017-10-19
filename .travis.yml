@@ -15,16 +15,6 @@ os:
   - linux
   - osx
 
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get -y install cmake
-  - wget https://llvm.org/releases/5.0.0/llvm-5.0.0.src.tar.xz
-  - tar xJf llvm-5.0.0.src.tar.xz
-  - mkdir -p llvm-5.0.0.src/build
-  - cd llvm-5.0.0.src/build
-  - cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/llvm-5.0.0
-  - cmake --build . --target install
-  -
 
 script:
 - cd wright
@@ -35,3 +25,13 @@ script:
 matrix:
   allow_failures:
     - rust: nightly
+  include:
+    - os: linux
+        addons:
+          apt:
+            sources:
+              - llvm-toolchain-trusty-5.0
+            packages:
+              - clang-5.0
+        env:
+          - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
