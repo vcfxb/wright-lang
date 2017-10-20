@@ -15,7 +15,6 @@ os:
   - linux
   - osx
 
-
 script:
 - cd wright
 - cargo build
@@ -24,18 +23,3 @@ script:
 matrix:
   allow_failures:
     - rust: nightly
-
-
-addons:
-  apt:
-    sources:
-      - llvm-toolchain-trusty-5.0
-    packages:
-      - clang-5.0
-      - llvm-5.0.0
-env:
-  global:
-    - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-
-before_install:
-    - eval "${MATRIX_EVAL}"
