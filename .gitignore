@@ -1,4 +1,4 @@
-target/
-Cargo.lock
-.project
+/wright/target/
+/wright/Cargo.lock
 .idea/
+/wright/wright.iml
