@@ -14,4 +14,4 @@ regex = "0.2"
 [[bin]]
 doc = false
 name = "wright"
-path = "src/main.rs"
+path = "src/wright.rs"

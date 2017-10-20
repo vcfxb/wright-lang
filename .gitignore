@@ -1,5 +1,4 @@
-/.idea/
-/.vscode/
-/wright/target/
-/wright/Cargo.lock
-/wright/wright.iml
+target/
+Cargo.lock
+.project
+.idea/
