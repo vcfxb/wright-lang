@@ -1,6 +1,5 @@
-//extern crate wright;
-
-use self::preproc::*;
+extern crate wright;
+use wright::preproc::*;
 #[test]
 fn single_line_comments() {
     assert_eq!(preproc("hey //comment".to_string()).last().unwrap().line, "hey ".to_string());

@@ -1,8 +1,8 @@
 extern crate wright;
 
 use std::{env, process};
-use self::argparse;
-use self::run;
+use wright::argparse;
+use wright::run;
 
 
 fn main() {
