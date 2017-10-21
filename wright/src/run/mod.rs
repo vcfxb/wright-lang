@@ -1,9 +1,8 @@
-use super::argparse::ProcessingMode;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{self, Write};
 use super::errors::*;
-use preproc;
+use super::preproc;
 
 struct IOError {
     info: String,
@@ -61,7 +60,7 @@ pub fn interactive() -> i32 { // the i32 is exit code
     }
 }
 
-pub fn interpret(p: ProcessingMode, input_file: String, opt: u8) -> i32 { // the i32 is exit code
+pub fn interpret(input_file: String) -> i32 { // the i32 is exit code
     let file_error = IOError::new("Could not open or read input file.".to_string(), WrightErrorLevels::Fatal);
     let mut input_f = if let Ok(n) = File::open(input_file) {
         n
@@ -76,27 +75,4 @@ pub fn interpret(p: ProcessingMode, input_file: String, opt: u8) -> i32 { // the
     };
     0
     // todo : analyse file in interpreted mode
-}
-
-pub fn compile(p: ProcessingMode, input_file: String, opt: u8, output: String) -> i32 { // the i32 is exit code
-    let file_error = IOError::new("Could not open or read input file.".to_string(), WrightErrorLevels::Fatal);
-    let file_creation_error = IOError::new("Could not create output file.".to_string(), WrightErrorLevels::Fatal);
-    let mut input_f = if let Ok(n) = File::open(input_file) {
-        n
-    } else {
-        return file_error.panic();
-    };
-    let mut input_file_contents = String::new();
-    if let Ok(_) = input_f.read_to_string(&mut input_file_contents) {
-        // do nothing and discard the number of bytes read.
-    } else {
-        return file_error.panic();
-    }
-    let mut output_f = if let Ok(n) = File::create(output) {
-        n
-    } else {
-        return file_creation_error.panic();
-    };
-    0
-    // todo: analyse file in compile mode
 }
