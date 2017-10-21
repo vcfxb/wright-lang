@@ -1,19 +1,16 @@
 extern crate wright;
 
 use std::{env, process};
-use wright::argparse;
+use wright::argparser;
 use wright::run;
 
 
 fn main() {
-    if let Some(i) = argparse::argparse(env::args()) {
-        //println!("{:?}", i);
-        if i.input == argparse::InputMode::Interactive {
+    if let Some(i) = argparser::argparse(env::args()) {
+        if i.input == argparser::InputMode::Interactive {
             process::exit(run::interactive());
-        } else if i.run {
-            process::exit(run::interpret(i.mode, i.file.unwrap(), i.optimization));
-        } else if let Some(out) = i.output {
-            process::exit(run::compile(i.mode, i.file.unwrap(), i.optimization, out));
+        } else if i.input == argparser::InputMode::File {
+            process::exit(run::interpret(i.file.unwrap()));
         }
     } else {
         process::exit(0);
