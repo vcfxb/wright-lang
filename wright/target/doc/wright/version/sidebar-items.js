@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["VERSION","`VERSION` const is a version constant in the form of a `&'static str`"]],"fn":[["get_version","`get_version()` returns Wright's version as a string. This should be identical to its version in cargo."]]});
