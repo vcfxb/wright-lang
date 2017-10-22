@@ -1,6 +1,25 @@
 // preprocessing function to remove comments from code and number the lines.
-pub fn preproc(input_string: String) -> Vec<NumberedString> {
-    let mut return_vec: Vec<NumberedString> = vec![NumberedString::new_empty(1)];
+
+#[derive(Debug, Clone)]
+/// `NumberedLine`s are the returned type of the preprocessor.
+/// They have all comments removed based on the profile used.
+/// Numbering for the `line_number` field stars at 1.
+pub struct NumberedLine {
+    pub line_number: u64,
+    pub line: String,
+}
+
+impl NumberedLine {
+    pub fn new(line_content: String, line_num: u64) -> NumberedLine {
+        NumberedLine {line: line_content, line_number: line_num}
+    }
+    pub fn new_empty(line_num: u64) -> NumberedLine {
+        NumberedLine::new("".to_string(), line_num)
+    }
+}
+
+pub fn preproc(input_string: String) -> Vec<NumberedLine> {
+    let mut return_vec: Vec<NumberedLine> = vec![NumberedLine::new_empty(1)];
     // no two will ever be true simultaneously.
     let mut in_quotes = false;
     let mut in_multiline_comment = false;
@@ -45,24 +64,9 @@ pub fn preproc(input_string: String) -> Vec<NumberedString> {
         }
         last_char = character;
         if character == '\n' {
-            return_vec.push(NumberedString::new_empty(line_number));
+            return_vec.push(NumberedLine::new_empty(line_number));
             line_number += 1;
         }
     }
     return return_vec;
-}
-
-#[derive(Debug, Clone)]
-pub struct NumberedString {
-    pub line_number: u64,
-    pub line: String,
-}
-
-impl NumberedString {
-    pub fn new(line_content: String, line_num: u64) -> NumberedString {
-        NumberedString {line: line_content, line_number: line_num}
-    }
-    pub fn new_empty(line_num: u64) -> NumberedString {
-        NumberedString::new("".to_string(), line_num)
-    }
 }
