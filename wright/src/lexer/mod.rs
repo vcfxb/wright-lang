@@ -1,6 +1,6 @@
-use preproc::NumberedString;
+use preproc::NumberedLine;
 
-pub fn lex_vec_numbered_line(lines: Vec<NumberedString>) { // todo: add return type
+pub fn lex_vec_numbered_line(lines: Vec<NumberedLine>) { // todo: add return type
     // this is the point where Some language syntax is defined
     // The docs for this syntax is somewhere in the
 }
