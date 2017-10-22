@@ -10,14 +10,16 @@ pub struct NumberedLine {
 }
 
 impl NumberedLine {
+    /// Default constructor.
     pub fn new(line_content: String, line_num: u64) -> NumberedLine {
         NumberedLine {line: line_content, line_number: line_num}
     }
+    /// Empty constructor.
     pub fn new_empty(line_num: u64) -> NumberedLine {
         NumberedLine::new("".to_string(), line_num)
     }
 }
-
+/// `preproc` removes all comments from code and numbers the lines.
 pub fn preproc(input_string: String) -> Vec<NumberedLine> {
     let mut return_vec: Vec<NumberedLine> = vec![NumberedLine::new_empty(1)];
     // no two will ever be true simultaneously.
@@ -66,6 +68,19 @@ pub fn preproc(input_string: String) -> Vec<NumberedLine> {
         if character == '\n' {
             return_vec.push(NumberedLine::new_empty(line_number));
             line_number += 1;
+        }
+    }
+    return return_vec;
+}
+/// `number_lines` numbers the lines, but does not remove comments.
+pub fn number_lines(input_string: String) -> Vec<NumberedLine> {
+    let mut line_number: u64 = 1;
+    let mut return_vec: Vec<NumberedLine> = vec![NumberedLine::new_empty(1)];
+    for character in input_string.as_str().chars() {
+        return_vec[(line_number-1) as usize].line.push(character);
+        if character == '\n' {
+            line_number += 1;
+            return_vec.push(NumberedLine::new_empty(line_number));
         }
     }
     return return_vec;
