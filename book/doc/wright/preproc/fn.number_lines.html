@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `VERSION` constant in crate `wright`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, VERSION">
+    <meta name="description" content="API documentation for the Rust `number_lines` fn in crate `wright`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, number_lines">
 
-    <title>wright::version::VERSION - Rust</title>
+    <title>wright::preproc::number_lines - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
@@ -17,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc constant">
+<body class="rustdoc fn">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -29,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>wright</a>::<wbr><a href='index.html'>version</a></p><script>window.sidebarCurrent = {name: 'VERSION', ty: 'constant', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='../index.html'>wright</a>::<wbr><a href='index.html'>preproc</a></p><script>window.sidebarCurrent = {name: 'number_lines', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -44,12 +44,12 @@
     </nav>
 
     <section id='main' class="content">
-<h1 class='fqn'><span class='in-band'>Constant <a href='../index.html'>wright</a>::<wbr><a href='index.html'>version</a>::<wbr><a class="constant" href=''>VERSION</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Function <a href='../index.html'>wright</a>::<wbr><a href='index.html'>preproc</a>::<wbr><a class="fn" href=''>number_lines</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/wright/version/mod.rs.html#2' title='goto source code'>[src]</a></span></h1>
-<pre class='rust const'>pub const VERSION: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a><code> = </code><code>&quot;0.0.5&quot;</code></pre><div class='docblock'><p><code>VERSION</code> const is a version constant in the form of a <code>&amp;&#39;static str</code></p>
+               </span><a class='srclink' href='../../src/wright/preproc/mod.rs.html#76-87' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn number_lines(input_string: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="../../wright/preproc/struct.NumberedLine.html" title="struct wright::preproc::NumberedLine">NumberedLine</a>&gt;</pre><div class='docblock'><p><code>number_lines</code> numbers the lines, but does not remove comments.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 
