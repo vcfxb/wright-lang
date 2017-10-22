@@ -1,4 +1,5 @@
-/wright/target/
+/wright/target/*
+!wright/target/doc/wright/
 /wright/Cargo.lock
 .idea/
 /wright/wright.iml
