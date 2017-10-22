@@ -1,5 +1,7 @@
 [package]
 name = "wright"
+description = "The Rust package for the wright language."
+licence = "MIT"
 version = "0.0.1"
 authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
 
