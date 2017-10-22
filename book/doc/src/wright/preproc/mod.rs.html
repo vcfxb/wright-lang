@@ -115,6 +115,21 @@
 <span id="70">70</span>
 <span id="71">71</span>
 <span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
 </pre><pre class="rust ">
 <span class="comment">// preprocessing function to remove comments from code and number the lines.</span>
 
@@ -128,14 +143,16 @@
 }
 
 <span class="kw">impl</span> <span class="ident">NumberedLine</span> {
+    <span class="doccomment">/// Default constructor.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">line_content</span>: <span class="ident">String</span>, <span class="ident">line_num</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">NumberedLine</span> {
         <span class="ident">NumberedLine</span> {<span class="ident">line</span>: <span class="ident">line_content</span>, <span class="ident">line_number</span>: <span class="ident">line_num</span>}
     }
+    <span class="doccomment">/// Empty constructor.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_empty</span>(<span class="ident">line_num</span>: <span class="ident">u64</span>) <span class="op">-&gt;</span> <span class="ident">NumberedLine</span> {
         <span class="ident">NumberedLine</span>::<span class="ident">new</span>(<span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">line_num</span>)
     }
 }
-
+<span class="doccomment">/// `preproc` removes all comments from code and numbers the lines.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preproc</span>(<span class="ident">input_string</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NumberedLine</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">return_vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NumberedLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NumberedLine</span>::<span class="ident">new_empty</span>(<span class="number">1</span>)];
     <span class="comment">// no two will ever be true simultaneously.</span>
@@ -188,7 +205,19 @@
     }
     <span class="kw">return</span> <span class="ident">return_vec</span>;
 }
-</pre>
+<span class="doccomment">/// `number_lines` numbers the lines, but does not remove comments.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">number_lines</span>(<span class="ident">input_string</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NumberedLine</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_number</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">return_vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NumberedLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">NumberedLine</span>::<span class="ident">new_empty</span>(<span class="number">1</span>)];
+    <span class="kw">for</span> <span class="ident">character</span> <span class="kw">in</span> <span class="ident">input_string</span>.<span class="ident">as_str</span>().<span class="ident">chars</span>() {
+        <span class="ident">return_vec</span>[(<span class="ident">line_number</span><span class="op">-</span><span class="number">1</span>) <span class="kw">as</span> <span class="ident">usize</span>].<span class="ident">line</span>.<span class="ident">push</span>(<span class="ident">character</span>);
+        <span class="kw">if</span> <span class="ident">character</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> {
+            <span class="ident">line_number</span> <span class="op">+=</span> <span class="number">1</span>;
+            <span class="ident">return_vec</span>.<span class="ident">push</span>(<span class="ident">NumberedLine</span>::<span class="ident">new_empty</span>(<span class="ident">line_number</span>));
+        }
+    }
+    <span class="kw">return</span> <span class="ident">return_vec</span>;
+}</pre>
 </section>
     <section id='search' class="content hidden"></section>
 
