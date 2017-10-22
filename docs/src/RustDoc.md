@@ -1,0 +1,1 @@
+[Rust Users Documentation](../wright/target/doc/wright/index.html)
