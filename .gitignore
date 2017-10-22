@@ -1,5 +1,6 @@
-/wright/target/
+/wright/target/release/
+/wright/target/debug/
+/wright/target/package/
 /wright/Cargo.lock
 .idea/
 /wright/wright.iml
-!/wright/target/doc/wright/
