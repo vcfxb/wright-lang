@@ -5,8 +5,9 @@ companies to complete many important tasks, from fun projects
 to powerful mathematical simulations to massive data driven analytics.
 
 The main issue with programming languages today is that sacrifices 
-are always made when choosing one. Pick C or C++ and despite their 
-considerable and impressive speeds, they lack in ease of use and expressiveness. 
+are always made when choosing one. Pick C or C++ and, despite their 
+considerable and impressive speeds, 
+they lack in ease of use and expressiveness. 
 It would be considerably difficult to write 
 something best written in Python in C. 
 Conversely, some languages, despite significant versatility, and ease of use 
@@ -28,8 +29,9 @@ that makes it easier for programmers to write robust, effective code,
 so does Wright.
 
 So no matter what you're using wright for, enjoy it.  
-Contribute to the project, through either issue reporting or actual 
-code contribution.
+
+Contributions to the project may be made through either issue 
+reporting or source code contribution.
 
 And above all,
 Thank You.

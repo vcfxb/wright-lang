@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["lex_vec_numbered_line",""]],"struct":[["LexResult",""]]});
+initSidebarItems({"fn":[["lex_lines","Lexer for wright. Splits input file into"]]});

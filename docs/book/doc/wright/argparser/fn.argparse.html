@@ -48,13 +48,10 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/wright/argparser/mod.rs.html#19-38' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn argparse(args: <a class="struct" href="https://doc.rust-lang.org/nightly/std/env/struct.Args.html" title="struct std::env::Args">Args</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../wright/argparser/struct.CourseOfAction.html" title="struct wright::argparser::CourseOfAction">CourseOfAction</a>&gt;</pre><div class='docblock'><p>Parse arguments passed to the wright command.
-Files must end with a <code>.wright</code> or <code>.wr</code> extension.
+               </span><a class='srclink' href='../../src/wright/argparser/mod.rs.html#8-29' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn argparse(args: <a class="struct" href="https://doc.rust-lang.org/nightly/std/env/struct.Args.html" title="struct std::env::Args">Args</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</pre><div class='docblock'><p>Parse arguments passed to the wright command.
 Returns <code>None</code> if there is no action to take after parsing arguments.
-Otherwise, it will return <code>Some(n)</code> where <code>n</code> is a <code>CourseOfAction</code> to be taken.
-Defaults to interactive &quot;REPL&quot; input when there is not a file argument.
-Otherwise wright will interpret the file.</p>
+Otherwise, it will return <code>Some(file)</code> where <code>file</code> is a String filename to be interpreted.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 

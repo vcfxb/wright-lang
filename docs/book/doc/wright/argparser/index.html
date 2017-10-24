@@ -29,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'>Module argparser</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>wright</a></p><script>window.sidebarCurrent = {name: 'argparser', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module argparser</p><div class="block items"><ul><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>wright</a></p><script>window.sidebarCurrent = {name: 'argparser', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -48,39 +48,17 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/wright/argparser/mod.rs.html#1-80' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../src/wright/argparser/mod.rs.html#1-48' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>The command line argument parser for Wright</p>
-</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class="struct" href="struct.CourseOfAction.html"
-                                  title='struct wright::argparser::CourseOfAction'>CourseOfAction</a></td>
-                           <td class='docblock-short'>
-                                <p>Determines the course of action for the wright interpreter to take,
-whether that&#39;s reading a file and evaluating its contents or
-reading from standard input.</p>
-                           </td>
-                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class="enum" href="enum.InputMode.html"
-                                  title='enum wright::argparser::InputMode'>InputMode</a></td>
-                           <td class='docblock-short'>
-                                <p>Two possible input modes: <code>File</code> for interpreting and running wright files
-and <code>Interactive</code> for running wright in interactive mode</p>
-                           </td>
-                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+</div><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class="fn" href="fn.argparse.html"
                                   title='fn wright::argparser::argparse'>argparse</a></td>
                            <td class='docblock-short'>
                                 <p>Parse arguments passed to the wright command.
-Files must end with a <code>.wright</code> or <code>.wr</code> extension.
 Returns <code>None</code> if there is no action to take after parsing arguments.
-Otherwise, it will return <code>Some(n)</code> where <code>n</code> is a <code>CourseOfAction</code> to be taken.
-Defaults to interactive &quot;REPL&quot; input when there is not a file argument.
-Otherwise wright will interpret the file.</p>
+Otherwise, it will return <code>Some(file)</code> where <code>file</code> is a String filename to be interpreted.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>

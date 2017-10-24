@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["argparser","The command line argument parser for Wright"],["errors",""],["lexer",""],["parser",""],["preproc",""],["run",""],["version",""]]});
+initSidebarItems({"mod":[["argparser","The command line argument parser for Wright"],["errors","Trait and Enum that make up the Wright interpreter error system. This is used all throughout the Wright project for error reporting and execution."],["lexer",""],["parser",""],["run",""],["version",""]]});

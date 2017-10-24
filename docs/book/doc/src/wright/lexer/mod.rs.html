@@ -55,18 +55,46 @@
 <span id="10">10</span>
 <span id="11">11</span>
 <span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
 </pre><pre class="rust ">
-<span class="kw">use</span> <span class="ident">preproc</span>::<span class="ident">NumberedLine</span>;
+<span class="comment">//extern crate regex;</span>
+<span class="comment">//use super::errors::*;</span>
+<span class="comment">//use self::regex::Regex;</span>
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lex_vec_numbered_line</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NumberedLine</span><span class="op">&gt;</span>) { <span class="comment">// todo: add return type</span>
-    <span class="comment">// this is the point where Some language syntax is defined</span>
-    <span class="comment">// The docs for this syntax is somewhere in the</span>
-}
+<span class="comment">// todo: docs</span>
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LexResult</span> {
-    <span class="comment">//in_quotation: bool,</span>
-    <span class="ident">content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">line_num</span>: <span class="ident">u64</span>,
+<span class="doccomment">/// Lexer for wright. Splits input file into</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lex_lines</span>(<span class="ident">lines</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="comment">// this is the point where some language syntax is defined</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret_vec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_word</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_char</span> <span class="op">=</span> <span class="string">&#39; &#39;</span>;
+    <span class="kw">for</span> <span class="ident">character</span> <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">as_str</span>().<span class="ident">chars</span>() {
+        <span class="kw">if</span> <span class="ident">character</span>.<span class="ident">is_alphabetic</span>() {
+            <span class="ident">current_word</span>.<span class="ident">push</span>(<span class="ident">character</span>);
+        } <span class="kw">else</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">current_word</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">ret_vec</span>.<span class="ident">push</span>(<span class="ident">current_word</span>);
+                <span class="ident">current_word</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+            }
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span>: [<span class="ident">u8</span>; <span class="number">4</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">4</span>];
+            <span class="ident">ret_vec</span>.<span class="ident">push</span>(<span class="ident">character</span>.<span class="ident">encode_utf8</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>).<span class="ident">to_string</span>());
+        }
+    }
+    <span class="kw">return</span> <span class="ident">ret_vec</span>;
 }</pre>
 </section>
     <section id='search' class="content hidden"></section>

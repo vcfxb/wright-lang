@@ -85,105 +85,32 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+<span class="comment">//use std::io::{self, Write};</span>
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">errors</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">preproc</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">lexer</span>;
 
-<span class="kw">struct</span> <span class="ident">IOError</span> {
+<span class="doccomment">/// Raised when Wright is unable to read from the given file.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IOError</span> {
     <span class="ident">info</span>: <span class="ident">String</span>,
     <span class="ident">error_type</span>: <span class="ident">String</span>,
     <span class="ident">level</span>: <span class="ident">WrightErrorLevels</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">WrightError</span> <span class="kw">for</span> <span class="ident">IOError</span> {
+    <span class="doccomment">/// Constructor.</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">i</span>: <span class="ident">String</span>, <span class="ident">l</span>: <span class="ident">WrightErrorLevels</span>) <span class="op">-&gt;</span> <span class="ident">IOError</span> {
         <span class="ident">IOError</span>{ <span class="ident">info</span>: <span class="ident">i</span>, <span class="ident">error_type</span>: <span class="string">&quot;IOError&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">level</span>: <span class="ident">l</span>}
     }
-    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">clone</span>()
-    }
-    <span class="kw">fn</span> <span class="ident">get_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">error_type</span>.<span class="ident">clone</span>()
-    }
-    <span class="kw">fn</span> <span class="ident">get_level</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">WrightErrorLevels</span> {
-        <span class="self">self</span>.<span class="ident">level</span>.<span class="ident">clone</span>()
-    }
+    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> { <span class="self">self</span>.<span class="ident">info</span>.<span class="ident">clone</span>() }
+    <span class="kw">fn</span> <span class="ident">get_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> { <span class="self">self</span>.<span class="ident">error_type</span>.<span class="ident">clone</span>() }
+    <span class="kw">fn</span> <span class="ident">get_level</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">WrightErrorLevels</span> { <span class="self">self</span>.<span class="ident">level</span>.<span class="ident">clone</span>() }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">interactive</span>() <span class="op">-&gt;</span> <span class="ident">i32</span> { <span class="comment">// the i32 is exit code</span>
-    <span class="comment">// interactive_session lifetime for</span>
-    <span class="kw">let</span> <span class="ident">prompt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="string">&quot;Wright&quot;</span>.<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_number</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">output_error</span> <span class="op">=</span> <span class="ident">IOError</span>::<span class="ident">new</span>(<span class="string">&quot;Could not write to Standard Output.&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">WrightErrorLevels</span>::<span class="ident">Fatal</span>);
-    <span class="kw">let</span> <span class="ident">input_error</span> <span class="op">=</span> <span class="ident">IOError</span>::<span class="ident">new</span>(<span class="string">&quot;Could not read from Standard Input.&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">WrightErrorLevels</span>::<span class="ident">Fatal</span>);
-    <span class="kw">let</span> <span class="ident">stdin</span> <span class="op">=</span> <span class="ident">io</span>::<span class="ident">stdin</span>();
-    <span class="lifetime">&#39;interactive_session</span>: <span class="kw">loop</span> {
-        <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{}:{} &gt;&gt;&gt; &quot;</span>, <span class="ident">prompt</span>, <span class="ident">line_number</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">io</span>::<span class="ident">stdout</span>().<span class="ident">flush</span>() {
-            <span class="comment">// Do nothing</span>
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="ident">output_error</span>.<span class="ident">panic</span>();
-        }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_buffer</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">stdin</span>.<span class="ident">read_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_buffer</span>) {
-            <span class="comment">// do nothing.</span>
-            <span class="comment">// discard returned value</span>
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="ident">input_error</span>.<span class="ident">panic</span>();
-        }
-        <span class="comment">// put analysis code here</span>
-        <span class="comment">// todo : analysis of interactive input.</span>
-        <span class="kw">let</span> <span class="ident">preprocessed_input</span> <span class="op">=</span> <span class="ident">preproc</span>::<span class="ident">preproc</span>(<span class="ident">input_buffer</span>);
-        <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">preprocessed_input</span>[<span class="number">0</span>].<span class="ident">line</span>);
-        <span class="comment">// end analysis here</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">io</span>::<span class="ident">stdout</span>().<span class="ident">flush</span>() {
-            <span class="comment">// Do nothing</span>
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="ident">output_error</span>.<span class="ident">panic</span>();
-        }
-        <span class="ident">line_number</span> <span class="op">+=</span> <span class="number">1</span>;
-    }
-}
-
+<span class="doccomment">/// Interprets the Wright file at the file name passed into the argument.</span>
+<span class="doccomment">/// Returns the operating system exit code (Generally 0 for a success, 1 for a failure.).</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">interpret</span>(<span class="ident">input_file</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> { <span class="comment">// the i32 is exit code</span>
     <span class="kw">let</span> <span class="ident">file_error</span> <span class="op">=</span> <span class="ident">IOError</span>::<span class="ident">new</span>(<span class="string">&quot;Could not open or read input file.&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">WrightErrorLevels</span>::<span class="ident">Fatal</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_f</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">input_file</span>) {
@@ -192,13 +119,14 @@
         <span class="kw">return</span> <span class="ident">file_error</span>.<span class="ident">panic</span>();
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_file_contents</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">input_f</span>.<span class="ident">read_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_file_contents</span>) {
-        <span class="comment">// do nothing and discard the number of bytes read.</span>
-    } <span class="kw">else</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">input_f</span>.<span class="ident">read_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_file_contents</span>) {} <span class="kw">else</span> {
         <span class="kw">return</span> <span class="ident">file_error</span>.<span class="ident">panic</span>();
     };
-    <span class="number">0</span>
-    <span class="comment">// todo : analyse file in interpreted mode</span>
+    <span class="comment">// work in progress</span>
+    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">lexer</span>::<span class="ident">lex_lines</span>(<span class="ident">input_file_contents</span>.<span class="ident">clone</span>()));
+
+    <span class="kw">return</span> <span class="number">0</span>;
+    <span class="comment">// assume success.</span>
 }</pre>
 </section>
     <section id='search' class="content hidden"></section>
