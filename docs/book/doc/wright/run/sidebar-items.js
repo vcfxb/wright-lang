@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["interactive",""],["interpret",""]]});
+initSidebarItems({"fn":[["interpret","Interprets the Wright file at the file name passed into the argument. Returns the operating system exit code (Generally 0 for a success, 1 for a failure.)."]],"struct":[["IOError","Raised when Wright is unable to read from the given file."]]});

@@ -63,12 +63,42 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
 </pre><pre class="rust ">
+<span class="doccomment">//! Trait and Enum that make up the Wright interpreter error system.</span>
+<span class="doccomment">//! This is used all throughout the Wright project for error reporting and execution.</span>
+
+<span class="doccomment">/// Trait for Wright&#39;s compiler errors.</span>
+<span class="doccomment">/// Each error should have its own implementation of this.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">WrightError</span> {
+    <span class="doccomment">/// The constructor method.</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">info</span>: <span class="ident">String</span>, <span class="ident">level</span>: <span class="ident">WrightErrorLevels</span>) <span class="op">-&gt;</span> <span class="self">Self</span>;
+    <span class="doccomment">/// Returns information about the error as a String.</span>
+    <span class="doccomment">/// Usually a formatted output statement referencing the line,</span>
+    <span class="doccomment">/// and sometimes location, where the error was raised.</span>
     <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
+    <span class="doccomment">/// Return the type of error, usually a short error name like</span>
+    <span class="doccomment">/// &quot;IOError&quot; or &quot;ParserError&quot;</span>
     <span class="kw">fn</span> <span class="ident">get_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
+    <span class="doccomment">/// Returns the error level as an instance of `WrightErrorLevels`</span>
     <span class="kw">fn</span> <span class="ident">get_level</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">WrightErrorLevels</span>;
+    <span class="doccomment">/// Executes the error, terminating the program and returning a failed exit code (1).</span>
     <span class="kw">fn</span> <span class="ident">panic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> {
         <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;
 {:?}:{}:
@@ -79,10 +109,14 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="doccomment">/// Levels of Wright&#39;s errors.</span>
+<span class="doccomment">/// Warning is for non-fatal interpreter warnings.</span>
+<span class="doccomment">/// Fatal is for process terminating interpreter errors.</span>
+<span class="doccomment">/// Panic is for fatal panics raised by the user program.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WrightErrorLevels</span> {
     <span class="ident">Warning</span>,
     <span class="ident">Fatal</span>,
-    <span class="ident">Compiler</span>,  <span class="comment">// Compiler error, not user error</span>
+    <span class="ident">Panic</span>,
 }</pre>
 </section>
     <section id='search' class="content hidden"></section>

@@ -48,14 +48,19 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/wright/errors/mod.rs.html#1-20' title='goto source code'>[src]</a></span></h1>
-<h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+               </span><a class='srclink' href='../../src/wright/errors/mod.rs.html#1-37' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Trait and Enum that make up the Wright interpreter error system.
+This is used all throughout the Wright project for error reporting and execution.</p>
+</div><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class="enum" href="enum.WrightErrorLevels.html"
                                   title='enum wright::errors::WrightErrorLevels'>WrightErrorLevels</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Levels of Wright&#39;s errors.
+Warning is for non-fatal interpreter warnings.
+Fatal is for process terminating interpreter errors.
+Panic is for fatal panics raised by the user program.</p>
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
@@ -63,7 +68,8 @@
                            <td><a class="trait" href="trait.WrightError.html"
                                   title='trait wright::errors::WrightError'>WrightError</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Trait for Wright&#39;s compiler errors.
+Each error should have its own implementation of this.</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
