@@ -48,8 +48,10 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/wright/lexer/mod.rs.html#8-26' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn lex_lines(lines: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</pre><div class='docblock'><p>Lexer for wright. Splits input file into</p>
+               </span><a class='srclink' href='../../src/wright/lexer/mod.rs.html#11-45' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn lex_lines(lines: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;</pre><div class='docblock'><p>Lexer for wright. Splits input file into a vector of strings
+(<code>Vec&lt;String&gt;</code>) for further processing. Preserves all original
+information, but groups by text, then numerically, then by whitespace.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 

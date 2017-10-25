@@ -48,14 +48,17 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../src/wright/lexer/mod.rs.html#7-26' title='goto source code'>[src]</a></span></h1>
-<h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+               </span><a class='srclink' href='../../src/wright/lexer/mod.rs.html#1-45' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Lexer module for Wright. Prepares the input file&#39;s content for parsing.</p>
+</div><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class="fn" href="fn.lex_lines.html"
                                   title='fn wright::lexer::lex_lines'>lex_lines</a></td>
                            <td class='docblock-short'>
-                                <p>Lexer for wright. Splits input file into</p>
+                                <p>Lexer for wright. Splits input file into a vector of strings
+(<code>Vec&lt;String&gt;</code>) for further processing. Preserves all original
+information, but groups by text, then numerically, then by whitespace.</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>

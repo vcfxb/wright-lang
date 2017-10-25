@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["lex_lines","Lexer for wright. Splits input file into"]]});
+initSidebarItems({"fn":[["lex_lines","Lexer for wright. Splits input file into a vector of strings (`Vec<String>`) for further processing. Preserves all original information, but groups by text, then numerically, then by whitespace."]]});
