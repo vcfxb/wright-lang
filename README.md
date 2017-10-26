@@ -3,6 +3,7 @@
 
 [![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
+
 Wright is a programming language 
 that is significantly influenced by:
 * Rust
