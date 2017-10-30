@@ -1,1 +1,1 @@
-# Wright Comments
+# Wright Syntax

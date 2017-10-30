@@ -1,31 +1,32 @@
 use std::fs::File;
 use std::io::prelude::*;
 //use std::io::{self, Write};
-use super::errors::*;
-use super::lexer;
+use super::interpreter;
 
-/// Raised when Wright is unable to read from the given file.
-pub struct IOError {
+struct IOError {
     info: String,
     error_type: String,
-    level: WrightErrorLevels,
+    level: String,
 }
 
-impl WrightError for IOError {
-    /// Constructor.
-    fn new(i: String, l: WrightErrorLevels) -> IOError {
+impl IOError {
+    fn new(i: String, l: String) -> IOError {
         IOError{ info: i, error_type: "IOError".to_string(), level: l}
     }
-    fn get_info(&self) -> String { self.info.clone() }
-    fn get_type(&self) -> String { self.error_type.clone() }
-    fn get_level(&self) -> WrightErrorLevels { self.level.clone() }
+    fn panic(&self) -> i32 {
+        println!("
+{}:{}:
+    {}
+        ", self.level, self.error_type, self.info);
+        return 1;
+    }
 }
 
 /// Interprets the Wright file at the file name passed into the argument.
 /// Returns the operating system exit code (Generally 0 for a success, 1 for a failure.).
-pub fn interpret(input_file: String) -> i32 { // the i32 is exit code
-    let file_error = IOError::new("Could not open or read input file.".to_string(), WrightErrorLevels::Fatal);
-    let mut input_f = if let Ok(n) = File::open(input_file) {
+pub fn interpret_file(input_file: String) -> i32 { // the i32 is exit code
+    let file_error = IOError::new("Could not open or read input file.".to_string(), "Fatal".to_string());
+    let mut input_f = if let Ok(n) = File::open(input_file.clone()) {
         n
     } else {
         return file_error.panic();
@@ -34,9 +35,8 @@ pub fn interpret(input_file: String) -> i32 { // the i32 is exit code
     if let Ok(_) = input_f.read_to_string(&mut input_file_contents) {} else {
         return file_error.panic();
     };
-    // work in progress
-    println!("{:?}", lexer::lex_lines(input_file_contents.clone()));
-
+    let call: interpreter::Interpreter = interpreter::Interpreter::new(input_file, input_file_contents);
+    // todo: CallHandler
     return 0;
     // assume success.
 }
