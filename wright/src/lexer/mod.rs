@@ -1,45 +1,58 @@
-//! Lexer module for Wright. Prepares the input file's content for parsing.
-//!
+//! Lexer Module.
 
-extern crate regex;
-//use super::errors::*;
-use self::regex::Regex;
+#[derive(Default,Debug)]
+/// Position of the reading head in the file, indexed starting at 1.
+/// Mainly for user interfacing.
+pub struct Position {
+    line: u64,
+    col: u64,
+}
 
-/// Lexer for wright. Splits input file into a vector of strings
-/// (`Vec<String>`) for further processing. Preserves all original
-/// information, but groups by text, then numerically, then by whitespace.
-pub fn lex_lines(lines: String) -> Vec<String> {
-    // this is the point where some language syntax is defined
-    let mut ret_vec: Vec<String> = vec![];
-    let mut current_word: String = String::new();
-    // first pass
-    for character in lines.as_str().chars() {
-        if character.is_alphabetic() {
-            current_word.push(character);
-        } else {
-            if !current_word.is_empty() {
-                ret_vec.push(current_word);
-                current_word = String::new();
-            }
-            let mut buffer: [u8; 4] = [0; 4];
-            ret_vec.push(character.encode_utf8(&mut buffer).to_string());
-        }
+impl Position {
+    pub fn initial() -> Position {
+        Position { line: 1, col: 1, }
     }
-    // second pass
-    let first_vec = ret_vec;
-    ret_vec = vec![];
-    current_word = String::new();
-    let digit_regex = Regex::new(r"[[:digit:]]").unwrap();
-    for word in first_vec {
-        if digit_regex.is_match(&word) {
-            current_word.push_str(&word);
-        } else {
-            if !current_word.is_empty() {
-                ret_vec.push(current_word);
-                current_word = String::new();
-            }
-            ret_vec.push(word);
-        }
+    pub fn increment_line(&mut self) {
+        self.line += 1;
+        self.col = 1;
     }
-    return ret_vec;
+    pub fn increment_column(&mut self) {
+        self.col += 1;
+    }
+    pub fn get_line(&self) -> u64 { self.line }
+    pub fn get_col(&self) -> u64 { self.col }
+}
+
+/// Checks if a char is a digit
+pub fn is_digit(c: char) -> bool { c >= '0' && c <= '9' }
+
+/// Checks if a char is a hexadecimal digit.
+pub fn is_hex_digit(c: char) -> bool {
+    is_digit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+}
+
+/// Checks if a char is a binary digit.
+pub fn is_bin_digit(c: char) -> bool { c == '0' || c == '1' }
+
+/// Checks if a char is in the alphabet.
+pub fn is_alpha(c: char) -> bool { (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') }
+
+/// Checks if a char is alphnumeric.
+pub fn is_alphanumeric(c: char) -> bool { is_digit(c) || is_alpha(c) }
+
+/// Checks if a char is whitespace.
+pub fn is_whitespace(c: char) -> bool {
+    match c {
+        ' ' | '\r' | '\t' | '\n' => true,
+        _ => false,
+    }
+}
+
+#[derive(Debug)]
+// todo: Docs
+///
+pub struct Lexer {
+    current_position: Position,
+    current_lexeme: String,
+    source: String
 }
