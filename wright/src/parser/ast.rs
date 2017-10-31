@@ -1,5 +1,5 @@
 /// Empty trait to define an expression superclass.
-pub trait Expr: Statement {}
+pub trait Expr {}
 
 #[derive(Debug)]
 /// Unary Operators
@@ -10,7 +10,7 @@ pub enum UnaryOperator {
 impl Expr for UnaryOperator {}
 
 /// Empty trait to help define BinaryOperator as a superclass.
-pub trait BinaryOperator: Expr {}
+pub trait BinaryOperator {}
 
 #[derive(Debug)]
 /// Binary Operators
@@ -57,16 +57,16 @@ impl BinaryOperator for RelationalOperators {}
 /// Unary Expression.
 pub struct UnaryExpr {
     pub operator: UnaryOperator,
-    pub left: Expr,
+    pub right: Box<Expr>,
 }
 impl Expr for UnaryExpr {}
 
 #[derive(Debug)]
 /// Binary Expression.
 pub struct BinaryExpr{
-    pub left: Expr,
-    pub operator: BinaryOperator,
-    pub right: Expr,
+    pub left: Box<Expr>,
+    pub operator: Box<BinaryOperator>,
+    pub right: Box<Expr>,
 }
 impl Expr for BinaryExpr {}
 
@@ -90,12 +90,14 @@ impl Expr for Identifier {}
 /// Function call.
 pub struct Call {
     pub callee: String,
-    pub args: Vec<Expr>,
+    pub args: Vec<Box<Expr>>,
 }
 impl Expr for Call {}
 
 /// Empty trait for statements.
 pub trait Statement {}
+/// All expressions can be converted to statements.
+impl<T: Expr> Statement for T {}
 
 #[derive(Debug)]
 /// Different types of assignments, one for mutability, the other for immutability.
@@ -116,14 +118,14 @@ impl Statement for Assignment {}
 #[derive(Debug)]
 /// Block of statements
 pub struct Block {
-    pub statements: Vec<Statement>,
+    pub statements: Vec<Box<Statement>>,
 }
 impl Expr for Block {}
 
 #[derive(Debug)]
 /// Single conditional statement.
 pub struct Condition {
-    pub condition: Expr,
+    pub condition: Box<Expr>,
     pub block: Block,
 }
 impl Expr for Condition {}
@@ -138,7 +140,7 @@ impl Expr for Conditional {}
 #[derive(Debug)]
 /// While loop struct.
 pub struct WhileLoop {
-    pub condition: Expr,
+    pub condition: Box<Expr>,
     pub block: Block,
 }
 impl Statement for WhileLoop {}
@@ -146,7 +148,7 @@ impl Statement for WhileLoop {}
 #[derive(Debug)]
 /// For loop struct.
 pub struct ForLoop {
-    pub assignment: Assignment,
+    pub assignment: Box<Assignment>,
     pub source_var: Identifier,
     pub block: Block,
 }
@@ -157,7 +159,7 @@ impl Statement for ForLoop {}
 pub struct FunctionDefinition {
     pub id: Identifier,
     pub function_type: Option<String>,
-    pub args: Vec<Expr>,
+    pub args: Vec<Box<Expr>>,
     pub block: Block,
 }
 impl Statement for FunctionDefinition {}
