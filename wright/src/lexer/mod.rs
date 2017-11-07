@@ -29,7 +29,7 @@ impl Lexer {
     pub fn lex(&mut self) -> Result<(), LexerError> {
         let mut current_token = String::new();
         let chars = self.source.chars();
-
+        // todo
         Ok(())
     }
 
