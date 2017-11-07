@@ -1,58 +1,82 @@
 //! Lexer Module.
+use std::fmt;
+/// Module used for tracking read-head position in file.
+pub mod position;
+use lexer::position::*;
+/// Module of functions for checking characters.
+pub mod char_tests;
+use lexer::char_tests::*;
 
-#[derive(Default,Debug)]
-/// Position of the reading head in the file, indexed starting at 1.
-/// Mainly for user interfacing.
-pub struct Position {
-    line: u64,
-    col: u64,
-}
-
-impl Position {
-    pub fn initial() -> Position {
-        Position { line: 1, col: 1, }
-    }
-    pub fn increment_line(&mut self) {
-        self.line += 1;
-        self.col = 1;
-    }
-    pub fn increment_column(&mut self) {
-        self.col += 1;
-    }
-    pub fn get_line(&self) -> u64 { self.line }
-    pub fn get_col(&self) -> u64 { self.col }
-}
-
-/// Checks if a char is a digit
-pub fn is_digit(c: char) -> bool { c >= '0' && c <= '9' }
-
-/// Checks if a char is a hexadecimal digit.
-pub fn is_hex_digit(c: char) -> bool {
-    is_digit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
-}
-
-/// Checks if a char is a binary digit.
-pub fn is_bin_digit(c: char) -> bool { c == '0' || c == '1' }
-
-/// Checks if a char is in the alphabet.
-pub fn is_alpha(c: char) -> bool { (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') }
-
-/// Checks if a char is alphnumeric.
-pub fn is_alphanumeric(c: char) -> bool { is_digit(c) || is_alpha(c) }
-
-/// Checks if a char is whitespace.
-pub fn is_whitespace(c: char) -> bool {
-    match c {
-        ' ' | '\r' | '\t' | '\n' => true,
-        _ => false,
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 // todo: Docs
 ///
 pub struct Lexer {
     current_position: Position,
-    current_lexeme: String,
-    source: String
+    pub source: String,
+    pub tokens: Vec<String>,
+}
+
+impl Lexer {
+    /// Constructor
+    pub fn new(content: String) -> Self {
+        Lexer {
+            current_position: Position::new(),
+            source: content,
+            tokens: vec![],
+        }
+    }
+    /// Tokenizes `self.source` and stores to `self.tokens`.
+    pub fn lex(&mut self) -> Result<(), LexerError> {
+        let mut current_token = String::new();
+        let chars = self.source.chars();
+
+        Ok(())
+    }
+
+}
+
+#[derive(Debug, Clone)]
+/// Structure for lexer errors.
+pub struct LexerError {
+    pub position: Position,
+    pub info: String,
+    pub line: String,
+    // not pub; access only in this mod.
+    arrow_str: String
+}
+
+impl LexerError {
+    /// Constructor.
+    pub fn new(arg_position: Position, current_line: String) -> Self {
+        LexerError {
+            position: arg_position,
+            info: String::new(),
+            line: current_line,
+            arrow_str: String::new()
+        }
+    }
+    /// Sets info string based on an expected character and the character that was found.
+    /// Auto-generates error message.
+    pub fn set_info(&mut self, expected: char, found: char) {
+        self.info = format!("Expected {:?} found {:?}. ", expected, found);
+        let current_line_borrow = self.line.clone();
+        for c in current_line_borrow.chars().take(self.position.col-1) {
+            match c {
+                '\t' => self.arrow_str.push('\t'),
+                _ =>  self.arrow_str.push(' '),
+            }
+        }
+        self.arrow_str.push('^');
+    }
+}
+
+impl fmt::Display for LexerError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "LexerError: line {}, column {}: {}\n\t{}\n\t{}",
+                self.position.line,
+                self.position.col,
+                self.info,
+                self.line,
+                self.arrow_str)
+    }
 }

@@ -32,7 +32,7 @@ The core ideals of the language are:
 Wright promotes a happy and healthy community that is free of bullying and discrimination. 
 
 ### Dependencies:
-* Rust (1.15.0 or greater)
+* Rust (1.16.0 or greater)
 
 ## [See Wright Docs for more info.](https://alfriadox.github.io/Wright-lang/)
 #### Note: The makefile in the repository's root is for documentation purposes and will not build the project. 

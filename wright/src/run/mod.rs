@@ -35,8 +35,8 @@ pub fn interpret_file(input_file: String) -> i32 { // the i32 is exit code
     if let Ok(_) = input_f.read_to_string(&mut input_file_contents) {} else {
         return file_error.panic();
     };
-    let call: interpreter::Interpreter = interpreter::Interpreter::new(input_file, input_file_contents);
-    // todo: CallHandler
+    let mut call: interpreter::Interpreter = interpreter::Interpreter::new(input_file, input_file_contents);
+    call.run();
     return 0;
     // assume success.
 }
