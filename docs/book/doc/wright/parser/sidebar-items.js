@@ -1,1 +1,1 @@
-initSidebarItems({});
+initSidebarItems({"enum":[["ParserError",""]],"mod":[["ast","Abstract Syntax Tree Representation"]],"struct":[["Parser","Parser struct."]]});

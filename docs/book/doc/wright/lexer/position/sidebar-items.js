@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Position","Position of the reading head in the file, indexed starting at 1. Mainly for user interfacing."]]});
