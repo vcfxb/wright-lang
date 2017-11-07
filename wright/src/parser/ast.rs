@@ -99,7 +99,7 @@ pub struct Call {
 }
 
 #[derive(Debug, Clone)]
-/// Union for statements.
+/// Enum for statements.
 pub enum Statement {
     // no conditionals; they are in Expr
     Block(Block),
@@ -109,6 +109,8 @@ pub enum Statement {
     ForLoop(ForLoop),
     FnDef(FunctionDefinition),
     ClassDef(ClassDeclaration),
+    TraitDef(TraitDeclaration),
+    EnumDef(EnumDeclaration),
     ConstDef(Constant),
     Return(Return),
     Break(Break),
@@ -176,7 +178,22 @@ pub struct FunctionDefinition {
 /// Class declaration struct.
 pub struct ClassDeclaration {
     pub id: Identifier,
+    pub traits_implemented: Vec<Identifier>,
     pub block: Block,
+}
+
+#[derive(Debug, Clone)]
+/// Class declaration struct.
+pub struct TraitDeclaration {
+    pub id: Identifier,
+    pub block: Block,
+}
+
+#[derive(Debug, Clone)]
+/// Class declaration struct.
+pub struct EnumDeclaration {
+    pub id: Identifier,
+    pub variants: Block,
 }
 
 #[derive(Debug, Clone)]
@@ -204,7 +221,7 @@ pub struct Break {
 //  (empty)
 pub struct Continue {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Module struct
 /// Module is not in `Statement` because
 /// users should not be able to define modules in a file.
