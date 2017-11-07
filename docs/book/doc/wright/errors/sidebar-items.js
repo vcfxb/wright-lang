@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["WrightErrorLevels","Levels of Wright's errors. Warning is for non-fatal interpreter warnings. Fatal is for process terminating interpreter errors. Panic is for fatal panics raised by the user program."]],"trait":[["WrightError","Trait for Wright's compiler errors. Each error should have its own implementation of this."]]});

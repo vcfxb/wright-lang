@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["lex_lines","Lexer for wright. Splits input file into a vector of strings (`Vec<String>`) for further processing. Preserves all original information, but groups by text, then numerically, then by whitespace."]]});
+initSidebarItems({"mod":[["char_tests","Module of functions for checking characters."],["position","Module used for tracking read-head position in file."]],"struct":[["Lexer",""],["LexerError","Structure for lexer errors."]]});
