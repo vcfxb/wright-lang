@@ -1,14 +1,14 @@
 //! Interpreter module.
 //!
-use super::parser;
+use super::parser::Parser;
 
 #[derive(Debug)]
 /// Interpreter struct
 pub struct Interpreter {
     file_name: String,
     content: String,
-    imports: Box<Vec<Interpreter>>,
-    parser: parser::Parser,
+    imports: Vec<Box<Interpreter>>,
+    parser: Parser,
 }
 
 impl Interpreter {
@@ -17,7 +17,8 @@ impl Interpreter {
         Interpreter {
             file_name: arg_file_name,
             content: arg_content,
-            imports: Box::new(vec![]),
+            imports: vec![],
+            parser: Parser::new()
         }
     }
     /// File name accessor.

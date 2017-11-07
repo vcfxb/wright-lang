@@ -4,6 +4,8 @@
 //use self::regex::Regex;
 mod ast;
 use super::lexer;
+
+#[derive(Debug, Clone)]
 /// Parser struct.
 pub struct Parser {
     // todo: parser
@@ -11,7 +13,10 @@ pub struct Parser {
 
 impl Parser {
     pub fn parse(&mut self) -> Result<ast::Module, Vec<ParserError>> {
-        // todo: parser
+        Ok(ast::Module::new("".to_string()))
+    }
+    pub fn new() -> Self {
+        Parser {}
     }
 }
 
