@@ -16,8 +16,6 @@ impl Position {
     pub fn new() -> Position {
         Position { line: 1, col: 1, }
     }
-    /// Resets `self` to `self::new()`
-    pub fn initial(&mut self) { self.line = 1; self.col = 1; }
     /// Increments internal line counter.
     pub fn increment_line(&mut self) {
         self.line += 1;
