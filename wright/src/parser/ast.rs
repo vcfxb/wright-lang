@@ -1,19 +1,39 @@
-/// Empty trait to define an expression superclass.
-pub trait Expr {}
+#[derive(Clone, Debug)]
+/// Expression enum.
+pub enum Expr {
+    Unary(UnaryExpr),
+    Binary(BinaryExpr),
+    Literal(Literal),
+    Identifier(Identifier),
+    FunctionCall(Call),
+    SingleCondition(Condition),
+    Conditional(Conditional),
+}
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// Unary Operators
 pub enum UnaryOperator {
     Not,
     Negative,
 }
-impl Expr for UnaryOperator {}
 
-/// Empty trait to help define BinaryOperator as a superclass.
-pub trait BinaryOperator {}
+#[derive(Debug, Clone)]
+/// Unary Expression.
+pub struct UnaryExpr {
+    pub operator: UnaryOperator,
+    pub right: Box<Expr>,
+}
 
-#[derive(Debug)]
-/// Binary Operators
+#[derive(Copy, Clone, Debug)]
+/// Enum representing binary operators.
+pub enum BinaryOperator {
+    Arithmetic(ArithmeticOperator),
+    Logical(LogicalOperator),
+    Relational(RelationalOperator),
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+/// Arithmetic Operators
 pub enum ArithmeticOperator {
     Add,
     Subtract,
@@ -28,9 +48,8 @@ pub enum ArithmeticOperator {
     Increment,
     Decrement,
 }
-impl BinaryOperator for ArithmeticOperator {}
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// Logical Operators
 pub enum LogicalOperator {
     And,
@@ -39,11 +58,10 @@ pub enum LogicalOperator {
     ShortAnd,
     ShortOr,
 }
-impl BinaryOperator for LogicalOperator {}
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// Relational Operators
-pub enum RelationalOperators {
+pub enum RelationalOperator {
     Equal,
     NotEqual,
     GreaterThan,
@@ -51,148 +69,156 @@ pub enum RelationalOperators {
     GreaterOrEqual,
     LessOrEqual,
 }
-impl BinaryOperator for RelationalOperators {}
 
-#[derive(Debug)]
-/// Unary Expression.
-pub struct UnaryExpr {
-    pub operator: UnaryOperator,
-    pub right: Box<Expr>,
-}
-impl Expr for UnaryExpr {}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Binary Expression.
-pub struct BinaryExpr{
+pub struct BinaryExpr {
     pub left: Box<Expr>,
-    pub operator: Box<BinaryOperator>,
+    pub operator: BinaryOperator,
     pub right: Box<Expr>,
 }
-impl Expr for BinaryExpr {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Literal struct.
 pub struct Literal {
-    /// For type inference, when and where possible.
-    pub literal_type: Option<String>,
     pub literal: String,
 }
-impl Expr for Literal {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Identifier struct.
 pub struct Identifier {
     pub id: String,
+    pub declared_type: Option<String>,
 }
-impl Expr for Identifier {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Function call.
 pub struct Call {
-    pub callee: String,
+    pub callee: Identifier,
     pub args: Vec<Box<Expr>>,
 }
-impl Expr for Call {}
 
-/// Empty trait for statements.
-pub trait Statement {}
-/// All expressions can be converted to statements.
-impl<T: Expr> Statement for T {}
+#[derive(Debug, Clone)]
+/// Union for statements.
+pub enum Statement {
+    // no conditionals; they are in Expr
+    Block(Block),
+    Expression(Expr),
+    Assignment(Assignment),
+    WhileLoop(WhileLoop),
+    ForLoop(ForLoop),
+    FnDef(FunctionDefinition),
+    ClassDef(ClassDeclaration),
+    ConstDef(Constant),
+    Return(Return),
+    Break(Break),
+    Continue(Continue),
+}
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 /// Different types of assignments, one for mutability, the other for immutability.
-pub enum Assign {
+pub enum Assigner {
     Let,
     Var,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Assignment statement.
 pub struct Assignment {
     pub left: Identifier,
-    pub assign_type: Assign,
-    pub right: Expr,
+    pub assign_type: Assigner,
+    pub right: Box<Expr>,
 }
-impl Statement for Assignment {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Block of statements
 pub struct Block {
     pub statements: Vec<Box<Statement>>,
 }
-impl Expr for Block {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Single conditional statement.
 pub struct Condition {
     pub condition: Box<Expr>,
     pub block: Block,
 }
-impl Expr for Condition {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Conditional block
 pub struct Conditional {
     pub conditions: Vec<Condition>,
 }
-impl Expr for Conditional {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// While loop struct.
 pub struct WhileLoop {
     pub condition: Box<Expr>,
     pub block: Block,
 }
-impl Statement for WhileLoop {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// For loop struct.
 pub struct ForLoop {
-    pub assignment: Box<Assignment>,
+    pub assignment: Box<Expr>,
     pub source_var: Identifier,
     pub block: Block,
 }
-impl Statement for ForLoop {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Function defining struct.
 pub struct FunctionDefinition {
     pub id: Identifier,
-    pub function_type: Option<String>,
     pub args: Vec<Box<Expr>>,
     pub block: Block,
 }
-impl Statement for FunctionDefinition {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Class declaration struct.
 pub struct ClassDeclaration {
     pub id: Identifier,
     pub block: Block,
 }
-impl Statement for ClassDeclaration {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Constant struct.
 pub struct Constant {
     pub id: Identifier,
-    pub val: Expr,
+    pub val: Box<Expr>,
 }
-impl Statement for Constant {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// Return statement struct.
 pub struct Return {
-    pub val: Expr
+    pub val: Box<Expr>
 }
-impl Statement for Return {}
+
+#[derive(Debug, Clone)]
+/// Break statement struct.
+pub struct Break {
+    pub identifier: Identifier,
+    pub val: Box<Expr>,
+}
+
+#[derive(Debug, Copy, Clone)]
+/// Continue statement struct.
+//  (empty)
+pub struct Continue {}
 
 #[derive(Debug)]
 /// Module struct
-/// Module does not implement `Statement` because
+/// Module is not in `Statement` because
 /// users should not be able to define modules in a file.
 /// Each Wright file should be it's own independent Module.
 pub struct Module {
     pub id: Identifier,
     pub content: Block,
+}
+
+impl Module {
+    pub fn new(name: String) -> Self {
+        Module {
+            id: Identifier{id: name, declared_type: None},
+            content: Block{statements: vec![]}
+        }
+    }
 }
