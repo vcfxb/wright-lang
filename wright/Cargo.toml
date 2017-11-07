@@ -2,7 +2,7 @@
 name = "wright"
 description = "The Rust package for the wright language."
 license = "MIT"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
 repository = "https://github.com/Alfriadox/Wright-lang"
 documentation = "https://alfriadox.github.io/Wright-lang"
