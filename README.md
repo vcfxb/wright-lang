@@ -4,32 +4,24 @@
 [![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
 
-Wright is a programming language 
-that is significantly influenced by:
+##### Wright is a programming language that is inspired by
 * Rust
 * Java
-* Haskell
-* C / C++
 * Python
 
-Wright is a high-level language that can be either interpreted 
-or compiled and uses llvm for optimizations in order to make it as 
-fast as possible. 
+##### The core characteristics of the language:
+* It's easy to learn
+* Robust
+* Fast
+* Memory Safe
 
-The core ideals of the language are:
-* Ease of use:
-    * Wright should be as easy to pick up and use as Python
-* Power:
-    * Wright should be able to do as much as C / C++ and Haskell and more
-* Speed: 
-    * Wright should be as fast as possible, at minimum being comparable to 
-    Python, and hopefully closer to Rust and C in most cases.
-* Safety:
-    * Wright should inherit the resource safety that Rust is known for.
-    
-    
-### Community:
-Wright promotes a happy and healthy community that is free of bullying and discrimination. 
+##### It functions on a system of
+* Strong typing
+* Static typing
+* Parametric polymorphism
+* Object-Oriented programming
+* Functional programming
+* Procedural programming
 
 ### Dependencies:
 * Rust (1.16.0 or greater)

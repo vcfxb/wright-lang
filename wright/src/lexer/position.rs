@@ -13,9 +13,7 @@ impl Default for Position {
 
 impl Position {
     /// Constructor, setting read-head at beginning of file.
-    pub fn new() -> Position {
-        Position { line: 1, col: 1, }
-    }
+    pub fn new() -> Self { Position { line: 1, col: 1, } }
     /// Increments internal line counter.
     pub fn increment_line(&mut self) {
         self.line += 1;
