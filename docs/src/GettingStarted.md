@@ -1,6 +1,7 @@
 # Getting Started
 ### Downloading and installing Wright
-Wright's only system prerequisite is the Rust language.
+Wright's only system prerequisite is the Rust language 
+(see the README on GitHub for which version is required at minimum).
 After that's installed, a simple
 ```bash
 cargo install wright

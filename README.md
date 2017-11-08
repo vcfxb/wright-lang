@@ -24,7 +24,7 @@
 * Procedural programming
 
 ### Dependencies:
-* Rust (1.16.0 or greater)
+* Rust (1.21.0 or greater)
 
 ## [See Wright Docs for more info.](https://alfriadox.github.io/Wright-lang/)
 #### Note: The makefile in the repository's root is for documentation purposes and will not build the project. 
