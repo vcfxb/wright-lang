@@ -73,10 +73,17 @@
 <span id="28">28</span>
 <span id="29">29</span>
 <span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Interpreter module.</span>
 <span class="doccomment">//!</span>
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">parser</span>::<span class="ident">Parser</span>;
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">lexer</span>::<span class="ident">Lexer</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="doccomment">/// Interpreter struct</span>
@@ -84,7 +91,8 @@
     <span class="ident">file_name</span>: <span class="ident">String</span>,
     <span class="ident">content</span>: <span class="ident">String</span>,
     <span class="ident">imports</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Interpreter</span><span class="op">&gt;&gt;</span>,
-    <span class="ident">parser</span>: <span class="ident">Parser</span>,
+    <span class="ident">parser</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Parser</span><span class="op">&gt;</span>,
+    <span class="ident">lexer</span>: <span class="ident">Lexer</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Interpreter</span> {
@@ -94,14 +102,18 @@
             <span class="ident">file_name</span>: <span class="ident">arg_file_name</span>.<span class="ident">clone</span>(),
             <span class="ident">content</span>: <span class="ident">arg_content</span>.<span class="ident">clone</span>(),
             <span class="ident">imports</span>: <span class="macro">vec</span><span class="macro">!</span>[],
-            <span class="ident">parser</span>: <span class="ident">Parser</span>::<span class="ident">new</span>(<span class="ident">arg_file_name</span>, <span class="ident">arg_content</span>),
+            <span class="ident">parser</span>: <span class="prelude-val">None</span>,
+            <span class="ident">lexer</span>: <span class="ident">Lexer</span>::<span class="ident">new</span>(<span class="ident">arg_content</span>),
         }
     }
     <span class="doccomment">/// File name accessor.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> { <span class="kw">return</span> <span class="self">self</span>.<span class="ident">file_name</span>.<span class="ident">clone</span>();}
     <span class="doccomment">/// Interpreter execution function</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-       <span class="self">self</span>.<span class="ident">parser</span>.<span class="ident">parse</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="kw-2">mut</span> <span class="ident">e</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lexer</span>.<span class="ident">lex</span>() {
+            <span class="ident">e</span>.<span class="ident">module_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">file_name</span>.<span class="ident">clone</span>();
+            <span class="number">1</span>
+        } <span class="kw">else</span> {<span class="number">0</span>}
     }
 }</pre>
 </section>
