@@ -80,11 +80,6 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
@@ -93,19 +88,14 @@
 
 <span class="kw">struct</span> <span class="ident">IOError</span> {
     <span class="ident">info</span>: <span class="ident">String</span>,
-    <span class="ident">error_type</span>: <span class="ident">String</span>,
-    <span class="ident">level</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">IOError</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">i</span>: <span class="ident">String</span>, <span class="ident">l</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">IOError</span> {
-        <span class="ident">IOError</span>{ <span class="ident">info</span>: <span class="ident">i</span>, <span class="ident">error_type</span>: <span class="string">&quot;IOError&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">level</span>: <span class="ident">l</span>}
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">i</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">IOError</span> {
+        <span class="ident">IOError</span>{<span class="ident">info</span>: <span class="ident">i</span>}
     }
     <span class="kw">fn</span> <span class="ident">panic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;
-{}:{}:
-    {}
-        &quot;</span>, <span class="self">self</span>.<span class="ident">level</span>, <span class="self">self</span>.<span class="ident">error_type</span>, <span class="self">self</span>.<span class="ident">info</span>);
+        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;\nArgumentError:\n\t{}&quot;</span>, <span class="self">self</span>.<span class="ident">info</span>);
         <span class="kw">return</span> <span class="number">1</span>;
     }
 }
@@ -113,7 +103,8 @@
 <span class="doccomment">/// Interprets the Wright file at the file name passed into the argument.</span>
 <span class="doccomment">/// Returns the operating system exit code (Generally 0 for a success, 1 for a failure.).</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">interpret_file</span>(<span class="ident">input_file</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> { <span class="comment">// the i32 is exit code</span>
-    <span class="kw">let</span> <span class="ident">file_error</span> <span class="op">=</span> <span class="ident">IOError</span>::<span class="ident">new</span>(<span class="string">&quot;Could not open or read input file.&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;Fatal&quot;</span>.<span class="ident">to_string</span>());
+    <span class="kw">let</span> <span class="ident">file_error</span> <span class="op">=</span> <span class="ident">IOError</span>::<span class="ident">new</span>(<span class="string">&quot;Could not read input file.&quot;</span>.<span class="ident">to_string</span>());
+    <span class="comment">// set input file if it can be opened</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_f</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">input_file</span>.<span class="ident">clone</span>()) {
         <span class="ident">n</span>
     } <span class="kw">else</span> {
@@ -124,8 +115,7 @@
         <span class="kw">return</span> <span class="ident">file_error</span>.<span class="ident">panic</span>();
     };
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call</span>: <span class="ident">interpreter</span>::<span class="ident">Interpreter</span> <span class="op">=</span> <span class="ident">interpreter</span>::<span class="ident">Interpreter</span>::<span class="ident">new</span>(<span class="ident">input_file</span>, <span class="ident">input_file_contents</span>);
-    <span class="ident">call</span>.<span class="ident">run</span>();
-    <span class="kw">return</span> <span class="number">0</span>;
+    <span class="kw">return</span> <span class="ident">call</span>.<span class="ident">run</span>();
     <span class="comment">// assume success.</span>
 }</pre>
 </section>
