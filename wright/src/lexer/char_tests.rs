@@ -1,3 +1,4 @@
+use lexer::Lexer;
 /// Checks if a char is a digit
 pub fn is_digit(c: char) -> bool { c >= '0' && c <= '9' }
 
@@ -23,3 +24,14 @@ pub fn is_whitespace(c: char) -> bool {
     }
 }
 
+/// Checks if a character is a symbol in `lexer::Lexer::SYMBOLS`
+pub fn is_symbol(c: char) -> bool {
+    let mut slice: [u8; 4] = [0; 4];
+    let s = c.encode_utf8(&mut slice);
+    for symbol in Lexer::SYMBOLS.iter() {
+        if s == *symbol {
+            return true;
+        }
+    }
+    return false;
+}
