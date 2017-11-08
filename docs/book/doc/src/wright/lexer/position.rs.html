@@ -67,10 +67,6 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
-<span id="28">28</span>
 </pre><pre class="rust ">
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// Position of the reading head in the file, indexed starting at 1.</span>
@@ -87,11 +83,7 @@
 
 <span class="kw">impl</span> <span class="ident">Position</span> {
     <span class="doccomment">/// Constructor, setting read-head at beginning of file.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">Position</span> {
-        <span class="ident">Position</span> { <span class="ident">line</span>: <span class="number">1</span>, <span class="ident">col</span>: <span class="number">1</span>, }
-    }
-    <span class="doccomment">/// Resets `self` to `self::new()`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initial</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) { <span class="self">self</span>.<span class="ident">line</span> <span class="op">=</span> <span class="number">1</span>; <span class="self">self</span>.<span class="ident">col</span> <span class="op">=</span> <span class="number">1</span>; }
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="self">Self</span> { <span class="ident">Position</span> { <span class="ident">line</span>: <span class="number">1</span>, <span class="ident">col</span>: <span class="number">1</span>, } }
     <span class="doccomment">/// Increments internal line counter.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">increment_line</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">line</span> <span class="op">+=</span> <span class="number">1</span>;
