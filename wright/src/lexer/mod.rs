@@ -69,6 +69,7 @@ impl Lexer {
         'consumption : while let Some(character) = chars.pop() {
             self.current_position.increment_column();
             if is_symbol(character) {
+                // todo: test and fix
                 current_line.push(character);
                 current_token.push(character);
                 let mut possible_next_chars: HashSet<Option<char>> = HashSet::new();
