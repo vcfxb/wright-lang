@@ -18,3 +18,5 @@ fn print_err_vec() {
     lexer_err.module_name = "TestModule".to_string();
     println!("{}", lexer_err);
 }
+
+// todo: more tests
