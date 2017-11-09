@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use std::path::Path;
 //use std::io::{self, Write};
 use super::interpreter;
 
@@ -31,7 +32,14 @@ pub fn interpret_file(input_file: String) -> i32 { // the i32 is exit code
     if let Ok(_) = input_f.read_to_string(&mut input_file_contents) {} else {
         return file_error.panic();
     };
-    let mut call: interpreter::Interpreter = interpreter::Interpreter::new(input_file, input_file_contents);
+    // make call module from file name of module.
+    let mut call: interpreter::Interpreter = interpreter::Interpreter::new(Path::new(&input_file)
+                                                                               .file_name()
+                                                                               .unwrap()
+                                                                               .to_str()
+                                                                               .unwrap()
+                                                                               .to_string(),
+                                                                           input_file_contents);
     return call.run();
     // assume success.
 }

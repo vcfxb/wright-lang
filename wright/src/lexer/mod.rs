@@ -23,8 +23,8 @@ pub struct Lexer {
 impl Lexer {
     /// Constant containing all Strings that can represent any symbol or operator.
     /// Length of every symbol is 2 characters at most.
-    const SYMBOLS: [&'static str; 49] = [
-        "!", "~", "^",
+    const SYMBOLS: [&'static str; 55] = [
+        "!", "~", "^", "=",
         "&", "&&", "|", "||",
         "+", "+=", "++",
         "-", "-=", "--",
@@ -32,15 +32,18 @@ impl Lexer {
         "/", "/=",
         "%", "%=",
         "//", "/*", "*/",
+        "/!","/?","?/", // doc comments
         ":", "::", "->", ".",
         "..",
         ";",
         "(", ")", "[", "]", "{", "}",
         "=>",
         "@", "$", "#", "?",
+        "?!", // for compiler builtin checks
         "==", "!=", ">", "<", ">=", "<=",
         ">>", "<<",
         "\"", "'",
+        "`",
     ];
     /// Constructor
     pub fn new(content: String) -> Self {
@@ -65,56 +68,96 @@ impl Lexer {
             ).collect();
         // reverse chars so that pop() and push() read L->R, Top->End
         chars.reverse();
+        //println!("{:?}", symbol_char_pairs);
         // while there's another character
         'consumption : while let Some(character) = chars.pop() {
             self.current_position.increment_column();
+            current_line.push(character);
+            current_token.push(character);
             if is_symbol(character) {
                 // todo: test and fix
-                current_line.push(character);
-                current_token.push(character);
-                let mut possible_next_chars: HashSet<Option<char>> = HashSet::new();
-                // go through every pair, checking to see if there is a symbol
-                // that equals or starts with character
+                let mut possible_next_chars: HashSet<char> = HashSet::new();
+                // go through every pair, and add the second character if it starts with `character`
                 for pair in symbol_char_pairs.clone() {
-                    if pair[0] == character {
-                        // if so, add it to a HashSet of possible next characters
-                        // (no repeats)
-                        if pair.len() == 2 {
-                            if !possible_next_chars.contains(&Some(pair[1])) {
-                                possible_next_chars.insert(Some(pair[1]));
-                            }
+                    if pair.len() == 2 && pair[0] == character {
+                        if !possible_next_chars.contains(&pair[1]) {
+                            possible_next_chars.insert(pair[1]);
                         }
-                        if !possible_next_chars.contains(&None) {possible_next_chars.insert(None);}
                     }
                 }
-                let next_char = chars.pop();
-                if possible_next_chars.contains(&next_char) {
-                    if let Some(n) = next_char {current_token.push(n);}
-                    // if next_char is none, the iterator will end and return anyways.
+                // get the next character if possible
+                if let Some(next_char) = chars.pop() {
+                    if possible_next_chars.contains(&next_char) {
+                        current_token.push(next_char);
+                        current_line.push(next_char);
+                        self.current_position.increment_column();
+                        // special cases
+                        // todo: finish special cases
+                        match current_token.clone().as_str() {
+                            "//" => {   // single line comment
+                                // if EOF is reached, this will just stop and
+                                // push the current token.
+                                'take_comment : while let Some(comment_char) = chars.pop() {
+                                    // until end of line
+                                    // follow principals of true loss-less lexing;
+                                    // the newline character will be put in the token,
+                                    // since it's not worth the work of putting back on the stack.
+                                    // todo: Wright Book on Single Line Comments
+                                    if comment_char != '\n' {
+                                        current_token.push(comment_char);
+                                        current_line.push(comment_char);
+                                        self.current_position.increment_column();
+                                    } else {
+                                        current_token.push(comment_char);
+                                        current_line.push(comment_char);
+                                        self.current_position.increment_line();
+                                        current_line = String::new();
+                                        break 'take_comment;
+                                    }
+                                }
+                            },
+                            _ => {},
+                        }
+                        self.tokens.push(current_token);
+                        current_token = String::new();
+                        // move to next iter
+                    } else {
+                        // put the next_char back on the char stack if it doesn't make a possible token
+                        chars.push(next_char);
+                        self.tokens.push(current_token);
+                        current_token = String::new();
+                    }
+                } else {
                     self.tokens.push(current_token);
                     current_token = String::new();
-                    // move to next iter
-                    continue 'consumption;
-                } else {
-                    // if it's not a possible next character, put it back.
-                    // use if-let statement to make sure we aren't putting back a
-                    // None value (even though that is technically impossible, we don't
-                    // want to take any chances.) If the value is None there should be a
-                    // string with just that symbol in it in the SYMBOLS constant,
-                    if let Some(n) = next_char { chars.push(n);}
                 }
-                // No raising errors here; all symbols starting characters have a single
-                // character symbol for them in the constant, and if it doesn't match up,
-                // they are just a separate token.
+            }
+            else if is_alpha(character) {
+                // todo: Wright Book variable and identifier names
+                //
+                // take chars for an identifier. (a-z, 0-9, _)
+                // is_alpha could also imply the start of a keyword
+                // but that doesn't really matter at this point.
+                'take_identifier : while let Some(next_char) = chars.pop() {
+                    if is_alphanumeric(next_char) || next_char == '_' {
+                        self.current_position.increment_column();
+                        current_token.push(next_char);
+                        current_line.push(next_char);
+                    } else {
+                        chars.push(next_char);
+                        self.tokens.push(current_token);
+                        current_token = String::new();
+                        break 'take_identifier;
+                    }
+                }
+
             }
             else {
-                // todo: (this is a quick-fix)
-                current_token.push(character);
+                // todo: (this is a temp-fix)
                 self.tokens.push(current_token);
                 current_token = String::new();
             }
         }
-        self.tokens.iter().for_each(|t| println!("{}", t) );
         return Ok(());
     }
 
