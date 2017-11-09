@@ -12,11 +12,13 @@ pub mod char_tests;
 use lexer::char_tests::*;
 
 #[derive(Debug, Clone)]
-// todo: Docs
-///
+/// Lexer struct, which stores publicly a `tokens` field
+/// which is generated using the `lex` method.  Tokens will be an internal
+/// representation of source code, sliced in to parsable "lexemes" or "tokens".
 pub struct Lexer {
     current_position: Position,
-    pub source: String,
+    // source doesn't need pub right?
+    source: String,
     pub tokens: Vec<String>,
 }
 
@@ -45,7 +47,8 @@ impl Lexer {
         "\"", "'",
         "`",
     ];
-    /// Constructor
+    /// Constructor.
+    /// Content argument is source code written in wright.
     pub fn new(content: String) -> Self {
         Lexer {
             current_position: Position::new(),
@@ -54,6 +57,17 @@ impl Lexer {
         }
     }
     /// Tokenizes `self.source` and stores to `self.tokens`.
+    /// Should operate at O(n). (n being the length of the wright file)
+    /// #### Is completely loss-less.
+    /// No source-code is lost in this conversion, it's all just split into parsable tokens.
+    /// #### Has special cases.
+    /// Tokens have these rules:
+    /// * If a symbol in the `SYMBOLS` constant can be matched, it will be.
+    ///     * If that symbol is a `//`, the rest of the line will be lexed into the same token.
+    /// * If a token starts with a letter, it may have any combination of alphanumerics
+    ///     and underscroes for the rest of it.
+    /// * All others are turned into single-char tokens.
+    /// ### These rules will change in future releases.
     pub fn lex(&mut self) -> Result<(), LexerError> {
         let mut current_token = String::new();
         let mut current_line = String::new();
