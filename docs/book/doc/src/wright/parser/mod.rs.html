@@ -88,6 +88,17 @@
 <span id="43">43</span>
 <span id="44">44</span>
 <span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Parser module for Wright.</span>
 <span class="doccomment">//! Includes preliminary lexer function.</span>
@@ -122,12 +133,23 @@
         }
     }
     <span class="comment">// todo: docs</span>
+    <span class="comment">// returns double empty Result for</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lex</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">lexer</span>.<span class="ident">lex</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lex</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(),()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">lex_result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lexer</span>.<span class="ident">lex</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">lex_result</span> {
+            <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="ident">lexer</span>.<span class="ident">tokens</span>);
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="kw-2">mut</span> <span class="ident">e</span>) <span class="op">=</span> <span class="ident">lex_result</span> {
+            <span class="ident">e</span>.<span class="ident">module_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">module</span>.<span class="ident">id</span>.<span class="ident">id</span>.<span class="ident">clone</span>();
+            <span class="macro">print</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>);
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(());
+        } <span class="kw">else</span> {<span class="prelude-val">Err</span>(())}
     }
 }
 
+<span class="comment">// todo: Docs</span>
+<span class="comment">// todo: Might change this entirely</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ParserError</span> {
     <span class="ident">UnexpectedToken</span>(<span class="ident">String</span>, <span class="ident">u64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>),
     <span class="ident">MissingExpectedToken</span>(<span class="ident">String</span>, <span class="ident">u64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>),

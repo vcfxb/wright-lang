@@ -80,9 +80,18 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
 <span class="comment">//use std::io::{self, Write};</span>
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">interpreter</span>;
 
@@ -114,7 +123,14 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(_) <span class="op">=</span> <span class="ident">input_f</span>.<span class="ident">read_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">input_file_contents</span>) {} <span class="kw">else</span> {
         <span class="kw">return</span> <span class="ident">file_error</span>.<span class="ident">panic</span>();
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call</span>: <span class="ident">interpreter</span>::<span class="ident">Interpreter</span> <span class="op">=</span> <span class="ident">interpreter</span>::<span class="ident">Interpreter</span>::<span class="ident">new</span>(<span class="ident">input_file</span>, <span class="ident">input_file_contents</span>);
+    <span class="comment">// make call module from file name of module.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call</span>: <span class="ident">interpreter</span>::<span class="ident">Interpreter</span> <span class="op">=</span> <span class="ident">interpreter</span>::<span class="ident">Interpreter</span>::<span class="ident">new</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">input_file</span>)
+                                                                               .<span class="ident">file_name</span>()
+                                                                               .<span class="ident">unwrap</span>()
+                                                                               .<span class="ident">to_str</span>()
+                                                                               .<span class="ident">unwrap</span>()
+                                                                               .<span class="ident">to_string</span>(),
+                                                                           <span class="ident">input_file_contents</span>);
     <span class="kw">return</span> <span class="ident">call</span>.<span class="ident">run</span>();
     <span class="comment">// assume success.</span>
 }</pre>

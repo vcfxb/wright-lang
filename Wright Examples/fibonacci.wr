@@ -1,0 +1,27 @@
+// finds fibonacci numbers
+
+/! Recursively computes fibonacci numbers
+func fibonacci(n: Integer) -> Integer {
+    if n == 1 || n == 2 { return 1; }
+    else {
+        return fibonacci_recursive(n-1)+fibonacci_recursive(n-2);
+    }
+}
+
+// `?! Overload` makes the compiler check for an overloading function (similarly to java)
+/? Calculates fibonacci using a loop.
+ ? $arg n: nth fibonacci number will be calculated. Assumed to be positive.
+ ?/
+?! Overload
+func fibonacci(n: u64) -> Integer {
+    var two_back: Integer = 1; // starting value only
+    var prev: Integer = 1;
+    var current: Integer = 1;
+    for i: u64 in 2..n {    // 2..n generates a range for [2, n)
+        current = two_back + prev;
+        two_back = prev;
+        prev = current;
+    }
+    return current;
+}
+
