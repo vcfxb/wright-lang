@@ -1,10 +1,10 @@
-# The Wright Programming language
-### A Programming language that flies
+# The Wright language
+### A scripting language that flies
 
 [![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
 
-##### Wright is a programming language that is inspired by
+##### Wright is a scripting language that is inspired by
 * Rust
 * Java
 * Python
@@ -17,7 +17,6 @@
 
 ##### It functions on a system of
 * Strong typing
-* Static typing
 * Parametric polymorphism
 * Object-Oriented programming
 * Functional programming
