@@ -370,7 +370,10 @@ impl Lexer {
                 current_token = String::new();
             }
             else {
-                // todo: (this is a temp-fix)
+                if current_token == "\n".to_string() {
+                    current_position.increment_line();
+                    current_line = String::new();
+                }
                 self.tokens.push(current_token);
                 current_token = String::new();
             }
