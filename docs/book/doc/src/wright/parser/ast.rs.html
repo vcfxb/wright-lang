@@ -336,7 +336,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Unary Operators</span>
+<span class="doccomment">/// Unary Operators.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">UnaryOperator</span> {
     <span class="ident">Not</span>,
     <span class="ident">Negative</span>,
@@ -359,7 +359,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Arithmetic Operators</span>
+<span class="doccomment">/// Arithmetic Operators.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ArithmeticOperator</span> {
     <span class="ident">Add</span>,
     <span class="ident">Subtract</span>,
@@ -376,7 +376,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Logical Operators</span>
+<span class="doccomment">/// Logical Operators.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LogicalOperator</span> {
     <span class="ident">And</span>,
     <span class="ident">Or</span>,
@@ -386,7 +386,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Relational Operators</span>
+<span class="doccomment">/// Relational Operators.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RelationalOperator</span> {
     <span class="ident">Equal</span>,
     <span class="ident">NotEqual</span>,
@@ -405,14 +405,14 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Subfield access expression. (i.e. &quot;left.right&quot;)</span>
+<span class="doccomment">/// Subfield access expression. (i.e. &quot;left.right&quot;).</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sub</span> {
     <span class="kw">pub</span> <span class="ident">left</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">right</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Cast expression struct (i.e. &quot;value to type&quot;)</span>
+<span class="doccomment">/// Cast expression struct (i.e. &quot;value to type&quot;).</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cast</span> {
     <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">to_type</span>: <span class="ident">Type</span>,
@@ -481,7 +481,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Block of statements</span>
+<span class="doccomment">/// Block of statements.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Block</span> {
     <span class="kw">pub</span> <span class="ident">statements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;&gt;</span>,
 }
@@ -494,7 +494,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Conditional block</span>
+<span class="doccomment">/// Conditional block.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Conditional</span> {
     <span class="kw">pub</span> <span class="ident">conditions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Condition</span><span class="op">&gt;</span>,
 }
@@ -566,7 +566,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Loop annotation struct</span>
+<span class="doccomment">/// Loop annotation struct.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoopAnnotation</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">String</span>,
 }
@@ -584,7 +584,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// Module struct</span>
+<span class="doccomment">/// Module struct.</span>
 <span class="doccomment">/// Module is not in `Statement` because</span>
 <span class="doccomment">/// users should not be able to define modules in a file.</span>
 <span class="doccomment">/// Each Wright file should be it&#39;s own independent Module.</span>

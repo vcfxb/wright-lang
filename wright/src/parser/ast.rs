@@ -11,7 +11,7 @@ pub enum Expression {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-/// Unary Operators
+/// Unary Operators.
 pub enum UnaryOperator {
     Not,
     Negative,
@@ -34,7 +34,7 @@ pub enum BinaryOperator {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-/// Arithmetic Operators
+/// Arithmetic Operators.
 pub enum ArithmeticOperator {
     Add,
     Subtract,
@@ -51,7 +51,7 @@ pub enum ArithmeticOperator {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-/// Logical Operators
+/// Logical Operators.
 pub enum LogicalOperator {
     And,
     Or,
@@ -61,7 +61,7 @@ pub enum LogicalOperator {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-/// Relational Operators
+/// Relational Operators.
 pub enum RelationalOperator {
     Equal,
     NotEqual,
@@ -80,14 +80,14 @@ pub struct BinaryExpr {
 }
 
 #[derive(Debug, Clone)]
-/// Subfield access expression. (i.e. "left.right")
+/// Subfield access expression. (i.e. "left.right").
 pub struct Sub {
     pub left: Box<Expression>,
     pub right: Box<Expression>,
 }
 
 #[derive(Debug, Clone)]
-/// Cast expression struct (i.e. "value to type")
+/// Cast expression struct (i.e. "value to type").
 pub struct Cast {
     pub value: Box<Expression>,
     pub to_type: Type,
@@ -156,7 +156,7 @@ pub struct Assignment {
 }
 
 #[derive(Debug, Clone)]
-/// Block of statements
+/// Block of statements.
 pub struct Block {
     pub statements: Vec<Box<Statement>>,
 }
@@ -169,7 +169,7 @@ pub struct Condition {
 }
 
 #[derive(Debug, Clone)]
-/// Conditional block
+/// Conditional block.
 pub struct Conditional {
     pub conditions: Vec<Condition>,
 }
@@ -241,7 +241,7 @@ pub struct Return {
 }
 
 #[derive(Debug, Clone)]
-/// Loop annotation struct
+/// Loop annotation struct.
 pub struct LoopAnnotation {
     pub id: String,
 }
@@ -259,7 +259,7 @@ pub struct Continue {
 }
 
 #[derive(Debug, Clone)]
-/// Module struct
+/// Module struct.
 /// Module is not in `Statement` because
 /// users should not be able to define modules in a file.
 /// Each Wright file should be it's own independent Module.
