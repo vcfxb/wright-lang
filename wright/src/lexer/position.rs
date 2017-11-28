@@ -21,4 +21,8 @@ impl Position {
     }
     /// Increments column.
     pub fn increment_column(&mut self) { self.col += 1; }
+    /// Decrements column.
+    /// Will not let column fall below 1.
+    pub fn decrement_column(&mut self) { if self.col > 1 {self.col -= 1;}}
+
 }

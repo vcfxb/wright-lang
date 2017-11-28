@@ -1,9 +1,5 @@
 //! Lexer Module.
-extern crate ansi_term;
-use self::ansi_term::Color::*;
-//use self::ansi_term::Style;
-use std::fmt;
-use std::collections::HashSet;
+
 /// Module used for tracking read-head position in file.
 pub mod position;
 use lexer::position::*;
@@ -11,12 +7,17 @@ use lexer::position::*;
 pub mod char_tests;
 use lexer::char_tests::*;
 
+/// Module for defining, tracking, and printing lexer related errors.
+pub mod error;
+use lexer::error::LexerError;
+
+use std::collections::HashSet;
+
 #[derive(Debug, Clone)]
 /// Lexer struct, which stores publicly a `tokens` field
 /// which is generated using the `lex` method.  Tokens will be an internal
 /// representation of source code, sliced in to parsable "lexemes" or "tokens".
 pub struct Lexer {
-    current_position: Position,
     // source doesn't need pub right?
     source: String,
     pub tokens: Vec<String>,
@@ -25,7 +26,8 @@ pub struct Lexer {
 impl Lexer {
     /// Constant containing all Strings that can represent any symbol or operator.
     /// Length of every symbol is 2 characters at most.
-    const SYMBOLS: [&'static str; 55] = [
+    /// Not all symbols currently have functionality in the wright language.
+    pub const SYMBOLS: [&'static str; 55] = [
         "!", "~", "^", "=",
         "&", "&&", "|", "||",
         "+", "+=", "++",
@@ -40,7 +42,7 @@ impl Lexer {
         ";",
         "(", ")", "[", "]", "{", "}",
         "=>",
-        "@", "$", "#", "?",
+        "@", "#", "?", "$",
         "?!", // for compiler builtin checks
         "==", "!=", ">", "<", ">=", "<=",
         ">>", "<<",
@@ -51,24 +53,17 @@ impl Lexer {
     /// Content argument is source code written in wright.
     pub fn new(content: String) -> Self {
         Lexer {
-            current_position: Position::new(),
             source: content,
             tokens: vec![],
         }
     }
     /// Tokenizes `self.source` and stores to `self.tokens`.
-    /// Should operate at O(n). (n being the length of the wright file)
     /// #### Is completely loss-less.
     /// No source-code is lost in this conversion, it's all just split into parsable tokens.
-    /// #### Has special cases.
-    /// Tokens have these rules:
-    /// * If a symbol in the `SYMBOLS` constant can be matched, it will be.
-    ///     * If that symbol is a `//`, the rest of the line will be lexed into the same token.
-    /// * If a token starts with a letter, it may have any combination of alphanumerics
-    ///     and underscroes for the rest of it.
-    /// * All others are turned into single-char tokens.
-    /// ### These rules will change in future releases.
+    /// Note that this lexing follows the rules of the Wright language syntax, detailed in the
+    /// Wright book docs.
     pub fn lex(&mut self) -> Result<(), LexerError> {
+        let mut current_position = Position::new();
         let mut current_token = String::new();
         let mut current_line = String::new();
         let mut chars: Vec<char> = self.source.chars().collect();
@@ -85,11 +80,10 @@ impl Lexer {
         //println!("{:?}", symbol_char_pairs);
         // while there's another character
         'consumption : while let Some(character) = chars.pop() {
-            self.current_position.increment_column();
+            current_position.increment_column();
             current_line.push(character);
             current_token.push(character);
             if is_symbol(character) {
-                // todo: test and fix
                 let mut possible_next_chars: HashSet<char> = HashSet::new();
                 // go through every pair, and add the second character if it starts with `character`
                 for pair in symbol_char_pairs.clone() {
@@ -104,57 +98,191 @@ impl Lexer {
                     if possible_next_chars.contains(&next_char) {
                         current_token.push(next_char);
                         current_line.push(next_char);
-                        self.current_position.increment_column();
-                        // special cases
-                        // todo: finish special cases
+                        current_position.increment_column();
+                        // special case with double char symbols (not quotes)
                         match current_token.clone().as_str() {
-                            "//" => {   // single line comment
+                            "//"|"/!" => {   // single line comment or single line doc comment
                                 // if EOF is reached, this will just stop and
                                 // push the current token.
                                 'take_comment : while let Some(comment_char) = chars.pop() {
                                     // until end of line
                                     // follow principals of true loss-less lexing;
-                                    // the newline character will be put in the token,
-                                    // since it's not worth the work of putting back on the stack.
-                                    // todo: Wright Book on Single Line Comments
-                                    if comment_char != '\n' {
-                                        current_token.push(comment_char);
-                                        current_line.push(comment_char);
-                                        self.current_position.increment_column();
-                                    } else {
-                                        current_token.push(comment_char);
-                                        current_line.push(comment_char);
-                                        self.current_position.increment_line();
+                                    // the newline character will be put in the token
+                                    current_token.push(comment_char);
+                                    current_line.push(comment_char);
+                                    current_position.increment_column();
+                                    if comment_char == '\n' {
+                                        current_position.increment_line();
                                         current_line = String::new();
                                         break 'take_comment;
                                     }
                                 }
                             },
+                            "/*" => {   // multi line comments
+                                let mut last = ' ';
+                                'take_multiline_comment: while let Some(comment_char) = chars.pop(){
+                                    current_position.increment_column();
+                                    current_token.push(comment_char);
+                                    if comment_char == '\n' {
+                                        current_position.increment_line();
+                                        current_line = String::new();
+                                    }
+                                    else if comment_char == '/' && last == '*'{
+                                        break 'take_multiline_comment;
+                                    }
+                                    last = comment_char;
+                                }
+
+                            },
+                            "/?" => {   // multi line doc comments
+                                let mut last = ' ';
+                                'take_multi_doc_comment: while let Some(comment_char) = chars.pop(){
+                                    current_position.increment_column();
+                                    current_token.push(comment_char);
+                                    if comment_char == '\n' {
+                                        current_position.increment_line();
+                                        current_line = String::new();
+                                    }
+                                        else if comment_char == '/' && last == '?'{
+                                            break 'take_multi_doc_comment;
+                                        }
+                                    last = comment_char;
+                                }
+                            },
                             _ => {},
                         }
+                        // factored out of match statement
                         self.tokens.push(current_token);
                         current_token = String::new();
-                        // move to next iter
+                        // move to next iteration
                     } else {
-                        // put the next_char back on the char stack if it doesn't make a possible token
+                        // put the next_char back on the char stack if it doesn't make a possible
+                        // token
                         chars.push(next_char);
-                        self.tokens.push(current_token);
-                        current_token = String::new();
+                        // single symbol token so far, no eof reached
+                        match current_token.clone().as_str() {
+                            "\"" => {
+                                'take_quote : while let Some(quote_char) = chars.pop() {
+                                    current_position.increment_column();
+                                    current_line.push(quote_char);
+                                    current_token.push(quote_char);
+                                    if quote_char == '\n' {
+                                        current_position.increment_line();
+                                        current_line = String::new();
+                                    }
+                                    // escaped characters
+                                    else if quote_char == '\\' {
+                                        if let Some(escaped_char) = chars.pop() {
+                                            current_position.increment_column();
+                                            current_line.push(escaped_char);
+                                            current_token.push(escaped_char);
+                                            if escaped_char == '\n' {
+                                                current_position.increment_line();
+                                                current_line = String::new();
+                                            }
+                                        } else {
+                                            // reach EOF and break.
+                                            break 'take_quote;
+                                        }
+                                    }
+                                    else if quote_char == '"' {     // end of quote reached
+                                        break 'take_quote;
+                                    }
+                                }
+                            },
+                            "'" => {
+                                'take_char_literal: while let Some(char_literal_char) = chars.pop(){
+                                    current_token.push(char_literal_char);
+                                    current_position.increment_column();
+                                    current_line.push(char_literal_char);
+                                    if char_literal_char == '\n' {
+                                        current_position.increment_line();
+                                        current_line = String::new();
+                                    }
+                                    if char_literal_char == '\'' {
+                                        break 'take_char_literal;
+                                    }
+                                }
+                                if current_token.len() == 1 {
+                                    let char_literal_error = LexerError::
+                                        new(current_position.clone(), current_line)
+                                        .set_info_as_string("character literal", None);
+                                    return Err(char_literal_error);
+                                } else if current_token.len() == 2 {
+                                    let token_chars: Vec<char> = current_token
+                                        .clone()
+                                        .chars()
+                                        .collect();
+                                    match token_chars[1] {
+                                        '\'' => {
+                                            current_position.decrement_column();
+                                            let char_literal_error = LexerError::
+                                                new(current_position.clone(), current_line)
+                                                .set_info_as_string("character literal",Some('\''));
+                                            return Err(char_literal_error);
+                                        },
+                                        _ => {
+                                            let char_literal_error = LexerError::
+                                                new(current_position.clone(), current_line)
+                                                .set_info('\'', None);
+                                            return Err(char_literal_error);
+                                        },
+                                    }
+                                } else if current_token.len() == 3 { 
+                                    let token_chars: Vec<char> = current_token.clone()
+                                        .chars()
+                                        .collect();
+                                    if !(token_chars[2] == '\'') {
+                                        current_position.decrement_column();
+                                        let char_literal_error = LexerError::
+                                            new(current_position.clone(), current_line)
+                                            .set_info('\'',Some(token_chars[2]));
+                                        return Err(char_literal_error);
+                                    } // otherwise ok.
+                                } else if current_token.len() == 4 {
+                                    let token_chars: Vec<char> = current_token.clone()
+                                        .chars()
+                                        .collect();
+                                    if token_chars[1] != '\\' || token_chars[3] != '\'' {
+                                        if token_chars[1] != '\'' {
+                                            // twice to move back to offending char
+                                            for _ in 0..2 {current_position.decrement_column();}
+                                            let char_literal_error = LexerError::
+                                                new(current_position.clone(), current_line)
+                                                .set_info('\'',Some(token_chars[2]));
+                                            return Err(char_literal_error);
+                                        }
+                                        if token_chars[3] !='\'' {
+                                            let char_literal_error = LexerError::
+                                                new(current_position.clone(), current_line)
+                                                .set_info('\'',None);
+                                            return Err(char_literal_error);
+                                        }
+                                    } // otherwise all good
+                                } else {
+                                    current_position.decrement_column();
+                                    let char_literal_error = LexerError::
+                                    new(current_position.clone(), current_line)
+                                        .set_info_raw("Character literal is too long.");
+                                    return Err(char_literal_error);
+                                }
+                            },
+                            _ => {}, //otherwise do nothing
+                        }
                     }
-                } else {
-                    self.tokens.push(current_token);
-                    current_token = String::new();
                 }
+                // found one symbol character and reached eof...
+                self.tokens.push(current_token);
+                current_token = String::new();
+
             }
             else if is_alpha(character) {
-                // todo: Wright Book variable and identifier names
-                //
                 // take chars for an identifier. (a-z, 0-9, _)
                 // is_alpha could also imply the start of a keyword
                 // but that doesn't really matter at this point.
                 'take_identifier : while let Some(next_char) = chars.pop() {
                     if is_alphanumeric(next_char) || next_char == '_' {
-                        self.current_position.increment_column();
+                        current_position.increment_column();
                         current_token.push(next_char);
                         current_line.push(next_char);
                     } else {
@@ -164,7 +292,82 @@ impl Lexer {
                         break 'take_identifier;
                     }
                 }
-
+            }
+            else if is_digit(character) {
+                // take chars for a number literal.
+                let mut had_decimal = false;
+                if character == '0' {
+                    if let Some('x') = chars.pop() {
+                        current_token.push('x');
+                        current_line.push('x');
+                        current_position.increment_column();
+                        'take_hex_literal: while let Some(next_char) = chars.pop() {
+                            if is_hex_digit(next_char) {
+                                current_position.increment_column();
+                                current_line.push(next_char);
+                                current_token.push(next_char);
+                            }
+                            else {
+                                // not a digit; put it back
+                                chars.push(next_char);
+                                break 'take_hex_literal;
+                            }
+                        }
+                    }
+                    else if let Some('b') = chars.pop() {
+                        current_token.push('b');
+                        current_line.push('b');
+                        current_position.increment_column();
+                        'take_bin_literal: while let Some(next_char) = chars.pop() {
+                            if is_bin_digit(next_char) {
+                                current_position.increment_column();
+                                current_line.push(next_char);
+                                current_token.push(next_char);
+                            }
+                            else {
+                                // not a digit; put it back
+                                chars.push(next_char);
+                                break 'take_bin_literal;
+                            }
+                        }
+                    }
+                    else {
+                        // very similar to below, takes for decimal or integer.
+                        'take_num_literal: while let Some(next_char) = chars.pop() {
+                            if is_digit(next_char) || (next_char == '.' && !had_decimal) {
+                                current_position.increment_column();
+                                current_line.push(next_char);
+                                current_token.push(next_char);
+                                if next_char == '.' {had_decimal = true;}
+                            }
+                            else {
+                                // not a digit; put it back
+                                chars.push(next_char);
+                                break 'take_num_literal;
+                            }
+                        }
+                    }
+                } else {
+                    // not a hex or binary
+                    let mut had_decimal = false;
+                    'take_dec_literal: while let Some(next_char) = chars.pop() {
+                        if is_digit(next_char) || (next_char == '.' && !had_decimal) {
+                            current_position.increment_column();
+                            current_line.push(next_char);
+                            current_token.push(next_char);
+                            if next_char == '.' {had_decimal = true;}
+                        }
+                        else {
+                            // not a digit; put it back
+                            chars.push(next_char);
+                            break 'take_dec_literal;
+                        }
+                    }
+                }
+                // push token and reset
+                // this code is common to all possible lexemes, and is therefore factored out
+                self.tokens.push(current_token);
+                current_token = String::new();
             }
             else {
                 // todo: (this is a temp-fix)
@@ -173,96 +376,5 @@ impl Lexer {
             }
         }
         return Ok(());
-    }
-
-}
-
-#[derive(Debug, Clone)]
-/// Structure for lexer errors.
-pub struct LexerError {
-    pub module_name: String,
-    pub position: Position,
-    pub info: String,
-    pub line: String,
-    // not pub; access only in this mod.
-    arrow_str: String
-}
-
-impl LexerError {
-    /// Constructor.
-    pub fn new(arg_position: Position, current_line: String) -> Self {
-        LexerError {
-            module_name: String::new(),
-            position: arg_position,
-            info: String::new(),
-            line: current_line,
-            arrow_str: String::new(),
-        }
-    }
-    /// Sets info string based on an expected character and the character that was found.
-    /// Auto-generates error message.
-    pub fn set_info(&mut self, expected: char, found: Option<char>) {
-        self.info = format!("Expected {} found {} character.", expected,
-            // conversion from char -> String
-            if let Some(n) = found {
-                let mut temp_slice: [u8; 4] = [0;4];
-                let n_as_str = n.encode_utf8(&mut temp_slice);
-                n_as_str.to_string()
-            } else {"<none>".to_string()});
-        let current_line_borrow = self.line.clone();
-        for c in current_line_borrow.chars().take(self.position.col-1) {
-            match c {
-                '\t' => self.arrow_str.push('\t'),
-                _ =>  self.arrow_str.push(' '),
-            }
-        }
-        self.arrow_str.push('^');
-    }
-    /// Very similar to `set_info` however this method takes a `Vec<char>` argument,
-    /// specifying that any of those characters would have been acceptable coming next.
-    pub fn set_info_as_vec(&mut self, expected: Vec<char>, found: Option<char>) {
-        // formats the error message properly.
-        let mut expected_string = "( ".to_string();
-        for e in expected {
-            expected_string.push(e);
-            expected_string.push_str(" | ");
-        }
-        // remove extra '| '
-        expected_string.pop();
-        expected_string.pop();
-        // close with ')'
-        expected_string.push(')');
-        self.info = format!("Expected {} found {} character.", expected_string,
-            // conversion from char -> String
-            if let Some(n) = found {
-                let mut temp_slice: [u8; 4] = [0;4];
-                let n_as_str = n.encode_utf8(&mut temp_slice);
-                n_as_str.to_string()
-            } else {"<none>".to_string()});
-        let current_line_borrow = self.line.clone();
-        for c in current_line_borrow.chars().take(self.position.col-1) {
-            match c {
-                '\t' => self.arrow_str.push('\t'),
-                _ =>  self.arrow_str.push(' '),
-            }
-        }
-        self.arrow_str.push('^');
-    }
-}
-
-/// Display formatting for LexerError.
-impl fmt::Display for LexerError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{name}: {module}:{line}:{col}:\n{five}{i}\n{five} {b}\n{line:>width$} {b} {l}\n{five} {b} {a}\n",
-            name = Red.paint("LexerError"),
-            line = self.position.line,
-            width = 5,
-            module = Cyan.paint(self.module_name.clone()),
-            col = self.position.col,
-            five = " ".repeat(5),
-            i = Blue.paint(self.info.clone()),
-            l = Green.paint(self.line.clone()),
-            b = Blue.paint("|"),
-            a = Red.bold().paint(self.arrow_str.clone()))
     }
 }
