@@ -423,6 +423,9 @@
 <span id="378">378</span>
 <span id="379">379</span>
 <span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Lexer Module.</span>
 
@@ -796,7 +799,10 @@
                 <span class="ident">current_token</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
             }
             <span class="kw">else</span> {
-                <span class="comment">// todo: (this is a temp-fix)</span>
+                <span class="kw">if</span> <span class="ident">current_token</span> <span class="op">==</span> <span class="string">&quot;\n&quot;</span>.<span class="ident">to_string</span>() {
+                    <span class="ident">current_position</span>.<span class="ident">increment_line</span>();
+                    <span class="ident">current_line</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
+                }
                 <span class="self">self</span>.<span class="ident">tokens</span>.<span class="ident">push</span>(<span class="ident">current_token</span>);
                 <span class="ident">current_token</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">new</span>();
             }
