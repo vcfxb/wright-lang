@@ -39,18 +39,14 @@ impl Parser {
             println!("{:?}", self.lexer.tokens);
             return Ok(());
         } else if let Err(mut e) = lex_result {
-            e.module_name = self.module.id.id.clone();
+            e.set_module_name(self.module.id.id.clone());
             print!("{}", e);
             return Err(());
         } else {Err(())}
     }
 }
 
-// todo: Docs
-// todo: Might change this entirely
+// todo:
 pub enum ParserError {
-    UnexpectedToken(String, u64, u64, u64),
-    MissingExpectedToken(String, u64, u64, u64),
-    InvalidAssignmentTarget(String, u64, u64, u64)
 }
 
