@@ -10,7 +10,7 @@ use super::lexer::*;
 /// Parser struct.
 pub struct Parser {
     pub module: ast::Module,
-    pub original_content: String,
+    pub source: String,
     pub lexer: Lexer,
 }
 
@@ -26,7 +26,7 @@ impl Parser {
     pub fn new(name: String, content: String) -> Self {
         Parser {
             module: ast::Module::new(name),
-            original_content: content.clone(),
+            source: content.clone(),
             lexer: Lexer::new(content),
         }
     }
