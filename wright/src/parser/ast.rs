@@ -1,13 +1,13 @@
 #[derive(Clone, Debug)]
 /// Expression enum.
-pub enum Expr {
+pub enum Expression {
     Unary(UnaryExpr),
     Binary(BinaryExpr),
     Literal(Literal),
     Identifier(Identifier),
     FunctionCall(Call),
-    SingleCondition(Condition),
-    Conditional(Conditional),
+    Sub(Sub),
+    Cast(Cast),
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -15,13 +15,14 @@ pub enum Expr {
 pub enum UnaryOperator {
     Not,
     Negative,
+    BitwiseNot,
 }
 
 #[derive(Debug, Clone)]
 /// Unary Expression.
 pub struct UnaryExpr {
     pub operator: UnaryOperator,
-    pub right: Box<Expr>,
+    pub right: Box<Expression>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -73,9 +74,23 @@ pub enum RelationalOperator {
 #[derive(Debug, Clone)]
 /// Binary Expression.
 pub struct BinaryExpr {
-    pub left: Box<Expr>,
+    pub left: Box<Expression>,
     pub operator: BinaryOperator,
-    pub right: Box<Expr>,
+    pub right: Box<Expression>,
+}
+
+#[derive(Debug, Clone)]
+/// Subfield access expression. (i.e. "left.right")
+pub struct Sub {
+    pub left: Box<Expression>,
+    pub right: Box<Expression>,
+}
+
+#[derive(Debug, Clone)]
+/// Cast expression struct (i.e. "value to type")
+pub struct Cast {
+    pub value: Box<Expression>,
+    pub to_type: Type,
 }
 
 #[derive(Debug, Clone)]
@@ -88,22 +103,27 @@ pub struct Literal {
 /// Identifier struct.
 pub struct Identifier {
     pub id: String,
-    pub declared_type: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+/// Type struct.
+pub struct Type {
+    pub id: String,
+    pub type_parameters: Vec<Type>,
 }
 
 #[derive(Debug, Clone)]
 /// Function call.
 pub struct Call {
     pub callee: Identifier,
-    pub args: Vec<Box<Expr>>,
+    pub args: Vec<Box<Expression>>,
 }
 
 #[derive(Debug, Clone)]
 /// Enum for statements.
 pub enum Statement {
-    // no conditionals; they are in Expr
     Block(Block),
-    Expression(Expr),
+    Expression(Expression),
     Assignment(Assignment),
     WhileLoop(WhileLoop),
     ForLoop(ForLoop),
@@ -115,6 +135,8 @@ pub enum Statement {
     Return(Return),
     Break(Break),
     Continue(Continue),
+    SingleCondition(Condition),
+    Conditional(Conditional),
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -129,7 +151,8 @@ pub enum Assigner {
 pub struct Assignment {
     pub left: Identifier,
     pub assign_type: Assigner,
-    pub right: Box<Expr>,
+    pub right: Box<Expression>,
+    pub declared_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]
@@ -141,7 +164,7 @@ pub struct Block {
 #[derive(Debug, Clone)]
 /// Single conditional statement.
 pub struct Condition {
-    pub condition: Box<Expr>,
+    pub condition: Expression,
     pub block: Block,
 }
 
@@ -154,72 +177,86 @@ pub struct Conditional {
 #[derive(Debug, Clone)]
 /// While loop struct.
 pub struct WhileLoop {
-    pub condition: Box<Expr>,
+    pub id: LoopAnnotation,
+    pub condition: Expression,
     pub block: Block,
 }
 
 #[derive(Debug, Clone)]
 /// For loop struct.
 pub struct ForLoop {
-    pub assignment: Box<Expr>,
-    pub source_var: Identifier,
+    pub id: LoopAnnotation,
+    pub assignment: Expression,
+    pub source_var: Expression,
     pub block: Block,
 }
 
 #[derive(Debug, Clone)]
 /// Function defining struct.
 pub struct FunctionDefinition {
+    pub declared_type: Option<Type>,
     pub id: Identifier,
-    pub args: Vec<Box<Expr>>,
+    pub args: Vec<(Identifier, Option<Type>)>, //(name, type)
     pub block: Block,
 }
 
 #[derive(Debug, Clone)]
 /// Class declaration struct.
 pub struct ClassDeclaration {
+    pub generics: Vec<Type>,
     pub id: Identifier,
     pub traits_implemented: Vec<Identifier>,
-    pub block: Block,
+    pub fields: Vec<(Identifier, Type)>,
 }
 
 #[derive(Debug, Clone)]
 /// Class declaration struct.
 pub struct TraitDeclaration {
+    pub generics: Vec<Type>,
     pub id: Identifier,
+    pub requires: Vec<Identifier>,
     pub block: Block,
 }
 
 #[derive(Debug, Clone)]
 /// Class declaration struct.
 pub struct EnumDeclaration {
+    pub generics: Vec<Type>,
     pub id: Identifier,
-    pub variants: Block,
+    pub variants: Vec<ClassDeclaration>,
 }
 
 #[derive(Debug, Clone)]
 /// Constant struct.
 pub struct Constant {
     pub id: Identifier,
-    pub val: Box<Expr>,
+    pub declared_type: Option<Type>,
+    pub val: Box<Expression>,
 }
 
 #[derive(Debug, Clone)]
 /// Return statement struct.
 pub struct Return {
-    pub val: Box<Expr>
+    pub val: Box<Expression>
+}
+
+#[derive(Debug, Clone)]
+/// Loop annotation struct
+pub struct LoopAnnotation {
+    pub id: String,
 }
 
 #[derive(Debug, Clone)]
 /// Break statement struct.
 pub struct Break {
-    pub identifier: Identifier,
-    pub val: Box<Expr>,
+    pub id: LoopAnnotation,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 /// Continue statement struct.
-//  (empty)
-pub struct Continue {}
+pub struct Continue {
+    pub id: LoopAnnotation,
+}
 
 #[derive(Debug, Clone)]
 /// Module struct
@@ -234,8 +271,9 @@ pub struct Module {
 impl Module {
     pub fn new(name: String) -> Self {
         Module {
-            id: Identifier{id: name, declared_type: None},
+            id: Identifier{id: name},
             content: Block{statements: vec![]}
         }
     }
 }
+
