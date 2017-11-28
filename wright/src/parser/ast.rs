@@ -210,7 +210,7 @@ pub struct ClassDeclaration {
 }
 
 #[derive(Debug, Clone)]
-/// Class declaration struct.
+/// Trait declaration struct.
 pub struct TraitDeclaration {
     pub generics: Vec<Type>,
     pub id: Identifier,
@@ -219,7 +219,7 @@ pub struct TraitDeclaration {
 }
 
 #[derive(Debug, Clone)]
-/// Class declaration struct.
+/// Enum (tagged union) declaration struct.
 pub struct EnumDeclaration {
     pub generics: Vec<Type>,
     pub id: Identifier,
