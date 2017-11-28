@@ -48,7 +48,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../../../src/wright/parser/ast.rs.html#1-241' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../../../src/wright/parser/ast.rs.html#1-278' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Abstract Syntax Tree Representation</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
@@ -85,6 +85,13 @@
                                   title='struct wright::parser::ast::Call'>Call</a></td>
                            <td class='docblock-short'>
                                 <p>Function call.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Cast.html"
+                                  title='struct wright::parser::ast::Cast'>Cast</a></td>
+                           <td class='docblock-short'>
+                                <p>Cast expression struct (i.e. &quot;value to type&quot;)</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -158,6 +165,13 @@
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class="struct" href="struct.LoopAnnotation.html"
+                                  title='struct wright::parser::ast::LoopAnnotation'>LoopAnnotation</a></td>
+                           <td class='docblock-short'>
+                                <p>Loop annotation struct</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class="struct" href="struct.Module.html"
                                   title='struct wright::parser::ast::Module'>Module</a></td>
                            <td class='docblock-short'>
@@ -175,10 +189,24 @@ Each Wright file should be it&#39;s own independent Module.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Sub.html"
+                                  title='struct wright::parser::ast::Sub'>Sub</a></td>
+                           <td class='docblock-short'>
+                                <p>Subfield access expression. (i.e. &quot;left.right&quot;)</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class="struct" href="struct.TraitDeclaration.html"
                                   title='struct wright::parser::ast::TraitDeclaration'>TraitDeclaration</a></td>
                            <td class='docblock-short'>
                                 <p>Class declaration struct.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Type.html"
+                                  title='struct wright::parser::ast::Type'>Type</a></td>
+                           <td class='docblock-short'>
+                                <p>Type struct.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -218,8 +246,8 @@ Each Wright file should be it&#39;s own independent Module.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class="enum" href="enum.Expr.html"
-                                  title='enum wright::parser::ast::Expr'>Expr</a></td>
+                           <td><a class="enum" href="enum.Expression.html"
+                                  title='enum wright::parser::ast::Expression'>Expression</a></td>
                            <td class='docblock-short'>
                                 <p>Expression enum.</p>
                            </td>
