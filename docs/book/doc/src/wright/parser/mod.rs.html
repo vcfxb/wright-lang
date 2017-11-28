@@ -108,7 +108,7 @@
 <span class="doccomment">/// Parser struct.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Parser</span> {
     <span class="kw">pub</span> <span class="ident">module</span>: <span class="ident">ast</span>::<span class="ident">Module</span>,
-    <span class="kw">pub</span> <span class="ident">original_content</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">source</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">lexer</span>: <span class="ident">Lexer</span>,
 }
 
@@ -124,7 +124,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="ident">String</span>, <span class="ident">content</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">Parser</span> {
             <span class="ident">module</span>: <span class="ident">ast</span>::<span class="ident">Module</span>::<span class="ident">new</span>(<span class="ident">name</span>),
-            <span class="ident">original_content</span>: <span class="ident">content</span>.<span class="ident">clone</span>(),
+            <span class="ident">source</span>: <span class="ident">content</span>.<span class="ident">clone</span>(),
             <span class="ident">lexer</span>: <span class="ident">Lexer</span>::<span class="ident">new</span>(<span class="ident">content</span>),
         }
     }
