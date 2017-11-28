@@ -55,23 +55,28 @@
 }</pre><div class='docblock'><p>Position of the reading head in the file, indexed starting at 1.
 Mainly for user interfacing.</p>
 </div><h2 id='fields' class='fields small-section-header'>
-                       Fields<a href='#fields' class='anchor'></a></h2><span id='structfield.line' class="structfield">
-                           <span id='line.v' class='invisible'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.line" class="structfield small-section-header">
+                           <a href="#structfield.line" class="anchor field"></a>
+                           <span id="line.v" class='invisible'>
                            <code>line: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code>
-                           </span></span><span id='structfield.col' class="structfield">
-                           <span id='col.v' class='invisible'>
+                           </span></span><span id="structfield.col" class="structfield small-section-header">
+                           <a href="#structfield.col" class="anchor field"></a>
+                           <span id="col.v" class='invisible'>
                            <code>col: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code>
                            </span></span>
                     <h2 id='methods' class='small-section-header'>
                       Methods<a href='#methods' class='anchor'></a>
                     </h2>
-                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../../wright/lexer/position/struct.Position.html" title="struct wright::lexer::position::Position">Position</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#14-24' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#16' title='goto source code'>[src]</a></span></h4>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../../wright/lexer/position/struct.Position.html" title="struct wright::lexer::position::Position">Position</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#14-28' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>() -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#16' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Constructor, setting read-head at beginning of file.</p>
-</div><h4 id='method.increment_line' class="method"><span id='increment_line.v' class='invisible'><code>fn <a href='#method.increment_line' class='fnname'>increment_line</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#18-21' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.increment_line' class="method"><span id='increment_line.v' class='invisible'><code>pub fn <a href='#method.increment_line' class='fnname'>increment_line</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#18-21' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Increments internal line counter.</p>
-</div><h4 id='method.increment_column' class="method"><span id='increment_column.v' class='invisible'><code>fn <a href='#method.increment_column' class='fnname'>increment_column</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#23' title='goto source code'>[src]</a></span></h4>
+</div><h4 id='method.increment_column' class="method"><span id='increment_column.v' class='invisible'><code>pub fn <a href='#method.increment_column' class='fnname'>increment_column</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#23' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Increments column.</p>
+</div><h4 id='method.decrement_column' class="method"><span id='decrement_column.v' class='invisible'><code>pub fn <a href='#method.decrement_column' class='fnname'>decrement_column</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wright/lexer/position.rs.html#26' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Decrements column.
+Will not let column fall below 1.</p>
 </div></div>
             <h2 id='implementations' class='small-section-header'>
               Trait Implementations<a href='#implementations' class='anchor'></a>
