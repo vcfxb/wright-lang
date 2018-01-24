@@ -4,7 +4,7 @@ use wright::argparser;
 use wright::run;
 
 fn main() {
-    if let Some(i) = argparser::argparse(env::args()) {
+    if let Some(i) = argparser::argparse(env::args().collect()) {
         process::exit(run::interpret_file(i));
     } else {
         process::exit(0);

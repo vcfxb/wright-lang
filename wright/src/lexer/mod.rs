@@ -1,18 +1,16 @@
 //! Lexer Module.
 
-/// Module used for tracking read-head position in file.
-pub mod position;
-use lexer::position::*;
 /// Module of functions for checking characters.
 pub mod char_tests;
 use lexer::char_tests::*;
 
+use position::Position;
 /// Module for defining, tracking, and printing lexer related errors.
 pub mod error;
 use lexer::error::LexerError;
 
-use std::collections::HashSet;
 
+use std::collections::HashSet;
 #[derive(Debug, Clone)]
 /// Lexer struct, which stores publicly a `tokens` field
 /// which is generated using the `lex` method.  Tokens will be an internal
@@ -191,80 +189,32 @@ impl Lexer {
                                 }
                             },
                             "'" => {
-                                'take_char_literal: while let Some(char_literal_char) = chars.pop(){
-                                    current_token.push(char_literal_char);
+                                'take_char_literal: while let Some(char_literal_char) = chars.pop() {
                                     current_position.increment_column();
                                     current_line.push(char_literal_char);
+                                    current_token.push(char_literal_char);
                                     if char_literal_char == '\n' {
                                         current_position.increment_line();
                                         current_line = String::new();
                                     }
-                                    if char_literal_char == '\'' {
+                                    // escaped characters
+                                    else if char_literal_char == '\\' {
+                                        if let Some(escaped_char) = chars.pop() {
+                                            current_position.increment_column();
+                                            current_line.push(escaped_char);
+                                            current_token.push(escaped_char);
+                                            if escaped_char == '\n' {
+                                                current_position.increment_line();
+                                                current_line = String::new();
+                                            }
+                                        } else {
+                                            // reach EOF and break.
+                                            break 'take_char_literal;
+                                        }
+                                    }
+                                    else if char_literal_char == '\'' {     // end of quote reached
                                         break 'take_char_literal;
                                     }
-                                }
-                                if current_token.len() == 1 {
-                                    let char_literal_error = LexerError::
-                                        new(current_position.clone(), current_line)
-                                        .set_info_as_string("character literal", None);
-                                    return Err(char_literal_error);
-                                } else if current_token.len() == 2 {
-                                    let token_chars: Vec<char> = current_token
-                                        .clone()
-                                        .chars()
-                                        .collect();
-                                    match token_chars[1] {
-                                        '\'' => {
-                                            current_position.decrement_column();
-                                            let char_literal_error = LexerError::
-                                                new(current_position.clone(), current_line)
-                                                .set_info_as_string("character literal",Some('\''));
-                                            return Err(char_literal_error);
-                                        },
-                                        _ => {
-                                            let char_literal_error = LexerError::
-                                                new(current_position.clone(), current_line)
-                                                .set_info('\'', None);
-                                            return Err(char_literal_error);
-                                        },
-                                    }
-                                } else if current_token.len() == 3 { 
-                                    let token_chars: Vec<char> = current_token.clone()
-                                        .chars()
-                                        .collect();
-                                    if !(token_chars[2] == '\'') {
-                                        current_position.decrement_column();
-                                        let char_literal_error = LexerError::
-                                            new(current_position.clone(), current_line)
-                                            .set_info('\'',Some(token_chars[2]));
-                                        return Err(char_literal_error);
-                                    } // otherwise ok.
-                                } else if current_token.len() == 4 {
-                                    let token_chars: Vec<char> = current_token.clone()
-                                        .chars()
-                                        .collect();
-                                    if token_chars[1] != '\\' || token_chars[3] != '\'' {
-                                        if token_chars[1] != '\'' {
-                                            // twice to move back to offending char
-                                            for _ in 0..2 {current_position.decrement_column();}
-                                            let char_literal_error = LexerError::
-                                                new(current_position.clone(), current_line)
-                                                .set_info('\'',Some(token_chars[2]));
-                                            return Err(char_literal_error);
-                                        }
-                                        if token_chars[3] !='\'' {
-                                            let char_literal_error = LexerError::
-                                                new(current_position.clone(), current_line)
-                                                .set_info('\'',None);
-                                            return Err(char_literal_error);
-                                        }
-                                    } // otherwise all good
-                                } else {
-                                    current_position.decrement_column();
-                                    let char_literal_error = LexerError::
-                                    new(current_position.clone(), current_line)
-                                        .set_info_raw("Character literal is too long.");
-                                    return Err(char_literal_error);
                                 }
                             },
                             _ => {}, //otherwise do nothing
