@@ -5,7 +5,7 @@ license = "MIT"
 version = "0.3.1"
 authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
 repository = "https://github.com/Alfriadox/Wright-lang"
-documentation = "https://alfriadox.github.io/Wright-lang"
+documentation = "https://docs.rs/wright"
 
 
 [lib]
@@ -20,6 +20,12 @@ ansi_term = "0.10.2"
 doc = false
 name = "wright"
 path = "src/wright.rs"
+
+[[bin]]
+doc = false
+name = "kittyhawk"
+path = "src/kittyhawk.rs"
+
 
 [badges]
 travis-ci = { repository = "Alfriadox/Wright-lang" }
