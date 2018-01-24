@@ -2,6 +2,15 @@
 //!
 use super::parser::Parser;
 
+extern crate ansi_term;
+use self::ansi_term::Color;
+use self::ansi_term::Color::*;
+
+/// Color code for errors used throughout entire error reporting system.
+pub const ERROR_COLORS: [Color; 4] = [
+    Red, Cyan, Green, Cyan,
+];
+
 #[derive(Debug)]
 /// Interpreter struct
 pub struct Interpreter {
@@ -25,11 +34,17 @@ impl Interpreter {
     pub fn get_name(&self) -> String { return self.file_name.clone();}
     /// Interpreter execution function
     pub fn run(&mut self) -> i32 {
-        println!("{}:", self.file_name);
-        let lexer_result = self.parser.lex();
-        match lexer_result {
+        //println!("{}:", self.file_name);
+        let parser_result = self.parser.parse();
+        //println!("{:?}", parser_result);
+        match parser_result {
             Ok(_) => 0,
-            Err(_) => 1,
+            Err(vec) => {
+                for e in vec {
+                    println!("{}", e);
+                }
+                return 1;
+            },
         }
     }
 }

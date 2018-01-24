@@ -1,7 +1,7 @@
 use std::fmt;
-use lexer::position::Position;
+use position::Position;
 extern crate ansi_term;
-use self::ansi_term::Color::*;
+use interpreter::ERROR_COLORS;
 
 #[derive(Debug, Clone)]
 /// Structure for lexer errors.
@@ -33,15 +33,15 @@ impl LexerError {
     /// Follows builder style.
     pub fn set_info(self, expected: char, found: Option<char>) -> Self {
         let mut self_cloned = self.clone();
-        self_cloned.info = format!("Expected {} found {}.", expected,
+        self_cloned.info = format!("Expected '{}' found {}.", expected,
                             // conversion from char -> String
                             if let Some(n) = found {
                                 let mut temp_slice: [u8; 4] = [0;4];
                                 let n_as_str = n.encode_utf8(&mut temp_slice);
-                                n_as_str.to_string()
+                                ["'", n_as_str, "'"].concat()
                             } else {"end of file".to_string()});
         let current_line_borrow = self.line.clone();
-        for c in current_line_borrow.chars().take(self.position.col-1) {
+        for c in current_line_borrow.chars().take(self.position.get_col()-1) {
             match c {
                 '\t' => self_cloned.arrow_str.push('\t'),
                 _ =>  self_cloned.arrow_str.push(' '),
@@ -61,10 +61,10 @@ impl LexerError {
                             if let Some(n) = found {
                                 let mut temp_slice: [u8; 4] = [0;4];
                                 let n_as_str = n.encode_utf8(&mut temp_slice);
-                                n_as_str.to_string()
+                                ["'", n_as_str, "'"].concat()
                             } else {"end of file".to_string()});
         let current_line_borrow = self.line.clone();
-        for c in current_line_borrow.chars().take(self.position.col-1) {
+        for c in current_line_borrow.chars().take(self.position.get_col()-1) {
             match c {
                 '\t' => self_cloned.arrow_str.push('\t'),
                 _ =>  self_cloned.arrow_str.push(' '),
@@ -81,18 +81,17 @@ impl LexerError {
     /// specifying that any of those characters would have been acceptable coming next.
     /// Automatically generates an error message.
     /// Follows builder style.
+    /// Panics if `expected` is an empty vector.
     pub fn set_info_as_vec(self, expected: Vec<char>, found: Option<char>) -> Self {
         // formats the error message properly.
-        let mut expected_string = "".to_string();
+        let mut expected_string = "'".to_string();
         let mut self_cloned = self.clone();
         for e in expected[0..expected.len()-1].iter() {
             expected_string.push(*e);
-            expected_string.push_str(", ");
+            expected_string.push_str("', '");
         }
         // remove extra ', '
-        expected_string.pop();
-        expected_string.pop();
-        // close with ')'
+        for _ in 0..3 {expected_string.pop();}
         expected_string.push_str(" or ");
         expected_string.push(*(expected.last().unwrap()));
         self_cloned.info = format!("Expected {} found {}.", expected_string,
@@ -100,10 +99,10 @@ impl LexerError {
                             if let Some(n) = found {
                                 let mut temp_slice: [u8; 4] = [0;4];
                                 let n_as_str = n.encode_utf8(&mut temp_slice);
-                                n_as_str.to_string()
+                                ["'", n_as_str, "'"].concat()
                             } else {"end of file".to_string()});
         let current_line_borrow = self.line.clone();
-        for c in current_line_borrow.chars().take(self.position.col-1) {
+        for c in current_line_borrow.chars().take(self.position.get_col()-1) {
             match c {
                 '\t' => self_cloned.arrow_str.push('\t'),
                 _ =>  self_cloned.arrow_str.push(' '),
@@ -119,7 +118,7 @@ impl LexerError {
         let mut self_cloned = self.clone();
         self_cloned.info = arg_info.to_string();
         let current_line_borrow = self.line.clone();
-        for c in current_line_borrow.chars().take(self.position.col-1) {
+        for c in current_line_borrow.chars().take(self.position.get_col()-1) {
             match c {
                 '\t' => self_cloned.arrow_str.push('\t'),
                 _ =>  self_cloned.arrow_str.push(' '),
@@ -134,16 +133,18 @@ impl LexerError {
 /// Uses the [ansi_term](https://crates.io/crates/ansi_term) crate to color output.
 impl fmt::Display for LexerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{name} in {module} at {line}:{col}:\n{five}{i}\n{five} {b}\n{line:>width$} {b} {l}\n{five} {b} {a}\n",
-               name = Red.paint("LexerError"),
-               line = self.position.line,
-               width = 5,
-               module = Cyan.paint(self.module_name.clone()),
-               col = self.position.col,
-               five = " ".repeat(5),
-               i = Blue.paint(self.info.clone()),
-               l = Green.paint(self.line.clone()),
-               b = Blue.paint("|"),
-               a = Red.bold().paint(self.arrow_str.clone()))
+        write!(f, "{name} in {module} at {line}:{col}:\n{five}{i}\n{five} {b}\n{line:>width$} {b} \
+                {l}\n{five} {b} {a}\n",
+            name = ERROR_COLORS[0].paint("LexerError"),
+            line = self.position.get_line(),
+            width = 5,
+            module = ERROR_COLORS[1].paint(self.module_name.clone()),
+            col = self.position.get_col(),
+            five = " ".repeat(5),
+            i = ERROR_COLORS[3].paint(self.info.clone()),
+            l = ERROR_COLORS[2].paint(self.line.clone()),
+            b = ERROR_COLORS[3].paint("|"),
+            a = ERROR_COLORS[1].bold().paint(self.arrow_str.clone())
+        )
     }
 }

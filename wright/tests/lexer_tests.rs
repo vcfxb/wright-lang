@@ -1,6 +1,6 @@
 extern crate wright;
 use wright::lexer::*;
-use wright::lexer::position::*;
+use wright::position::*;
 use wright::lexer::error::LexerError;
 
 #[test]
