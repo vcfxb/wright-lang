@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["argparser","The command line argument parser for Wright"],["interpreter","Interpreter module."],["lexer","Lexer Module."],["parser","Parser module for Wright. Includes preliminary lexer function."],["run",""],["version",""]]});
