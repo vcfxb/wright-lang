@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["LexerError","Structure for lexer errors."]]});
