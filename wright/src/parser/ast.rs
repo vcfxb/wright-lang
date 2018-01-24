@@ -1,3 +1,5 @@
+use internals::*;
+
 #[derive(Clone, Debug)]
 /// Expression enum.
 pub enum Expression {
@@ -96,7 +98,7 @@ pub struct Cast {
 #[derive(Debug, Clone)]
 /// Literal struct.
 pub struct Literal {
-    pub literal: String,
+    pub literal: Primitive,
 }
 
 #[derive(Debug, Clone)]
@@ -107,6 +109,7 @@ pub struct Identifier {
 
 #[derive(Debug, Clone)]
 /// Type struct.
+/// Neither an Expression or a Statement.
 pub struct Type {
     pub id: String,
     pub type_parameters: Vec<Type>,
@@ -116,7 +119,7 @@ pub struct Type {
 /// Function call.
 pub struct Call {
     pub callee: Identifier,
-    pub args: Vec<Box<Expression>>,
+    pub args: Vec<Expression>,
 }
 
 #[derive(Debug, Clone)]
@@ -125,6 +128,7 @@ pub enum Statement {
     Block(Block),
     Expression(Expression),
     Assignment(Assignment),
+    Reassignment(Reassignment),
     WhileLoop(WhileLoop),
     ForLoop(ForLoop),
     FnDef(FunctionDefinition),
@@ -132,6 +136,7 @@ pub enum Statement {
     TraitDef(TraitDeclaration),
     EnumDef(EnumDeclaration),
     ConstDef(Constant),
+    Impl(ImplBlock),
     Return(Return),
     Break(Break),
     Continue(Continue),
@@ -151,14 +156,21 @@ pub enum Assigner {
 pub struct Assignment {
     pub left: Identifier,
     pub assign_type: Assigner,
-    pub right: Box<Expression>,
+    pub right: Expression,
     pub declared_type: Option<Type>,
+}
+
+#[derive(Debug, Clone)]
+/// Reassignment statement.
+pub struct Reassignment {
+    pub left: Identifier,
+    pub right: Expression,
 }
 
 #[derive(Debug, Clone)]
 /// Block of statements.
 pub struct Block {
-    pub statements: Vec<Box<Statement>>,
+    pub statements: Vec<Statement>,
 }
 
 #[derive(Debug, Clone)]
@@ -196,7 +208,8 @@ pub struct ForLoop {
 pub struct FunctionDefinition {
     pub declared_type: Option<Type>,
     pub id: Identifier,
-    pub args: Vec<(Identifier, Option<Type>)>, //(name, type)
+    pub args: Vec<Identifier>,
+    pub visibility: Visibility,
     pub block: Block,
 }
 
@@ -204,17 +217,19 @@ pub struct FunctionDefinition {
 /// Class declaration struct.
 pub struct ClassDeclaration {
     pub generics: Vec<Type>,
-    pub id: Identifier,
-    pub traits_implemented: Vec<Identifier>,
-    pub fields: Vec<(Identifier, Type)>,
+    pub id: Type,
+    pub visibility: Visibility,
+    pub traits_implemented: Vec<Type>,
+    pub fields: Vec<(Identifier, Visibility)>,
 }
 
 #[derive(Debug, Clone)]
 /// Trait declaration struct.
 pub struct TraitDeclaration {
     pub generics: Vec<Type>,
-    pub id: Identifier,
+    pub id: Type,
     pub requires: Vec<Identifier>,
+    pub visibility: Visibility,
     pub block: Block,
 }
 
@@ -222,14 +237,25 @@ pub struct TraitDeclaration {
 /// Enum (tagged union) declaration struct.
 pub struct EnumDeclaration {
     pub generics: Vec<Type>,
-    pub id: Identifier,
+    pub id: Type,
+    pub visibility: Visibility,
     pub variants: Vec<ClassDeclaration>,
+}
+
+#[derive(Debug, Clone)]
+/// Struct for an impl block.
+pub struct ImplBlock {
+    pub generics: Vec<Type>,
+    pub on_id: Identifier,
+    pub for_trait_if_any: Option<Identifier>,
+    pub contents: Block,
 }
 
 #[derive(Debug, Clone)]
 /// Constant struct.
 pub struct Constant {
     pub id: Identifier,
+    pub visibility: Visibility,
     pub declared_type: Option<Type>,
     pub val: Box<Expression>,
 }
@@ -244,6 +270,13 @@ pub struct Return {
 /// Loop annotation struct.
 pub struct LoopAnnotation {
     pub id: String,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+/// Enum for visibility.
+pub enum Visibility {
+    Private,
+    Public,
 }
 
 #[derive(Debug, Clone)]
