@@ -3,6 +3,9 @@ use wright::lexer::*;
 use wright::position::*;
 use wright::lexer::error::LexerError;
 
+// overhaul due here soon
+// todo!
+
 #[test]
 #[ignore]
 fn print_err() {
@@ -22,6 +25,7 @@ fn print_err_vec() {
 }
 
 #[test]
+#[ignore]
 fn catch_double_char_err() {
     let mut test_lexer = Lexer::new("'ha'".to_string());
     let result = test_lexer.lex();
@@ -30,6 +34,7 @@ fn catch_double_char_err() {
 }
 
 #[test]
+#[ignore]
 fn catch_unended_char_err() {
     let mut test_lexer = Lexer::new("'h".to_string());
     let result = test_lexer.lex();
@@ -39,6 +44,7 @@ fn catch_unended_char_err() {
 
 
 #[test]
+#[ignore]
 fn escaped_char() {
     let mut test_lexer = Lexer::new("'\\a'".to_string());
     assert!(test_lexer.lex().is_ok());
@@ -46,6 +52,7 @@ fn escaped_char() {
 
 
 #[test]
+#[ignore]
 fn catch_long_char_err() {
     let mut test_lexer = Lexer::new("'hello world'".to_string());
     let result = test_lexer.lex();
