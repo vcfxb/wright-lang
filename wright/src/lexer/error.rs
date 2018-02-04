@@ -1,7 +1,7 @@
 use std::fmt;
 use position::Position;
 extern crate ansi_term;
-use interpreter::ERROR_COLORS;
+use errors::ERROR_COLORS;
 
 #[derive(Debug, Clone)]
 /// Structure for lexer errors.

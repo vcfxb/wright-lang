@@ -2,14 +2,6 @@
 //!
 use super::parser::Parser;
 
-extern crate ansi_term;
-use self::ansi_term::Color;
-use self::ansi_term::Color::*;
-
-/// Color code for errors used throughout entire error reporting system.
-pub const ERROR_COLORS: [Color; 4] = [
-    Red, Cyan, Green, Cyan,
-];
 
 #[derive(Debug)]
 /// Interpreter struct

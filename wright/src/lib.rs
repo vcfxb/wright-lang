@@ -6,3 +6,4 @@ pub mod interpreter;
 pub mod lexer;
 pub mod position;
 pub mod internals;
+pub mod errors;
