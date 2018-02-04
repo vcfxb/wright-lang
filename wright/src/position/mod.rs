@@ -1,5 +1,8 @@
 //! Module used by parser and lexer for tracking position in source.
 
+/// Span is a class used to store pairs of Positions.
+pub mod span;
+
 #[derive(Debug, Copy, Clone)]
 /// Position of the reading head in the file, indexed starting at 1.
 /// Mainly for user interfacing.
