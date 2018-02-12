@@ -62,7 +62,7 @@ pub trait Error<'source> : Debug + Sized {
     /// Returns a vector of the content spans of the offending content.
     ///
     /// If there are no spans (the vector is empty) then line numbers will not
-    /// be used in error reporting.
+    /// be used in error reporting. (The entire source will be printed.)
     ///
     /// Spans must be single line only. (The error is invalid otherwise.)
     fn get_spans(&self)  -> &Vec<Span>;
@@ -80,6 +80,10 @@ pub trait Error<'source> : Debug + Sized {
     fn get_info(&self)   -> &Vec<&str>;
 
     /// Return a reference to the source code of the module (file) containing the error.
+    /// Or the source of the error if it was not in code.
+    ///
+    /// If line numbers are not being used, the full source returned by this
+    /// function will be printed.
     ///
     /// The error will be invalid if the source is not long enough to contain the errors found.
     fn get_lines(&self)  -> &'source Vec<&'source str>;
@@ -163,8 +167,9 @@ impl<'source> fmt::Display for ErrorToDisplay<'source> {
         let bar = BAR_COLOR.paint("|");
         let info = self.clone().error_info;
         let mut info_iter = info.iter();
+        let no_span = self.spans.is_empty();
         let mut span_iter = self.spans.iter();
-        write!(f, "{level}: {n} in {m} {l_info}\n{f}{info}\n{f} {b}\n",
+        writeln!(f, "{level}: {n} in {m} {l_info}\n{f}{info}\n{f} {b}",
             level = format!("{}", self.level),
             n = NAME_COLOR.paint(self.name.clone()),
             m = MODULE_COLOR.paint(self.module.clone()),
@@ -189,7 +194,7 @@ impl<'source> fmt::Display for ErrorToDisplay<'source> {
             });
             arrow_line.push_str("^".repeat(span.get_end().get_col()-span.get_start().get_col())
                 .as_str());
-            write!(f, "{prev:>w$} {b} {p_line}\n{cur:>w$} {b} {c_line}\n{f} {b} {a_line} {info}",
+            writeln!(f, "{prev:>w$} {b} {p_line}\n{cur:>w$} {b} {c_line}\n{f} {b} {a_line} {info}",
                 prev = span.get_start().get_line()-1,
                 cur = span.get_start().get_line(),
                 p_line = CONTENT_COLOR.paint(
@@ -204,6 +209,15 @@ impl<'source> fmt::Display for ErrorToDisplay<'source> {
                     .as_str()),
             )?;
         }
-        write!(f, "{} {}", five, bar)
+        if no_span {
+            for line in self.source_lines {
+                writeln!(f, "{f} {b} {l}",
+                    f= five,
+                    b = bar,
+                    l = CONTENT_COLOR.paint(*line),
+                )?;
+            }
+        }
+        writeln!(f, "{} {}", five, bar)
     }
 }
