@@ -9,7 +9,6 @@ use self::ansi_term::Color::*;
 use self::ansi_term::Color;
 
 /// Color code for errors used throughout entire error reporting system.
-///
 #[deprecated(since = "0.5.0")]
 pub const ERROR_COLORS: [Color; 4] = [
     Red, Cyan, Green, Cyan,
