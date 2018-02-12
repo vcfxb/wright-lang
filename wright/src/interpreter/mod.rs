@@ -2,7 +2,6 @@
 //!
 use super::parser::Parser;
 
-
 #[derive(Debug)]
 /// Interpreter struct
 pub struct Interpreter {

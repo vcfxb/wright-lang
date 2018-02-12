@@ -37,8 +37,8 @@ impl Position {
     /// Will not let column fall below 1.
     pub fn decrement_column_by(&mut self, amount: usize) {if self.col-amount>=1{self.col-=amount;}}
     /// Returns line number.
-    pub fn get_line(&self) -> usize { return self.line; }
+    pub fn get_line(&self) -> usize {self.line}
     /// Returns column number.
-    pub fn get_col(&self) -> usize { return self.col; }
+    pub fn get_col(&self) -> usize {self.col}
 
 }
