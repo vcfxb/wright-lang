@@ -14,7 +14,6 @@ pub const ERROR_COLORS: [Color; 4] = [
     Red, Cyan, Green, Cyan,
 ];
 
-
 /// Enum for error levels.
 #[derive(Debug, Copy, Clone)]
 pub enum ErrorLevel {Warning, Error}
