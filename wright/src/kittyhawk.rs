@@ -1,3 +1,1 @@
-fn main() {
-    println!("KittyHawk bytecode interpreter not yet implemented.");
-}
+fn main() { println!("The Kittyhawk bytecode interpreter is a work in progress."); }
