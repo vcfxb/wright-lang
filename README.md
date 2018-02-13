@@ -3,6 +3,8 @@
 
 [![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Alfriadox/Wright-lang.svg)](http://isitmaintained.com/project/Alfriadox/Wright-lang "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/Alfriadox/Wright-lang.svg)](http://isitmaintained.com/project/Alfriadox/Wright-lang "Percentage of issues still open")
 
 ##### Wright is a scripting language that is inspired by
 * Rust
