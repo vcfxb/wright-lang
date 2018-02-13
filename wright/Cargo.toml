@@ -14,6 +14,7 @@ crate-type = ["rlib","dylib"]
 [dependencies]
 regex = "0.2"
 ansi_term = "0.10.2"
+clap = "2.29.4"
 
 [[bin]]
 doc = false

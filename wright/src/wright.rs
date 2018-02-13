@@ -1,12 +1,29 @@
 extern crate wright;
-use std::{env, process};
-use wright::argparser;
+extern crate clap;
+use clap::App;
 use wright::run;
+use wright::version;
 
 fn main() {
-    if let Some(i) = argparser::argparse(env::args().collect()) {
-        process::exit(run::interpret_file(i));
-    } else {
-        process::exit(0);
-    }
+
+}
+
+
+/// Prints version string for wright.
+/// Should be identical to cargo version information.
+pub fn version() { println!("Wright language version {}", version::get_version().as_str()); }
+
+/// Prints help information for wright
+pub fn help() {
+    println!("
+    wright [OPTIONS] <INPUT>
+
+    Input:
+        Files are valid if they have a \".wr\" or \".wright\" extension.
+
+    Options:
+        -h, --help                  Display this message.
+        -v, --version               Display version information
+    "
+    );
 }
