@@ -1,29 +1,23 @@
 extern crate wright;
 extern crate clap;
 use clap::App;
+use clap::Arg;
 use wright::run;
-use wright::version;
+use wright::version::VERSION;
 
 fn main() {
-
-}
-
-
-/// Prints version string for wright.
-/// Should be identical to cargo version information.
-pub fn version() { println!("Wright language version {}", version::get_version().as_str()); }
-
-/// Prints help information for wright
-pub fn help() {
-    println!("
-    wright [OPTIONS] <INPUT>
-
-    Input:
-        Files are valid if they have a \".wr\" or \".wright\" extension.
-
-    Options:
-        -h, --help                  Display this message.
-        -v, --version               Display version information
-    "
-    );
+    let app = App::new("Wright")
+        .version(VERSION)
+        .author("Antonia Calia-Bogan (github.com/Alfriadox)")
+        .about("The Wright programming language interpreter.")
+        .arg(Arg::with_name("help")
+            .short("h")
+            .long("help")
+            .help("Prints help information."))
+        .arg(Arg::with_name("version")
+            .short("v")
+            .takes_value(false)
+            .long("version")
+            .help("Prints wright's version."))
+        .get_matches();
 }
