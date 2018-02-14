@@ -1,12 +1,11 @@
 # The Wright language
 ### A scripting language that flies
-
-[![Build Status](https://travis-ci.org/Alfriadox/Wright-lang.svg?branch=master)](https://travis-ci.org/Alfriadox/Wright-lang)
+[![Build Status](https://travis-ci.org/Wright-Language-Developers/Wright-lang.svg?branch=master)](https://travis-ci.org/Wright-Language-Developers/Wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Alfriadox/Wright-lang.svg)](http://isitmaintained.com/project/Alfriadox/Wright-lang "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/Alfriadox/Wright-lang.svg)](http://isitmaintained.com/project/Alfriadox/Wright-lang "Percentage of issues still open")
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Langauge-Developers/Wright-lang "Percentage of issues still open")
 
-##### Wright is a scripting language that is inspired by
+##### Wright is a programming language that is inspired by
 * Rust
 * Java
 * Kotlin
@@ -17,6 +16,8 @@
 * Robustness
 * Reasonable speed
 * Memory Safety
+* Portability
+* Deployability
 
 ##### It functions on a system of
 * Strong typing
@@ -27,6 +28,6 @@
 
 ### Dependencies:
 * Rust (1.21.0 or greater)
+* Java Virtual Machine (JVM) from Java 9 or higher.
 
-## [See the Wright Book for more info.](https://alfriadox.github.io/Wright-lang/)
 #### Note: The makefile in the repository's root is for documentation purposes and will not build the project. 
