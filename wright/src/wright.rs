@@ -6,7 +6,7 @@ use wright::run;
 use wright::version::VERSION;
 
 fn main() {
-    let app = App::new("Wright")
+    let matches = App::new("Wright")
         .version(VERSION)
         .author("Antonia Calia-Bogan (github.com/Alfriadox)")
         .about("The Wright programming language interpreter.")
