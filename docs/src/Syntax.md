@@ -1,1 +1,0 @@
-# Wright Syntax
