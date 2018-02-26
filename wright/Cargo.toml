@@ -2,7 +2,7 @@
 name = "wright"
 description = "The rust package and API for the wright programming language."
 license = "MIT"
-version = "0.4.3"
+version = "0.5.0"
 authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
 repository = "https://github.com/Alfriadox/Wright-lang"
 documentation = "https://docs.rs/wright"
@@ -14,7 +14,7 @@ crate-type = ["rlib","dylib"]
 [dependencies]
 regex = "0.2"
 ansi_term = "0.10.2"
-clap = "2.29.4"
+clap = "~2.30.0"
 
 [[bin]]
 doc = false
@@ -25,11 +25,6 @@ path = "src/wright.rs"
 doc = false
 name = "kittyhawk"
 path = "src/kittyhawk.rs"
-
-[[bin]]
-doc = false
-name = "wrightc"
-path = "src/wrightc.rs"
 
 [[bin]]
 doc = false

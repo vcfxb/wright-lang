@@ -1,41 +1,43 @@
 //! Interpreter module.
 //!
-use super::parser::Parser;
 
-#[derive(Debug)]
-/// Interpreter struct
-pub struct Interpreter {
-    file_name: String,
-    content: String,
-    imports: Vec<Box<Interpreter>>,
-    parser: Parser,
+
+pub mod interpreter_error;
+use interpreter::interpreter_error::*;
+
+use super::parser::Parser;
+use std::io;
+use std::fs::File;
+use super::errors;
+
+#[derive(Debug, Copy, Clone)]
+/// Interpreter struct.
+pub struct Interpreter<'source> {
+    /// Name of source file.
+    pub file_name: &'source str,
+    /// String of content read from source file.
+    content:   &'source str,
 }
 
-impl Interpreter {
-    /// Constructor.
-    pub fn new(arg_file_name: String, arg_content: String,) -> Interpreter {
+impl<'source> Interpreter<'source> {
+    /// Creates a new interpreter, reading the contents of the argument file.
+    pub fn new(arg_file_name: &'source str) -> Interpreter<'source> {
         Interpreter {
-            file_name: arg_file_name.clone(),
-            content: arg_content.clone(),
-            imports: vec![],
-            parser: Parser::new(arg_file_name, arg_content.clone()),
-        }
-    }
-    /// File name accessor.
-    pub fn get_name(&self) -> String { return self.file_name.clone();}
-    /// Interpreter execution function
-    pub fn run(&mut self) -> i32 {
-        //println!("{}:", self.file_name);
-        let parser_result = self.parser.parse();
-        //println!("{:?}", parser_result);
-        match parser_result {
-            Ok(_) => 0,
-            Err(vec) => {
-                for e in vec {
-                    println!("{}", e);
+            file_name: arg_file_name,
+            content: {
+                match File::open(arg_file_name) {
+                    Ok(file_handle) => {
+                        unimplemented!()
+                    },
+                    Err(_) => {
+                        unimplemented!()
+                    }
                 }
-                return 1;
             },
         }
+    }
+    /// Interpreter execution function
+    pub fn run(&mut self) -> i32 {
+        unimplemented!()
     }
 }
