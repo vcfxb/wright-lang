@@ -9,7 +9,6 @@ use position::Position;
 pub mod error;
 use lexer::error::LexerError;
 
-
 use std::collections::HashSet;
 #[derive(Debug, Clone)]
 /// Lexer struct, which stores publicly a `tokens` field
