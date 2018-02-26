@@ -47,23 +47,23 @@ pub const CONTENT_COLOR: Color = Green;
 
 /// Trait for Errors. Any error used throughout the wright compiler/interpreter must implement
 /// this trait for consistency.
-pub trait Error<'source> : Debug + Sized {
+pub trait Error<'source: 'error, 'error> : Debug + Sized {
     /// Return the name of the error.
-    fn get_name(&self)   -> &str;
+    fn get_name(&'error self)   -> &'error str;
 
     /// Return the module or location the error came from.
-    fn get_module(&self) -> &str;
+    fn get_module(&'error self) -> &'source str;
 
     /// Returns the error level.
     fn get_level(&self) -> ErrorLevel;
 
-    /// Returns a vector of the content spans of the offending content.
+    /// Returns a slice of the content spans of the offending content.
     ///
     /// If there are no spans (the vector is empty) then line numbers will not
     /// be used in error reporting. (The entire source will be printed.)
     ///
     /// Spans must be single line only. (The error is invalid otherwise.)
-    fn get_spans(&self)  -> &Vec<Span>;
+    fn get_spans(&'error self) -> &'error [Span];
 
     /// Return information about the error.
     ///
@@ -75,7 +75,7 @@ pub trait Error<'source> : Debug + Sized {
     ///
     /// If the vector is empty or too short then each informative will default to an empty string
     /// except for the first one, which defaults to "An error occurred."
-    fn get_info(&self)   -> &Vec<&str>;
+    fn get_info(&'error self) -> &'error [&'error str];
 
     /// Return a reference to the source code of the module (file) containing the error.
     /// Or the source of the error if it was not in code.
@@ -84,7 +84,7 @@ pub trait Error<'source> : Debug + Sized {
     /// function will be printed.
     ///
     /// The error will be invalid if the source is not long enough to contain the errors found.
-    fn get_lines(&self)  -> &'source Vec<&'source str>;
+    fn get_lines(&self) -> &'source [&'source str];
 
     /// Check to see if the error is valid.
     /// (Checks to make sure there are the appropriate numbers of spans,
@@ -93,7 +93,7 @@ pub trait Error<'source> : Debug + Sized {
     /// # Errors
     /// - If any of the spans from get_spans are multiple lines.
     /// - If any of the spans are outside of the of the source module/file.
-    fn validate(&self) -> Result<(), ()> {
+    fn validate(&'error self) -> Result<(), ()> {
         if !self.get_spans()
             .iter()
             .all(|span| !span.is_multiple_lines()) {return Err(());}
@@ -107,16 +107,16 @@ pub trait Error<'source> : Debug + Sized {
     ///
     /// # Panics
     /// Panics if validate() returns an Err().
-    fn get_displayable(&self) ->  ErrorToDisplay<'source> {
+    fn get_displayable(&'error self) ->  ErrorToDisplay<'source, 'error> {
         self.validate().unwrap();
         let result = ErrorToDisplay {
             level:         self.get_level(),
-            name:          self.get_name().to_string(),
-            module:        self.get_module().to_string(),
+            name:          self.get_name(),
+            module:        self.get_module(),
             line_info:     ErrorToDisplay::get_line_info(self.get_spans()),
             error_info:    self.get_info().iter().map(|s| s.to_string()).collect(),
             source_lines:  self.get_lines(),
-            spans:         self.get_spans().clone(),
+            spans:         self.get_spans(),
         };
         return result;
     }
@@ -125,7 +125,7 @@ pub trait Error<'source> : Debug + Sized {
     ///
     /// # Panics
     /// Panics if validate() returns and Err().
-    fn display(&self) {
+    fn display(&'error self) {
         self.get_displayable().display();
     }
 }
@@ -133,32 +133,36 @@ pub trait Error<'source> : Debug + Sized {
 #[derive(Debug, Clone)]
 /// ErrorToDisplay is an intermediate type used to go from a raw error
 /// into a format that can be printed easily.
-pub struct ErrorToDisplay<'source> {
+pub struct ErrorToDisplay<'src, 'err> {
     level:          ErrorLevel,
-    name:           String,
-    module:         String,
+    name:           &'err str,
+    module:         &'src str,
     line_info:      String,
     error_info:     Vec<String>,
-    source_lines:   &'source Vec<&'source str>,
-    spans:          Vec<Span>,
+    source_lines:   &'src [&'src str],
+    spans:          &'err [Span],
 }
 
-impl<'source> ErrorToDisplay<'source> {
+impl<'src, 'err> ErrorToDisplay<'src, 'err> {
     /// Prints this error into the terminal.
     pub fn display(&self) {
         println!("{}", self);
     }
     // not pub because it doesn't need to be and it is pretty specific.
     /// Takes vec of spans and uses it to set line info.
-    fn get_line_info(span_vec: &Vec<Span>) -> String {
-        if span_vec.is_empty() {"".to_string()}
+    fn get_line_info(span_vec: &'err [Span]) -> String {
+        if span_vec.is_empty() { "".to_string() }
         else {
-            format!("on line {}.", span_vec.last().unwrap().get_start().get_line())
+            format!("on line {}.", span_vec
+                .last()
+                .unwrap()
+                .get_start()
+                .get_line())
         }
     }
 }
 
-impl<'source> fmt::Display for ErrorToDisplay<'source> {
+impl<'source, 'spans> fmt::Display for ErrorToDisplay<'source, 'spans> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let width = 5;
         let five = " ".repeat(width);
