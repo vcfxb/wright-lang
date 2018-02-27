@@ -1,4 +1,0 @@
-// prints "Hello, World!"
-func main() {
-    println("Hello, World!");
-}
