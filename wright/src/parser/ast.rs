@@ -1,5 +1,3 @@
-use internals::*;
-
 #[derive(Clone, Debug)]
 /// Expression enum.
 pub enum Expression {
@@ -98,7 +96,7 @@ pub struct Cast {
 #[derive(Debug, Clone)]
 /// Literal struct.
 pub struct Literal {
-    pub literal: Primitive,
+    pub literal: String,
 }
 
 #[derive(Debug, Clone)]

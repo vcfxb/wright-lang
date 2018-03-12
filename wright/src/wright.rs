@@ -1,9 +1,12 @@
 extern crate wright;
 extern crate regex;
 extern crate clap;
+
+use std::process;
 use clap::{Arg, App, AppSettings, SubCommand};
 use wright::version::VERSION;
-use regex::Regex;
+use wright::interpreter::Interpreter;
+//use regex::Regex;
 
 fn main() {
     let matches = App::new("Wright")
@@ -35,7 +38,11 @@ fn main() {
         .get_matches();
     if let Some(sub_run_matches) = matches.subcommand_matches("run") {
         if let Some(file) = sub_run_matches.value_of("INPUT") {
-            unimplemented!()
+            if let Some(interpreter) = Interpreter::new(file) {
+                unimplemented!()
+            } else {
+                process::exit(1);
+            }
         }
     }
 }
