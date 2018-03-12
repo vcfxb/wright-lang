@@ -16,7 +16,12 @@ pub const ERROR_COLORS: [Color; 4] = [
 
 /// Enum for error levels.
 #[derive(Debug, Copy, Clone)]
-pub enum ErrorLevel {Warning, Error}
+pub enum ErrorLevel {
+    /// Error level for warnings only.  Does not trigger process failure.
+    Warning, 
+    /// Error level for errors that prevent the process from completing successfully.
+    Error,
+}
 
 impl fmt::Display for ErrorLevel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
