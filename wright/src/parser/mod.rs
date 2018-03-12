@@ -16,7 +16,7 @@ use parser::error::*;
 
 /// This module contains functions for parsing tokens into representations.
 pub mod parse_into;
-use parser::parse_into::*;
+//use parser::parse_into::*;
 
 #[derive(Debug, Clone)]
 /// Parser struct.
