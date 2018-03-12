@@ -1,14 +1,16 @@
 //! Module containing struct to represent Interpreter Errors.
-//!
-//!
 
 use errors::{Error, ErrorLevel};
 use position::span::Span;
 
+/// Struct for an Interpreter Error.
+/// 
 #[derive(Debug, Copy, Clone)]
 pub struct InterpreterError<'source: 'error, 'error> {
-    file_name: &'source str,
-    reasons: &'error [&'error str],
+    /// Name of the file involved in the Error.
+    pub file_name: &'source str,
+    /// TODO: docs
+    pub reasons: &'error [&'error str],
 }
 
 impl<'src: 'err, 'err> Error<'src, 'err> for InterpreterError<'src, 'err> {
