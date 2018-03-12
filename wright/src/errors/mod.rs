@@ -1,5 +1,5 @@
 //! Error module.
-//! Contains traits and Constants for error printing.
+//! Contains traits and constants for error printing.
 
 use std::fmt;
 use std::fmt::Debug;
