@@ -45,7 +45,8 @@ test = false
 name = "airport"
 
 [badges]
-travis-ci = {repository = "Alfriadox/Wright-lang"}
+travis-ci = {repository = "Wright-Language-Developeres/Wright-lang"}
+appveyor = {repository = "Wright-Language-Developers/Wright-lang"}
 is-it-maintained-issue-resolution = { repository = "Wright-Language-Developers/Wright-lang" }
 is-it-maintained-open-issues = { repository = "Wright-Language-Developers/Wright-lang" }
 maintenance = { status = "experimental" }
