@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="" />
+    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,8 +20,8 @@
       <file leaf-file-name=".travis.yml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.travis.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="551">
-              <caret line="29" column="43" lean-forward="true" selection-start-line="29" selection-start-column="43" selection-end-line="29" selection-end-column="43" />
+            <state relative-caret-position="589">
+              <caret line="58" lean-forward="true" selection-start-line="58" selection-end-line="58" />
             </state>
           </provider>
         </entry>
@@ -98,8 +100,8 @@
         <option value="$PROJECT_DIR$/wright/src/bin/liftoff.rs" />
         <option value="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/.travis.yml" />
         <option value="$PROJECT_DIR$/wright/Cargo.toml" />
+        <option value="$PROJECT_DIR$/.travis.yml" />
       </list>
     </option>
   </component>
@@ -312,12 +314,12 @@
       <workItem from="1521226726168" duration="3341000" />
       <workItem from="1521230279868" duration="548000" />
       <workItem from="1521230841550" duration="1555000" />
-      <workItem from="1521232411990" duration="2054000" />
+      <workItem from="1521232411990" duration="3034000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8466000" />
+    <option name="totallyTimeSpent" value="9446000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -333,7 +335,7 @@
     <editor active="true" />
     <layout>
       <window_info id="Designer" order="0" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49918166" visible="true" weight="0.2603834" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49918166" visible="true" weight="0.16719915" />
       <window_info anchor="bottom" id="TODO" order="9" weight="0.32930845" />
       <window_info anchor="right" id="Cargo" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
@@ -624,8 +626,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.travis.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="551">
-          <caret line="29" column="43" lean-forward="true" selection-start-line="29" selection-start-column="43" selection-end-line="29" selection-end-column="43" />
+        <state relative-caret-position="589">
+          <caret line="58" lean-forward="true" selection-start-line="58" selection-end-line="58" />
         </state>
       </provider>
     </entry>
