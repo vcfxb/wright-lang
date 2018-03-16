@@ -4,15 +4,8 @@
 use std::fmt;
 use std::fmt::Debug;
 use position::span::Span;
-extern crate ansi_term;
-use self::ansi_term::Color::*;
-use self::ansi_term::Color;
-
-/// Color code for errors used throughout entire error reporting system.
-#[deprecated(since = "0.4.1")]
-pub const ERROR_COLORS: [Color; 4] = [
-    Red, Cyan, Green, Cyan,
-];
+extern crate colored;
+use self::colored::{ColoredString, Colorize};
 
 /// Enum for error levels.
 #[derive(Debug, Copy, Clone)]
@@ -25,30 +18,15 @@ pub enum ErrorLevel {
 
 impl fmt::Display for ErrorLevel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", match self {
-            &ErrorLevel::Warning => Yellow,
-            &ErrorLevel::Error   => Red,
-        }.paint(format!("{:?}", self)))
+        let s: &str = &format!("{:?}", self);
+        let c: ColoredString;
+        match *self {
+            ErrorLevel::Warning => {c = s.yellow()},
+            ErrorLevel::Error   => {c = s.red()},
+        }
+        write!(f, "{}", c)
     }
 }
-
-/// Color for names which are printed by the compiler.
-pub const NAME_COLOR: Color = Green;
-
-/// Color for modules when printed by the compiler.
-pub const MODULE_COLOR: Color = Cyan;
-
-/// Color for dividing bars used when displaying errors.
-pub const BAR_COLOR: Color = Cyan;
-
-/// Color for info line displayed.
-pub const INFO_COLOR: Color = Blue;
-
-/// Color for underlining arrows for error spans.
-pub const ARROW_COLOR: Color = Red;
-
-/// Color for source code that is displayed in error reporting.
-pub const CONTENT_COLOR: Color = Green;
 
 /// Trait for Errors. Any error used throughout the wright compiler/interpreter must implement
 /// this trait for consistency.
@@ -171,21 +149,22 @@ impl<'source, 'spans> fmt::Display for ErrorToDisplay<'source, 'spans> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let width = 5;
         let five = " ".repeat(width);
-        let bar = BAR_COLOR.paint("|");
+        let bar = "|".cyan();
         let info = self.clone().error_info;
         let mut info_iter = info.iter();
         let no_span = self.spans.is_empty();
         let mut span_iter = self.spans.iter();
         writeln!(f, "{level}: {n} in {m} {l_info}\n{f}{info}\n{f} {b}",
             level = format!("{}", self.level),
-            n = NAME_COLOR.paint(self.name.clone()),
-            m = MODULE_COLOR.paint(self.module.clone()),
+            n = self.name.clone().green(),
+            m = self.module.clone().cyan(),
             l_info = self.line_info,
             f = five,
             b = bar,
-            info = INFO_COLOR.paint(info_iter.next()
+            info = info_iter.next()
                 .unwrap_or(&"An Error Occurred.".to_string())
-                .as_str()),
+                .as_str()
+                .blue(),
         )?;
         while let Some(span) = span_iter.next() {
             let current_line: &str = self.source_lines
@@ -204,16 +183,20 @@ impl<'source, 'spans> fmt::Display for ErrorToDisplay<'source, 'spans> {
             writeln!(f, "{prev:>w$} {b} {p_line}\n{cur:>w$} {b} {c_line}\n{f} {b} {a_line} {info}",
                 prev = span.get_start().get_line()-1,
                 cur = span.get_start().get_line(),
-                p_line = CONTENT_COLOR.paint(
-                    self.source_lines.get(span.get_start().get_line()-2).unwrap().trim_right()),
-                c_line = CONTENT_COLOR.paint(current_line),
+                p_line = self.source_lines
+                    .get(span.get_start().get_line()-2)
+                    .unwrap()
+                    .trim_right()
+                    .green(),
+                c_line = current_line.green(),
                 w = width,
                 b = bar,
                 f = five,
-                a_line = ARROW_COLOR.paint(arrow_line),
-                info = INFO_COLOR.paint(info_iter.next()
+                a_line = arrow_line.red(),
+                info = info_iter.next()
                     .unwrap_or(&"".to_string())
-                    .as_str()),
+                    .as_str()
+                    .blue(),
             )?;
         }
         if no_span {
@@ -221,7 +204,7 @@ impl<'source, 'spans> fmt::Display for ErrorToDisplay<'source, 'spans> {
                 writeln!(f, "{f} {b} {l}",
                     f= five,
                     b = bar,
-                    l = CONTENT_COLOR.paint(*line),
+                    l = line.green(),
                 )?;
             }
         }
