@@ -2,50 +2,54 @@
 name = "wright"
 description = "The rust package and API for the wright programming language."
 license = "MIT"
-version = "0.5.1"
+version = "0.6.0"
 authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
 repository = "https://github.com/Wright-Language-Developers/Wright-lang"
 documentation = "https://docs.rs/wright"
 readme = "README.md"
 keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
-catagories = ["text-processing"]
 
 [lib]
 name = "wright"
 crate-type = ["rlib", "dylib"]
 test = true
 doctest = true
-bench = true
 doc = true
 
 [dependencies]
 regex = "0.2"
-ansi_term = "0.11.0"
+colored = "1.6.0"
 clap = "~2.31.0"
+cpython = "0.2.0"
+
 
 [[bin]]
 doc = false
+test = false
 name = "wright"
 path = "src/wright.rs"
 
 [[bin]]
 doc = false
+test = false
 name = "kittyhawk"
 path = "src/kittyhawk.rs"
 
 [[bin]]
 doc = false
+test = false
 name = "liftoff"
 path = "src/liftoff.rs"
 
 
 [[bin]]
 doc = false
+test = false
 name = "airport"
 path = "src/airport.rs"
 
 [badges]
 travis-ci = {repository = "Alfriadox/Wright-lang"}
-is-it-maintained-issue-resolution = { repository = "https://github.com/Wright-Language-Developers/Wright-lang" }
-is-it-maintained-open-issues = { repository = "https://github.com/Wright-Language-Developers/Wright-lang" }
+is-it-maintained-issue-resolution = { repository = "Wright-Language-Developers/Wright-lang" }
+is-it-maintained-open-issues = { repository = "Wright-Language-Developers/Wright-lang" }
 maintenance = { status = "experimental" }
