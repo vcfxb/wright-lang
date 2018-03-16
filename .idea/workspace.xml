@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -36,14 +33,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="133">
-                <caret line="3" column="142" selection-start-line="3" selection-start-column="142" selection-end-line="3" selection-end-column="142" />
-              </first_editor>
-              <second_editor />
+      <file leaf-file-name="script.sh" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ci/script.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="266">
+              <caret line="14" column="6" lean-forward="true" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -128,6 +122,11 @@
             <path>
               <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
               <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="ci" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
@@ -313,12 +312,12 @@
       <workItem from="1521226726168" duration="3341000" />
       <workItem from="1521230279868" duration="548000" />
       <workItem from="1521230841550" duration="1555000" />
-      <workItem from="1521232411990" duration="1168000" />
+      <workItem from="1521232411990" duration="1543000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7580000" />
+    <option name="totallyTimeSpent" value="7955000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -330,7 +329,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="33" width="1920" height="1047" extended-state="7" />
+    <frame x="0" y="33" width="1920" height="1047" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Designer" order="0" />
@@ -339,7 +338,7 @@
       <window_info anchor="right" id="Cargo" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.5005325" side_tool="true" weight="0.32930845" />
-      <window_info anchor="bottom" id="Run" order="5" sideWeight="0.49946752" visible="true" weight="0.32930845" />
+      <window_info anchor="bottom" id="Run" order="5" sideWeight="0.49946752" weight="0.32930845" />
       <window_info anchor="bottom" id="Version Control" order="1" />
       <window_info id="Structure" order="2" sideWeight="0.497545" side_tool="true" weight="0.25559106" />
       <window_info anchor="bottom" id="Terminal" order="2" />
@@ -550,13 +549,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/appveyor.cargo-config.toml" />
-    <entry file="file://$PROJECT_DIR$/ci/script.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
-          <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/appveyor.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="950">
@@ -613,6 +605,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="133">
+            <caret line="3" column="148" selection-start-line="3" selection-start-column="148" selection-end-line="3" selection-end-column="148" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wright/src/bin/wright.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="38">
@@ -620,13 +622,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="133">
-            <caret line="3" column="142" selection-start-line="3" selection-start-column="142" selection-end-line="3" selection-end-column="142" />
-          </first_editor>
-          <second_editor />
+    <entry file="file://$PROJECT_DIR$/ci/script.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="14" column="6" lean-forward="true" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
         </state>
       </provider>
     </entry>
