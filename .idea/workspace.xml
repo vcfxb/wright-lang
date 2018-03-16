@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/wright/src/bin/airport.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/bin/airport.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wright/src/bin/liftoff.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/bin/liftoff.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,8 +21,8 @@
       <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="836">
-              <caret line="44" column="16" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="16" />
+            <state relative-caret-position="76">
+              <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -37,16 +36,28 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="airport.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wright/src/bin/airport.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="6" column="91" lean-forward="true" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="91" />
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="133">
+                <caret line="3" column="142" selection-start-line="3" selection-start-column="142" selection-end-line="3" selection-end-column="142" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kittyhawk.rs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="airport.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/bin/airport.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="114">
+              <caret line="6" column="91" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="91" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="kittyhawk.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wright/src/bin/kittyhawk.rs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="19">
@@ -82,7 +93,6 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/wright/src/lib.rs" />
-        <option value="$PROJECT_DIR$/wright/Cargo.toml" />
         <option value="$PROJECT_DIR$/appveyor.cargo-config.toml" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/.travis.yml" />
@@ -94,6 +104,8 @@
         <option value="$PROJECT_DIR$/wright/src/bin/airport.rs" />
         <option value="$PROJECT_DIR$/wright/src/bin/liftoff.rs" />
         <option value="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" />
+        <option value="$PROJECT_DIR$/wright/Cargo.toml" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -165,7 +177,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Build">
+  <component name="RunManager" selected="Cargo Command.Check">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
@@ -301,12 +313,12 @@
       <workItem from="1521226726168" duration="3341000" />
       <workItem from="1521230279868" duration="548000" />
       <workItem from="1521230841550" duration="1555000" />
-      <workItem from="1521232411990" duration="326000" />
+      <workItem from="1521232411990" duration="1168000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="6738000" />
+    <option name="totallyTimeSpent" value="7580000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -322,12 +334,12 @@
     <editor active="true" />
     <layout>
       <window_info id="Designer" order="0" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49918166" visible="true" weight="0.2603834" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.49918166" visible="true" weight="0.2603834" />
       <window_info anchor="bottom" id="TODO" order="9" weight="0.32930845" />
       <window_info anchor="right" id="Cargo" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="0" side_tool="true" weight="0.32930845" />
-      <window_info active="true" anchor="bottom" id="Run" order="5" visible="true" weight="0.32930845" />
+      <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.5005325" side_tool="true" weight="0.32930845" />
+      <window_info anchor="bottom" id="Run" order="5" sideWeight="0.49946752" visible="true" weight="0.32930845" />
       <window_info anchor="bottom" id="Version Control" order="1" />
       <window_info id="Structure" order="2" sideWeight="0.497545" side_tool="true" weight="0.25559106" />
       <window_info anchor="bottom" id="Terminal" order="2" />
@@ -566,20 +578,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wright/src/bin/wright.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="836">
-          <caret line="44" column="16" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wright/src/lib.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
@@ -590,7 +588,7 @@
     <entry file="file://$PROJECT_DIR$/wright/src/bin/airport.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
-          <caret line="6" column="91" lean-forward="true" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="91" />
+          <caret line="6" column="91" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="91" />
         </state>
       </provider>
     </entry>
@@ -605,6 +603,30 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
           <caret line="1" column="29" selection-start-line="1" selection-start-column="29" selection-end-line="1" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/bin/wright.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="133">
+            <caret line="3" column="142" selection-start-line="3" selection-start-column="142" selection-end-line="3" selection-end-column="142" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>

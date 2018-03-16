@@ -1,6 +1,7 @@
 # The Wright language
 ### A scripting language that flies
 [![Build Status](https://travis-ci.org/Wright-Language-Developers/Wright-lang.svg?branch=master)](https://travis-ci.org/Wright-Language-Developers/Wright-lang)
+[![Build status](https://ci.appveyor.com/api/projects/status/kh76mn7ly95kish3?svg=true)](https://ci.appveyor.com/project/WrightLanguage/wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Langauge-Developers/Wright-lang "Percentage of issues still open")
