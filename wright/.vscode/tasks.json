@@ -5,12 +5,58 @@
     "tasks": [
         {
             "type": "shell",
-            "taskName": "cargo clean",
+            "taskName": "cargo build",
             "command": "cargo",
             "args": [
-                "clean"
+                "build"
             ],
-            "problemMatcher": []
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "shell",
+            "taskName": "cargo check",
+            "command": "cargo",
+            "args": [
+                "check"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "shell",
+            "taskName": "cargo test",
+            "command": "cargo",
+            "args": [
+                "test"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "shell",
+            "taskName": "cargo publish",
+            "command": "cargo",
+            "args": [
+                "publish"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "type": "shell",
+            "taskName": "cargo check",
+            "command": "cargo",
+            "args": [
+                "check"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ]
         }
     ]
 }
