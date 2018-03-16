@@ -3,15 +3,6 @@
 
 dist: trusty
 language: rust
-rust:
-  - 1.20.0
-  - 1.21.0
-  - 1.22.0
-  - 1.23.0
-  - 1.24.0
-  - stable
-  - beta
-  - nightly
 services: docker
 sudo: required
 
@@ -28,49 +19,223 @@ matrix:
   include:
     # Linux
     - env: TARGET=aarch64-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=arm-unknown-linux-gnueabi
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=armv7-unknown-linux-gnueabihf
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=i686-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=i686-unknown-linux-musl
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=mips-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=mips64-unknown-linux-gnuabi64
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=mips64el-unknown-linux-gnuabi64
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=mipsel-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=powerpc-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=powerpc64-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=powerpc64le-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=x86_64-unknown-linux-gnu
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=x86_64-unknown-linux-musl
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
 
     # OSX
     - env: TARGET=i686-apple-darwin
       os: osx
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=x86_64-apple-darwin
       os: osx
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
 
     # *BSD
     - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
     - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
 
     # Windows
     - env: TARGET=x86_64-pc-windows-gnu
-
-    # Bare metal
-    # These targets don't support std and as such are likely not suitable for
-    # most crates.
-    # - env: TARGET=thumbv6m-none-eabi
-    # - env: TARGET=thumbv7em-none-eabi
-    # - env: TARGET=thumbv7em-none-eabihf
-    # - env: TARGET=thumbv7m-none-eabi
-
-    # Testing other channels
-    - env: TARGET=x86_64-unknown-linux-gnu
-      rust: nightly
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
-      rust: nightly
+      rust:
+        - 1.20.0
+        - 1.21.0
+        - 1.22.0
+        - 1.23.0
+        - 1.24.0
+        - stable
+        - beta
+        - nightly
 
 before_install:
   - set -e
