@@ -20,7 +20,6 @@ doc = true
 regex = "0.2"
 colored = "1.6.0"
 clap = "~2.31.0"
-cpython = "0.2.0"
 
 
 [[bin]]
