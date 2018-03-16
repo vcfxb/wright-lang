@@ -27,26 +27,22 @@ cpython = "0.2.0"
 doc = false
 test = false
 name = "wright"
-path = "src/wright.rs"
 
 [[bin]]
 doc = false
 test = false
 name = "kittyhawk"
-path = "src/kittyhawk.rs"
 
 [[bin]]
 doc = false
 test = false
 name = "liftoff"
-path = "src/liftoff.rs"
 
 
 [[bin]]
 doc = false
 test = false
 name = "airport"
-path = "src/airport.rs"
 
 [badges]
 travis-ci = {repository = "Alfriadox/Wright-lang"}
