@@ -14,8 +14,8 @@ rust:
   - nightly
 
 # todo: if commenting out these two lines breaks everything, uncomment them
-#services: docker
-#sudo: required
+services: docker
+sudo: required
 
 
 env:
