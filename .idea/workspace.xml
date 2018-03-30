@@ -2,7 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/wright/src/lexer/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wright/src/parser/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wright/src/scanner/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wright/src/syntax/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wright/src/target/jvm/interpreter/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wright/tests/bytecode_tests.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/wright/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/errors/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/errors/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/interpreter/interpreter_error.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/interpreter/interpreter_error.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/interpreter/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/interpreter/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/target/jvm/bytecode.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/target/jvm/bytecode.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/target/jvm/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/target/jvm/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wright/src/version/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/wright/src/version/mod.rs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,70 +35,95 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name=".travis.yml" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.travis.yml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="5" column="5" selection-start-line="5" selection-start-column="5" selection-end-line="5" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="399">
-              <caret line="21" column="16" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="wright.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wright/src/bin/wright.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="38">
-              <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
+            <state relative-caret-position="304">
+              <caret line="16" column="42" selection-start-line="16" selection-start-column="42" selection-end-line="16" selection-end-column="42" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="airport.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wright/src/bin/airport.rs">
+      <file leaf-file-name="interpreter_error.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/interpreter/interpreter_error.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="6" column="91" selection-start-line="6" selection-start-column="4" selection-end-line="6" selection-end-column="91" />
+            <state relative-caret-position="532">
+              <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kittyhawk.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wright/src/bin/kittyhawk.rs">
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/interpreter/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1052">
+              <caret line="105" lean-forward="true" selection-start-line="105" selection-end-line="105" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="bytecode.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/target/jvm/bytecode.rs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="19">
-              <caret line="1" column="29" selection-start-line="1" selection-start-column="29" selection-end-line="1" selection-end-column="29" />
+              <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="liftoff.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wright/src/bin/liftoff.rs">
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/errors/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="57">
-              <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
+            <state relative-caret-position="342">
+              <caret line="36" column="48" selection-start-line="36" selection-start-column="48" selection-end-line="36" selection-end-column="48" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="lib.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wright/src/lib.rs">
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/lexer/mod.rs">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/scanner/mod.rs">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wright/src/parser/mod.rs">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wright/src/syntax/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
+            <state relative-caret-position="19">
+              <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="494">
+                <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="27" selection-end-column="18" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Rust File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -88,7 +131,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/wright/src/lib.rs" />
         <option value="$PROJECT_DIR$/appveyor.cargo-config.toml" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/ci/before-deploy.ps1" />
@@ -98,25 +140,37 @@
         <option value="$PROJECT_DIR$/appveyor.yml" />
         <option value="$PROJECT_DIR$/wright/src/bin/airport.rs" />
         <option value="$PROJECT_DIR$/wright/src/bin/liftoff.rs" />
-        <option value="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" />
+        <option value="$PROJECT_DIR$/wright/src/version/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/target/jvm/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/target/jvm/interpreter/mod.rs" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/wright/src/bin/kittyhawk.rs" />
+        <option value="$PROJECT_DIR$/wright/tests/bytecode_tests.rs" />
         <option value="$PROJECT_DIR$/wright/Cargo.toml" />
+        <option value="$PROJECT_DIR$/wright/src/lexer/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/parser/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/scanner/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/lib.rs" />
         <option value="$PROJECT_DIR$/.travis.yml" />
+        <option value="$PROJECT_DIR$/wright/src/interpreter/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/target/jvm/bytecode.rs" />
+        <option value="$PROJECT_DIR$/wright/src/errors/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/src/interpreter/interpreter_error.rs" />
+        <option value="$PROJECT_DIR$/wright/src/syntax/mod.rs" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="271" />
+    <option name="x" value="269" />
     <option name="y" value="33" />
-    <option name="width" value="1400" />
-    <option name="height" value="1000" />
+    <option name="width" value="1390" />
+    <option name="height" value="1006" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -128,11 +182,6 @@
             <path>
               <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
               <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
-              <item name="ci" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
               <item name="wright" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -146,12 +195,55 @@
               <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
               <item name="wright" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="bin" type="462c0819:PsiDirectoryNode" />
+              <item name="errors" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="wright" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="interpreter" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="wright" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lexer" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="wright" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="parser" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="wright" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="scanner" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="wright" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="syntax" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Wright-lang" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Wright-lang" type="462c0819:PsiDirectoryNode" />
+              <item name="wright" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="target" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -159,7 +251,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.javacompiler" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -178,7 +270,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Check">
+  <component name="RunManager" selected="Cargo Command.Build">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
@@ -314,12 +406,24 @@
       <workItem from="1521226726168" duration="3341000" />
       <workItem from="1521230279868" duration="548000" />
       <workItem from="1521230841550" duration="1555000" />
-      <workItem from="1521232411990" duration="4151000" />
+      <workItem from="1521232411990" duration="6589000" />
+      <workItem from="1521397832255" duration="396000" />
+      <workItem from="1521486283208" duration="7660000" />
+      <workItem from="1521565937762" duration="4652000" />
+      <workItem from="1521587521947" duration="3115000" />
+      <workItem from="1521634468325" duration="1856000" />
+      <workItem from="1521652020980" duration="152000" />
+      <workItem from="1522096833129" duration="5825000" />
+      <workItem from="1522155378693" duration="4934000" />
+      <workItem from="1522180948485" duration="3623000" />
+      <workItem from="1522352280457" duration="7000" />
+      <workItem from="1522352441605" duration="1639000" />
+      <workItem from="1522356715943" duration="3104000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10563000" />
+    <option name="totallyTimeSpent" value="49964000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -332,51 +436,36 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="33" width="1920" height="1047" extended-state="7" />
-    <editor active="true" />
     <layout>
-      <window_info id="Designer" order="0" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49918166" visible="true" weight="0.16719915" />
       <window_info anchor="bottom" id="TODO" order="9" weight="0.32930845" />
       <window_info anchor="right" id="Cargo" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.5005325" side_tool="true" weight="0.32930845" />
       <window_info anchor="bottom" id="Run" order="5" sideWeight="0.49946752" weight="0.32930845" />
       <window_info anchor="bottom" id="Version Control" order="1" />
-      <window_info id="Structure" order="2" sideWeight="0.497545" side_tool="true" weight="0.25559106" />
       <window_info anchor="bottom" id="Terminal" order="2" />
+      <window_info id="Designer" order="0" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49835345" weight="0.17358893" />
+      <window_info anchor="bottom" id="Find" order="4" weight="0.32930845" />
+      <window_info id="Structure" order="3" sideWeight="0.5016465" side_tool="true" weight="0.17358893" />
       <window_info anchor="bottom" id="Debug" order="6" weight="0.4" />
-      <window_info id="Favorites" order="3" sideWeight="0.5008183" side_tool="true" weight="0.24973376" />
+      <window_info id="Favorites" order="2" sideWeight="0.5008183" side_tool="true" weight="0.24973376" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="4" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/.travis.yml">
+    <entry file="file://$PROJECT_DIR$/wright/src/target/jvm/bytecode.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1976">
-          <caret line="104" column="21" lean-forward="true" selection-start-line="104" selection-start-column="21" selection-end-line="104" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="836">
-          <caret line="44" column="16" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wright/src/bin/airport.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="28" selection-start-column="28" selection-end-column="28" />
+        <state relative-caret-position="19038">
+          <caret line="1002" selection-start-line="1002" selection-end-line="1002" />
         </state>
       </provider>
     </entry>
@@ -558,13 +647,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wright/src/lib.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wright/src/bin/airport.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
@@ -579,44 +661,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wright/src/bin/kittyhawk.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="1" column="29" selection-start-line="1" selection-start-column="29" selection-end-line="1" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="133">
-            <caret line="3" column="148" selection-start-line="3" selection-start-column="148" selection-end-line="3" selection-end-column="148" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wright/src/bin/wright.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="18" selection-start-line="2" selection-start-column="18" selection-end-line="2" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/appveyor.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="847">
-          <caret line="50" column="17" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="399">
-          <caret line="21" column="16" selection-start-line="21" selection-start-column="16" selection-end-line="21" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ci/script.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="266">
@@ -624,10 +668,127 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/version/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="60" lean-forward="true" selection-start-line="3" selection-start-column="60" selection-end-line="3" selection-end-column="60" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/tests/bytecode_tests.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="20" lean-forward="true" selection-start-column="20" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/tests/interpreter_tests.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="7" lean-forward="true" selection-start-column="7" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/target/jvm/interpreter/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/bin/kittyhawk.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="494">
+            <caret line="26" column="6" selection-start-line="26" selection-start-column="6" selection-end-line="27" selection-end-column="18" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/appveyor.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="950">
+          <caret line="50" column="17" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/.travis.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="5" column="5" selection-start-line="5" selection-start-column="5" selection-end-line="5" selection-end-column="5" />
+        <state relative-caret-position="323">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/target/jvm/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="20" selection-start-line="2" selection-start-column="20" selection-end-line="2" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/bin/wright.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="304">
+          <caret line="16" column="42" selection-start-line="16" selection-start-column="42" selection-end-line="16" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/interpreter/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1052">
+          <caret line="105" lean-forward="true" selection-start-line="105" selection-end-line="105" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/target/jvm/bytecode.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" column="28" selection-start-line="1" selection-start-column="28" selection-end-line="1" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/errors/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="36" column="48" selection-start-line="36" selection-start-column="48" selection-end-line="36" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/interpreter/interpreter_error.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="532">
+          <caret line="28" lean-forward="true" selection-start-line="28" selection-end-line="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/lexer/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/scanner/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/parser/mod.rs">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/src/syntax/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
