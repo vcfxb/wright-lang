@@ -8,14 +8,13 @@ rust:
   - 1.22.0
   - 1.23.0
   - 1.24.0
+  - 1.24.1
   - stable
   - beta
   - nightly
 
-# todo: if commenting out these two lines breaks everything, uncomment them
 services: docker
 sudo: required
-
 
 env:
   global:
