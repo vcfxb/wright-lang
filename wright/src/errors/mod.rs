@@ -30,6 +30,11 @@ impl fmt::Display for ErrorLevel {
 
 /// Trait for Errors. Any error used throughout the wright compiler/interpreter must implement
 /// this trait for consistency.
+///
+/// #### Lifetime Clarification:
+/// 'source lifetime represents the time during which the source code being interpreted is alive.
+/// 'error  lifetime represents the time during which the error is alive.
+/// 'source is required to be longer than 'error
 pub trait Error<'source: 'error, 'error> : Debug + Sized {
     /// Return the name of the error.
     fn get_name(&'error self)   -> &'error str;
@@ -40,17 +45,17 @@ pub trait Error<'source: 'error, 'error> : Debug + Sized {
     /// Returns the error level.
     fn get_level(&self) -> ErrorLevel;
 
-    /// Returns a slice of the content spans of the offending content.
+    /// Returns a vector of the content spans of the offending content.
     ///
     /// If there are no spans (the vector is empty) then line numbers will not
-    /// be used in error reporting. (The entire source will be printed.)
+    /// be used in error reporting.
     ///
     /// Spans must be single line only. (The error is invalid otherwise.)
-    fn get_spans(&'error self) -> &'error [Span];
+    fn get_spans(&'error self) -> Vec<Span>;
 
     /// Return information about the error.
     ///
-    /// The first entry is displayed as the error information at the top of the error
+    /// The first item is displayed as the error information at the top of the error
     /// and the following ones are displayed next to the the underlining string for each span.
     ///
     /// Any additional information (past the appropriate number for the given set of spans)
@@ -58,7 +63,7 @@ pub trait Error<'source: 'error, 'error> : Debug + Sized {
     ///
     /// If the vector is empty or too short then each informative will default to an empty string
     /// except for the first one, which defaults to "An error occurred."
-    fn get_info(&'error self) -> &'error [&'error str];
+    fn get_info(&'error self) -> Vec<&'error str>;
 
     /// Return a reference to the source code of the module (file) containing the error.
     /// Or the source of the error if it was not in code.
@@ -89,7 +94,9 @@ pub trait Error<'source: 'error, 'error> : Debug + Sized {
     /// (ErrorToDisplay implements fmt::Display)
     ///
     /// # Panics
-    /// Panics if validate() returns an Err().
+    /// Panics if [`validate()`] returns an Err(()).
+    ///
+    /// [`validate()`]: ./trait.Error.html#method.validate
     fn get_displayable(&'error self) ->  ErrorToDisplay<'source, 'error> {
         self.validate().unwrap();
         let result = ErrorToDisplay {
@@ -107,7 +114,9 @@ pub trait Error<'source: 'error, 'error> : Debug + Sized {
     /// Displays a given error via the get_displayable method.
     ///
     /// # Panics
-    /// Panics if validate() returns and Err().
+    /// Panics if [`validate()`] returns and Err().
+    ///
+    /// [`validate()`]: ./trait.Error.html#method.validate
     fn display(&'error self) {
         self.get_displayable().display();
     }
@@ -123,7 +132,7 @@ pub struct ErrorToDisplay<'src, 'err> {
     line_info:      String,
     error_info:     Vec<String>,
     source_lines:   &'src [&'src str],
-    spans:          &'err [Span],
+    spans:          Vec<Span>,
 }
 
 impl<'src, 'err> ErrorToDisplay<'src, 'err> {
@@ -133,7 +142,7 @@ impl<'src, 'err> ErrorToDisplay<'src, 'err> {
     }
     // not pub because it doesn't need to be and it is pretty specific.
     /// Takes vec of spans and uses it to set line info.
-    fn get_line_info(span_vec: &'err [Span]) -> String {
+    fn get_line_info(span_vec: Vec<Span>) -> String {
         if span_vec.is_empty() { "".to_string() }
         else {
             format!("on line {}.", span_vec
