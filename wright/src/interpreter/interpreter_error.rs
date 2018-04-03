@@ -19,19 +19,19 @@ pub struct InterpreterError<'source: 'error, 'error> {
     /// use wright::errors::Error;
     /// let err = InterpreterError {
     ///     file_name: "example.wr",
-    ///     reasons: &["Could not open file."],
+    ///     reason: "Could not open file.",
     /// };
     /// err.display();
     /// ```
     /// [`&str`]: https://doc.rust-lang.org/stable/std/str/
-    pub reasons: &'error [&'error str; 1],
+    pub reason: &'error str,
 }
 
 impl<'src: 'err, 'err> Error<'src, 'err> for InterpreterError<'src, 'err> {
     fn get_name(&self) -> &'err str { "I/O Error" }
     fn get_module(&self) -> &'src str { self.file_name }
     fn get_level(&self) -> ErrorLevel { ErrorLevel::Error }
-    fn get_spans(&self) -> &'err [Span] { &[] }
-    fn get_info(&'err self) -> &'err [&'err str] { self.reasons }
+    fn get_spans(&self) -> Vec<Span> { vec![] }
+    fn get_info(&'err self) -> Vec<&'err str> { vec![self.reason] }
     fn get_lines(&self) -> &'src [&'src str] { &[] }
 }
