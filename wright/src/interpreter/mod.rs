@@ -1,5 +1,5 @@
 //! Interpreter module.
-//! 
+//! Contains struct and other items for representing an instance of the wright interpreter.
 
 extern crate regex; 
 use self::regex::Regex;
@@ -17,14 +17,13 @@ pub enum OptimizationLevel {
     Debug,
     /// Normal, non-intensive optimizations. Should be adequate for most use cases involving performance.
     Release,
-    /// Anything that can be done statically will be, including evaluation and execution.
+    /// Anything that can be done statically will be, including some (if not all)
+    /// evaluation and execution.
     SuperCompiler,
 }
 
 impl Default for OptimizationLevel {
-    fn default() -> Self {
-        OptimizationLevel::Debug
-    }
+    fn default() -> Self { OptimizationLevel::Debug }
 }
 
 #[derive(Debug)]
@@ -34,8 +33,15 @@ pub struct Interpreter<'source> {
     pub file_name  :   Option<&'source str>,
     /// String of content read from source file.
     pub contents   :   String,
+    /// Whether or not the interpreter is in REPL mode.
     pub interactive:   bool,
+    /// Optimization level to be used.  Will always be [`OptimizationLevel::Debug`] for REPLs.
+    ///
+    /// [`OptimizationLevel::Debug`]: ./enum.OptimizationLevel.html#variant.Debug
     pub level      :   OptimizationLevel,
+    /// File handle of output file if there is one. ([`File`])
+    ///
+    /// [`File`]: https://doc.rust-lang.org/std/fs/struct.File.html
     pub output     :   Option<File>,
 }
 
@@ -60,8 +66,8 @@ impl<'source> Interpreter<'source> {
                     Ok(_)  => {},
                     Err(_) => {
                         InterpreterError {
-                            file_name: file_name,
-                            reasons:   &["Could not read input file. (Was it valid UTF-8?)"],
+                            file_name,
+                            reason:   "Could not read input file. (Was it valid UTF-8?)",
                         }.display();
                         return None;
                     }
@@ -69,8 +75,7 @@ impl<'source> Interpreter<'source> {
             },
             Err(_) => {
                 InterpreterError {
-                    file_name: file_name,
-                    reasons: &["Could not open input file. (Does it exist?)"]
+                    file_name, reason: "Could not open input file. (Does it exist?)",
                 }.display();
                 return None;
             },
@@ -93,7 +98,7 @@ impl<'source> Interpreter<'source> {
             Err(_) => {
                 InterpreterError {
                     file_name: &output_name,
-                    reasons:   &["Could not create or open output file."],
+                    reason:   "Could not create or open output file.",
                 }.display();
                 return None;
             },
@@ -103,12 +108,13 @@ impl<'source> Interpreter<'source> {
             contents: buf, 
             file_name: Some(file_name),
             interactive: false,
-            level: level,
+            level,
             output: Some(out_file),
         })
     }
     /// Interpreter execution function
-    pub fn run(&mut self) -> i32 {
-        unimplemented!()
-    }
+    ///
+    /// # Panics:
+    /// Always; this function is not yet implemented.
+    pub fn run(&self) -> i32 { unimplemented!() }
 }
