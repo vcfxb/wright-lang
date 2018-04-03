@@ -1207,11 +1207,13 @@ pub enum OpCode {
     /// Implementation dependent opcode 1. Reserved to be used internally by tools like debuggers
     /// or JIT implementations. Will not show up in class files.
     /// See [jvms] for more information.
+    ///
     /// [jvms]: https://docs.oracle.com/javase/specs/jvms/se9/jvms9.pdf
     impdep1 = 0xfe,
     /// Implementation dependent opcode 2. Reserved to be used internally by tools like debuggers
     /// or JIT implementations. Will not show up in class files.
     /// See [jvms] for more information.
+    ///
     /// [jvms]: https://docs.oracle.com/javase/specs/jvms/se9/jvms9.pdf
     impdep2 = 0xff,
 }
