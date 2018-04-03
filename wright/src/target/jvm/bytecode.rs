@@ -1223,6 +1223,7 @@ impl OpCode {
     /// This function uses the **incredibly unsafe** [`mem::transmute`] under the hood.
     /// While it should, by design, never fail, it is the only use of unsafe in wright, and should
     /// be taken seriously as such.
+    ///
     /// [`mem::transmute`]: https://doc.rust-lang.org/std/mem/fn.transmute.html
     pub fn from_byte(byte: u8) -> OpCode { unsafe { ::std::mem::transmute::<u8, OpCode>(byte) } }
     /// Convert an opcode to a byte (u8).
