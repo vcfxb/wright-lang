@@ -2,10 +2,11 @@ extern crate wright;
 extern crate regex;
 extern crate clap;
 
-use std::process;
+use std::process::exit;
 use clap::{Arg, App, AppSettings};
 use wright::version::VERSION;
-use wright::interpreter::{Interpreter, OptimizationLevel};
+use wright::target::Target;
+use wright::interpreter::{Interpreter, OptimizationLevel, Emit};
 use regex::Regex;
 
 fn main() {
@@ -38,38 +39,79 @@ fn main() {
             .long("output")
             .takes_value(true)
         )
+        .arg(Arg::with_name("EMIT")
+            .short("e")
+            .long("emit")
+            .help("Prints intermediate representation(s).")
+            .takes_value(true)
+            .possible_values(&["lexemes", "tokens", "ast"])
+            .use_delimiter(true)
+            .multiple(true)
+            .conflicts_with("INTERACTIVE")
+            .requires("INPUT")
+        )
+        .arg(Arg::with_name("TARGET")
+            .short("t")
+            .long("target")
+            .help("The byte-code format to target")
+            .long_help("Tell wright what byte-code format to target. When not specified, and -r or --run \
+                is used, will use tree-walk style interpreter. The default when compiling is jvm.")
+            .takes_value(true)
+            .possible_values(&["jvm", "wasm", "bf"])
+            .multiple(false)
+            .conflicts_with_all(&["INTERACTIVE"])
+            .requires("INPUT")
+        )
         .arg(Arg::with_name("OPTIMIZE")
             .short("O")
             .long("opt")
             .help("Set Optimization Level. Default is debug.")
             .takes_value(true)
-            .possible_values(&["debug", "release", "supercompiler"])
-            .use_delimiter(false)
+            .possible_values(&["debug", "release"])
+            .multiple(false)
             .conflicts_with_all(&["RUN", "INTERACTIVE"])
             .requires("INPUT")
         )
         .get_matches();
     if !matches.is_present("INTERACTIVE") {
         let file = matches.value_of("INPUT").unwrap();
-        let mut interp = match Interpreter::new(file, OptimizationLevel::Debug, None) {
-            Some(i) => i,
-            None    => {process::exit(1)},
-        };
-        if matches.is_present("OUTPUT") {
-            interp = Interpreter::new(file, OptimizationLevel::Debug, Some(matches.value_of("OUTPUT").unwrap())).unwrap();
-        }
-        if matches.is_present("OPTIMIZE") {
-            interp.level = match matches.value_of("OPTIMIZE").unwrap() {
-                "debug"         => OptimizationLevel::Debug,
-                "release"       => OptimizationLevel::Release,
-                "supercompiler" => OptimizationLevel::SuperCompiler,
-                _               => panic!("Bad opt argument!"),
+        let out = matches.value_of("OUTPUT");
+        let mut emits: Vec<Emit> = Vec::with_capacity(3);
+        if matches.is_present("EMIT") {
+            for v in matches.values_of("EMIT").unwrap() {
+                emits.push(match v {
+                    "lexemes" => Emit::Lexemes,
+                    "tokens"  => Emit::Tokens,
+                    "ast"     => Emit::AbstractSyntaxTree,
+                    other => panic!("{} should not be a possible emit option.", other),
+                });
             }
         }
-        process::exit(interp.run());
+        let mut target: Target = Target::JVM;
+        let mut run: bool = matches.is_present("RUN");
+        if matches.is_present("TARGET") {
+            target = match matches.value_of("TARGET").unwrap() {
+                "wasm" => Target::WASM,
+                "jvm" => Target::JVM,
+                "bf" => Target::BrainFuck,
+                other => panic!("{} is not a possible target!", other),
+            }
+        }  else {
+            exit(match Interpreter::treewalker(file, emits) {Some(i) => i.run(), _ => 1});
+        }
+        let level = match matches.value_of("OPTIMIZE") {
+            Some("release") => OptimizationLevel::Release,
+            _ => OptimizationLevel::Debug
+        };
+
+        exit(match Interpreter::new(file, level, emits, Some(target), out, run) {
+            Some(i) => i.run(),
+            _ => 1
+        });
+
     } else {
-        let mut interp = Interpreter::new_interactive();
-        process::exit(interp.run());
+        let mut interp = Interpreter::Interactive;
+        exit(interp.run());
     }
 }
 
@@ -77,6 +119,7 @@ fn is_valid_wright_file_name(s: String) -> Result<(), String> {
     let re: Regex = Regex::new(r"[[:word:]]+.wr$|[[:word:]]+.wright$").unwrap(); 
     match re.is_match(s.as_str()) {
         true  => Ok(()),
-        false => Err(format!("{} doesn't end in .wr or .wright as all wright files should.", s)),
+        false => Err(format!("Wright file names can only contain alphanumerics and underscores and \
+        must end with .wr or .wright. ({} does not.)", s)),
     }
 }
