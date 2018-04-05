@@ -32,6 +32,6 @@ impl<'src: 'err, 'err> Error<'src, 'err> for InterpreterError<'src, 'err> {
     fn get_module(&self) -> &'src str { self.file_name }
     fn get_level(&self) -> ErrorLevel { ErrorLevel::Error }
     fn get_spans(&self) -> Vec<Span> { vec![] }
-    fn get_info(&'err self) -> Vec<&'err str> { vec![self.reason] }
+    fn get_info(&self) -> Vec<&'err str> { vec![self.reason] }
     fn get_lines(&self) -> &'src [&'src str] { &[] }
 }

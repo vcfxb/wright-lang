@@ -1,4 +1,4 @@
-//! TODO: DOCS
+// TODO: Module docs
 
 /// Java Magic Number; 
 /// Inserted and found at top of any and all valid .class files.

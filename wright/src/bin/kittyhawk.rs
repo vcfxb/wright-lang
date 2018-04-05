@@ -1,11 +1,14 @@
 extern crate wright;
-extern crate clap;
+//extern crate clap;
 
-use clap::{App, Arg, AppSettings};
+//use clap::{App, Arg, AppSettings};
 use wright::version::VERSION;
+use std::process::exit;
 
 fn main() {
-    let matches = App::new("Kittyhawk")
+    println!("Wright's jvm implementation is not yet implemented as of version {}.", VERSION);
+    exit(1);
+    /*let matches = App::new("Kittyhawk")
         .version(VERSION)
         .setting(AppSettings::ColorAlways)
         .author("Antonia Calia-Bogan (github.com/Alfriadox)")
@@ -20,6 +23,5 @@ fn main() {
             .long("dump")
             .help("Prints the file's bytecodes.")
         )
-        .get_matches();
-    unimplemented!()
+        .get_matches();*/
 }

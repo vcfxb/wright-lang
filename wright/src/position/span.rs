@@ -19,7 +19,5 @@ impl Span {
         self.start.get_line() <= self.end.get_line() && self.start.get_col() <= self.end.get_col()
     }
     /// Checks if the span is more than one line long.
-    pub fn is_multiple_lines(&self) -> bool {
-        self.start.get_line() < self.end.get_line()
-    }
+    pub fn is_multiple_lines(&self) -> bool { self.start.get_line() < self.end.get_line() }
 }
