@@ -117,9 +117,7 @@ pub trait Error<'source: 'error, 'error> : Debug + Sized {
     /// Panics if [`validate()`] returns and Err().
     ///
     /// [`validate()`]: ./trait.Error.html#method.validate
-    fn display(&'error self) {
-        self.get_displayable().display();
-    }
+    fn display(&'error self) { self.get_displayable().display(); }
 }
 
 #[derive(Debug, Clone)]
