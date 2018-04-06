@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="" />
+    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/wright/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/wright/Cargo.toml" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,7 +17,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="76">
@@ -24,11 +26,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wright/src/interpreter/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-274">
-              <caret line="68" column="8" lean-forward="true" selection-start-line="68" selection-start-column="8" selection-end-line="68" selection-end-column="8" />
+            <state relative-caret-position="258">
+              <caret line="75" column="24" selection-start-line="75" selection-start-column="24" selection-end-line="75" selection-end-column="24" />
               <folding>
                 <element signature="e#3264#3358#0" />
                 <element signature="e#3670#6231#0" />
@@ -175,8 +177,8 @@
         <option value="$PROJECT_DIR$/wright/src/interpreter/compiler.rs" />
         <option value="$PROJECT_DIR$/wright/src/interpreter/interpreter.rs" />
         <option value="$PROJECT_DIR$/wright/src/bin/wright.rs" />
-        <option value="$PROJECT_DIR$/wright/Cargo.toml" />
         <option value="$PROJECT_DIR$/wright/src/interpreter/mod.rs" />
+        <option value="$PROJECT_DIR$/wright/Cargo.toml" />
       </list>
     </option>
   </component>
@@ -306,7 +308,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Build">
+  <component name="RunManager" selected="Cargo Command.Publish">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
@@ -459,12 +461,12 @@
       <workItem from="1522788697636" duration="6024000" />
       <workItem from="1522867958570" duration="13137000" />
       <workItem from="1522959325068" duration="8525000" />
-      <workItem from="1522980546122" duration="2107000" />
+      <workItem from="1522980546122" duration="2570000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="87881000" />
+    <option name="totallyTimeSpent" value="88344000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -839,21 +841,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wright/src/interpreter/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-274">
-          <caret line="68" column="8" lean-forward="true" selection-start-line="68" selection-start-column="8" selection-end-line="68" selection-end-column="8" />
+        <state relative-caret-position="258">
+          <caret line="75" column="24" selection-start-line="75" selection-start-column="24" selection-end-line="75" selection-end-column="24" />
           <folding>
             <element signature="e#3264#3358#0" />
             <element signature="e#3670#6231#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wright/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="4" column="16" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="16" />
         </state>
       </provider>
     </entry>
