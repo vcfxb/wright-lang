@@ -66,7 +66,7 @@ pub enum Interpreter<'src> {
     /// Interactive (or REPL, as some people call it).
     /// Should be created just using:
     /// ```rust
-    /// #use wright::interpreter::Interpreter;
+    /// use wright::interpreter::Interpreter;
     /// let interactive = Interpreter::Interactive;
     /// ```
     Interactive,
