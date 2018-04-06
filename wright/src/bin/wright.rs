@@ -87,8 +87,8 @@ fn main() {
                 });
             }
         }
-        let mut target: Target = Target::JVM;
-        let mut run: bool = matches.is_present("RUN");
+        let target: Target;
+        let run: bool = matches.is_present("RUN");
         if matches.is_present("TARGET") {
             target = match matches.value_of("TARGET").unwrap() {
                 "wasm" => Target::WASM,
@@ -110,7 +110,7 @@ fn main() {
         });
 
     } else {
-        let mut interp = Interpreter::Interactive;
+        let interp = Interpreter::Interactive;
         exit(interp.run());
     }
 }
