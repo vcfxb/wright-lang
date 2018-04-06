@@ -73,7 +73,7 @@ pub enum Interpreter<'src> {
     /// Compiler; takes source file as input and compiles it to the output file.
     /// Should be created using the [`new`] function.
     ///
-    /// [`new`]: fn.new
+    /// [`new`]: #method.new
     Compiler {
         emits: Vec<Emit>,
         target: Target,
@@ -85,7 +85,7 @@ pub enum Interpreter<'src> {
     /// Interpreter; Takes source file, compiles it to a target, and runs it immediately.
     /// Should be created using the [`new`] function.
     ///
-    /// [`new`]: fn.new
+    /// [`new`]: #method.new
     Interpreter {
         emits: Vec<Emit>,
         target: Target,
@@ -96,7 +96,7 @@ pub enum Interpreter<'src> {
     /// Tree walk style interpreter; Takes a source file, parses it, and evaluates it as-is.
     /// Should be created using the [`treewalker`] function.
     ///
-    /// [`treewalker`]: fn.treewalker
+    /// [`treewalker`]: #method.treewalker
     TreeWalker {
         emits: Vec<Emit>,
         file_name: &'src str,
