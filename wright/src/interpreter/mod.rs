@@ -5,7 +5,13 @@ extern crate regex;
 use self::regex::Regex;
 pub mod interpreter_error;
 pub mod interactive;
+pub mod treewalker;
+pub mod compiler;
+pub mod interpreter;
 use interpreter::interactive::interactive;
+use interpreter::treewalker::treewalker;
+use interpreter::interpreter::interpret;
+use interpreter::compiler::compile;
 use interpreter::interpreter_error::*;
 use errors::Error;
 use std::io::{Read, Write};
@@ -186,10 +192,14 @@ impl<'source> Interpreter<'source> {
     ///
     /// # Panics:
     /// Always; this function is not yet implemented.
-    pub fn run(&self) -> i32 {
-        println!("{:?}", self);
-        match *self {
+    pub fn run(self) -> i32 {
+        //println!("{:?}", self);
+        match self {
             Interpreter::Interactive => interactive(),
+            Interpreter::TreeWalker{emits, file_name, input} =>
+                {treewalker(emits, file_name, input.as_bytes())},
+            Interpreter::Interpreter {emits, target, optimization, file_name, input} => {unimplemented!()},
+            Interpreter::Compiler {emits, target, output, optimization, file_name, input} => {unimplemented!()},
             _ => unimplemented!(),
         }
     }
