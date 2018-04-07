@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/wright/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/wright/Cargo.toml" afterDir="false" />
-    </list>
+    <list default="true" id="4cc71f91-8fd4-43b7-ae38-ec32a9b7676c" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -308,7 +306,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Publish">
+  <component name="RunManager" selected="Cargo Command.Build">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
@@ -461,12 +459,12 @@
       <workItem from="1522788697636" duration="6024000" />
       <workItem from="1522867958570" duration="13137000" />
       <workItem from="1522959325068" duration="8525000" />
-      <workItem from="1522980546122" duration="2570000" />
+      <workItem from="1522980546122" duration="3165000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="88344000" />
+    <option name="totallyTimeSpent" value="88939000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -478,8 +476,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="33" width="1920" height="1047" extended-state="7" />
-    <editor active="true" />
+    <frame x="0" y="33" width="1920" height="1047" extended-state="6" />
     <layout>
       <window_info id="Designer" order="0" />
       <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49835345" weight="0.17518637" />
@@ -487,7 +484,7 @@
       <window_info anchor="right" id="Cargo" order="3" weight="0.32960597" />
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.50106496" side_tool="true" weight="0.32930845" />
-      <window_info active="true" anchor="bottom" id="Run" order="5" sideWeight="0.49893504" visible="true" weight="0.32930845" />
+      <window_info anchor="bottom" id="Run" order="5" sideWeight="0.49893504" weight="0.32930845" />
       <window_info anchor="bottom" id="Version Control" order="1" weight="0.32930845" />
       <window_info id="Structure" order="3" sideWeight="0.5016465" side_tool="true" weight="0.17358893" />
       <window_info anchor="bottom" id="Terminal" order="2" />
