@@ -106,11 +106,23 @@ pub enum Interpreter<'src> {
 
 impl<'source> Interpreter<'source> {
     /// Creates a new tree-walk interpreter, reading the contents of argument file.
+    /// Will return [`None`] if there are errors opening or reading from files.
+    /// (Will print out any errors that occur.)
+    /// If there are no errors, will return [`Some(...)`].
+    ///
+    /// [`None`]: https://doc.rust-lang.org/std/option/enum.Option.html#variant.None
+    /// [`Some(...)`]: https://doc.rust-lang.org/std/option/enum.Option.html#variant.Some
     pub fn treewalker(file_name: &'source str, emits: Vec<Emit>) -> Option<Interpreter<'source>> {
         Interpreter::new(file_name, OptimizationLevel::Debug, emits, None, None, true)
     }
 
     /// Creates a new interpreter, reading the contents of the argument file.
+    /// Will return [`None`] if there are errors opening or reading from (or in compilers, creating)
+    /// files.  (Will print out any errors that occur.)
+    /// If there are no errors, will return [`Some(...)`].
+    ///
+    /// [`None`]: https://doc.rust-lang.org/std/option/enum.Option.html#variant.None
+    /// [`Some(...)`]: https://doc.rust-lang.org/std/option/enum.Option.html#variant.Some
     pub fn new(
         file_name: &'source str,
         level: OptimizationLevel,
@@ -188,7 +200,7 @@ impl<'source> Interpreter<'source> {
         }
 
     }
-    /// Interpreter execution function
+    /// Interpreter execution function.
     ///
     /// # Panics:
     /// Always; this function is not yet implemented.
@@ -197,7 +209,7 @@ impl<'source> Interpreter<'source> {
         match self {
             Interpreter::Interactive => interactive(),
             Interpreter::TreeWalker{emits, file_name, input} =>
-                {treewalker(emits, file_name, input.as_bytes())},
+                {treewalker(emits, file_name, input.chars())},
             Interpreter::Interpreter {emits, target, optimization, file_name, input} => {unimplemented!()},
             Interpreter::Compiler {emits, target, output, optimization, file_name, input} => {unimplemented!()},
             _ => unimplemented!(),
