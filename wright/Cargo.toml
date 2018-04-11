@@ -2,7 +2,7 @@
 name = "wright"
 description = "The rust package and API for the wright programming language."
 license = "MIT"
-version = "0.7.3"
+version = "0.8.0"
 authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
 repository = "https://github.com/Wright-Language-Developers/Wright-lang"
 documentation = "https://docs.rs/wright"
@@ -22,7 +22,8 @@ clap = "~2.31.0"
 # 32-bit targets are apparently not supported by these crates.
 #wasmi = "0.1.1"
 #parity-wasm = "0.27"
-brain-brainfuck = "1.3.0"
+# Disabled in favor of making my own brainfuck interpreter.
+#brain-brainfuck = "1.3.0"
 
 [[bin]]
 doc = false
