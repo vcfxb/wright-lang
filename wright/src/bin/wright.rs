@@ -44,7 +44,7 @@ fn main() {
             .long("emit")
             .help("Prints intermediate representation(s).")
             .takes_value(true)
-            .possible_values(&["lexemes", "tokens", "ast"])
+            .possible_values(&["tokens", "ast"])
             .use_delimiter(true)
             .multiple(true)
             .conflicts_with("INTERACTIVE")
@@ -57,7 +57,7 @@ fn main() {
             .long_help("Tell wright what byte-code format to target. When not specified, and -r or --run \
                 is used, will use tree-walk style interpreter. The default when compiling is jvm.")
             .takes_value(true)
-            .possible_values(&["jvm", "wasm", "bf"])
+            .possible_values(&["jvm"])
             .multiple(false)
             .conflicts_with_all(&["INTERACTIVE"])
             .requires("INPUT")
@@ -80,7 +80,6 @@ fn main() {
         if matches.is_present("EMIT") {
             for v in matches.values_of("EMIT").unwrap() {
                 emits.push(match v {
-                    "lexemes" => Emit::Lexemes,
                     "tokens"  => Emit::Tokens,
                     "ast"     => Emit::AbstractSyntaxTree,
                     other => panic!("{} should not be a possible emit option.", other),
@@ -91,9 +90,9 @@ fn main() {
         let run: bool = matches.is_present("RUN");
         if matches.is_present("TARGET") {
             target = match matches.value_of("TARGET").unwrap() {
-                "wasm" => Target::WASM,
+                //"wasm" => Target::WASM,
                 "jvm" => Target::JVM,
-                "bf" => Target::BrainFuck,
+                //"bf" => Target::BrainFuck,
                 other => panic!("{} is not a possible target!", other),
             }
         }  else {

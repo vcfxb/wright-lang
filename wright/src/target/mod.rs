@@ -1,7 +1,7 @@
 
 pub mod jvm;
 pub mod treewalk;
-pub mod wasm;
+
 
 /// An enum representing targetable byte-code formats, including the Java Virtual Machine
 /// and WebAssembly.
@@ -9,9 +9,6 @@ pub mod wasm;
 #[allow(bad_style)]
 pub enum Target {
     /// Java Virtual Machine Class file format.
+    /// See [the JVM 9 Specification](https://docs.oracle.com/javase/specs/jvms/se9/html/index.html)
     JVM,
-    /// Web Assembly format.
-    WASM,
-    /// The BrainFuck esoteric language.
-    BrainFuck,
 }
