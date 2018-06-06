@@ -1,6 +1,8 @@
-use super::Emit;
-use std::io::Read;
+//! Module for the tree-walker style interpreter.
 
-pub fn treewalker<R: IntoIterator>(emits: Vec<Emit>, file_name: &str, input: R) -> i32 {
+use super::Emit;
+
+/// Function used to execute a file via tree-walking it. Currently not implemented.
+pub fn treewalker(emits: Vec<Emit>, file_name: &str, input: String) -> i32 {
     unimplemented!()
 }
