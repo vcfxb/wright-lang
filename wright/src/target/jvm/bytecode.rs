@@ -1,5 +1,5 @@
-// todo: module level docs.
-// todo: finish opcode docs.
+// TODO: module level docs.
+// TODO: finish opcode docs.
 
 /// Java 9 opcodes.
 ///
