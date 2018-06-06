@@ -51,6 +51,8 @@ and confusion.
 * Python
     * Type Inference
     * Ease of use
+* JavaScript
+    * Object Oriented Model
 
 ##### The core goals of the language:
 * Ease of use
