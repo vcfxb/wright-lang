@@ -8,6 +8,7 @@ repository = "https://github.com/Wright-Language-Developers/Wright-lang"
 documentation = "https://docs.rs/wright"
 readme = "../README.md"
 keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
+build = "src/build.rs"
 
 [lib]
 name = "wright"
@@ -18,10 +19,11 @@ doc = true
 [dependencies]
 regex = "~0.2.0"
 clap = "~2.31.0"
-pest = "1.0.6"
-pest_derive = "1.0.7"
 codespan = "0.1.2"
 codespan-reporting = "0.1.3"
+
+[build-dependencies]
+peg = { version = "0.5" }
 
 [[bin]]
 doc = false
