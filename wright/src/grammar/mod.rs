@@ -1,7 +1,4 @@
-#[cfg(debug_assertions)]
-const _GRAMMAR: &'static str = include_str!("grammar.pest"); // relative to this file
+//! Automatically generated parser from [rust-peg](https://crates.io/crates/peg).
+//!
 
-/// Wright's Parser.
-#[derive(Parser)]
-#[grammar = "grammar/grammar.pest"] // relative to src
-struct WrightParser;
+include!(concat!(env!("OUT_DIR"), "/grammar.rs"));
