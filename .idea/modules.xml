@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Wright-lang.iml" filepath="$PROJECT_DIR$/.idea/Wright-lang.iml" />
-      <module fileurl="file://$PROJECT_DIR$/wright/wright.iml" filepath="$PROJECT_DIR$/wright/wright.iml" />
     </modules>
   </component>
 </project>
