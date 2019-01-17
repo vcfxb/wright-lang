@@ -9,6 +9,7 @@ documentation = "https://docs.rs/wright"
 readme = "../README.md"
 keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
 build = "src/build.rs"
+edition = "2018"
 
 [lib]
 name = "wright"
@@ -19,8 +20,8 @@ doc = true
 [dependencies]
 regex = "~0.2.0"
 clap = "~2.31.0"
-codespan = "0.1.2"
-codespan-reporting = "0.1.3"
+codespan = "0.2.0"
+codespan-reporting = "0.2.0"
 
 [build-dependencies]
 peg = { version = "0.5" }
