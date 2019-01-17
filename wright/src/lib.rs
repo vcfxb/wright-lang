@@ -1,5 +1,5 @@
 #![warn(missing_copy_implementations)]
-//#![warn(missing_docs)]
+#![warn(missing_docs)]
 
 extern crate regex;
 extern crate codespan;
