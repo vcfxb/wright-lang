@@ -47,12 +47,14 @@ pub enum BinaryOp {
     URShift,
     /// Member reference. (`.`)
     Dot,
-    /// Member reference. (`::`)
-    DoubleColon,
+    /// Range operator (`..`)
+    Range,
     /// Subscript. (`a[b]`)
     Subscript,
     /// Assign value to a variable. (`=`)
     Assign,
+    /// Semicolon, or "And then" expression.
+    Semicolon,
     /// Assign to result of self and other in specified operation.
     OpAssign(Box<BinaryOp>)
 }
@@ -60,28 +62,29 @@ pub enum BinaryOp {
 /// Unary operations.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum UnaryOp {
-    /// Negate. (`-`)
+    /// Negate. (`-exp`)
     Neg,
-    /// Logical NOT. (`!`)
+    /// Logical NOT. (`!exp`)
     LNOT,
-    /// Bitwise NOT. (`~`)
+    /// Bitwise NOT. (`~exp`)
     NOT,
     /// Parentheses (`(expression)`)
     Parentheses,
+    /// Semicolon, or the statement operator in wright. `exp;`
+    Semicolon,
 }
 
 /// Possible visibility modifiers.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum VisibilityModifier {
     /// Hidden: only accessible in same struct/impl block.
-    ///
-    /// There is one exception here: any component, hidden or otherwise, can always access itself
-    /// and any of its required components and traits.
     Hidden,
     /// Private: only accessible in the same module.
     Private,
     /// Public: accessible anywhere.
     Public,
+    /// Protected: accessible in sub-metas
+    Protected,
 }
 
 /// Modifiers for variables and arguments.
@@ -91,6 +94,8 @@ pub enum VarType {
     Var,
     /// Immutable Value. (`val`)
     Val,
+    /// Component: Interior mutability/lack thereof.
+    Component,
 }
 
 /// Wright's primitive types.
@@ -122,15 +127,13 @@ pub enum PrimitiveType {
     F32,
     /// 64 bit floating point.
     F64,
-    /// Unit / Void type.
+    /// Void type.
     Void,
 }
 
 #[derive(Clone, Debug)]
-pub enum ModuleRef<'i> {
-    Inner(Box<Spanned<ModuleRef<'i>>>),
-    Term(Spanned<&'i str>),
-}
+/// Module reference, via `::` syntax.
+pub struct ModuleRef<'i>(pub Vec<Spanned<&'i str>>);
 
 /// Type in Wright.
 #[derive(Debug, Clone)]
@@ -145,8 +148,15 @@ pub enum Type<'input> {
     SelfType,
     /// Function type.
     Function(Vec<Spanned<Type<'input>>>, Option<Box<Spanned<Type<'input>>>>),
+    /// Anonymous class type. These are pretty confusing honestly.
+    /// They are almost exclusively used in type aliases.
+    AnonymousClass(Option<Spanned<Type<'input>>>, Vec<Spanned<FieldDeclaration<'input>>>),
+    /// Anonymous union type. Similar to anonymous class type.
+    AnonymousUnion(Option<Spanned<Type<'input>>>, Vec<Spanned<UnionVariant<'input>>>),
+
 }
 
+/// Parse result alias.
 pub type LiteralParse<T> = Result<T, <T as FromStr>::Err>;
 
 #[derive(Debug, Clone)]
@@ -160,28 +170,8 @@ pub enum Expression<'e> {
     LitChar(LiteralParse<char>),
     BinaryExpr(BinaryOp, Box<Spanned<Expression<'e>>>, Box<Spanned<Expression<'e>>>),
     UnaryExpr(UnaryOp, Box<Spanned<Expression<'e>>>),
-    Block {
-        tag: Option<Spanned<&'e str>>,
-        statements: Vec<Spanned<Statement<'e>>>,
-        expression: Box<Spanned<Expression<'e>>>
-    },
-    Conditional {
-        if_conditions: Box<Spanned<Expression<'e>>>,
-        if_content: Box<Spanned<Expression<'e>>>,
-        elif: Vec<(Spanned<Expression<'e>>, Spanned<Expression<'e>>)>,
-        else_conditions: Option<Box<Spanned<Expression<'e>>>>,
-        else_content: Option<Box<Spanned<Expression<'e>>>>,
-    },
     FunctionCall(Box<Spanned<Expression<'e>>>, Vec<Spanned<Expression<'e>>>),
-    Cast(Box<Spanned<Expression<'e>>>, Spanned<Type<'e>>),
-    /// 0: var type
-    /// 1: name / identifier
-    /// 2: iterator
-    /// 3: block
-    ForEachLoop(Spanned<VarType>, Box<Spanned<Expression<'e>>>, Box<Spanned<Expression<'e>>>, Box<Spanned<Expression<'e>>>),
-    WhileLoop(Box<Spanned<Expression<'e>>>, Box<Spanned<Expression<'e>>>),
     Lambda(Vec<Spanned<FnArg<'e>>>, Box<Spanned<Expression<'e>>>),
-    Match(Box<Spanned<Expression<'e>>>, Vec<Spanned<MatchExpression<'e>>>),
     VariableDeclaration(Spanned<VarType>, Box<Spanned<Expression<'e>>>, Option<Spanned<Type<'e>>>),
 }
 
@@ -199,64 +189,31 @@ impl<'i> Spanned<Expression<'i>> {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct MatchExpression<'e>(pub Spanned<Expression<'e>>, pub Spanned<Expression<'e>>);
-
-#[derive(Debug, Clone)]
-pub enum Statement<'s> {
-    Expression(Expression<'s>),
-    Return(Expression<'s>),
-    Continue(Spanned<&'s str>),
-    Break(Option<Spanned<&'s str>>, Option<Spanned<Expression<'s>>>),
-}
-
-/// Modifiers for structural declarations.
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum StructuralModifier {
-    /// Inline:
-    /// Functions calls are inlined,
-    /// Classes and Unions are stored raw, rather than behind a pointer.
-    Inline,
-    External,
-    Internal,
-}
 
 
 #[derive(Debug, Clone)]
 pub enum Structural<'i> {
-    Import(Option<Spanned<VisibilityModifier>>, Spanned<ModuleRef<'i>>),
+    Use(Option<Spanned<VisibilityModifier>>, Spanned<ModuleRef<'i>>),
     Function(FunctionDeclaration<'i>),
-    Constant(ConstantDeclaration<'i>),
-    UnionDeclaration {
-        visibility: Option<Spanned<VisibilityModifier>>,
-        modifiers: Vec<Spanned<StructuralModifier>>,
-        name: Spanned<&'i str>,
-        generics: Option<Spanned<GenericsDeclaration<'i>>>,
-        variants: Vec<Spanned<UnionVariant<'i>>>,
-    },
-    ClassDeclaration {
-        modifiers: Vec<Spanned<StructuralModifier>>,
+    EnumDeclaration {
         visibility: Option<Spanned<VisibilityModifier>>,
         name: Spanned<&'i str>,
-        generics: Option<Spanned<GenericsDeclaration<'i>>>,
-        fields: Vec<Spanned<FieldDeclaration<'i>>>,
+        ty: Option<Spanned<Type<'i>>>,
+        variants: Vec<Spanned<EnumVariant<'i>>>,
     },
     ComponentDeclaration {
-        modifiers: Vec<Spanned<StructuralModifier>>,
         visibility: Option<Spanned<VisibilityModifier>>,
         name: Spanned<&'i str>,
         generics: Option<Spanned<GenericsDeclaration<'i>>>,
-        supers: Vec<Spanned<Type<'i>>>,
         alias: Spanned<Type<'i>>,
-        items: Vec<ComponentItem<'i>>,
+        items: Vec<FunctionDeclaration<'i>>,
     },
     TraitDeclaration {
-        modifiers: Vec<Spanned<StructuralModifier>>,
         visibility: Option<Spanned<VisibilityModifier>>,
         name: Spanned<&'i str>,
         generics: Option<Spanned<GenericsDeclaration<'i>>>,
         supers: Vec<Spanned<Type<'i>>>,
-        items: Vec<ComponentItem<'i>>,
+        items: Vec<TraitItem<'i>>,
     },
     Documentation(Spanned<&'i str>),
     Impl {
@@ -266,48 +223,47 @@ pub enum Structural<'i> {
         /// Optionally, the component or trait being implemented.
         ty: Option<Spanned<Type<'i>>>,
         where_clause: Option<WhereClause<'i>>,
-        items: Vec<ComponentItem<'i>>,
+        items: Vec<TraitItem<'i>>,
     },
     Type(TypeAlias<'i>),
 }
 
 #[derive(Clone, Debug)]
 pub struct Module<'i>(pub Vec<Structural<'i>>);
+
 #[derive(Clone, Debug)]
 pub struct UnionVariant<'i>(pub Spanned<&'i str>, pub Spanned<Type<'i>>);
+
+#[derive(Clone, Debug)]
+pub struct EnumVariant<'i>(pub Spanned<&'i str>, pub Option<Spanned<Expression<'i>>>);
+
 #[derive(Clone, Debug)]
 pub struct WhereClause<'i>(pub Vec<Spanned<(Spanned<Type<'i>>, Spanned<Vec<Spanned<Type<'i>>>>)>>);
+
 #[derive(Clone, Debug)]
-pub struct FieldDeclaration<'i>(pub Spanned<VarType>, pub Option<Spanned<()>>, pub Spanned<&'i str>, pub Spanned<Type<'i>>);
+pub struct FieldDeclaration<'i>(pub Option<Spanned<VisibilityModifier>>, pub Spanned<VarType>, pub Spanned<&'i str>, pub Spanned<Type<'i>>);
+
 #[derive(Debug, Clone)]
 pub struct GenericsDeclaration<'i>(pub Vec<Spanned<&'i str>>);
+
 #[derive(Debug, Clone)]
 pub struct TypeAlias<'i>(pub Option<Spanned<VisibilityModifier>>, pub Spanned<Type<'i>>, pub Option<Spanned<Type<'i>>>);
+
 #[derive(Debug, Clone)]
 pub struct FnArg<'input>(pub Spanned<VarType>, pub Spanned<&'input str>, pub Option<Spanned<Type<'input>>>);
 
 #[derive(Debug, Clone)]
-pub enum ComponentItem<'i> {
+pub enum TraitItem<'i> {
     Fn(FunctionDeclaration<'i>),
-    Const(ConstantDeclaration<'i>),
     Type(TypeAlias<'i>),
 }
 #[derive(Debug, Clone)]
 pub struct FunctionDeclaration<'i> {
-    pub modifiers: Vec<Spanned<StructuralModifier>>,
     pub visibility: Option<Spanned<VisibilityModifier>>,
+    pub self_modifier: Option<Spanned<&'i str>>,
     pub name: Spanned<&'i str>,
     pub generics: Option<Spanned<GenericsDeclaration<'i>>>,
-    pub return_type: Spanned<Type<'i>>,
+    pub return_type: Option<Spanned<Type<'i>>>,
     pub args: Vec<Spanned<FnArg<'i>>>,
     pub code: Option<Spanned<Expression<'i>>>,
 }
-#[derive(Clone, Debug)]
-pub struct ConstantDeclaration<'i> {
-    pub modifiers: Vec<Spanned<StructuralModifier>>,
-    pub visibility: Option<Spanned<VisibilityModifier>>,
-    pub name: Spanned<&'i str>,
-    pub ty: Spanned<Type<'i>>,
-    pub val: Spanned<Expression<'i>>,
-}
-

@@ -1,6 +1,7 @@
 //! Module for parsing Wright Source code to an AST (Abstract Syntax Tree).
 
 pub mod ast;
+//pub mod wir;
 
 //use self::ast::*;
 //use ::grammar::*;

@@ -6,20 +6,17 @@ dec_digit = [0-9]
 oct_digit = [0-7]
 hex_digit = [0-9a-fA-F]
 newline = #quiet<"\r\n" / "\n" / "\r"> / #expected("NEWLINE")
-whitespace = #quiet<[ \t\u{000C}\u{000B}\u{0085}\u{200E}\u{200F}\u{2028}\u{2029}] / newline> / #expected("WHITESPACE")
+whitespace = #quiet<[ \t\u{000C}\u{000B}\u{0085}\u{200E}\u{200F}\u{2028}\u{2029}] / newline>
 alpha = [a-zA-Z]
 alphanumeric = alpha / dec_digit
 
-single_line_comment = "//" (!newline .)* newline?
-multi_line_comment = "/*" (.* multi_line_comment .*)* "*/"
-doc_comment -> Structural<'input> = "///" c:spanned<$((!newline .)*)> newline {Structural::Documentation(c)}
-multi_doc_comment -> Structural<'input> = "/?" c:spanned<$((!"?/" .)*)> "?/" {Structural::Documentation(c)}
-comment = single_line_comment / multi_line_comment
-ignored = (whitespace / comment)+
+single_line_comment = #quiet<"//" (!newline .)* newline?>
+multi_line_comment = #quiet<"/*" (.* multi_line_comment .*)* "*/">
+doc_comment -> Structural<'input> = #quiet<"///" c:spanned<$((!newline .)*)> newline {Structural::Documentation(c)}>
+multi_doc_comment -> Structural<'input> = #quiet<"/?" c:spanned<$((!"?/" .)*)> "?/" {Structural::Documentation(c)}>
+comment = #quiet<single_line_comment / multi_line_comment>
+ignored = #quiet<(whitespace / comment)+>
 
-INLINE = "inline"
-EXTERNAL = "external"
-INTERNAL = "internal"
 UNION = "union"
 TYPE = "type"
 TRAIT = "trait"
@@ -27,17 +24,14 @@ VAR = "var"
 VAL = "val"
 CLASS = "class"
 COMPONENT = "component"
-FN = "fn"
+FUNC = "func"
 IMPL = "impl"
-IMPORT = "import"
+USE = "use"
 PUBLIC = "public"
 PRIVATE = "private"
 HIDDEN = "hidden"
-AS = "as"
+PROTECTED = "protected"
 WHERE = "where"
-WHILE = "while"
-FOR = "for"
-IN = "in"
 SELF_V = "self"
 SELF_T = "Self"
 BOOL = "bool"
@@ -53,46 +47,30 @@ U64 = "u64"
 I64 = "i64"
 F64 = "f64"
 STR = "str"
-BREAK = "break"
-RETURN = "return"
-CONTINUE = "continue"
 VOID = "void"
-EXTENDS = "extends"
 TRUE = "true"
 FALSE = "false"
 
-visibility_modifier = PUBLIC / PRIVATE / HIDDEN
-structural_modifier = INLINE / EXTERNAL / INTERNAL
-var_modifier = VAR / VAL
+visibility_modifier = PUBLIC / PRIVATE / HIDDEN / PROTECTED
+var_modifier = VAR / VAL / COMPONENT
 
 primitive_type = BOOL / primitive_number_type / CHAR / STR / VOID
 
 primitive_number_type = U8 / I8 / U16 / I16 / U32 / U64 / I32 / I64 / F32 / F64
 
 keyword =
-    structural_modifier /
     UNION /
     TYPE /
     TRAIT /
     var_modifier /
     CLASS /
-    COMPONENT /
-    FN /
+    FUNC /
     IMPL /
-    IMPORT /
+    USE /
     visibility_modifier /
-    AS /
-    WHERE /
-    WHILE /
-    FOR /
-    IN /
     SELF_V /
     SELF_T /
     primitive_type /
-    BREAK /
-    RETURN /
-    CONTINUE /
-    EXTENDS /
     TRUE /
     FALSE
 
@@ -103,23 +81,18 @@ i_r<A> = (AAA:A whitespace+ (comment whitespace*)* {AAA})
 boxed<T> = box_v:T {Box::new(box_v)}
 opt_ignore = whitespace* (comment whitespace*)*
 
-identifier_str -> &'input str = $(!keyword (alpha (alphanumeric / "_")*))
+identifier_str -> &'input str = #quiet<$(!keyword (alpha (alphanumeric / "_")*))> / #expected("IDENTIFIER")
 
 visibility -> Spanned<VisibilityModifier> =
     spanned<s:$(visibility_modifier) {match s {
         "public" => VisibilityModifier::Public,
         "private" => VisibilityModifier::Private,
         "hidden" => VisibilityModifier::Hidden,
+        "protected" => VisibilityModifier::Protected,
         other => panic!("Unrecognized visibility: {}", other),
     } }>
 
-structural_mod -> Spanned<StructuralModifier> =
-    spanned<s:$(structural_modifier) {match s {
-        "inline" => StructuralModifier::Inline,
-        "external" => StructuralModifier::External,
-        "internal" => StructuralModifier::Internal,
-        other => panic!("unrecognized structural modifier: {}", other),
-    }}>
+mod_visibility -> Option<Spanned<VisibilityModifier>> = i_r<visibility>?
 
 ser_fmt<S, T, E, D> = (S VVV:i_m<spanned<T>>**D E {VVV})
 ns_ser_fmt<S, T, E, D> = (S VVV:i_m<T>**D E {VVV})
@@ -157,14 +130,18 @@ t_user -> Type<'input> = n:i_m<spanned<module_ref>> g:i_m<generics_fmt<type>?> {
     None => vec![],
     Some(l) => l,
 })}
+
 t_array -> Type<'input> =
     "[" t:i_m<spanned<type>> b:i_m<("," e:i_m<expression> {Box::new(e)})>? "]" {Type::Array(Box::new(t), b)}
+
 t_self -> Type<'input> = SELF_T {Type::SelfType}
-t_fn -> Type<'input> = i_m<FN> a:i_m<args_fmt<type>> "->" r:boxed<i_m<spanned<type>>>? {Type::Function(a, r)}
+
+t_fn -> Type<'input> = i_m<FUNC> a:i_m<args_fmt<type>> r:("->" boxed<i_m<spanned<type>>>)? {Type::Function(a, r)}
 
 var_type -> VarType = v:$(var_modifier) { match v {
     "var" => VarType::Var,
     "val" => VarType::Val,
+    "component" => VarType::Component,
     other => panic!("Unrecognized variable type {}.", other),
 }}
 
@@ -191,8 +168,6 @@ where_clause -> WhereClause<'input> =
         {(b, s)}
     ),"", ",">> {WhereClause(w)}
 
-mod_visibility -> Option<Spanned<VisibilityModifier>> = i_r<visibility?>
-mod_structural -> Vec<Spanned<StructuralModifier>> = i_r<structural_mod>*<0,2>
 mod_generics -> Option<Spanned<GenericsDeclaration<'input>>> = i_m<spanned<generics>?>
 mod_supers -> Vec<Spanned<Type<'input>>> = i_m<(&EXTENDS i_r<EXTENDS> t:supers_fmt<type> {t}) / {vec![]}>
 
@@ -310,22 +285,19 @@ impl_block -> Structural<'input> =
     }}
 
 s_function_declaration -> Structural<'input> = f:function_declaration {Structural::Function(f)}
-s_constant_declaration -> Structural<'input> = c:constant_declaration {Structural::Constant(c)}
 s_type_alias -> Structural<'input> = t:type_alias {Structural::Type(t)}
 
 function_declaration -> FunctionDeclaration<'input> =
     v: mod_visibility
-    s: mod_structural
-    i_r<FN>
+    i_r<FUNC>
     n: i_m<spanned<identifier_str>>
     g: mod_generics
     a: args_fmt<fn_arg>
-    i_m<"->">
-    r: i_m<spanned<type>>
-    code: (
+    r:(i_m<"->"> i_m<spanned<type>>)?
+    code: i_m<(
         (";" {None}) /
         ("=" e:i_m<expression> {Some(e)})
-    ) {FunctionDeclaration {
+    )> {FunctionDeclaration {
         modifiers: s,
         visibility: v,
         name: n,
@@ -334,17 +306,6 @@ function_declaration -> FunctionDeclaration<'input> =
         args: a,
         code
     }}
-
-constant_declaration -> ConstantDeclaration<'input> =
-    v: mod_visibility
-    s: mod_structural
-    n: i_m<spanned<identifier_str>>
-    ":"
-    t: i_m<spanned<type>>
-    "="
-    val: i_m<expression>
-    ";"
-    {ConstantDeclaration{modifiers: s, visibility: v, name:n, ty:t, val}}
 
 type_alias -> TypeAlias<'input> =
     v: mod_visibility
@@ -355,6 +316,8 @@ type_alias -> TypeAlias<'input> =
     {TypeAlias(v,ty,al)}
 
 expression -> Spanned<Expression<'input>> =
+    binary_expr /
+    function_call /
     identifier /
     self_identifier /
     literal_int /
@@ -363,16 +326,7 @@ expression -> Spanned<Expression<'input>> =
     literal_string /
     literal_char /
     unary_expr /
-    binary_expr /
-    parentheses /
-    block /
-    conditional /
-    function_call /
-    cast /
-    for_loop /
-    while_loop /
-    lambda /
-    match
+    lambda
 
 identifier -> Spanned<Expression<'input>> = spanned<i:identifier_str {Expression::Identifier(i)}>
 self_identifier -> Spanned<Expression<'input>> = spanned<(SELF_V {Expression::SelfIdentifier})>
@@ -392,7 +346,10 @@ literal_char -> Spanned<Expression<'input>> = spanned<(c:("'" s:$(.) "'"{s.parse
 
 literal_bool -> Spanned<Expression<'input>> = spanned<(b:(s:$(TRUE / FALSE) {s.parse::<bool>()}) {Expression::LitBool(b)})>
 
-binary_expr -> Spanned<Expression<'input>> = #infix<expression> {
+binary_expr -> Spanned<Expression<'input>> = infix_binary_expr / subscript
+
+infix_binary_expr -> Spanned<Expression<'input>> = #infix<expression> {
+    #L  a ";" b {Spanned::<Expression>::combine(a,b,BinaryOp::Semicolon)}
     #R  a "=" b {Spanned::<Expression>::combine(a,b,BinaryOp::Assign)}
         a "+=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::Add)}
         a "-=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::Subtract)}
@@ -402,5 +359,38 @@ binary_expr -> Spanned<Expression<'input>> = #infix<expression> {
         a "|=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::OR)}
         a "&=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::AND)}
         a "^=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::XOR)}
-
+        a ">>=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::RShift)}
+        a "<<=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::LShift)}
+        a ">>>=" b {Spanned::<Expression>::assign_combine(a,b,BinaryOp::URShift)}
+    #L  a "||" b {Spanned::<Expression>::combine(a,b,BinaryOp::LOR)}
+    #L  a "&&" b {Spanned::<Expression>::combine(a,b,BinaryOp::LAND)}
+    #L  a "|" b {Spanned::<Expression>::combine(a,b,BinaryOp::OR)}
+    #L  a "^" b {Spanned::<Expression>::combine(a,b,BinaryOp::XOR)}
+    #L  a "&" b {Spanned::<Expression>::combine(a,b,BinaryOp::AND)}
+    #L  a "==" b {Spanned::<Expression>::combine(a,b,BinaryOp::EQ)}
+        a "!=" b {Spanned::<Expression>::combine(a,b,BinaryOp::NE)}
+    #L  a "<" b {Spanned::<Expression>::combine(a,b,BinaryOp::LT)}
+        a "<=" b {Spanned::<Expression>::combine(a,b,BinaryOp::LTE)}
+        a ">" b {Spanned::<Expression>::combine(a,b,BinaryOp::GT)}
+        a ">=" b {Spanned::<Expression>::combine(a,b,BinaryOp::GTE)}
+    #L  a ".." b {Spanned::<Expression>::combine(a,b,BinaryOp::Range)}
+    #L  a ">>" b {Spanned::<Expression>::combine(a,b,BinaryOp::RShift)}
+        a "<<" b {Spanned::<Expression>::combine(a,b,BinaryOp::LShift)}
+        a ">>>" b {Spanned::<Expression>::combine(a,b,BinaryOp::URShift)}
+    #L  a "+" b {Spanned::<Expression>::combine(a,b,BinaryOp::Add)}
+        a "-" b {Spanned::<Expression>::combine(a,b,BinaryOp::Subtract)}
+    #L  a "*" b {Spanned::<Expression>::combine(a,b,BinaryOp::Multiply)}
+        a "/" b {Spanned::<Expression>::combine(a,b,BinaryOp::Divide)}
+        a "%" b {Spanned::<Expression>::combine(a,b,BinaryOp::Mod)}
+    #L  a "." b {Spanned::<Expression>::combine(a,b,BinaryOp::Dot)}
 }
+
+subscript -> Spanned<Expression<'input>> =
+    spanned<i_m<
+        a: boxed<spanned<expression>>
+        i_m<"[">
+        b: boxed<spanned<expression>>
+        i_m<"]">
+        {Expression::BinaryExpr(BinaryOp::Subscript, a, b)}>>
+
+//function_call -> Spanned<Expression<'input>> =
