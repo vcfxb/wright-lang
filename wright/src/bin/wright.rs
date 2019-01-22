@@ -1,10 +1,8 @@
-extern crate wright;
-extern crate regex;
-extern crate clap;
+// todo
 
-use std::process::exit;
+//use std::process::exit;
 use clap::{Arg, App, AppSettings};
-use wright::version::VERSION;
+use crate::version::VERSION;
 use regex::Regex;
 
 fn main() {
