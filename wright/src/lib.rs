@@ -1,11 +1,13 @@
 #![warn(missing_copy_implementations)]
 #![warn(missing_docs)]
 
-extern crate regex;
-extern crate codespan;
-extern crate codespan_reporting;
-extern crate clap;
+//! Wright crate root module.
+//!
+
 
 pub mod version;
-pub mod model;
+pub use crate::version::*;
+
 pub mod grammar;
+
+
