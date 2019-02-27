@@ -1,5 +1,5 @@
-//! Lexer submodule.
-//!
 
-pub mod token;
+/// A token is a 
+pub enum Token {
 
+}
