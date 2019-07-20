@@ -17,16 +17,20 @@ doctest = true
 doc = true
 
 [dependencies]
-regex = "~0.2.0"
-clap = "~2.31.0"
-termcolor = "1"
+regex = "1"
+clap = "~2.33"
+codespan = "0.3"
+codespan-reporting = "0.3"
+pom = "3"
+#nom = "4.2.3"
+#pest = "2.1"
+#pest_derive = "2.1"
 
 [[bin]]
 name = "wright"
 test = false
 doc = false
 doctest = false
-
 
 [badges]
 travis-ci = {repository = "Wright-Language-Developers/Wright-lang"}
