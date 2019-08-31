@@ -1,7 +1,6 @@
 use wright::grammar::parser::ignored as ign_parser;
 use wright::grammar::parser::integer_literal;
 use wright::grammar::parser::identifier;
-use test::assert_test_result;
 
 #[test]
 fn ignored() {
@@ -37,10 +36,10 @@ fn integers() {
 
 #[test]
 fn ident() {
-    fn ok(s: &str) {
+    fn ok(s: &'static str) {
         assert!(identifier().parse(s.as_bytes()).is_ok())
     }
-    fn err(s: &str) {
+    fn err(s: &'static str) {
         assert!(identifier().parse(s.as_bytes()).is_err())
     }
     ok("_identifier");
