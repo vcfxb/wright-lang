@@ -7,7 +7,7 @@ use crate::grammar::ast::{Expr, ExprVariant, Identifier};
 use crate::grammar::tokens::*;
 
 /// Wright Parser type.
-pub type WrightParser<ASTNode> = Parser<'static, u8, ASTNode>;
+pub type WrightParser<O> = Parser<'static, u8, O>;
 type Unit = ();
 type Ignored = WrightParser<Unit>;
 
@@ -99,8 +99,8 @@ fn hex_literal() -> WrightParser<Literal> {
             .chain(b)
             .collect::<Vec<u8>>())
         .convert(String::from_utf8)
-        .convert(|s:String| str::parse::<u64>(&s))
-        .map(|n| Literal::Integer(n))
+        .convert(move |s: String| str::parse::<u64>(&s))
+        .map(move |n| Literal::Integer(n))
 }
 
 /// Parses integer literal.
