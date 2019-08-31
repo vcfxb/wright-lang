@@ -5,7 +5,6 @@ macro_rules! token {
     ($i:ident, $j:expr) => {pub const $i: &'static str = $j;};
 }
 
-token!(UNDERSCORE, "_");
 token!(TRUE, "true");
 token!(FALSE, "false");
 token!(BOOLEAN, "boolean");
@@ -41,8 +40,8 @@ token!(LONG, "unsigned");
 token!(STR, "string");
 token!(CHAR, "character");
 
-pub const RESERVED_TOKENS: [&'static str; 35] = [
-    UNDERSCORE, TRUE, FALSE, BOOLEAN, INTEGER, UNSIGNED, IF, ELSE, THEN,
+pub const RESERVED_TOKENS: [&'static str; 34] = [
+    TRUE, FALSE, BOOLEAN, INTEGER, UNSIGNED, IF, ELSE, THEN,
     START_MULTILINE_COMMENT, END_MULTILINE_COMMENT, LINE_COMMENT, DOC_COMMENT,
     MODULE_HEADER, PUBLIC, TYPE, CLASS, STRUCT, CONST, USE, DEFINE, VALUE,
     VARIABLE, IMPLEMENT, FUNCTION, INLINE, SELF_T, SELF_V, OR, AND,
