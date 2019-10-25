@@ -1,0 +1,17 @@
+CLASS = {"class"}
+STRUCT = {"struct"}
+ENUM = {"enum"}
+UNION = {"union"}
+CONST = {"const"}
+VAL = {"val"}
+VAR = {"var"}
+MUT = {"mut"}
+DEF = {"def"}
+SL_COMMENT_START = {"#"}
+ML_COMMENT_START = {"#*"}
+ML_COMMENT_END = {"*#"}
+
+WHITESPACE = { NEWLINE | " " | "\t" }
+COMMENT    = @{ML_COMMENT | SL_COMMENT}
+SL_COMMENT = _{SL_COMMENT_START ~ (!NEWLINE ~ ANY)*}
+ML_COMMENT = _{ML_COMMENT_START ~ (!ML_COMMENT_END ~ ANY)* ~ ML_COMMENT_END}
