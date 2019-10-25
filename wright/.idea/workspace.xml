@@ -12,7 +12,14 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="" />
+    <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/grammar/grammar.pest" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,78 +43,6 @@
     <expand />
     <select />
   </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Cargo.toml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="23" column="9" selection-start-line="23" selection-start-column="9" selection-end-line="23" selection-end-column="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/bin/wright.rs">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/grammar.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="7" column="36" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/grammar/ast.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="607">
-              <caret line="200" column="25" selection-start-line="200" selection-start-column="25" selection-end-line="200" selection-end-column="25" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/grammar/parser.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2268">
-              <caret line="134" selection-start-line="134" selection-end-line="134" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/grammar/tokens.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="612">
-              <caret line="34" column="19" selection-start-line="34" selection-start-column="19" selection-end-line="34" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/parser.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="810">
-              <caret line="49" column="13" selection-start-line="49" selection-start-column="13" selection-end-line="49" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
-  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -118,84 +53,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/src/codemap_error.rs" />
-        <option value="$PROJECT_DIR$/src/codemap_report.rs" />
-        <option value="$PROJECT_DIR$/src/codemap/codetree.rs" />
-        <option value="$PROJECT_DIR$/src/bin/wright.rs" />
-        <option value="$PROJECT_DIR$/tests/codemap_reporting.rs" />
-        <option value="$PROJECT_DIR$/tests/filemap.rs" />
-        <option value="$PROJECT_DIR$/src/codemap.rs" />
-        <option value="$PROJECT_DIR$/src/codemap/charspan.rs" />
-        <option value="$PROJECT_DIR$/src/codemap/filemap.rs" />
-        <option value="$PROJECT_DIR$/tests/sourcemap_test.rs" />
-        <option value="$PROJECT_DIR$/src/codemap/sourcemap.rs" />
-        <option value="$PROJECT_DIR$/src/codemap/codemap_report.rs" />
-        <option value="$PROJECT_DIR$/src/vm/instructions.rs" />
-        <option value="$PROJECT_DIR$/src/vm.rs" />
-        <option value="$PROJECT_DIR$/src/grammar/grammar.pest" />
-        <option value="$PROJECT_DIR$/src/grammar/Parser.rs" />
-        <option value="$PROJECT_DIR$/src/grammar/lexer.rs" />
-        <option value="$PROJECT_DIR$/Cargo.toml" />
-        <option value="$PROJECT_DIR$/src/grammar.rs" />
-        <option value="$PROJECT_DIR$/src/lib.rs" />
-        <option value="$PROJECT_DIR$/tests/empty.rs" />
-        <option value="$PROJECT_DIR$/tests/parser.rs" />
-        <option value="$PROJECT_DIR$/src/grammar/parser.rs" />
-        <option value="$PROJECT_DIR$/src/grammar/tokens.rs" />
-        <option value="$PROJECT_DIR$/src/grammar/ast.rs" />
-      </list>
-    </option>
-  </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="PcjlvKKU" />
   </component>
   <component name="ProjectId" id="1QArHdaLGJv4WejUpbuyMAgmdcX" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="wright" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wright" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wright" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wright" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wright" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wright" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="grammar" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wright" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wright" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-    </panes>
-  </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../CollegeWork/CompOrg/comporg-mips-vm" />
     <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -393,9 +265,6 @@
       <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
     </history-entry>
   </component>
-  <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="160443000" />
-  </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
       <is-autoscroll-to-source value="true" />
@@ -405,142 +274,18 @@
       <is-autoscroll-to-source value="true" />
     </todo-panel>
   </component>
-  <component name="ToolWindowManager">
-    <frame x="0" y="31" width="1920" height="1049" extended-state="6" />
-    <editor active="true" />
-    <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17342582" />
-      <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info id="Structure" order="2" weight="0.19797225" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32968238" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4994664" weight="0.23606557" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39978093" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32968238" />
-      <window_info anchor="bottom" id="Database Changes" order="7" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32968238" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32968238" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50053364" side_tool="true" weight="0.38360655" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Cargo" order="3" />
-      <window_info anchor="right" id="Database" order="4" weight="0.3296875" />
-    </layout>
-    <layout-to-restore>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13180363" />
-      <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info id="Structure" order="2" weight="0.19797225" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4994664" weight="0.2365827" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39978093" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.32968238" />
-      <window_info anchor="bottom" id="Database Changes" order="7" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32968238" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32968238" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50053364" side_tool="true" weight="0.3844469" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Cargo" order="3" />
-      <window_info anchor="right" id="Database" order="4" weight="0.32977587" />
-    </layout-to-restore>
-  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/tests/input.rs" />
-    <entry file="file://$PROJECT_DIR$/src/codemap/codetree.rs" />
-    <entry file="file://$PROJECT_DIR$/tests/codemap_reporting.rs" />
-    <entry file="file://$PROJECT_DIR$/src/codemap/charspan.rs" />
-    <entry file="file://$PROJECT_DIR$/src/codemap/sourcemap.rs" />
-    <entry file="file://$PROJECT_DIR$/src/codemap/codemap_report.rs" />
-    <entry file="file://$PROJECT_DIR$/src/codemap.rs" />
-    <entry file="file://$PROJECT_DIR$/tests/sourcemap_test.rs" />
-    <entry file="file://$PROJECT_DIR$/src/vm.rs" />
-    <entry file="file://$PROJECT_DIR$/src/vm/instructions.rs" />
-    <entry file="file://$PROJECT_DIR$/src/grammar/model.rs" />
-    <entry file="file://$PROJECT_DIR$/src/cli.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="792">
-          <caret line="44" column="23" selection-start-line="44" selection-start-column="23" selection-end-line="44" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/grammar/grammar.pest" />
-    <entry file="file://$PROJECT_DIR$/src/version.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="29" selection-start-line="3" selection-start-column="29" selection-end-line="3" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/grammar/Parser.rs" />
-    <entry file="file://$PROJECT_DIR$/src/grammar/lexer.rs" />
-    <entry file="file://$PROJECT_DIR$/tests/empty.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="1" column="13" selection-start-line="1" selection-start-column="13" selection-end-line="1" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="23" column="9" selection-start-line="23" selection-start-column="9" selection-end-line="23" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/bin/wright.rs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/grammar.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="7" column="36" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/grammar/parser.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2268">
-          <caret line="134" selection-start-line="134" selection-end-line="134" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/grammar/tokens.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="34" column="19" selection-start-line="34" selection-start-column="19" selection-end-line="34" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/parser.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="810">
-          <caret line="49" column="13" selection-start-line="49" selection-start-column="13" selection-end-line="49" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/grammar/ast.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="607">
-          <caret line="200" column="25" selection-start-line="200" selection-start-column="25" selection-end-line="200" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

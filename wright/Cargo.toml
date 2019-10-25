@@ -19,12 +19,10 @@ doc = true
 [dependencies]
 regex = "1"
 clap = "~2.33"
-codespan = "0.3"
-codespan-reporting = "0.3"
-pom = "3"
-#nom = "4.2.3"
-#pest = "2.1"
-#pest_derive = "2.1"
+codespan = "0.5"
+codespan-reporting = "0.5"
+pest = "2.1"
+pest_derive = "2.1"
 
 [[bin]]
 name = "wright"
