@@ -13,12 +13,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/grammar/grammar.pest" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/grammar.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar/grammar.pest" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/grammar.pest" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/grammar/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/parser.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/tests/parser.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,6 +40,9 @@
     </option>
     <expand />
     <select />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="wright" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -91,7 +92,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Check">
+  <component name="RunManager" selected="Cargo Command.Test">
     <configuration name="Build" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="channel" value="DEFAULT" />
       <option name="command" value="build" />
@@ -230,40 +231,9 @@
       <workItem from="1561131511565" duration="1863000" />
       <workItem from="1562863964929" duration="56000" />
       <workItem from="1563589289951" duration="6000" />
+      <workItem from="1572461572455" duration="1023000" />
     </task>
     <servers />
-  </component>
-  <component name="TestHistory">
-    <history-entry file="Test - 2019.06.19 at 10h 16m 58s.xml">
-      <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test - 2019.06.19 at 10h 17m 50s.xml">
-      <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test - 2019.06.19 at 10h 21m 31s.xml">
-      <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test - 2019.06.19 at 10h 25m 29s.xml">
-      <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test_ignored - 2019.06.19 at 10h 25m 44s.xml">
-      <configuration name="Test ignored" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test_ignored - 2019.06.19 at 10h 25m 57s.xml">
-      <configuration name="Test ignored" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test_ignored - 2019.06.19 at 10h 26m 48s.xml">
-      <configuration name="Test ignored" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test_ignored - 2019.06.19 at 10h 27m 14s.xml">
-      <configuration name="Test ignored" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test - 2019.06.19 at 10h 43m 10s.xml">
-      <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
-    <history-entry file="Test - 2019.06.19 at 11h 22m 06s.xml">
-      <configuration name="Test" configurationId="CargoCommandRunConfiguration" />
-    </history-entry>
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -282,7 +252,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
