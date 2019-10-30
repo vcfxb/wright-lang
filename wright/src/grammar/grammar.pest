@@ -1,17 +1,183 @@
+// DEFINITIONS
+
 CLASS = {"class"}
 STRUCT = {"struct"}
 ENUM = {"enum"}
 UNION = {"union"}
 CONST = {"const"}
-VAL = {"val"}
-VAR = {"var"}
+TYPE = {"type"}
+TRAIT = {"trait"}
 MUT = {"mut"}
 DEF = {"def"}
+TRUE = {"true"}
+FALSE = {"false"}
+PUB = {"pub"}
+MOD = {"mod"}
+IMPORT = {"import"}
+IF = {"if"}
+THEN = {"then"}
+ELSE = {"else"}
+SELF_T = {"Self"}
+LET = {"let"}
+MATCH = {"match"}
+UNDERSCORE = {"_"}
+IMPL = {"impl"}
+
+KEYWORD = _{
+    CLASS | STRUCT | ENUM | UNION | CONST | MUT | DEF | TRUE |
+    FALSE | PUB | MOD | IMPORT | IF | THEN | ELSE | TYPE | SELF_T | TRAIT |
+    LET | MATCH | UNDERSCORE | IMPL
+}
+
 SL_COMMENT_START = {"#"}
 ML_COMMENT_START = {"#*"}
 ML_COMMENT_END = {"*#"}
 
+// IGNORED
+
 WHITESPACE = { NEWLINE | " " | "\t" }
+
 COMMENT    = @{ML_COMMENT | SL_COMMENT}
 SL_COMMENT = _{SL_COMMENT_START ~ (!NEWLINE ~ ANY)*}
 ML_COMMENT = _{ML_COMMENT_START ~ (!ML_COMMENT_END ~ ANY)* ~ ML_COMMENT_END}
+
+// LITERALS
+
+BOOLEAN_LITERAL = @{TRUE | FALSE}
+
+HEX_LITERAL = @{"0x" ~ ASCII_HEX_DIGIT+}
+BIN_LITERAL = @{"0b" ~ ASCII_BIN_DIGIT+}
+DEC_LITERAL = @{ASCII_DIGIT+}
+NUM_LITERAL = ${HEX_LITERAL | BIN_LITERAL | DEC_LITERAL}
+
+CHAR_LITERAL = ${"'" ~ (ESCAPE | ANY) ~ "'"}
+STR_LITERAL  = ${"\"" ~ (ESCAPE | ANY)* ~ "\""}
+
+LITERAL = {BOOLEAN_LITERAL | NUM_LITERAL | CHAR_LITERAL | STR_LITERAL}
+
+// ESCAPE CHARACTERS
+
+ASCII_ESCAPE = @{"\\x" ~ ASCII_HEX_DIGIT ~ ASCII_HEX_DIGIT}
+NULL_ESCAPE  = @{"\\0"}
+NL_ESCAPE    = @{"\\n"}
+CR_ESCAPE    = @{"\\r"}
+TAB_ESCAPE   = @{"\\t"}
+BACKSLASH_ESCAPE    = @{"\\\\"}
+UNICODE_ESCAPE      = @{"\\u{" ~ ASCII_HEX_DIGIT{1,6} ~ "}"}
+SINGLE_QUOTE_ESCAPE = @{"\\'"}
+DOUBLE_QUOTE_ESCAPE = @{"\\\""}
+
+ESCAPE = ${
+    ASCII_ESCAPE | NULL_ESCAPE | NL_ESCAPE | CR_ESCAPE | TAB_ESCAPE |
+    BACKSLASH_ESCAPE | UNICODE_ESCAPE | SINGLE_QUOTE_ESCAPE |
+    DOUBLE_QUOTE_ESCAPE
+}
+
+// EXPRESSIONS
+
+IDENTIFIER = @{!KEYWORD ~ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")*}
+
+BLOCK = {"{" ~ EXPRESSION ~ "}"}
+
+UNARY_OPERATOR = @{"!" | "~" | "-"}
+UNARY_EXPRESSION = {UNARY_OPERATOR ~ EXPRESSION}
+
+CONDITIONAL = {
+    IF ~ EXPRESSION ~ THEN ~ EXPRESSION ~
+        (ELSE ~ IF ~ EXPRESSION ~ THEN ~ EXPRESSION)* ~
+    (ELSE ~ EXPRESSION)?
+}
+
+LET_EXPR = {LET ~ MUT? ~ EXPRESSION ~ "=" ~ EXPRESSION}
+
+MATCH_EXPR = {MATCH ~ EXPRESSION ~ "{" ~
+    (EXPRESSION ~ "=>" ~ EXPRESSION)? ~
+    ("," ~ EXPRESSION ~ "=>" ~ EXPRESSION)* ~
+    ","? ~ "}"
+}
+
+APPLY_OP    = @{";"}
+BOOL_OR     = @{"||"}
+BOOL_AND    = @{"&&"}
+BIT_OR      = @{"|"}
+BIT_XOR     = @{"^"}
+BIT_AND     = @{"&"}
+EQUALITY    = @{"==" | "!="}
+RELATIONAL  = @{">=" | "<=" | "<" | ">"}
+RANGE_OP    = @{".."}
+BIT_SHIFT   = @{">>>"| ">>" | "<<"}
+ARITH1      = @{"+" | "-"}
+ARITH2      = @{"*" | "/" | "%"}
+ACCESS      = @{"."}
+
+INFIX = {
+    APPLY_OP | BOOL_OR | BOOL_AND | BIT_OR | BIT_XOR | BIT_AND | EQUALITY |
+    BIT_SHIFT | RELATIONAL | RANGE_OP | ARITH1 | ARITH2 | ACCESS
+}
+
+EXPR = {
+    UNDERSCORE |
+    LITERAL |
+    IDENTIFIER |
+    MATCH_EXPR |
+    BLOCK |
+    CONDITIONAL |
+    LET_EXPR |
+    UNARY_EXPRESSION
+}
+
+EXPRESSION = {EXPR ~ (INFIX ~ EXPR)* }
+
+// DECLARATIONS
+SUBTYPE   = {"::" ~ TYPE_DESC ~ SUBTYPE?}
+USER_TYPE = {(IDENTIFIER | SELF_T) ~ SUBTYPE? }
+
+GENERIC_PARAM  = {"<" ~ USER_TYPE ~ ("," ~ USER_TYPE)* ~ ","? ~ ">" }     // generic types
+CONSTANT_PARAM = {"[" ~ USER_TYPE ~ ("," ~ USER_TYPE)* ~ ","? ~ "]" }     // type level constants.
+
+TYPE_ARGS  = {"<" ~ TYPE_DESC ~ ("," ~ TYPE_DESC)* ~ ","? ~ ">"}
+CONST_ARGS = {"[" ~ EXPRESSION ~ ("," ~ EXPRESSION)* ~ ","? ~ "]"}
+TYPE_DESC  = {USER_TYPE ~ TYPE_ARGS? ~ CONST_ARGS?}
+
+FIELDS = {"{" ~
+    (PUB? ~ IDENTIFIER ~ ":" ~ TYPE_DESC)? ~
+    ("," ~ PUB? ~ IDENTIFIER ~ ":" ~ TYPE_DESC)* ~
+    ","? ~ "}"
+}
+
+VARIANTS = {"{" ~
+    (IDENTIFIER ~ "=" ~ EXPRESSION)? ~
+    ("," ~ IDENTIFIER ~ "=" ~ EXPRESSION)* ~
+    ","? ~ "}"
+}
+
+CLASS_DEC  = {PUB? ~ CLASS ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ FIELDS}
+STRUCT_DEC = {PUB? ~ STRUCT ~ IDENTIFIER ~ GENERIC_PARAM? ~ FIELDS}
+UNION_DEC  = {PUB? ~ UNION ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ FIELDS}
+ENUM_DEC   = {PUB? ~ ENUM ~ IDENTIFIER ~ ":" ~ TYPE_DESC ~ VARIANTS}
+TYPE_DEC   = {PUB? ~ TYPE ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ "=" ~ TYPE_DESC}
+MOD_DEC    = {PUB? ~ MOD ~ IDENTIFIER}
+
+FN_ARG = {MUT? ~ IDENTIFIER ~ (":" ~ TYPE_DESC ~ ("+" ~ TYPE_DESC)* )?}
+FUNC_DEC   = {
+    PUB? ~ DEF ~ IDENTIFIER ~ "(" ~ FN_ARG? ~ ("," ~ FN_ARG)* ~ ","? ~ ")" ~ ("->" ~ TYPE_DESC)? ~
+    ("{" ~ EXPRESSION? ~ "}")?
+}
+
+ASSOC_TYPE_DEC = {TYPE ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ ("=" ~ TYPE_DESC)?}
+TRAIT_BODY     = {"{" ~ (ASSOC_TYPE_DEC | FUNC_DEC)* ~ "}"}
+TRAIT_DEC      = {PUB? ~ TRAIT ~ TYPE_DESC ~ (":" ~ TYPE_DESC ~ ("," ~ TYPE_DESC)* ~ ","?)? ~ TRAIT_BODY}
+
+IMPORT_ITEM = {
+    IDENTIFIER ~ (
+        ("::" ~ IMPORT_ITEM) |
+        ("{" ~ IMPORT_ITEM ~ ("," ~ IMPORT_ITEM)* ~ ","? ~ "}")
+    )
+}
+IMPORT_STATEMENT = {PUB? ~ IMPORT ~ IMPORT_ITEM}
+
+TOPLEVEL = {
+    CLASS_DEC | STRUCT_DEC | UNION_DEC | ENUM_DEC | TYPE_DEC | IMPORT_STATEMENT |
+    MOD_DEC | TRAIT_DEC
+}
+PROGRAM = {SOI ~ TOPLEVEL* ~ EOI}
