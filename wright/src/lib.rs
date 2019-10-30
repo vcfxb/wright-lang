@@ -1,11 +1,26 @@
 #![warn(missing_copy_implementations)]
 #![warn(missing_docs)]
 
-extern crate regex;
-extern crate codespan;
-extern crate codespan_reporting;
-extern crate clap;
+//! The Wright programming language crate.
+//!
+
+#[macro_use]
+extern crate pest_derive;
 
 pub mod version;
-pub mod model;
 pub mod grammar;
+pub mod cli;
+
+/// Enum of possible intermediate representations which can be emited.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Emit {
+    /// Tokens, or Lexemes. [see wikipedia](https://en.wikipedia.org/wiki/Lexical_analysis)
+    Tokens,
+    /// The Abstract Syntax Tree. [see wikipedia](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
+    AbstractSyntaxTree,
+}
+
+/// Returns exit code.
+pub fn call_files(filenames: Vec<&str>, run: bool, emits: Vec<Emit>, verbose: bool) -> i32 {
+    unimplemented!()
+}
