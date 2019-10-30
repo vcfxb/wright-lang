@@ -8,7 +8,6 @@ repository = "https://github.com/Wright-Language-Developers/Wright-lang"
 documentation = "https://docs.rs/wright"
 readme = "../README.md"
 keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
-build = "src/build.rs"
 edition = "2018"
 
 [lib]
@@ -18,33 +17,18 @@ doctest = true
 doc = true
 
 [dependencies]
-regex = "~0.2.0"
-clap = "~2.31.0"
-codespan = "0.2.0"
-codespan-reporting = "0.2.0"
-
-[build-dependencies]
-peg = { version = "0.5" }
+regex = "1"
+clap = "~2.33"
+codespan = "0.5"
+codespan-reporting = "0.5"
+pest = "2.1"
+pest_derive = "2.1"
 
 [[bin]]
-doc = false
-test = false
 name = "wright"
-
-[[bin]]
-doc = false
 test = false
-name = "kittyhawk"
-
-[[bin]]
 doc = false
-test = false
-name = "liftoff"
-
-[[bin]]
-doc = false
-test = false
-name = "airport"
+doctest = false
 
 [badges]
 travis-ci = {repository = "Wright-Language-Developers/Wright-lang"}

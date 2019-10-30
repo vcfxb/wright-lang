@@ -24,7 +24,7 @@
 Wright is a lightweight programming language that is intended for use in similar situations to other JVM languages like
 Java and Kotlin. What makes wright different is its unique approach to the object oriented model, following an enforcing
 concepts from more functional languages. From rust, for example, wright uses a trait and polymorphism system, along with
-tagged unions. Wright also takes from Java'sinheritance model, but slightly tweaks it, prevent inheritance based issues 
+tagged unions. Wright also takes from Java's inheritance model, but slightly tweaks it, prevent inheritance based issues 
 and confusion.
 
 ##### Wright is inspired by
