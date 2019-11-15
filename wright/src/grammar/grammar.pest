@@ -1,32 +1,40 @@
+// SYMBOLS
+L_CURLY     = @{"{"}
+R_CURLY     = @{"}"}
+EQ          = @{"="}
+//DBL_COLON   = @{"::"}
+
 // DEFINITIONS
 
-CLASS = {"class"}
-STRUCT = {"struct"}
-ENUM = {"enum"}
-UNION = {"union"}
-CONST = {"const"}
-TYPE = {"type"}
-TRAIT = {"trait"}
-MUT = {"mut"}
-DEF = {"def"}
-TRUE = {"true"}
-FALSE = {"false"}
-PUB = {"pub"}
-MOD = {"mod"}
-IMPORT = {"import"}
-IF = {"if"}
-THEN = {"then"}
-ELSE = {"else"}
-SELF_T = {"Self"}
-LET = {"let"}
-MATCH = {"match"}
-UNDERSCORE = {"_"}
-IMPL = {"impl"}
+CLASS       =  {"class"}
+STRUCT      =  {"struct"}
+ENUM        =  {"enum"}
+UNION       =  {"union"}
+CONST       =  {"const"}
+TYPE        =  {"type"}
+TRAIT       =  {"trait"}
+MUT         =  {"mut"}
+FN          = _{"fn"}
+TRUE        =  {"true"}
+FALSE       =  {"false"}
+PUB         =  {"pub"}
+MOD         =  {"mod"}
+IMPORT      =  {"import"}
+IF          =  {"if"}
+THEN        =  {"then"}
+ELSE        =  {"else"}
+SELF_T      =  {"Self"}
+LET         =  {"let"}
+MATCH       =  {"match"}
+IMPL        =  {"impl"}
+FOR         =  {"for"}
+WHERE       =  {"where"}
+UNDERSCORE  =  {"_"}
 
 KEYWORD = _{
-    CLASS | STRUCT | ENUM | UNION | CONST | MUT | DEF | TRUE |
+    CLASS | STRUCT | ENUM | UNION | CONST | MUT | FN | TRUE |
     FALSE | PUB | MOD | IMPORT | IF | THEN | ELSE | TYPE | SELF_T | TRAIT |
-    LET | MATCH | UNDERSCORE | IMPL
+    LET | MATCH | UNDERSCORE | IMPL | FOR | WHERE
 }
 
 SL_COMMENT_START = {"#"}
@@ -35,9 +43,9 @@ ML_COMMENT_END = {"*#"}
 
 // IGNORED
 
-WHITESPACE = { NEWLINE | " " | "\t" }
+WHITESPACE = _{ NEWLINE | " " | "\t" }
 
-COMMENT    = @{ML_COMMENT | SL_COMMENT}
+COMMENT    = _{ML_COMMENT | SL_COMMENT}
 SL_COMMENT = _{SL_COMMENT_START ~ (!NEWLINE ~ ANY)*}
 ML_COMMENT = _{ML_COMMENT_START ~ (!ML_COMMENT_END ~ ANY)* ~ ML_COMMENT_END}
 
@@ -45,13 +53,13 @@ ML_COMMENT = _{ML_COMMENT_START ~ (!ML_COMMENT_END ~ ANY)* ~ ML_COMMENT_END}
 
 BOOLEAN_LITERAL = @{TRUE | FALSE}
 
-HEX_LITERAL = @{"0x" ~ ASCII_HEX_DIGIT+}
-BIN_LITERAL = @{"0b" ~ ASCII_BIN_DIGIT+}
-DEC_LITERAL = @{ASCII_DIGIT+}
+HEX_LITERAL = @{"0x" ~ ASCII_HEX_DIGIT ~ (ASCII_HEX_DIGIT | "_")*}
+BIN_LITERAL = @{"0b" ~ ASCII_BIN_DIGIT ~ (ASCII_BIN_DIGIT | "_")*}
+DEC_LITERAL = @{ASCII_DIGIT ~ (ASCII_DIGIT | "_")*}
 NUM_LITERAL = ${HEX_LITERAL | BIN_LITERAL | DEC_LITERAL}
 
-CHAR_LITERAL = ${"'" ~ (ESCAPE | ANY) ~ "'"}
-STR_LITERAL  = ${"\"" ~ (ESCAPE | ANY)* ~ "\""}
+CHAR_LITERAL = ${"'" ~ (!"'" ~ (ESCAPE | ANY)) ~ "'"}
+STR_LITERAL  = ${"\"" ~ (!"\"" ~ (ESCAPE | ANY))* ~ "\""}
 
 LITERAL = {BOOLEAN_LITERAL | NUM_LITERAL | CHAR_LITERAL | STR_LITERAL}
 
@@ -77,7 +85,7 @@ ESCAPE = ${
 
 IDENTIFIER = @{!KEYWORD ~ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")*}
 
-BLOCK = {"{" ~ EXPRESSION ~ "}"}
+BLOCK = {L_CURLY ~ EXPRESSION ~ R_CURLY}
 
 UNARY_OPERATOR = @{"!" | "~" | "-"}
 UNARY_EXPRESSION = {UNARY_OPERATOR ~ EXPRESSION}
@@ -88,12 +96,12 @@ CONDITIONAL = {
     (ELSE ~ EXPRESSION)?
 }
 
-LET_EXPR = {LET ~ MUT? ~ EXPRESSION ~ "=" ~ EXPRESSION}
+LET_EXPR = {LET ~ MUT? ~ EXPRESSION ~ EQ ~ EXPRESSION}
 
-MATCH_EXPR = {MATCH ~ EXPRESSION ~ "{" ~
+MATCH_EXPR = {MATCH ~ EXPRESSION ~ L_CURLY ~
     (EXPRESSION ~ "=>" ~ EXPRESSION)? ~
     ("," ~ EXPRESSION ~ "=>" ~ EXPRESSION)* ~
-    ","? ~ "}"
+    ","? ~ R_CURLY
 }
 
 APPLY_OP    = @{";"}
@@ -108,12 +116,16 @@ RANGE_OP    = @{".."}
 BIT_SHIFT   = @{">>>"| ">>" | "<<"}
 ARITH1      = @{"+" | "-"}
 ARITH2      = @{"*" | "/" | "%"}
+INDEX       = @{"[" | "]"}
 ACCESS      = @{"."}
 
 INFIX = {
     APPLY_OP | BOOL_OR | BOOL_AND | BIT_OR | BIT_XOR | BIT_AND | EQUALITY |
-    BIT_SHIFT | RELATIONAL | RANGE_OP | ARITH1 | ARITH2 | ACCESS
+    BIT_SHIFT | RELATIONAL | RANGE_OP | ARITH1 | ARITH2 | ACCESS |
+    INDEX
 }
+
+FN_CALL = {EXPR}
 
 EXPR = {
     UNDERSCORE |
@@ -123,7 +135,8 @@ EXPR = {
     BLOCK |
     CONDITIONAL |
     LET_EXPR |
-    UNARY_EXPRESSION
+    UNARY_EXPRESSION |
+    FN_CALL
 }
 
 EXPRESSION = {EXPR ~ (INFIX ~ EXPR)* }
@@ -139,45 +152,63 @@ TYPE_ARGS  = {"<" ~ TYPE_DESC ~ ("," ~ TYPE_DESC)* ~ ","? ~ ">"}
 CONST_ARGS = {"[" ~ EXPRESSION ~ ("," ~ EXPRESSION)* ~ ","? ~ "]"}
 TYPE_DESC  = {USER_TYPE ~ TYPE_ARGS? ~ CONST_ARGS?}
 
-FIELDS = {"{" ~
+FIELDS = {L_CURLY ~
     (PUB? ~ IDENTIFIER ~ ":" ~ TYPE_DESC)? ~
     ("," ~ PUB? ~ IDENTIFIER ~ ":" ~ TYPE_DESC)* ~
-    ","? ~ "}"
+    ","? ~ R_CURLY
 }
 
-VARIANTS = {"{" ~
+VARIANTS = {L_CURLY ~
     (IDENTIFIER ~ "=" ~ EXPRESSION)? ~
     ("," ~ IDENTIFIER ~ "=" ~ EXPRESSION)* ~
-    ","? ~ "}"
+    ","? ~ R_CURLY
 }
 
 CLASS_DEC  = {PUB? ~ CLASS ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ FIELDS}
 STRUCT_DEC = {PUB? ~ STRUCT ~ IDENTIFIER ~ GENERIC_PARAM? ~ FIELDS}
 UNION_DEC  = {PUB? ~ UNION ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ FIELDS}
 ENUM_DEC   = {PUB? ~ ENUM ~ IDENTIFIER ~ ":" ~ TYPE_DESC ~ VARIANTS}
-TYPE_DEC   = {PUB? ~ TYPE ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ "=" ~ TYPE_DESC}
+TYPE_DEC   = {PUB? ~ TYPE ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ EQ ~ TYPE_DESC}
 MOD_DEC    = {PUB? ~ MOD ~ IDENTIFIER}
+CONST_DEC  = {PUB? ~ CONST ~ IDENTIFIER ~ (":" ~ TYPE_DESC)? ~ EQ ~ EXPRESSION}
 
 FN_ARG = {MUT? ~ IDENTIFIER ~ (":" ~ TYPE_DESC ~ ("+" ~ TYPE_DESC)* )?}
 FUNC_DEC   = {
-    PUB? ~ DEF ~ IDENTIFIER ~ "(" ~ FN_ARG? ~ ("," ~ FN_ARG)* ~ ","? ~ ")" ~ ("->" ~ TYPE_DESC)? ~
-    ("{" ~ EXPRESSION? ~ "}")?
+    PUB? ~ CONST? ~ FN ~ IDENTIFIER ~ "(" ~ FN_ARG? ~ ("," ~ FN_ARG)* ~ ","? ~ ")" ~ ("->" ~ TYPE_DESC)? ~
+    (L_CURLY ~ EXPRESSION? ~ R_CURLY)?
 }
 
-ASSOC_TYPE_DEC = {TYPE ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ ("=" ~ TYPE_DESC)?}
-TRAIT_BODY     = {"{" ~ (ASSOC_TYPE_DEC | FUNC_DEC)* ~ "}"}
-TRAIT_DEC      = {PUB? ~ TRAIT ~ TYPE_DESC ~ (":" ~ TYPE_DESC ~ ("," ~ TYPE_DESC)* ~ ","?)? ~ TRAIT_BODY}
+ASSOC_TYPE_DEC  = {TYPE ~ IDENTIFIER ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~ ("=" ~ TYPE_DESC)?}
+ASSOC_CONST_DEC = {PUB? ~ CONST ~ IDENTIFIER ~ ":" ~ TYPE_DESC ~ ("=" ~ EXPRESSION)?}
+TRAIT_BODY      = {"{" ~ (ASSOC_TYPE_DEC | ASSOC_CONST_DEC | FUNC_DEC)* ~ "}"}
+TRAIT_DEC       = {
+    PUB? ~ TRAIT ~ TYPE_DESC ~ (":" ~ TYPE_DESC ~ ("," ~ TYPE_DESC)* ~ ","?)? ~ TRAIT_BODY
+}
 
+GLOB = {"*"}
 IMPORT_ITEM = {
     IDENTIFIER ~ (
-        ("::" ~ IMPORT_ITEM) |
-        ("{" ~ IMPORT_ITEM ~ ("," ~ IMPORT_ITEM)* ~ ","? ~ "}")
+        ("::" ~ (IMPORT_ITEM | GLOB)) |
+        (L_CURLY ~ IMPORT_ITEM ~ ("," ~ IMPORT_ITEM)* ~ ","? ~ R_CURLY)
     )
 }
 IMPORT_STATEMENT = {PUB? ~ IMPORT ~ IMPORT_ITEM}
 
+WHERE_BLOCK = {
+    WHERE ~
+    TYPE_DESC ~ ":" ~ (TYPE_DESC ~ ("+" ~ TYPE_DESC)*) ~
+    ("," ~ TYPE_DESC ~ ":" ~ (TYPE_DESC ~ ("+" ~ TYPE_DESC)*))*
+}
+IMPL_BLOCK = {L_CURLY ~ (TYPE_DEC | FUNC_DEC | CONST_DEC)* ~ R_CURLY}
+IMPLEMENTATION = {
+    IMPL ~ GENERIC_PARAM? ~ CONSTANT_PARAM? ~
+    TYPE_DESC ~ (FOR ~ TYPE_DESC)? ~
+    WHERE_BLOCK? ~ IMPL_BLOCK
+}
+
+
 TOPLEVEL = {
     CLASS_DEC | STRUCT_DEC | UNION_DEC | ENUM_DEC | TYPE_DEC | IMPORT_STATEMENT |
-    MOD_DEC | TRAIT_DEC
+    MOD_DEC | TRAIT_DEC | IMPLEMENTATION | CONST_DEC | FUNC_DEC
 }
 PROGRAM = {SOI ~ TOPLEVEL* ~ EOI}
