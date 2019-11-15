@@ -1,5 +1,4 @@
 #![allow(missing_docs)]
-use pest::Parser;
 
 
 /// Wright's parser, generated from a PEST grammar.
@@ -7,3 +6,5 @@ use pest::Parser;
 #[grammar = "grammar/grammar.pest"]
 pub struct WrightParser;
 
+/// Wright Parser rule type alias.
+pub type WrightRule = Rule;

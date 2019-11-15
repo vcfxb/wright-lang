@@ -14,9 +14,16 @@
   <component name="ChangeListManager">
     <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bin/wright.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/bin/wright.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cli.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar/ast.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/ast.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/grammar/grammar.pest" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/grammar.pest" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/grammar/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/parser.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/tests/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar/tokens.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/version.rs" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -92,7 +99,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Test">
+  <component name="RunManager" selected="Cargo Command.Build">
     <configuration name="Build" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="channel" value="DEFAULT" />
       <option name="command" value="build" />
@@ -231,7 +238,15 @@
       <workItem from="1561131511565" duration="1863000" />
       <workItem from="1562863964929" duration="56000" />
       <workItem from="1563589289951" duration="6000" />
-      <workItem from="1572461572455" duration="1023000" />
+      <workItem from="1572461572455" duration="1950000" />
+      <workItem from="1572632219417" duration="6180000" />
+      <workItem from="1572639143975" duration="2667000" />
+      <workItem from="1572988798499" duration="2567000" />
+      <workItem from="1573248031962" duration="601000" />
+      <workItem from="1573593171406" duration="18000" />
+      <workItem from="1573593204860" duration="1289000" />
+      <workItem from="1573760166218" duration="613000" />
+      <workItem from="1573851760648" duration="606000" />
     </task>
     <servers />
   </component>
