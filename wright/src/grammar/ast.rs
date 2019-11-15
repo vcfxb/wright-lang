@@ -208,3 +208,7 @@ pub struct FunctionType {
     pub return_type: Box<Type>,
 }
 
+#[derive(Debug, Clone)]
+pub struct Program {
+
+}
