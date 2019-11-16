@@ -7,13 +7,11 @@ use codespan::{
 
 pub mod ast;
 pub mod parser;
+pub mod scanner;
 
 use ast::{
     Program
 };
-
-use parser::{WrightParser, WrightRule};
-use pest::Parser;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Properties {
