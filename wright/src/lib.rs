@@ -4,9 +4,6 @@
 //! The Wright programming language crate.
 //!
 
-#[macro_use]
-extern crate pest_derive;
-
 use codespan::{
     Files,
     FileId,
@@ -14,11 +11,11 @@ use codespan::{
 
 use exitcode::ExitCode;
 
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
 
 pub mod grammar;
-
 use grammar::parse;
 
 /// Enum of possible intermediate representations which can be emitted.
@@ -28,6 +25,60 @@ pub enum Emit {
     Tokens,
     /// The Abstract Syntax Tree. [see wikipedia](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
     AbstractSyntaxTree,
+}
+
+#[derive(Debug, Clone)]
+/// Interpreter instance.
+pub struct Wright {
+    files: Files,
+    handles: Vec<FileId>,
+    verbose: bool,
+    emits: HashSet<Emit>,
+}
+
+impl Wright {
+    /// Construct a new instance of the Wright interpreter.
+    pub fn new(verbose: bool) -> Self {
+        Wright {
+            files:   Files::new(),
+            handles: Vec::new(),
+            verbose,
+            emits: HashSet::default()
+        }
+    }
+
+    /// Add source to the Wright Interpreter.
+    pub fn add_source(&mut self, name: impl Into<String>, content: impl Into<String>) -> &mut Self {
+        let handle = self.files.add(name, content);
+        self.handles.push(handle);
+        if self.verbose { println!("Loaded {}.", name); }
+        self
+    }
+
+    /// Add several files to this Wright Interpreter.
+    pub fn add_files(&mut self, filenames: Vec<&str>) -> std::io::Result<&mut Self> {
+        for fname in filenames {
+            let mut f= File::open(fname)?;
+            let mut source = String::new();
+            f.read_to_string(&mut source)?;
+            self.add_source(fname, source);
+        }
+        Ok(self)
+    }
+
+    /// Toggle certain emit information.
+    pub fn set_emit(&mut self, emit: Emit, value: bool) -> &mut Self {
+        if value {
+            self.emits.insert(emit);
+        } else {
+            self.emits.remove(&emit);
+        }
+        self
+    }
+
+    pub fn call(self) {
+
+    }
 }
 
 /// Call the Wright compiler system on a set of files with given options.

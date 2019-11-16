@@ -21,8 +21,8 @@ doc = true
 clap = "~2.33"
 codespan = "0.5"
 codespan-reporting = "0.5"
-pest = "2.1"
-pest_derive = "2.1"
+#pest = "2.1"
+#pest_derive = "2.1"
 exitcode = "1"
 
 [[bin]]
