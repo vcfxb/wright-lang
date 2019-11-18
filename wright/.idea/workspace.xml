@@ -244,10 +244,14 @@
       <workItem from="1573593171406" duration="18000" />
       <workItem from="1573593204860" duration="1289000" />
       <workItem from="1573760166218" duration="613000" />
+<<<<<<< HEAD
       <workItem from="1573851760648" duration="3133000" />
       <workItem from="1574100723166" duration="34000" />
       <workItem from="1574100773082" duration="1672000" />
       <workItem from="1574102462813" duration="6246000" />
+=======
+      <workItem from="1573851760648" duration="606000" />
+>>>>>>> parent of d9b08a5... Auto stash before merge of "master" and "origin/master"
     </task>
     <servers />
   </component>
