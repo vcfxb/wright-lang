@@ -9,17 +9,28 @@ use codespan::{
     FileId,
 };
 
+use codespan_reporting::diagnostic::{
+    Diagnostic,
+    Label,
+    Severity
+};
+
 use exitcode::ExitCode;
 
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
 
+/// Wright grammar module.
 pub mod grammar;
-use grammar::parse;
+use grammar::lexer::Lexer;
+
+/// Wright CodeMap module.
+pub mod codemap;
+
 
 /// Enum of possible intermediate representations which can be emitted.
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Emit {
     /// Tokens, or Lexemes. [see wikipedia](https://en.wikipedia.org/wiki/Lexical_analysis)
     Tokens,
@@ -34,24 +45,39 @@ pub struct Wright {
     handles: Vec<FileId>,
     verbose: bool,
     emits: HashSet<Emit>,
+    open_repl: bool,
 }
 
 impl Wright {
     /// Construct a new instance of the Wright interpreter.
-    pub fn new(verbose: bool) -> Self {
+    pub fn new() -> Self {
         Wright {
             files:   Files::new(),
             handles: Vec::new(),
-            verbose,
-            emits: HashSet::default()
+            verbose: false,
+            emits: HashSet::default(),
+            open_repl: false
         }
     }
 
+    /// Set this interpreters verbosity flag.
+    pub fn set_verbose(&mut self, val: bool) -> &mut Self {
+        self.verbose = val;
+        self
+    }
+
+    /// Set this interpreters interactive flag (whether this interpreter will
+    /// open a REPL session when called).
+    pub fn set_interactive(&mut self, val: bool) -> &mut Self {
+        self.open_repl = val;
+        self
+    }
+
     /// Add source to the Wright Interpreter.
-    pub fn add_source(&mut self, name: impl Into<String>, content: impl Into<String>) -> &mut Self {
+    pub fn add_source(&mut self, name: impl Into<String> + std::fmt::Debug, content: impl Into<String>) -> &mut Self {
+        if self.verbose {println!("Loading {:?}.", name)}
         let handle = self.files.add(name, content);
         self.handles.push(handle);
-        if self.verbose { println!("Loaded {}.", name); }
         self
     }
 
@@ -66,7 +92,7 @@ impl Wright {
         Ok(self)
     }
 
-    /// Toggle certain emit information.
+    /// Set certain emit flags.
     pub fn set_emit(&mut self, emit: Emit, value: bool) -> &mut Self {
         if value {
             self.emits.insert(emit);
@@ -76,41 +102,20 @@ impl Wright {
         self
     }
 
-    pub fn call(self) {
-
+    /// Set emit flags to true for all flags in given `emits` Vec,
+    /// and false for any others.
+    pub fn set_emits(&mut self, emits: Vec<Emit>) -> &mut Self {
+        emits.iter().for_each(|e| {self.emits.insert(*e);});
+        self
     }
-}
 
-/// Call the Wright compiler system on a set of files with given options.
-/// Returns system exit code.
-pub fn call_files(filenames: Vec<&str>, run: bool, emits: Vec<Emit>, verbose: bool) -> ExitCode {
-    let mut files = Files::new();
-    let mut handles: Vec<FileId> = Vec::with_capacity(filenames.len());
-    for file_name in filenames {
-        let mut f = match File::open(file_name) {
-            Ok(f) => f,
-            Err(e) => {
-                println!("Could not open {}.", file_name);
-                return exitcode::NOINPUT;
-            }
-        };
-        let mut source = String::new();
-        if let Err(_) = f.read_to_string(&mut source) {
-            println!("Could not read {}.", file_name);
-            return exitcode::NOINPUT;
-        };
-        let handle = files.add(file_name, source);
-        if verbose {eprintln!("Loaded {} with handle {:?}.", file_name, handle);}
-        handles.push(handle);
-    }
-    return call(files, handles, run, emits, verbose);
-}
+    /// Calls and consumes this wright interpreter. Returns exitcode.
+    pub fn call(self) -> ExitCode {
+        for handle in self.handles {
+            let lexer = Lexer::new(&self.files, handle);
 
-/// Call the Wright compiler on a given input, with given options.
-/// Returns system exit code.
-pub fn call(files: Files, handles: Vec<FileId>, run: bool, emits: Vec<Emit>, verbose: bool) -> ExitCode {
-    for handle in handles {
-        parse(files.source(handle))
+        }
+        exitcode::OK
     }
-    return 0;
+
 }
