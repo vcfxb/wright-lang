@@ -13,12 +13,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/grammar/scanner.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/codemap/reporting.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/grammar/lexer.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/bin/wright.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/bin/wright.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/grammar.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/grammar/grammar.pest" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar/ast.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/ast.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/grammar/parser.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/grammar/parser.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/grammar/scanner.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/codemap.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -243,6 +245,9 @@
       <workItem from="1573593204860" duration="1289000" />
       <workItem from="1573760166218" duration="613000" />
       <workItem from="1573851760648" duration="3133000" />
+      <workItem from="1574100723166" duration="34000" />
+      <workItem from="1574100773082" duration="1672000" />
+      <workItem from="1574102462813" duration="6246000" />
     </task>
     <servers />
   </component>

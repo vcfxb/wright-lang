@@ -1,8 +1,5 @@
 #![allow(missing_docs)]
 //! Abstract Syntax Tree
-
-use super::Properties;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Literal {
     Integer(u64),
@@ -15,7 +12,6 @@ pub enum Literal {
 
 #[derive(Debug, Clone)]
 pub struct Expr {
-    pub properties: Properties,
     pub variant: ExprVariant,
 }
 
@@ -33,7 +29,6 @@ pub enum ExprVariant {
 #[derive(Debug, Clone)]
 /// Wrapper struct for unary expressions.
 pub struct UnaryExpr {
-    pub properties: Properties,
     pub variant: UnaryExprVariant,
     pub expr: Box<Expr>,
 }
@@ -45,7 +40,6 @@ pub enum UnaryExprVariant {
 
 #[derive(Debug, Clone)]
 pub struct BinaryExpr {
-    pub properties: Properties,
     pub operator: BinaryExprVariant,
     pub left: Box<Expr>,
     pub right: Box<Expr>
@@ -148,7 +142,6 @@ pub struct IfExpression {
 
 #[derive(Debug, Clone)]
 pub struct Identifier {
-    pub properties: Properties,
     pub inner: String,
 }
 
@@ -161,7 +154,6 @@ pub struct Block {
 #[derive(Debug, Clone)]
 /// expr => type
 pub struct Cast {
-    pub prop: Properties,
     pub expr: Box<Expr>,
     pub ty: Type,
 }
