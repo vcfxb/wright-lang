@@ -12,6 +12,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
@@ -25,6 +26,9 @@
       <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/version.rs" beforeDir="false" />
     </list>
+=======
+    <list default="true" id="b31a5c9a-1a3b-4d15-894c-ce0132703312" name="Default Changelist" comment="" />
+>>>>>>> Stashed changes
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -238,6 +242,7 @@
       <workItem from="1561131511565" duration="1863000" />
       <workItem from="1562863964929" duration="56000" />
       <workItem from="1563589289951" duration="6000" />
+<<<<<<< Updated upstream
       <workItem from="1572461572455" duration="1950000" />
       <workItem from="1572632219417" duration="6180000" />
       <workItem from="1572639143975" duration="2667000" />
@@ -247,6 +252,10 @@
       <workItem from="1573593204860" duration="1289000" />
       <workItem from="1573760166218" duration="613000" />
       <workItem from="1573851760648" duration="606000" />
+=======
+      <workItem from="1572461572455" duration="1023000" />
+      <workItem from="1573830750057" duration="665000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>
