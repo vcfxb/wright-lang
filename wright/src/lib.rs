@@ -25,9 +25,6 @@ use std::io::Read;
 pub mod grammar;
 use grammar::lexer::Lexer;
 
-/// Wright CodeMap module.
-pub mod codemap;
-
 
 /// Enum of possible intermediate representations which can be emitted.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
