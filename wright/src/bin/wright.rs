@@ -3,10 +3,6 @@ use clap::{Arg, App, AppSettings, Values};
 
 use std::process::exit;
 
-use std::result::Result;
-
-use exitcode::ExitCode;
-
 use wright::{
     Emit,
     Wright
