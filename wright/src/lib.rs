@@ -9,12 +9,6 @@ use codespan::{
     FileId,
 };
 
-use codespan_reporting::diagnostic::{
-    Diagnostic,
-    Label,
-    Severity
-};
-
 use exitcode::ExitCode;
 
 use std::collections::HashSet;
