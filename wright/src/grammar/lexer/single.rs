@@ -10,6 +10,11 @@ pub trait SingleChar: Default + Debug + Clone + Copy + Eq {
     const RULE: &'static str;
     /// The character to be parsed.
     const BASE: char;
+
+    /// Check if this can be parsed from a given lexer.
+    fn can_parse(l: &Lexer) -> bool {
+        l.peek() == Self::BASE
+    }
 }
 
 impl<T: SingleChar> Parser for T {
@@ -23,14 +28,14 @@ impl<T: SingleChar> Parser for T {
     }
 
     fn do_parse(lexer: &mut Lexer) -> Result<Token, Diagnostic> {
-        Self::try_parse(lexer).ok_or_else(|| {
+        Self::try_parse(lexer).ok_or(
             Diagnostic::new_error(
                 "PARSING ERROR",
                 Label::new(lexer.handle,
                            Span::new(lexer.get_index(), (lexer.get_index().0)+1),
-                           format!("Could not parse with rule {}.", Self::RULE))
+                           format!("Expected {}.", Self::BASE))
             )
-        })
+        )
     }
 
 }
