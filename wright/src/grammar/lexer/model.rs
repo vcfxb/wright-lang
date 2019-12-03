@@ -27,12 +27,13 @@ pub struct Lexer<'s> {
     span: Span,
     index: ByteIndex,
     tokens: Vec<Token>,
+    source: &'s str,
+    char_stack: Vec<char>,
+
     /// Reference to original Files database.
     pub files_ref: &'s Files,
     /// Handle of the file being parsed by this lexer.
     pub handle: FileId,
-    source: &'s str,
-    char_stack: Vec<char>
 }
 
 impl<'s> Lexer<'s> {
@@ -90,7 +91,7 @@ impl<'s> Lexer<'s> {
     /// and false otherwise.
     pub fn matches(&mut self, ch: char) -> bool {
         if self.peek() == ch {
-            self.advance();
+            self.next();
             true
         } else {
             false
@@ -99,7 +100,7 @@ impl<'s> Lexer<'s> {
 
     /// Advance the lexer, returning the next character. Returns null character
     /// (`'\0'`) if at the end of the source.
-    pub fn advance(&mut self) -> char {
+    pub fn next(&mut self) -> char {
         let c = self.char_stack.pop();
         if c.is_some() {
             let ch = c.unwrap();
@@ -108,6 +109,19 @@ impl<'s> Lexer<'s> {
         } else {
             self.index = self.span.end();
             '\0'
+        }
+    }
+
+    /// Advance the lexer a certain number of times. Return the string consumed.
+    /// Returns None if the lexer passes end of source.
+    pub fn advance(&mut self, count: usize) -> Option<String> {
+        if self.lookahead(count-1) == '\0' {None}
+        else {
+            let mut s = String::new();
+            for i in 0..count {
+                s.push(self.next());
+            }
+            Some(s)
         }
     }
 
