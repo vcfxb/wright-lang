@@ -24,6 +24,7 @@ codespan-reporting = "0.5"
 #pest = "2.1"
 #pest_derive = "2.1"
 exitcode = "1"
+either = "1.5"
 
 [[bin]]
 name = "wright"
