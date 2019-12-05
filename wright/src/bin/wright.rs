@@ -38,7 +38,7 @@ pub fn get_wright_app<'a, 'b>() -> App<'a, 'b> {
             .long("emit")
             .help("Prints intermediate representation(s).")
             .takes_value(true)
-            .possible_values(&["tokens", "ast"])
+            .possible_values(&["tokens", "lexemes", "ast"])
             .use_delimiter(true)
             .multiple(true)
         )
@@ -59,6 +59,7 @@ fn main() {
     for v in matches.values_of("EMIT").unwrap_or(Values::default()) {
         emits.push(match v {
             "tokens"  => Emit::Tokens,
+            "lexemes" => Emit::Lexemes,
             "ast"     => Emit::AbstractSyntaxTree,
             other => panic!("{} should not be a possible emit option.", other),
         });

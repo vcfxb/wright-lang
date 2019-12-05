@@ -1,67 +1,67 @@
-use codespan::{Span, ByteIndex};
+use codespan::{Files, FileId, Span};
+use codespan_reporting::diagnostic::Diagnostic;
 
-/// The lexer model. Abstract data types that are used in the lexer.
-pub mod model;
-pub use model::*;
+/// Module for Wright's first pass over source code, which differentiates
+/// characters into symbol groups.
+pub mod symbols;
+use symbols::*;
 
-/// Wright language literal tokens types.
-pub mod literals;
+/// Module for recognizing escape sequences in wright source code.
+pub mod escapes;
 
-/// Parsers for single characters in source code.
-pub mod single;
+/// Module for second pass tokens. Used to differentiate words,
+/// strings, numerical literals, and comments.
+pub mod tokens;
+use tokens::*;
 
-/// Utilities for parsing source code.
-pub mod keyword;
+/// Module for third pass lexemes. Used to differentiate keywords, identifiers,
+/// document comments, and do parentheses grouping.
+pub mod lexemes;
+use lexemes::*;
 
+
+/// A Lexer that transforms wright source code into tokens.
 #[derive(Debug)]
-/// Token type, representing a token in source code.
-pub struct Token {
+pub struct Lexer<'s> {
+    /// Reference to the source files database.
+    files: &'s Files,
+    /// The handle of the source being parsed in the files database.
+    handle: FileId,
     span: Span,
-    rule: &'static str,
-    state: TokenState
+    source: &'s str,
+    syms: Vec<Sym>,
+    tokens: Vec<Token>,
+    lexemes: Vec<Lexeme>,
 }
 
-impl Token {
-    /// Construct a new token.
-    pub fn new(start: ByteIndex, end: ByteIndex, rule: &'static str, state: TokenState) -> Self {
-        Self {span: Span::new(start, end), rule, state}
+impl<'s> Lexer<'s> {
+    /// Construct a new Lexer for a given source item in a Files database.
+    pub fn new(files: &'s Files, handle: FileId) -> Self {
+        let src = files.source(handle);
+        let span = files.source_span(handle);
+        let syms = do_pass(src.chars(), span);
+        Self {
+            files,
+            handle,
+            span,
+            source: src,
+            syms,
+            tokens: Vec::new(),
+            lexemes: Vec::new(),
+        }
     }
 
-    /// Construct a new token with the None state.
-    pub fn new_stateless(start: ByteIndex, end: ByteIndex, rule: &'static str) -> Self {
-        Self::new(start, end, rule, TokenState::None)
+    /// Do the token pass, returning either a modified lexer with the tokens
+    /// parsed in or a diagnostic of what went wrong.
+    pub fn tokens_pass(self) -> Result<Self, Diagnostic> {
+        unimplemented!()
     }
 
-    /// Retrieve this token's span.
-    pub fn get_span(&self) -> Span {self.span}
-
-    /// Get the type of this token.
-    pub fn get_rule(&self) -> &'static str {self.rule }
-
-    /// Get the state stored with this token.
-    pub fn get_state(&self) -> &TokenState {&self.state}
-}
-
-impl std::fmt::Display for Token {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "[{}: bytes: [{}, {}). state: {:?}]",
-               self.rule,
-               self.span.start(),
-               self.span.end(), self.state)
+    /// Do the Lexeme pass, returning either a modified lexer with the lexemes
+    /// parsed and stored or a diagnostic of what went wrong.
+    /// If the token pass has not been done yet then self will be returned
+    /// unmodified.
+    pub fn lexemes_pass(self) -> Result<Self, Diagnostic> {
+        unimplemented!()
     }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-/// State that can be stored with a token of wright source code.
-pub enum TokenState {
-    /// String state, usually used for string literals.
-    Str(String),
-    /// Num state, usually used for numeric literals.
-    Num(u128),
-    /// Bool state, usually used for boolean literals.
-    Bool(bool),
-    /// Char state, usually used for char literals.
-    Char(char),
-    /// None or empty state.
-    None,
 }
