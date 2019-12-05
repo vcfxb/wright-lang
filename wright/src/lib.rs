@@ -14,17 +14,21 @@ use exitcode::ExitCode;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
+use crate::grammar::lexer::Lexer;
 
 /// Wright grammar module.
 pub mod grammar;
-use grammar::lexer::Lexer;
 
+/// Wright virtual machine module.
+pub mod vm;
 
 /// Enum of possible intermediate representations which can be emitted.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Emit {
-    /// Tokens, or Lexemes. [see wikipedia](https://en.wikipedia.org/wiki/Lexical_analysis)
+    /// Second pass tokens.
     Tokens,
+    /// Lexer output.
+    Lexemes,
     /// The Abstract Syntax Tree. [see wikipedia](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
     AbstractSyntaxTree,
 }
