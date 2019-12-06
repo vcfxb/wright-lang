@@ -1,6 +1,11 @@
 
-/// Module for Wright's abstract syntax tree representation.
-pub mod ast;
+use codespan::Span;
 
-/// Module for Wright's lexical analyser.
-pub mod lexer;
+/// Wright parser module.
+pub mod parsers;
+
+/// Wright abstract syntax tree module.
+pub mod literals;
+
+/// Model for Wright's parser system.
+pub mod model;
