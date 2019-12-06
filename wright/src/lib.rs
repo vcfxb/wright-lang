@@ -14,7 +14,6 @@ use exitcode::ExitCode;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
-use crate::grammar::lexer::Lexer;
 
 /// Wright grammar module.
 pub mod grammar;
@@ -107,8 +106,7 @@ impl Wright {
     /// Calls and consumes this wright interpreter. Returns exitcode.
     pub fn call(self) -> ExitCode {
         for handle in self.handles {
-            let lexer = Lexer::new(&self.files, handle);
-
+            unimplemented!()
         }
         exitcode::OK
     }
