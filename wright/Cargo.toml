@@ -19,8 +19,8 @@ doc = true
 [dependencies]
 #regex = "1"
 clap = "~2.33"
-codespan = "0.5"
-codespan-reporting = "0.5"
+codespan = "0.7"
+codespan-reporting = "0.7"
 #pest = "2.1"
 #pest_derive = "2.1"
 exitcode = "1"

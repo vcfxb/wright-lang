@@ -47,7 +47,7 @@ impl NumLit {
     }
 
     fn hex_primary(input: &str) -> IResult<&str, u128> {
-        unimplemented!()
+        tag("0x")
     }
 
     /// Parse a numerical literal to a value.

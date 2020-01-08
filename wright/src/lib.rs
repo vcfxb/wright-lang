@@ -35,7 +35,7 @@ pub enum Emit {
 #[derive(Debug, Clone)]
 /// Interpreter instance.
 pub struct Wright {
-    files: Files,
+    files: Files<String>,
     handles: Vec<FileId>,
     verbose: bool,
     emits: HashSet<Emit>,
@@ -70,7 +70,7 @@ impl Wright {
     /// Add source to the Wright Interpreter.
     pub fn add_source(&mut self, name: impl Into<String> + std::fmt::Debug, content: impl Into<String>) -> &mut Self {
         if self.verbose {println!("Loading {:?}.", name)}
-        let handle = self.files.add(name, content);
+        let handle = self.files.add(name, content.into());
         self.handles.push(handle);
         self
     }
