@@ -1,9 +1,11 @@
 
 use codespan::{Files, FileId, Span, ByteOffset, ByteIndex};
 
-use nom::{AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, InputIter, InputLength, InputTake, InputTakeAtPosition, IResult, Needed};
+use nom::{AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, InputIter, InputLength, InputTake, InputTakeAtPosition, IResult, Needed, Offset, ParseTo, Slice};
 use nom::error::{ParseError, ErrorKind};
 use nom::Err;
+use nom::lib::std::str::FromStr;
+use nom::lib::std::ops::{Range, RangeFull, RangeFrom, RangeTo};
 
 /// A piece of source code. Generally used to replace strings in the nom parser,
 /// this structure stores extra information about the location of a fragment of
@@ -12,7 +14,7 @@ use nom::Err;
 pub struct Fragment<'source> {
     /// A reference to the parent Files object, which stores all source code
     /// being processed.
-    files: &'source Files,
+    files: &'source Files<String>,
     handle: FileId,
     span: Span,
     /// The fragment of source code represented by this object.
@@ -23,7 +25,7 @@ impl<'s> Fragment<'s> {
     /// Construct a new parser input from a handle into a
     /// [Files](https://docs.rs/codespan/0.5.0/codespan/struct.Files.html)
     /// object.
-    pub fn new(files: &'s Files, handle: FileId) -> Self {
+    pub fn new(files: &'s Files<String>, handle: FileId) -> Self {
         let source = files.source(handle);
         let span = files.source_span(handle);
         Self {
@@ -59,7 +61,7 @@ impl<'s> Fragment<'s> {
 
     /// Get reference to files object.
     #[inline]
-    pub fn files(&self) -> &'s Files {self.files}
+    pub fn files(&self) -> &'s Files<String> {self.files}
 
     /// Get the handle of this fragment's file in the parent
     /// [Files](https://docs.rs/codespan/0.5.0/codespan/struct.Files.html)
@@ -68,14 +70,17 @@ impl<'s> Fragment<'s> {
 }
 
 impl<'s> AsBytes for Fragment<'s> {
-
     #[inline]
     fn as_bytes(&self) -> &[u8] {
         self.source().as_bytes()
     }
 }
 
-impl<'s, 'o, T> Compare<T> for Fragment<'s> where &'o str: Compare<T>, 's:'o {
+impl<'s, 'o, T> Compare<T> for Fragment<'s>
+    where
+        &'o str: Compare<T>,
+        's:'o
+{
     #[inline]
     fn compare(&self, t: T) -> CompareResult {
         self.source().compare(t)
@@ -111,8 +116,11 @@ impl<'s> FindSubstring<&str> for Fragment<'s> {
 }
 
 impl<'s, 'o, T> FindToken<T> for Fragment<'s>
-    where &'o str: FindToken<T>, 's:'o
+    where
+        &'o str: FindToken<T>,
+        's:'o
 {
+    #[inline]
     fn find_token(&self, t: T) -> bool {
         self.source().find_token(t)
     }
@@ -204,5 +212,46 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
             Some(i) => Ok(self.take_split(i)),
             None => Ok(self.take_split(self.input_len()))
         }
+    }
+}
+
+impl<'s> Offset for Fragment<'s> {
+    fn offset(&self, second: &Self) -> usize {
+        (second.span.start() - self.span.start()).0 as usize
+    }
+}
+
+impl<'s, R: FromStr> ParseTo<R> for Fragment<'s> {
+    #[inline]
+    fn parse_to(&self) -> Option<R> {
+        self.source().parse_to()
+    }
+}
+
+impl<'s> Slice<Range<usize>> for Fragment<'s> {
+    fn slice(&self, range: Range<usize>) -> Self {
+        let mut result = self.clone();
+        result.source = &self.source()[range.clone()];
+        result.span = Span::new(self.span.start()+ByteOffset(range.start as i64),
+                                self.span.start()+ByteOffset(range.end as i64));
+        result
+    }
+}
+
+impl<'s> Slice<RangeFrom<usize>> for Fragment<'s> {
+    fn slice(&self, range: RangeFrom<usize>) -> Self {
+        self.slice((range.start .. self.len()))
+    }
+}
+
+impl<'s> Slice<RangeTo<usize>> for Fragment<'s> {
+    fn slice(&self, range: RangeTo<usize>) -> Self {
+        self.slice((0..range.end))
+    }
+}
+
+impl<'s> Slice<RangeFull> for Fragment<'s> {
+    fn slice(&self, _: RangeFull) -> Self {
+        self.clone()
     }
 }
