@@ -9,7 +9,7 @@
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Langauge-Developers/Wright-lang "Percentage of issues still open")
 ![Status](https://img.shields.io/badge/status-actively--developed-green.svg)
-[![Minimum Rust Version](https://img.shields.io/badge/minimum_rust_version-1.30.0-orange.svg)](https://www.rust-lang.org/)
+[![Minimum Rust Version](https://img.shields.io/badge/minimum_rust_version-1.35.0-orange.svg)](https://www.rust-lang.org/)
 
 
 |  | Downloads|
