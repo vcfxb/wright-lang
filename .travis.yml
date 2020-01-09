@@ -19,28 +19,25 @@ sudo: required
 env:
   global:
     - CRATE_NAME=wright
-  matrix:
-      # Linux
-    - TARGET=aarch64-unknown-linux-gnu
-    - TARGET=arm-unknown-linux-gnueabi
-    - TARGET=armv7-unknown-linux-gnueabihf
-    - TARGET=i686-unknown-linux-gnu
-    - TARGET=i686-unknown-linux-musl
-    - TARGET=mips-unknown-linux-gnu
-    - TARGET=mips64-unknown-linux-gnuabi64
-    - TARGET=mips64el-unknown-linux-gnuabi64
-    - TARGET=mipsel-unknown-linux-gnu
-    - TARGET=powerpc-unknown-linux-gnu
-    - TARGET=powerpc64-unknown-linux-gnu
-    - TARGET=powerpc64le-unknown-linux-gnu
-    - TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-    - TARGET=x86_64-unknown-linux-gnu
-    - TARGET=x86_64-unknown-linux-musl
 
 matrix:
   allow_failures:
     - rust: nightly
   include:
+    # Linux
+    - env:
+      - TARGET=aarch64-unknown-linux-gnu
+      - TARGET=arm-unknown-linux-gnueabi
+      - TARGET=armv7-unknown-linux-gnueabihf
+      - TARGET=i686-unknown-linux-gnu
+      - TARGET=i686-unknown-linux-musl
+      - TARGET=powerpc-unknown-linux-gnu
+      - TARGET=powerpc64-unknown-linux-gnu
+      - TARGET=powerpc64le-unknown-linux-gnu
+      - TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+      - TARGET=x86_64-unknown-linux-gnu
+      - TARGET=x86_64-unknown-linux-musl
+
     # OSX
     - env: TARGET=i686-apple-darwin
       os: osx
