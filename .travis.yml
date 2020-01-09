@@ -4,15 +4,6 @@
 dist: trusty
 language: rust
 rust:
-  - 1.30.0
-  - 1.30.1
-  - 1.31.0
-  - 1.31.1
-  - 1.32.0
-  - 1.33.0
-  - 1.34.0
-  - 1.34.1
-  - 1.34.2
   - 1.35.0
   - 1.36.0
   - 1.37.0
@@ -90,13 +81,19 @@ deploy:
     tags: true
   provider: releases
   skip_cleanup: true
-  branches:
-  only:
-    # release tags
-    - /^v\d+\.\d+\.\d+.*$/
-    - master
 
 cache: cargo
 before_cache:
   # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
+
+stages:
+  - name: deploy
+    # require the branch name to be master (note for PRs this is the base branch name)
+    branches:
+      only:
+        # release tags
+        - /^v\d+\.\d+\.\d+.*$/
+        - master
+
+
