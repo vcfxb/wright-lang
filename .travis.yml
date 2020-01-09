@@ -3,15 +3,7 @@
 
 dist: trusty
 language: rust
-rust:
-  - 1.35.0
-  - 1.36.0
-  - 1.37.0
-  - 1.38.0
-  - 1.39.0
-  - stable
-  - beta
-  - nightly
+
 
 services: docker
 sudo: required
@@ -21,6 +13,15 @@ env:
     - CRATE_NAME=wright
 
 matrix:
+  rust:
+    - 1.35.0
+    - 1.36.0
+    - 1.37.0
+    - 1.38.0
+    - 1.39.0
+    - stable
+    - beta
+    - nightly
   allow_failures:
     - rust: nightly
   include:
