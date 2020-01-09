@@ -46,9 +46,6 @@ test_script:
 
 before_deploy:
   - cd wright && cargo rustc --target %TARGET% --release --bin wright -- -C lto
-  - cd wright && cargo rustc --target %TARGET% --release --bin kittyhawk -- -C lto
-  - cd wright && cargo rustc --target %TARGET% --release --bin airport -- -C lto
-  - cd wright && cargo rustc --target %TARGET% --release --bin liftoff -- -C lto
   - ps: ci\before_deploy.ps1
 
 deploy:
@@ -60,17 +57,13 @@ deploy:
   on:
     RUST_VERSION: stable
     appveyor_repo_tag: true
+    branches:
+      only: /^v\d+\.\d+\.\d+.*$/
   provider: GitHub
 
 cache:
   - C:\Users\appveyor\.cargo\registry
   - target
-
-branches:
-  only:
-    # Release tags
-    - /^v\d+\.\d+\.\d+.*$/
-    - master
 
 
 # Building is done in the test phase, so we disable Appveyor's build phase.
