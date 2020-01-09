@@ -30,14 +30,9 @@ env:
     - TARGET=x86_64-unknown-linux-gnu
     - TARGET=x86_64-unknown-linux-musl
     # *BSD
-    - TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-    - TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
     - TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
     # Windows
     - TARGET=x86_64-pc-windows-gnu
-    # macOS
-    - TARGET=i686-apple-darwin
-    - TARGET=x86_64-apple-darwin
   global:
     - CRATE_NAME=wright
 
