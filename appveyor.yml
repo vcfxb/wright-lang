@@ -57,8 +57,6 @@ deploy:
   on:
     RUST_VERSION: stable
     appveyor_repo_tag: true
-    branches:
-      only: /^v\d+\.\d+\.\d+.*$/
   provider: GitHub
 
 cache:
