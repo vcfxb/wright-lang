@@ -19,6 +19,21 @@ services: docker
 sudo: required
 
 env:
+  # Linux
+  - TARGET=aarch64-unknown-linux-gnu
+  - TARGET=arm-unknown-linux-gnueabi
+  - TARGET=armv7-unknown-linux-gnueabihf
+  - TARGET=i686-unknown-linux-gnu
+  - TARGET=i686-unknown-linux-musl
+  - TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+  - TARGET=x86_64-unknown-linux-gnu
+  - TARGET=x86_64-unknown-linux-musl
+  # *BSD
+  - TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+  - TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+  - TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+  # Windows
+  - TARGET=x86_64-pc-windows-gnu
   global:
     - CRATE_NAME=wright
 
@@ -28,29 +43,11 @@ jobs:
     - rust: nightly
   fast_finish: true
   include:
-    # Linux
-    - env: TARGET=aarch64-unknown-linux-gnu
-    - env: TARGET=arm-unknown-linux-gnueabi
-    - env: TARGET=armv7-unknown-linux-gnueabihf
-    - env: TARGET=i686-unknown-linux-gnu
-    - env: TARGET=i686-unknown-linux-musl
-    - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-linux-gnu
-    - env: TARGET=x86_64-unknown-linux-musl
-
     # OSX
     - env: TARGET=i686-apple-darwin
       os: osx
     - env: TARGET=x86_64-apple-darwin
       os: osx
-
-    # *BSD
-    - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
-
-    # Windows
-    - env: TARGET=x86_64-pc-windows-gnu
 
 before_install:
   - set -e
@@ -74,10 +71,6 @@ deploy:
   file_glob: true
   file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
-    # TODO Here you can pick which targets will generate binary releases
-    # In this example, there are some targets that are tested using the stable
-    # and nightly channels. This condition makes sure there is only one release
-    # for such targets and that's generated using the stable channel
     condition: $TRAVIS_RUST_VERSION = stable
     tags: true
   provider: releases
