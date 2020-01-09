@@ -35,6 +35,9 @@ env:
     - TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
     # Windows
     - TARGET=x86_64-pc-windows-gnu
+    # macOS
+    - TARGET=i686-apple-darwin
+    - TARGET=x86_64-apple-darwin
   global:
     - CRATE_NAME=wright
 
@@ -43,12 +46,6 @@ jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
-  include:
-    # OSX
-    - env: TARGET=i686-apple-darwin
-      os: osx
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
 
 before_install:
   - set -e
