@@ -1,17 +1,14 @@
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1, take_while_m_n},
-    combinator::{map, map_res, peek},
-    sequence::{pair, preceded},
+    bytes::complete::{tag, take_while1, take_while_m_n, is_a},
+    combinator::{map, map_res, peek, recognize},
+    sequence::preceded,
     IResult,
 };
 
 use crate::grammar::{ast::NumLit, model::Fragment};
 
-use nom::bytes::complete::is_a;
-use nom::combinator::recognize;
 use std::num::ParseIntError;
-use nom::character::complete::digit1;
 
 impl<'s> NumLit<'s> {
     fn new(frag: Fragment<'s>, num: u128) -> Self {
@@ -89,18 +86,20 @@ impl<'s> NumLit<'s> {
     /// Parse a numerical literal to a value.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         let constructor = |(frag, val)| Self::new(frag, val);
-
+        let extractor = |func: fn(Fragment) -> IResult<Fragment, u128>| {
+            move |frag| (frag, func(frag).unwrap().1)
+        };
         alt((
             map(
-                pair(recognize(Self::dec_primary), Self::dec_primary),
+                map(recognize(Self::dec_primary), extractor(Self::dec_primary)),
                 constructor,
             ),
             map(
-                pair(recognize(Self::bin_primary), Self::bin_primary),
+                map(recognize(Self::bin_primary), extractor(Self::bin_primary)),
                 constructor,
             ),
             map(
-                pair(recognize(Self::hex_primary), Self::hex_primary),
+                map(recognize(Self::hex_primary), extractor(Self::hex_primary)),
                 constructor,
             ),
         ))(input)
