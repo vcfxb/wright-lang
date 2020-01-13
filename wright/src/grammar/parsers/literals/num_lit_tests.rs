@@ -2,7 +2,7 @@ use crate::grammar::model::Fragment;
 use codespan::{Files, FileId};
 use crate::grammar::ast::NumLit;
 
-fn setup_dec(val: &'static str) -> (Files<String>, FileId) {
+fn setup(val: &'static str) -> (Files<String>, FileId) {
     let mut files: Files<String> = Files::new();
     let h = files.add("dec", val.to_string());
     (files, h)
@@ -16,7 +16,7 @@ fn from_dec() {
 
 #[test]
 fn dec_primary() {
-    let (files, h) = setup_dec("1000");
+    let (files, h) = setup("1000");
     let frag = Fragment::new(&files, h);
     let res = NumLit::dec_primary(frag);
     if let Ok((f, v)) = res {
@@ -30,7 +30,7 @@ fn dec_primary() {
 
 #[test]
 fn dec_passthrough() {
-    let (files, h) = setup_dec("1000");
+    let (files, h) = setup("1000");
     let frag = Fragment::new(&files, h);
     let res = NumLit::parse(frag);
     if let Ok((remaining, node)) = res {
@@ -42,4 +42,11 @@ fn dec_passthrough() {
         eprintln!("{:#?}", res);
         res.unwrap();
     }
+}
+
+#[test]
+fn hex() {
+    let (files, h) = setup("0xCafE_babe ");
+    let frag = Fragment::new(&files, h);
+    
 }
