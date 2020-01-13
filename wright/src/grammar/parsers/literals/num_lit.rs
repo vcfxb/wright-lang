@@ -11,29 +11,33 @@ use crate::grammar::{ast::NumLit, model::Fragment};
 use nom::bytes::complete::is_a;
 use nom::combinator::recognize;
 use std::num::ParseIntError;
+use nom::character::complete::digit1;
 
 impl<'s> NumLit<'s> {
     fn new(frag: Fragment<'s>, num: u128) -> Self {
         Self { frag, inner: num }
     }
 
-    fn from_hex(input: &str) -> Result<u128, std::num::ParseIntError> {
+    pub(super) fn from_hex(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 16)
     }
 
-    fn from_dec(input: &str) -> Result<u128, std::num::ParseIntError> {
+    pub(super) fn from_dec(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 10)
     }
 
-    fn from_bin(input: &str) -> Result<u128, std::num::ParseIntError> {
+    pub(super) fn from_bin(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 2)
     }
 
-    fn clear_underscores(input: &str) -> String {
-        input.replace("_", "")
+    pub(super) fn clear_underscores(input: &str) -> String {
+        //dbg!(input);
+        let res = input.replace("_", "");
+        //dbg!(res.clone());
+        res
     }
 
-    fn hex_primary(input: Fragment) -> IResult<Fragment, u128> {
+    pub(super) fn hex_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
                 tag("0x"),
@@ -50,7 +54,7 @@ impl<'s> NumLit<'s> {
         )(input)
     }
 
-    fn bin_primary(input: Fragment) -> IResult<Fragment, u128> {
+    pub(super) fn bin_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
                 tag("0b"),
@@ -67,13 +71,14 @@ impl<'s> NumLit<'s> {
         )(input)
     }
 
-    fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
+    pub(super) fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
                 peek(take_while_m_n(1, 1, |c: char| c.is_ascii_digit())),
                 take_while1(|c: char| c.is_ascii_digit() || c == '_'),
             ),
             |frag: Fragment| -> Result<u128, ParseIntError> {
+                //dbg!(frag);
                 let mut s = String::from(frag.source());
                 s = Self::clear_underscores(&s);
                 Self::from_dec(&s)
