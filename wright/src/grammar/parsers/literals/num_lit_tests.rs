@@ -48,5 +48,15 @@ fn dec_passthrough() {
 fn hex() {
     let (files, h) = setup("0xCafE_babe ");
     let frag = Fragment::new(&files, h);
-    
+    let res = NumLit::parse(frag);
+    if let Ok((remaining, node)) = res {
+        assert_eq!(remaining.len(), 1);
+        assert_eq!(node.inner, 0xcafebabe);
+        assert_eq!(node.frag.start(), frag.start());
+        assert_eq!(node.frag.end(), remaining.start());
+        assert_eq!(remaining.end(), frag.end());
+    } else {
+        eprintln!("{:#?}", res);
+        res.unwrap();
+    }
 }
