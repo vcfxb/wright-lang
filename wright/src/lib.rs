@@ -105,10 +105,7 @@ impl Wright {
 
     /// Calls and consumes this wright interpreter. Returns exitcode.
     pub fn call(self) -> ExitCode {
-        for handle in self.handles {
-            unimplemented!()
-        }
-        exitcode::OK
+        unimplemented!();
     }
 
 }
