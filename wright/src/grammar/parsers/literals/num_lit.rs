@@ -91,15 +91,15 @@ impl<'s> NumLit<'s> {
         };
         alt((
             map(
-                map(recognize(Self::dec_primary), extractor(Self::dec_primary)),
-                constructor,
-            ),
-            map(
                 map(recognize(Self::bin_primary), extractor(Self::bin_primary)),
                 constructor,
             ),
             map(
                 map(recognize(Self::hex_primary), extractor(Self::hex_primary)),
+                constructor,
+            ),
+            map(
+                map(recognize(Self::dec_primary), extractor(Self::dec_primary)),
                 constructor,
             ),
         ))(input)
