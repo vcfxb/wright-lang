@@ -1,7 +1,12 @@
 
 use codespan::{Files, FileId, Span, ByteOffset, ByteIndex};
 
-use nom::{AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, InputIter, InputLength, InputTake, InputTakeAtPosition, IResult, Needed, Offset, ParseTo, Slice};
+use nom::{
+    AsBytes,
+    Compare,
+    CompareResult,
+    ExtendInto,
+    FindSubstring, FindToken, InputIter, InputLength, InputTake, InputTakeAtPosition, IResult, Needed, Offset, ParseTo, Slice};
 use nom::error::{ParseError, ErrorKind};
 use nom::Err;
 use nom::lib::std::str::FromStr;
@@ -240,13 +245,13 @@ impl<'s> Slice<Range<usize>> for Fragment<'s> {
 
 impl<'s> Slice<RangeFrom<usize>> for Fragment<'s> {
     fn slice(&self, range: RangeFrom<usize>) -> Self {
-        self.slice((range.start .. self.len()))
+        self.slice(range.start .. self.len())
     }
 }
 
 impl<'s> Slice<RangeTo<usize>> for Fragment<'s> {
     fn slice(&self, range: RangeTo<usize>) -> Self {
-        self.slice((0..range.end))
+        self.slice(0..range.end)
     }
 }
 
