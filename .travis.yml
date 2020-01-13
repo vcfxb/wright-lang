@@ -4,72 +4,47 @@
 dist: trusty
 language: rust
 rust:
-  - 1.24.0
-  - 1.24.1
-  - 1.25.0
-  - 1.26.0
-  - 1.26.1
-  - 1.26.2
-  - 1.27.0
-  - 1.27.1
-  - 1.27.2
-  - 1.28.0
-  - 1.29.0
-  - 1.29.1
-  - 1.29.2
-  - 1.30.0
-  - 1.30.1
-  - 1.31.0
-  - 1.31.1
+  - 1.35.0
+  - 1.36.0
+  - 1.37.0
+  - 1.38.0
+  - 1.39.0
   - stable
   - beta
   - nightly
+
+jobs:
 
 services: docker
 sudo: required
 
 env:
-  global:
-    - CRATE_NAME=wright
   matrix:
-      # Linux
+    # Linux
     - TARGET=aarch64-unknown-linux-gnu
     - TARGET=arm-unknown-linux-gnueabi
     - TARGET=armv7-unknown-linux-gnueabihf
     - TARGET=i686-unknown-linux-gnu
     - TARGET=i686-unknown-linux-musl
-    - TARGET=mips-unknown-linux-gnu
-    - TARGET=mips64-unknown-linux-gnuabi64
-    - TARGET=mips64el-unknown-linux-gnuabi64
-    - TARGET=mipsel-unknown-linux-gnu
-    - TARGET=powerpc-unknown-linux-gnu
-    - TARGET=powerpc64-unknown-linux-gnu
-    - TARGET=powerpc64le-unknown-linux-gnu
     - TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
     - TARGET=x86_64-unknown-linux-gnu
     - TARGET=x86_64-unknown-linux-musl
+    # *BSD
+    - TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+    # Windows
+    - TARGET=x86_64-pc-windows-gnu
+  global:
+    - CRATE_NAME=wright
 
-matrix:
+
+jobs:
   allow_failures:
     - rust: nightly
-  include:
-    # OSX
-    - env: TARGET=i686-apple-darwin
-      os: osx
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
-
-    # *BSD
-    - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
-
-    # Windows
-    - env: TARGET=x86_64-pc-windows-gnu
+  fast_finish: true
 
 before_install:
   - set -e
-#  - rustup self update
+  #- rustup self update
 
 install:
   - sh ci/install.sh
@@ -99,8 +74,7 @@ before_cache:
   # Travis can't cache files that are not readable by "others"
   - chmod -R a+r $HOME/.cargo
 
-branches:
-  only:
-    # release tags
-    - /^v\d+\.\d+\.\d+.*$/
-    - master
+
+notifications:
+  email:
+    on_success: never
