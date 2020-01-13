@@ -192,7 +192,7 @@ impl<'s> InputTake for Fragment<'s> {
         frag3.source = &self.source()[count..];
         frag2.span = Span::new(self.start(), self.start() + ByteOffset(count as i64));
         frag3.span = Span::new(self.start() + ByteOffset(count as i64), self.end());
-        (frag2, frag3)
+        (frag3, frag2) // (part after, part before)
     }
 }
 
