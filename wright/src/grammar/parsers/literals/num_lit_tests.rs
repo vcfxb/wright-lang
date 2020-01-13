@@ -60,3 +60,17 @@ fn hex() {
         res.unwrap();
     }
 }
+
+#[test]
+fn bin() {
+    let (f,h) = setup("0b1010_1001_1001\t");
+    let frag = Fragment::new(&f,h);
+    let res = NumLit::parse(frag);
+    if let Ok((rem, val)) = res {
+        assert_eq!(rem.source(), "\t");
+        assert_eq!(val.inner, 0b1010_1001_1001);
+    } else {
+        eprintln!("{:#?}", res);
+        res.unwrap();
+    }
+}
