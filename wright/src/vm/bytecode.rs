@@ -1,4 +1,3 @@
-
 /// Wright virtual machine opcodes. Modeled off of MIPS instruction
 /// reference.
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -42,7 +41,6 @@ pub enum OpCode {
     ORI,
     XOR,
     XORI,
-
 
     // 0x4x -- Signed arithmetic operations.
     ADDS = 0x40,

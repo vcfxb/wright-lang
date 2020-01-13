@@ -4,10 +4,7 @@
 //! The Wright programming language crate.
 //!
 
-use codespan::{
-    Files,
-    FileId,
-};
+use codespan::{FileId, Files};
 
 use exitcode::ExitCode;
 
@@ -46,11 +43,11 @@ impl Wright {
     /// Construct a new instance of the Wright interpreter.
     pub fn new() -> Self {
         Wright {
-            files:   Files::new(),
+            files: Files::new(),
             handles: Vec::new(),
             verbose: false,
             emits: HashSet::default(),
-            open_repl: false
+            open_repl: false,
         }
     }
 
@@ -68,8 +65,14 @@ impl Wright {
     }
 
     /// Add source to the Wright Interpreter.
-    pub fn add_source(&mut self, name: impl Into<String> + std::fmt::Debug, content: impl Into<String>) -> &mut Self {
-        if self.verbose {println!("Loading {:?}.", name)}
+    pub fn add_source(
+        &mut self,
+        name: impl Into<String> + std::fmt::Debug,
+        content: impl Into<String>,
+    ) -> &mut Self {
+        if self.verbose {
+            println!("Loading {:?}.", name)
+        }
         let handle = self.files.add(name, content.into());
         self.handles.push(handle);
         self
@@ -78,7 +81,7 @@ impl Wright {
     /// Add several files to this Wright Interpreter.
     pub fn add_files(&mut self, filenames: Vec<&str>) -> std::io::Result<&mut Self> {
         for fname in filenames {
-            let mut f= File::open(fname)?;
+            let mut f = File::open(fname)?;
             let mut source = String::new();
             f.read_to_string(&mut source)?;
             self.add_source(fname, source);
@@ -99,7 +102,9 @@ impl Wright {
     /// Set emit flags to true for all flags in given `emits` Vec,
     /// and false for any others.
     pub fn set_emits(&mut self, emits: Vec<Emit>) -> &mut Self {
-        emits.iter().for_each(|e| {self.emits.insert(*e);});
+        emits.iter().for_each(|e| {
+            self.emits.insert(*e);
+        });
         self
     }
 
@@ -107,5 +112,4 @@ impl Wright {
     pub fn call(self) -> ExitCode {
         unimplemented!();
     }
-
 }
