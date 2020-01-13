@@ -1,34 +1,20 @@
 use nom::{
-    sequence::{
-        preceded,
-        pair,
-    },
-    bytes::complete::{
-        tag,
-        take_while1,
-        take_while_m_n
-    },
     branch::alt,
-    combinator::{
-        map_res,
-        map,
-        peek
-    },
+    bytes::complete::{tag, take_while1, take_while_m_n},
+    combinator::{map, map_res, peek},
+    sequence::{pair, preceded},
     IResult,
 };
 
-use crate::grammar::{
-    model::Fragment,
-    ast::NumLit,
-};
+use crate::grammar::{ast::NumLit, model::Fragment};
 
-use std::num::ParseIntError;
 use nom::bytes::complete::is_a;
 use nom::combinator::recognize;
+use std::num::ParseIntError;
 
 impl<'s> NumLit<'s> {
     fn new(frag: Fragment<'s>, num: u128) -> Self {
-        Self {frag, inner: num}
+        Self { frag, inner: num }
     }
 
     fn from_hex(input: &str) -> Result<u128, std::num::ParseIntError> {
@@ -52,15 +38,15 @@ impl<'s> NumLit<'s> {
             preceded(
                 tag("0x"),
                 preceded(
-                    peek(take_while_m_n(1,1, |c: char| c.is_ascii_hexdigit())),
-                    take_while1(|c: char| c.is_ascii_hexdigit() || c == '_')
-                )
+                    peek(take_while_m_n(1, 1, |c: char| c.is_ascii_hexdigit())),
+                    take_while1(|c: char| c.is_ascii_hexdigit() || c == '_'),
+                ),
             ),
             |frag: Fragment| -> Result<u128, ParseIntError> {
                 let mut s = String::from(frag.source());
                 s = Self::clear_underscores(&s);
                 Self::from_hex(&s)
-            }
+            },
         )(input)
     }
 
@@ -69,29 +55,29 @@ impl<'s> NumLit<'s> {
             preceded(
                 tag("0b"),
                 preceded(
-                    peek(take_while_m_n(1,1, |c: char| c == '1' || c == '0')),
-                    is_a("10_")
-                )
+                    peek(take_while_m_n(1, 1, |c: char| c == '1' || c == '0')),
+                    is_a("10_"),
+                ),
             ),
             |frag: Fragment| -> Result<u128, ParseIntError> {
                 let mut s = String::from(frag.source());
                 s = Self::clear_underscores(&s);
                 Self::from_bin(&s)
-            }
+            },
         )(input)
     }
 
     fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
-                peek(take_while_m_n(1,1, |c: char| c.is_ascii_digit())),
-                take_while1(|c: char| c.is_ascii_digit() || c == '_')
+                peek(take_while_m_n(1, 1, |c: char| c.is_ascii_digit())),
+                take_while1(|c: char| c.is_ascii_digit() || c == '_'),
             ),
             |frag: Fragment| -> Result<u128, ParseIntError> {
                 let mut s = String::from(frag.source());
                 s = Self::clear_underscores(&s);
                 Self::from_dec(&s)
-            }
+            },
         )(input)
     }
 
@@ -101,13 +87,16 @@ impl<'s> NumLit<'s> {
 
         alt((
             map(
-                pair(recognize(Self::dec_primary), Self::dec_primary), constructor
+                pair(recognize(Self::dec_primary), Self::dec_primary),
+                constructor,
             ),
             map(
-                pair(recognize(Self::bin_primary), Self::bin_primary), constructor
+                pair(recognize(Self::bin_primary), Self::bin_primary),
+                constructor,
             ),
             map(
-                pair(recognize(Self::hex_primary), Self::hex_primary), constructor
+                pair(recognize(Self::hex_primary), Self::hex_primary),
+                constructor,
             ),
         ))(input)
     }

@@ -1,16 +1,13 @@
+use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
 
-use codespan::{Files, FileId, Span, ByteOffset, ByteIndex};
-
-use nom::{
-    AsBytes,
-    Compare,
-    CompareResult,
-    ExtendInto,
-    FindSubstring, FindToken, InputIter, InputLength, InputTake, InputTakeAtPosition, IResult, Needed, Offset, ParseTo, Slice};
-use nom::error::{ParseError, ErrorKind};
-use nom::Err;
+use nom::error::{ErrorKind, ParseError};
+use nom::lib::std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 use nom::lib::std::str::FromStr;
-use nom::lib::std::ops::{Range, RangeFull, RangeFrom, RangeTo};
+use nom::Err;
+use nom::{
+    AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, IResult, InputIter,
+    InputLength, InputTake, InputTakeAtPosition, Needed, Offset, ParseTo, Slice,
+};
 
 /// A piece of source code. Generally used to replace strings in the nom parser,
 /// this structure stores extra information about the location of a fragment of
@@ -37,41 +34,55 @@ impl<'s> Fragment<'s> {
             files,
             handle,
             span,
-            source
+            source,
         }
     }
 
     /// Get the span associated with this fragment of source code.
     #[inline]
-    pub fn get_span(&self) -> Span {self.span}
+    pub fn get_span(&self) -> Span {
+        self.span
+    }
 
     /// Get the ending index of this fragment.
     /// Identical to `self.get_span().end()`.
     #[inline]
-    pub fn end(&self) -> ByteIndex {self.span.end()}
+    pub fn end(&self) -> ByteIndex {
+        self.span.end()
+    }
 
     /// Get the starting index of this fragment.
     /// Identical to `self.get_span().start()`.
     #[inline]
-    pub fn start(&self) -> ByteIndex {self.span.start()}
+    pub fn start(&self) -> ByteIndex {
+        self.span.start()
+    }
 
     /// Get the length of this fragment.
     /// Identical to `self.source.len()`.
     #[inline]
-    pub fn len(&self) -> usize {self.source.len()}
+    pub fn len(&self) -> usize {
+        self.source.len()
+    }
 
     /// Get the source code of this fragment.
     #[inline]
-    pub fn source(&self) -> &'s str {self.source}
+    pub fn source(&self) -> &'s str {
+        self.source
+    }
 
     /// Get reference to files object.
     #[inline]
-    pub fn files(&self) -> &'s Files<String> {self.files}
+    pub fn files(&self) -> &'s Files<String> {
+        self.files
+    }
 
     /// Get the handle of this fragment's file in the parent
     /// [Files](https://docs.rs/codespan/0.5.0/codespan/struct.Files.html)
     /// object.
-    pub fn get_handle(&self) -> FileId {self.handle}
+    pub fn get_handle(&self) -> FileId {
+        self.handle
+    }
 }
 
 impl<'s> AsBytes for Fragment<'s> {
@@ -82,9 +93,9 @@ impl<'s> AsBytes for Fragment<'s> {
 }
 
 impl<'s, 'o, T> Compare<T> for Fragment<'s>
-    where
-        &'o str: Compare<T>,
-        's:'o
+where
+    &'o str: Compare<T>,
+    's: 'o,
 {
     #[inline]
     fn compare(&self, t: T) -> CompareResult {
@@ -96,7 +107,6 @@ impl<'s, 'o, T> Compare<T> for Fragment<'s>
         self.source().compare_no_case(t)
     }
 }
-
 
 impl<'s> ExtendInto for Fragment<'s> {
     type Item = char;
@@ -121,9 +131,9 @@ impl<'s> FindSubstring<&str> for Fragment<'s> {
 }
 
 impl<'s, 'o, T> FindToken<T> for Fragment<'s>
-    where
-        &'o str: FindToken<T>,
-        's:'o
+where
+    &'o str: FindToken<T>,
+    's: 'o,
 {
     #[inline]
     fn find_token(&self, t: T) -> bool {
@@ -148,7 +158,9 @@ impl<'s> InputIter for Fragment<'s> {
 
     #[inline]
     fn position<P>(&self, predicate: P) -> Option<usize>
-        where P: Fn(Self::Item) -> bool {
+    where
+        P: Fn(Self::Item) -> bool,
+    {
         self.source().position(predicate)
     }
 
@@ -160,7 +172,9 @@ impl<'s> InputIter for Fragment<'s> {
 
 impl<'s> InputLength for Fragment<'s> {
     #[inline]
-    fn input_len(&self) -> usize {self.len()}
+    fn input_len(&self) -> usize {
+        self.len()
+    }
 }
 
 impl<'s> InputTake for Fragment<'s> {
@@ -186,15 +200,23 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
     type Item = char;
 
     fn split_at_position<P, E: ParseError<Self>>(&self, predicate: P) -> IResult<Self, Self, E>
-        where P: Fn(Self::Item) -> bool {
+    where
+        P: Fn(Self::Item) -> bool,
+    {
         match self.source().find(predicate) {
             Some(i) => Ok(self.take_split(i)),
-            None => Err(Err::Incomplete(Needed::Size(1)))
+            None => Err(Err::Incomplete(Needed::Size(1))),
         }
     }
 
-    fn split_at_position1<P, E: ParseError<Self>>(&self, predicate: P, e: ErrorKind) -> IResult<Self, Self, E>
-        where P: Fn(Self::Item) -> bool {
+    fn split_at_position1<P, E: ParseError<Self>>(
+        &self,
+        predicate: P,
+        e: ErrorKind,
+    ) -> IResult<Self, Self, E>
+    where
+        P: Fn(Self::Item) -> bool,
+    {
         match self.source().find(predicate) {
             Some(0) => Err(Err::Error(E::from_error_kind(self.clone(), e))),
             Some(i) => Ok(self.take_split(i)),
@@ -202,20 +224,31 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
         }
     }
 
-    fn split_at_position_complete<P, E: ParseError<Self>>(&self, predicate: P) -> IResult<Self, Self, E>
-        where P: Fn(Self::Item) -> bool {
+    fn split_at_position_complete<P, E: ParseError<Self>>(
+        &self,
+        predicate: P,
+    ) -> IResult<Self, Self, E>
+    where
+        P: Fn(Self::Item) -> bool,
+    {
         match self.source().find(predicate) {
             Some(i) => Ok(self.take_split(i)),
-            None => Ok(self.take_split(self.input_len()))
+            None => Ok(self.take_split(self.input_len())),
         }
     }
 
-    fn split_at_position1_complete<P, E: ParseError<Self>>(&self, predicate: P, e: ErrorKind) -> IResult<Self, Self, E>
-        where P: Fn(Self::Item) -> bool {
+    fn split_at_position1_complete<P, E: ParseError<Self>>(
+        &self,
+        predicate: P,
+        e: ErrorKind,
+    ) -> IResult<Self, Self, E>
+    where
+        P: Fn(Self::Item) -> bool,
+    {
         match self.source().find(predicate) {
             Some(0) => Err(Err::Error(E::from_error_kind(self.clone(), e))),
             Some(i) => Ok(self.take_split(i)),
-            None => Ok(self.take_split(self.input_len()))
+            None => Ok(self.take_split(self.input_len())),
         }
     }
 }
@@ -237,15 +270,17 @@ impl<'s> Slice<Range<usize>> for Fragment<'s> {
     fn slice(&self, range: Range<usize>) -> Self {
         let mut result = self.clone();
         result.source = &self.source()[range.clone()];
-        result.span = Span::new(self.span.start()+ByteOffset(range.start as i64),
-                                self.span.start()+ByteOffset(range.end as i64));
+        result.span = Span::new(
+            self.span.start() + ByteOffset(range.start as i64),
+            self.span.start() + ByteOffset(range.end as i64),
+        );
         result
     }
 }
 
 impl<'s> Slice<RangeFrom<usize>> for Fragment<'s> {
     fn slice(&self, range: RangeFrom<usize>) -> Self {
-        self.slice(range.start .. self.len())
+        self.slice(range.start..self.len())
     }
 }
 

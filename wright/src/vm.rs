@@ -1,4 +1,3 @@
-
 /// Wright bytecode module.
 pub mod bytecode;
 
