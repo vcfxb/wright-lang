@@ -1,1 +1,2 @@
-merge_imports = true
+# Unstable currently
+#merge_imports = true
