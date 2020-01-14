@@ -78,14 +78,13 @@ fn unicode_escape() {
 }
 
 fn invalid_test(s: &'static str) -> bool {
-    let (f,h) = setup(s);
-    let fr = Fragment::new(&f,h);
+    let (f, h) = setup(s);
+    let fr = Fragment::new(&f, h);
     CharLit::parse(fr).is_err()
 }
 
 #[test]
 fn invalid_syntax() {
-    let l =
-        ["'ab'", "'a", r"'\a'", r"'\xA'", r"'\u{}'", r"'\u{1234567}'"];
+    let l = ["'ab'", "'a", r"'\a'", r"'\xA'", r"'\u{}'", r"'\u{1234567}'"];
     l.iter().for_each(|i| assert!(invalid_test(i)));
 }
