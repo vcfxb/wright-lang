@@ -6,3 +6,6 @@ pub mod char_lit;
 
 #[cfg(test)]
 mod num_lit_tests;
+
+#[cfg(test)]
+mod char_lit_tests;
