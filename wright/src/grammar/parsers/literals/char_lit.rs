@@ -7,6 +7,7 @@ use nom::character::complete::{anychar, char as ch, one_of};
 use nom::combinator::{map, map_opt, map_res, not, recognize, value};
 use nom::sequence::{preceded, terminated};
 use nom::IResult;
+use nom::error::context;
 
 impl<'s> CharLit<'s> {
     fn new(frag: Fragment<'s>, inner: char) -> Self {
@@ -21,43 +22,52 @@ impl<'s> CharLit<'s> {
         let vch = move |c: char, v: char| move |fragment: Fragment<'s>| value(v, ch(c))(fragment);
         let from_str_radix = |f: Fragment<'s>| u32::from_str_radix(f.source(), 16);
 
-        alt((
+        context("expected character literal", alt((
             Self::unicode_char,
             preceded(
                 tag("\\"),
-                alt((
-                    vch('\\', '\\'),
-                    vch('\'', '\''),
-                    vch('\"', '\"'),
-                    vch('0', '\0'),
-                    vch('n', '\n'),
-                    vch('r', '\r'),
-                    vch('t', '\t'),
-                    map_opt(
-                        alt((
-                            preceded(
-                                ch('x'),
-                                map_res(
-                                    take_while_m_n(2, 2, |c: char| c.is_ascii_hexdigit()),
-                                    from_str_radix,
-                                ),
-                            ),
-                            preceded(
-                                tag("u{"),
-                                terminated(
+                context(
+                "unrecognized escape sequence",
+                    alt((
+                        vch('\\', '\\'),
+                        vch('\'', '\''),
+                        vch('\"', '\"'),
+                        vch('0', '\0'),
+                        vch('n', '\n'),
+                        vch('r', '\r'),
+                        vch('t', '\t'),
+                        map_opt(
+                            alt((
+                                preceded(
+                                    ch('x'),
                                     map_res(
-                                        take_while_m_n(1, 6, |c: char| c.is_ascii_hexdigit()),
+                                        context(
+                                            "expected exactly 2 hexadecimal digits",
+                                            take_while_m_n(2, 2, |c: char| c.is_ascii_hexdigit())
+                                        ),
                                         from_str_radix,
                                     ),
-                                    ch('}'),
                                 ),
-                            ),
-                        )),
-                        std::char::from_u32,
-                    ),
-                )),
+                                preceded(
+                                    tag("u{"),
+                                    terminated(
+                                        map_res(
+                                            context(
+                                                "expected between 1 and 6 hexadecimal digits",
+                                                take_while_m_n(1, 6, |c: char| c.is_ascii_hexdigit())
+                                            ),
+                                            from_str_radix,
+                                        ),
+                                        ch('}'),
+                                    ),
+                                ),
+                            )),
+                            std::char::from_u32,
+                        ),
+                    )),
+                )
             ),
-        ))(frag)
+        )))(frag)
     }
 
     pub(super) fn character_wrapper(frag: Fragment<'s>) -> IResult<Fragment, char> {
