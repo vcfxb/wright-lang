@@ -1,6 +1,6 @@
-use crate::grammar::model::Fragment;
-use codespan::{Files, FileId};
 use crate::grammar::ast::NumLit;
+use crate::grammar::model::Fragment;
+use codespan::{FileId, Files};
 
 fn setup(val: &'static str) -> (Files<String>, FileId) {
     let mut files: Files<String> = Files::new();
@@ -11,7 +11,6 @@ fn setup(val: &'static str) -> (Files<String>, FileId) {
 #[test]
 fn from_dec() {
     assert_eq!(NumLit::from_dec("1000").unwrap(), 1000);
-
 }
 
 #[test]
@@ -63,8 +62,8 @@ fn hex() {
 
 #[test]
 fn bin() {
-    let (f,h) = setup("0b1010_1001_1001\t");
-    let frag = Fragment::new(&f,h);
+    let (f, h) = setup("0b1010_1001_1001\t");
+    let frag = Fragment::new(&f, h);
     let res = NumLit::parse(frag);
     if let Ok((rem, val)) = res {
         assert_eq!(rem.source(), "\t");

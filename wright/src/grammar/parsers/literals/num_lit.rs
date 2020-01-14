@@ -1,6 +1,6 @@
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take_while1, take_while_m_n, is_a},
+    bytes::complete::{is_a, tag, take_while1, take_while_m_n},
     combinator::{map, map_res, peek, recognize},
     sequence::preceded,
     IResult,
