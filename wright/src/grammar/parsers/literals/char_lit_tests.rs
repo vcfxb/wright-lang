@@ -76,3 +76,16 @@ fn byte_escape() {
 fn unicode_escape() {
     test_char(r"'\u{2666}'", '\u{2666}', 0);
 }
+
+fn invalid_test(s: &'static str) -> bool {
+    let (f,h) = setup(s);
+    let fr = Fragment::new(&f,h);
+    CharLit::parse(fr).is_err()
+}
+
+#[test]
+fn invalid_syntax() {
+    let l =
+        ["'ab'", "'a", r"'\a'", r"'\xA'", r"'\u{}'", r"'\u{1234567}'"];
+    l.iter().for_each(|i| assert!(invalid_test(i)));
+}
