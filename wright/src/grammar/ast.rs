@@ -46,3 +46,13 @@ pub struct BooleanLit<'s> {
     /// Represented value.
     pub inner: bool,
 }
+
+/// An identifier in Wright source code.
+/// There is only one field here, the fragment of source code being referenced.
+/// This is because the identifier itself will be the same as the fragment's
+/// source.
+pub struct Identifier<'s> {
+    /// Fragment in wright source code.
+    pub frag: Fragment<'s>,
+}
+
