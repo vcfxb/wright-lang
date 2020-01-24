@@ -295,3 +295,11 @@ impl<'s> Slice<RangeFull> for Fragment<'s> {
         self.clone()
     }
 }
+
+impl<'s> PartialEq for Fragment<'s> {
+    // This will fail if it is used to compare across two separate Files
+    // objects.
+    fn eq(&self, other: &Self) -> bool {
+        other.handle == self.handle && other.span == self.span
+    }
+}

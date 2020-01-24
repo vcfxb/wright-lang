@@ -51,8 +51,16 @@ pub struct BooleanLit<'s> {
 /// There is only one field here, the fragment of source code being referenced.
 /// This is because the identifier itself will be the same as the fragment's
 /// source.
+#[derive(Copy, Clone, Debug)]
 pub struct Identifier<'s> {
     /// Fragment in wright source code.
     pub frag: Fragment<'s>,
 }
 
+/// An underscore symbol. Underscores are their own expression in wright.
+/// (Similarly to their use in Rust)
+#[derive(Copy, Clone, Debug)]
+pub struct Underscore<'s> {
+    /// Fragment in source code.
+    pub frag: Fragment<'s>
+}
