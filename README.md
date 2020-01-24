@@ -21,38 +21,9 @@
 | Crates.io (Latest) | ![Crates.io](https://img.shields.io/crates/dv/wright.svg) |
 
 
-Wright is a lightweight programming language that is intended for use in similar situations to other JVM languages like
-Java and Kotlin. What makes wright different is its unique approach to the object oriented model, following an enforcing
-concepts from more functional languages. From rust, for example, wright uses a trait and polymorphism system, along with
-tagged unions. Wright also takes from Java's inheritance model, but slightly tweaks it, prevent inheritance based issues 
-and confusion.
-
-##### Wright is inspired by
-* Rust
-    * Traits
-    * Tagged Unions
-    * Type aliases
-    * Structs
-    * Functional Programming, Lambda expressions.
-    * Mutability vs Immutability
-    * Type inference
-    * Memory safety
-    * Concurrency
-* Java
-    * Inheritance*
-    * Bytecode format
-    * Mutability vs Immutability
-    * Type inference (In Java 10)
-* Kotlin
-    * Inheritance*
-    * Bytecode format
-    * Mutability vs Immutability
-    * Type Inference
-* Python
-    * Type Inference
-    * Ease of use
-* JavaScript
-    * Object Oriented Model
+Wright is a lightweight programming language heavily inspired by Rust. Wright aims to take advantage of some of 
+Rust's key features such as safety and speed, and augment them a number of other features and additions to the
+backend and type system.
 
 ##### The core goals of the language:
 * Ease of use
@@ -61,15 +32,22 @@ and confusion.
 * Memory Safety
 * Concurrency
 * Portability
-* Interoperability with other JVM languages including Java and Kotlin. 
 
-##### It functions on a system of
-* Strong typing
-* Static typing
-* Parametric polymorphism
-* Object-Oriented programming
-* Functional programming
-* Multi-paradigm programming
+##### Comparison of Wright and Rust:
+|               |Rust |Wright|
+|:---           | --- | ---|
+|Reference Types| x ||
+|Lifetimes |x||
+|Garbage Collector ||x|
+|Classes | |x|
+|Type-level Constants |not yet|x|
+|Enums |tagged unions | dedicated sub-type|
+|Structs |x|x|
+|Traits |x|x
+|Unions |enum or untagged | dedicated tagged type
+|Floats | primitives | standard library |
+|Targets| many through LLVM | none yet, hopefully JVM, LLVM, and a dedicated RISC VM 
+
 
 ### Installation:
 There are several installation options.

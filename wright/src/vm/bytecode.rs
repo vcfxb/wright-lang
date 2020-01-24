@@ -14,14 +14,21 @@ pub enum OpCode {
     SW = 0x10,
     /// Load word.
     LW,
+    /// Store byte.
     SB,
+    /// Load byte.
     LB,
+    /// Move.
     MOV,
+    /// Move from $lo register.
     MFLO,
+    /// Move from $hi register.
     MFHI,
 
     // 0x2x -- Unsigned arithmetic operations.
+    /// Add unsigned.
     ADDU = 0x20,
+    /// Add unsigned with immediate.
     ADDUI,
     SUBU,
     SUBUI,
