@@ -65,6 +65,13 @@ pub struct Underscore<'s> {
     pub frag: Fragment<'s>
 }
 
+/// A type in source code.
+#[derive(Clone, Debug)]
+pub struct Type<'s> {
+    /// Associated Fragment in source code.
+    pub frag: Fragment<'s>,
+}
+
 /// An expression in parentheses in wright source code.
 #[derive(Clone, Debug)]
 pub struct Parens<'s> {
@@ -74,12 +81,32 @@ pub struct Parens<'s> {
     pub inner: Box<Expression<'s>>,
 }
 
-/// 
+/// The type of binary operation being done.
+#[allow(missing_docs)]
 #[derive(Copy, Clone, Debug)]
 pub enum BinaryOp {
-
+    Add,
+    Sub,
+    Mul,
+    Div,
+    And,
+    AndAnd,
+    Or,
+    OrOr,
+    Mod,
+    Lt,
+    Gt,
+    Le,
+    Ge,
+    EqEq,
+    NotEq,
+    Eq,
+    Xor,
+    Dot,
+    DotDot,
 }
 
+/// A binary expression in source code.
 #[derive(Clone, Debug)]
 pub struct BinaryExpression<'s> {
     /// Fragment in source code.
