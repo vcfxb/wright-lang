@@ -80,6 +80,7 @@ impl<'s> Fragment<'s> {
     /// Get the handle of this fragment's file in the parent
     /// [Files](https://docs.rs/codespan/0.5.0/codespan/struct.Files.html)
     /// object.
+    #[inline]
     pub fn get_handle(&self) -> FileId {
         self.handle
     }
