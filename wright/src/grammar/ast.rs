@@ -64,3 +64,46 @@ pub struct Underscore<'s> {
     /// Fragment in source code.
     pub frag: Fragment<'s>
 }
+
+/// An expression in parentheses in wright source code.
+#[derive(Clone, Debug)]
+pub struct Parens<'s> {
+    /// Fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The expression between these parentheses.
+    pub inner: Box<Expression<'s>>,
+}
+
+/// 
+#[derive(Copy, Clone, Debug)]
+pub enum BinaryOp {
+
+}
+
+#[derive(Clone, Debug)]
+pub struct BinaryExpression<'s> {
+    /// Fragment in source code.
+    pub frag: Fragment<'s>,
+    /// Operation being done.
+    pub op: BinaryOp,
+    /// Left side of the expression.
+    pub left: Box<Expression<'s>>,
+    /// Right side of the expression.
+    pub right: Box<Expression<'s>>,
+}
+
+
+
+#[derive(Clone, Debug)]
+#[allow(missing_docs)]
+/// An expression in wright source code.
+pub enum Expression<'s> {
+    NumLit(NumLit<'s>),
+    CharLit(CharLit<'s>),
+    StringLit(StringLit<'s>),
+    BooleanLit(BooleanLit<'s>),
+    Identifier(Identifier<'s>),
+    Underscore(Underscore<'s>),
+    Parens(Parens<'s>),
+    BinaryExpression(BinaryExpression<'s>)
+}
