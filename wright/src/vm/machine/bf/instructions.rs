@@ -1,5 +1,5 @@
 use crate::vm::machine::bf::BrainFuckVM;
-use crate::vm::instruction::{Operation, Instruction};
+use crate::vm::instruction::{Operation};
 use crate::vm::machine::VirtualMachine;
 
 /// Move the index left.
@@ -10,7 +10,6 @@ impl Operation<BrainFuckVM> for Left {
     const NAME: &'static str = "Left";
     const MNEMONIC: &'static str = ">";
 }
-
 
 /// Move the index right.
 #[derive(Copy, Clone, Debug)]

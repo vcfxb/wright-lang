@@ -19,4 +19,8 @@ impl VirtualMachine for BrainFuckVM {
     fn halted(&self) -> bool {
         self.read_head == self.instr.len()
     }
+
+    fn instructions(&self) -> Vec<char> {
+        self.instr.clone()
+    }
 }
