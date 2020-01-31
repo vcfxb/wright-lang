@@ -1,5 +1,5 @@
+use crate::vm::instruction::Operation;
 use crate::vm::machine::bf::BrainFuckVM;
-use crate::vm::instruction::{Operation};
 use crate::vm::machine::VirtualMachine;
 
 /// Move the index left.
@@ -37,5 +37,5 @@ pub struct Put;
 /// cell is 0.
 #[derive(Clone, Debug)]
 pub struct BasicBlock {
-    inner: Vec<<BrainFuckVM as VirtualMachine>::InstructionUnit>
+    inner: Vec<<BrainFuckVM as VirtualMachine>::InstructionUnit>,
 }
