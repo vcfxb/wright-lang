@@ -21,5 +21,6 @@ pub trait VirtualMachine {
     /// Check if this virtual machine has halted.
     fn halted(&self) -> bool;
 
-
+    /// Return the representation of this machines instructions.
+    fn instructions(&self) -> Vec<Self::InstructionUnit>;
 }
