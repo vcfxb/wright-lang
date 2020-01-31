@@ -13,6 +13,7 @@ pub struct BrainFuckVM {
 }
 
 impl VirtualMachine for BrainFuckVM {
+    type OpCode = char;
     type InstructionUnit = char;
 
     fn halted(&self) -> bool {
