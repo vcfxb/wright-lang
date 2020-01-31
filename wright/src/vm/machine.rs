@@ -1,4 +1,3 @@
-
 /// A [brainfuck](https://esolangs.org/wiki/Brainfuck) inspired virtual machine
 /// implementation for wright.
 pub mod bf;
