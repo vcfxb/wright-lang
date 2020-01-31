@@ -11,9 +11,6 @@ impl Operation<BrainFuckVM> for Left {
     const MNEMONIC: &'static str = ">";
 }
 
-impl Instruction<BrainFuckVM> for Left {
-
-}
 
 /// Move the index right.
 #[derive(Copy, Clone, Debug)]
