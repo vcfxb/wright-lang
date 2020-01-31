@@ -1,5 +1,8 @@
-/// Wright bytecode module.
-pub mod bytecode;
+/// Module for a chunk of bytecode.
+pub mod chunk;
 
-/// Virtual machine word size.
-pub type Word = u32;
+/// Module for instructions in wright bytecode.
+pub mod instruction;
+
+/// Module for virtual machine definitions.
+pub mod machine;
