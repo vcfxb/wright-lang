@@ -6,3 +6,6 @@ pub mod underscore;
 
 /// Expression parser.
 pub mod expression;
+
+#[cfg(test)]
+mod expression_tests;
