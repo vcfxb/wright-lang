@@ -7,6 +7,7 @@ use crate::grammar::model::Fragment;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char;
+use nom::character::complete::space0;
 use nom::combinator::map;
 use nom::combinator::opt;
 use nom::error::context;
@@ -46,7 +47,11 @@ impl<'s> Expression<'s> {
 
     fn parse_parens(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
         map(
-            delimited(char('('), Expression::parse, char(')')),
+            delimited(
+                space0,
+                delimited(char('('), Expression::parse, char(')')),
+                space0,
+            ),
             |inner| {
                 Expression::Parens(Parens {
                     frag: input,
@@ -63,14 +68,18 @@ impl<'s> Expression<'s> {
             };
         }
 
-        alt((
-            generalize_parser!(BooleanLit::parse, Expression::BooleanLit),
-            generalize_parser!(CharLit::parse, Expression::CharLit),
-            generalize_parser!(Identifier::parse, Expression::Identifier),
-            generalize_parser!(NumLit::parse, Expression::NumLit),
-            generalize_parser!(StringLit::parse, Expression::StringLit),
-            generalize_parser!(Underscore::parse, Expression::Underscore),
-        ))(input)
+        delimited(
+            space0,
+            alt((
+                generalize_parser!(BooleanLit::parse, Expression::BooleanLit),
+                generalize_parser!(CharLit::parse, Expression::CharLit),
+                generalize_parser!(Identifier::parse, Expression::Identifier),
+                generalize_parser!(NumLit::parse, Expression::NumLit),
+                generalize_parser!(StringLit::parse, Expression::StringLit),
+                generalize_parser!(Underscore::parse, Expression::Underscore),
+            )),
+            space0,
+        )(input)
     }
 
     fn parse_factor(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
