@@ -218,7 +218,7 @@ impl<'s> Expression<'s> {
         )(input)
     }
 
-    /// Parse a binary expression
+    /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         context("expected expression", Self::parse_eq)(input)
     }
