@@ -1,6 +1,6 @@
 use crate::grammar::ast::{BooleanLit, Identifier, Underscore};
 use crate::grammar::model::Fragment;
-use nom::bytes::complete::take_while;
+use nom::bytes::complete::{take_while, take_while1};
 use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
@@ -18,7 +18,7 @@ impl<'s> Identifier<'s> {
     fn raw_ident(input: Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
         verify(
             recognize(pair(
-                take_while(|c: char| c.is_ascii_alphabetic() || c == '_'),
+                take_while1(|c: char| c.is_ascii_alphabetic() || c == '_'),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             )),
             |fr: &Fragment<'s>| {
