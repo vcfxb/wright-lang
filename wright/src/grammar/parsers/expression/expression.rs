@@ -8,12 +8,15 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char;
 use nom::combinator::map;
+use nom::combinator::opt;
+use nom::error::context;
 use nom::multi::fold_many0;
 use nom::sequence::delimited;
 use nom::sequence::pair;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
+    /// Get the expression's fragment
     pub fn frag(&self) -> Fragment<'s> {
         match self {
             Expression::NumLit(inner) => inner.frag,
@@ -123,7 +126,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(char('^'), |_| BinaryOp::Xor), Self::parse_and),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag, left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
         )(input)
     }
 
@@ -133,7 +136,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(char('|'), |_| BinaryOp::Or), Self::parse_xor),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag, left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
         )(input)
     }
 
@@ -153,7 +156,7 @@ impl<'s> Expression<'s> {
                 Self::parse_or,
             ),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag, left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
         )(input)
     }
 
@@ -163,7 +166,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(tag("&&"), |_| BinaryOp::AndAnd), Self::parse_cmp),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag, left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
         )(input)
     }
 
@@ -173,34 +176,41 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(tag("||"), |_| BinaryOp::OrOr), Self::parse_and_and),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag, left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
         )(input)
     }
 
     fn parse_dot_dot(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
-            tuple((
+            pair(
                 Self::parse_or_or,
-                map(tag(".."), |_| BinaryOp::DotDot),
-                Self::parse_or_or,
-            )),
-            |(left, op, right)| Self::new_bin_expr(input, left, op, right),
+                opt(pair(
+                    map(tag(".."), |_| BinaryOp::DotDot),
+                    Self::parse_or_or,
+                )),
+            ),
+            |(left, opt)| match opt {
+                Some((op, right)) => Self::new_bin_expr(input, left, op, right),
+                None => left,
+            },
         )(input)
     }
 
     fn parse_eq(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
-            tuple((
+            pair(
                 Self::parse_dot_dot,
-                map(char('='), |_| BinaryOp::Eq),
-                Self::parse_dot_dot,
-            )),
-            |(left, op, right)| Self::new_bin_expr(input, left, op, right),
+                opt(pair(map(char('='), |_| BinaryOp::Eq), Self::parse_dot_dot)),
+            ),
+            |(left, opt)| match opt {
+                Some((op, right)) => Self::new_bin_expr(input, left, op, right),
+                None => left,
+            },
         )(input)
     }
 
     /// Parse a binary expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        context("expected binary expression", Self::parse_eq)(input)
+        context("expected expression", Self::parse_eq)(input)
     }
 }
