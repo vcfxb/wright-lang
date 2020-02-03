@@ -1,4 +1,3 @@
-
 /// A chunk of bytecode.
 #[derive(Debug, Clone)]
 pub struct Chunk {
@@ -37,5 +36,4 @@ impl Chunk {
     pub fn reserve(&mut self, count: usize) {
         self.inner.reserve(count)
     }
-
 }

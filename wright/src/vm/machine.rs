@@ -1,4 +1,3 @@
-
 /// A [brainfuck](https://esolangs.org/wiki/Brainfuck) inspired virtual machine
 /// implementation for wright.
 pub mod bf;
@@ -21,5 +20,6 @@ pub trait VirtualMachine {
     /// Check if this virtual machine has halted.
     fn halted(&self) -> bool;
 
-
+    /// Return the representation of this machines instructions.
+    fn instructions(&self) -> Vec<Self::InstructionUnit>;
 }
