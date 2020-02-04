@@ -1,5 +1,5 @@
 use crate::grammar::ast::CharLit;
-use crate::grammar::model::Fragment;
+use crate::grammar::model::{Fragment, HasFragment};
 
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
@@ -87,4 +87,8 @@ impl<'s> CharLit<'s> {
             Self::new(frag, Self::character_wrapper(frag).unwrap().1)
         })(input)
     }
+}
+
+impl<'s> HasFragment<'s> for CharLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {self.frag}
 }
