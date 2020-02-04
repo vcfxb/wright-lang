@@ -9,6 +9,7 @@ use nom::{
 use crate::grammar::{ast::NumLit, model::Fragment};
 
 use std::num::ParseIntError;
+use crate::grammar::model::HasFragment;
 
 impl<'s> NumLit<'s> {
     fn new(frag: Fragment<'s>, num: u128) -> Self {
@@ -104,4 +105,7 @@ impl<'s> NumLit<'s> {
             ),
         ))(input)
     }
+}
+impl<'s> HasFragment<'s> for NumLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {self.frag}
 }
