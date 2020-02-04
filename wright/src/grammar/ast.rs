@@ -83,7 +83,7 @@ pub struct Parens<'s> {
 
 /// The type of binary operation being done.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum BinaryOp {
     Add,
     Sub,
