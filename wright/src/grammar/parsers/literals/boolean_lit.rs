@@ -1,5 +1,5 @@
 use crate::grammar::ast::BooleanLit;
-use crate::grammar::model::Fragment;
+use crate::grammar::model::{Fragment, HasFragment};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, recognize, value};
@@ -29,4 +29,9 @@ impl<'s> BooleanLit<'s> {
             Self::new(fr, Self::parser_inner(fr).unwrap().1)
         })(input)
     }
+}
+
+
+impl<'s> HasFragment<'s> for BooleanLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {self.frag}
 }

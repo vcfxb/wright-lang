@@ -120,6 +120,7 @@ pub struct BinaryExpression<'s> {
     pub right: Box<Expression<'s>>,
 }
 
+
 #[derive(Clone, Debug)]
 #[allow(missing_docs)]
 /// An expression in wright source code.
