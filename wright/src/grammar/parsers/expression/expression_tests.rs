@@ -1,4 +1,4 @@
-use crate::grammar::ast::Expression;
+use crate::grammar::ast::{BinaryOp, Expression};
 use crate::grammar::model::Fragment;
 use codespan::{FileId, Files};
 
@@ -12,6 +12,22 @@ fn setup(val: &'static str) -> (Files<String>, FileId) {
 fn bin_op() {
     let (files, h) = setup("2 + 2");
     let frag = Fragment::new(&files, h);
-    let expr = Expression::parse(frag).unwrap();
-    println!("{:#?}", expr);
+    let (_, expr) = Expression::parse(frag).unwrap();
+    if let Expression::BinaryExpression(expr) = expr {
+        assert_eq!(expr.op, BinaryOp::Add);
+
+        if let Expression::NumLit(num) = *expr.left {
+            assert_eq!(num.inner, 2);
+        } else {
+            panic!("left operand not num lit")
+        }
+
+        if let Expression::NumLit(num) = *expr.right {
+            assert_eq!(num.inner, 2);
+        } else {
+            panic!("right operand not num lit")
+        }
+    } else {
+        panic!("not a binary expression")
+    }
 }
