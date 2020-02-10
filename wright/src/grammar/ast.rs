@@ -121,9 +121,9 @@ pub struct BinaryExpression<'s> {
 }
 
 
+/// An expression in wright source code.
 #[derive(Clone, Debug)]
 #[allow(missing_docs)]
-/// An expression in wright source code.
 pub enum Expression<'s> {
     NumLit(NumLit<'s>),
     CharLit(CharLit<'s>),

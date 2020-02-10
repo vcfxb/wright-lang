@@ -1,5 +1,5 @@
 use crate::grammar::ast::{BooleanLit, Identifier, Underscore};
-use crate::grammar::model::Fragment;
+use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::{take_while, take_while1};
 use nom::combinator::{map, recognize, verify};
 use nom::error::context;
@@ -35,4 +35,8 @@ impl<'s> Identifier<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         context("expected identifier", map(Self::raw_ident, Self::new))(input)
     }
+}
+
+impl<'s> HasFragment<'s> for Identifier<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {self.frag}
 }
