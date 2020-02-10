@@ -17,7 +17,7 @@ use crate::grammar::ast::{
     BinaryExpression, BinaryOp, BooleanLit, CharLit, Expression, Identifier, NumLit, Parens,
     StringLit, Underscore,
 };
-use crate::grammar::model::Fragment;
+use crate::grammar::model::{Fragment, HasFragment};
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -32,20 +32,6 @@ use nom::sequence::pair;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
-    /// Get the expression's fragment
-    pub fn frag(&self) -> Fragment<'s> {
-        match self {
-            Expression::NumLit(inner) => inner.frag,
-            Expression::CharLit(inner) => inner.frag,
-            Expression::StringLit(inner) => inner.frag,
-            Expression::BooleanLit(inner) => inner.frag,
-            Expression::Identifier(inner) => inner.frag,
-            Expression::Underscore(inner) => inner.frag,
-            Expression::Parens(inner) => inner.frag,
-            Expression::BinaryExpression(inner) => inner.frag,
-        }
-    }
-
     fn new_bin_expr(
         frag: Fragment<'s>,
         left: Expression<'s>,
@@ -61,19 +47,8 @@ impl<'s> Expression<'s> {
     }
 
     fn parse_parens(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
-        map(
-            delimited(
-                space0,
-                delimited(char('('), Expression::parse, char(')')),
-                space0,
-            ),
-            |inner| {
-                Expression::Parens(Parens {
-                    frag: input,
-                    inner: Box::new(inner),
-                })
-            },
-        )(input)
+        Parens::parse(input)
+            .map(|(f,p)| (f, Expression::Parens(p)))
     }
 
     fn parse_atom(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
@@ -114,7 +89,7 @@ impl<'s> Expression<'s> {
                 Self::parse_factor,
             ),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -130,7 +105,7 @@ impl<'s> Expression<'s> {
                 Self::parse_mul_prec,
             ),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -140,7 +115,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(char('&'), |_| BinaryOp::And), Self::parse_add_prec),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -150,7 +125,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(char('^'), |_| BinaryOp::Xor), Self::parse_and),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -160,7 +135,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(char('|'), |_| BinaryOp::Or), Self::parse_xor),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -180,7 +155,7 @@ impl<'s> Expression<'s> {
                 Self::parse_or,
             ),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -190,7 +165,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(tag("&&"), |_| BinaryOp::AndAnd), Self::parse_cmp),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -200,7 +175,7 @@ impl<'s> Expression<'s> {
         fold_many0(
             pair(map(tag("||"), |_| BinaryOp::OrOr), Self::parse_and_and),
             left,
-            |left, (op, right)| Self::new_bin_expr(left.frag(), left, op, right),
+            |left, (op, right)| Self::new_bin_expr(left.get_fragment(), left, op, right),
         )(input)
     }
 
@@ -236,5 +211,21 @@ impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         context("expected expression", Self::parse_eq)(input)
+    }
+}
+
+impl<'s> HasFragment<'s> for Expression<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {
+        use Expression::*;
+        match self {
+            NumLit(i) => i.get_fragment(),
+            CharLit(i) => i.get_fragment(),
+            StringLit(i) => i.get_fragment(),
+            BooleanLit(i) => i.get_fragment(),
+            Identifier(i) => i.get_fragment(),
+            Underscore(i) => i.get_fragment(),
+            Parens(i) => i.get_fragment(),
+            BinaryExpression(i) => i.get_fragment()
+        }
     }
 }
