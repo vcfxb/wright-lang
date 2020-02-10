@@ -1,5 +1,5 @@
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::Fragment;
+use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::IResult;
@@ -16,4 +16,8 @@ impl<'s> Underscore<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(tag(Self::UNDERSCORE), Self::new)(input)
     }
+}
+
+impl<'s> HasFragment<'s> for Underscore<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {self.frag}
 }
