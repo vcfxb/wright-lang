@@ -1,14 +1,14 @@
 /// Wright identifier parser.
-pub mod identifier;
+pub(crate) mod identifier;
 
 /// Underscore expression parser.
-pub mod underscore;
+pub(crate) mod underscore;
 
-/// Expression parser.
-pub mod binary_expression;
+/// Binary Expression parser.
+pub(crate) mod binary_expression;
 
 /// Parentheses parser.
-pub mod parens;
+pub(crate) mod parens;
 
 #[cfg(test)]
 mod expression_tests;
@@ -228,4 +228,11 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             BinaryExpression(i) => i.get_fragment()
         }
     }
+}
+
+/// Trait implemented by all members of the
+/// `Expression` node in an AST.
+pub trait ToExpression<'s> {
+    /// Construct an `Expression` from this object.
+    fn create_expr(self) -> Expression<'s>;
 }
