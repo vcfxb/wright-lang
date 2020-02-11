@@ -48,7 +48,7 @@ impl<'s> Expression<'s> {
 
     fn parse_parens(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
         Parens::parse(input)
-            .map(|(f,p)| (f, Expression::Parens(p)))
+            .map(|(f,p)| (f, p.create_expr()))
     }
 
     fn parse_atom(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
@@ -232,7 +232,7 @@ impl<'s> HasFragment<'s> for Expression<'s> {
 
 /// Trait implemented by all members of the
 /// `Expression` node in an AST.
-pub trait ToExpression<'s> {
+pub(crate) trait ToExpression<'s> {
     /// Construct an `Expression` from this object.
     fn create_expr(self) -> Expression<'s>;
 }
