@@ -3,9 +3,7 @@ use crate::grammar::model::{HasFragment, Fragment};
 use nom::IResult;
 use nom::combinator::{map, recognize};
 use nom::sequence::delimited;
-use nom::character::complete::{
-    space0, char as ch
-};
+use nom::character::complete::{char as ch, multispace0};
 
 impl<'s> Parens<'s> {
     fn new(frag: Fragment<'s>, inner: Box<Expression<'s>>) -> Self {
@@ -14,9 +12,9 @@ impl<'s> Parens<'s> {
 
     fn inner(frag: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
         delimited(
-            space0, // change to general whitespace
+            multispace0,
             delimited(ch('('), Expression::parse, ch(')')),
-            space0, // change to general whitespace
+            multispace0,
         )(frag)
     }
 
