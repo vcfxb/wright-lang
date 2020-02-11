@@ -4,6 +4,7 @@ use nom::IResult;
 use nom::combinator::{map, recognize};
 use nom::sequence::delimited;
 use nom::character::complete::{char as ch, multispace0};
+use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> Parens<'s> {
     fn new(frag: Fragment<'s>, inner: Box<Expression<'s>>) -> Self {
@@ -35,4 +36,8 @@ impl<'s> Parens<'s> {
 
 impl<'s> HasFragment<'s> for Parens<'s> {
     fn get_fragment(&self) -> Fragment<'s> {self.frag}
+}
+
+impl<'s> ToExpression<'s> for Parens<'s> {
+    fn create_expr(self) -> Expression<'s> {Expression::Parens(self)}
 }

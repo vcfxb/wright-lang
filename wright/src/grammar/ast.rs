@@ -63,6 +63,7 @@ pub struct Identifier<'s> {
 pub struct Underscore<'s> {
     /// Fragment in source code.
     pub frag: Fragment<'s>,
+    // todo: finish this struct.
 }
 
 /// A type in source code.
@@ -104,7 +105,7 @@ pub enum BinaryOp {
     Xor,
     Dot,
     DotDot,
-    Semi,
+    Semi, // fixme: should this be here?
 }
 
 /// A binary expression in source code.

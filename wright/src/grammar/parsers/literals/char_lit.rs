@@ -1,4 +1,4 @@
-use crate::grammar::ast::CharLit;
+use crate::grammar::ast::{CharLit, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 
 use nom::branch::alt;
@@ -8,6 +8,7 @@ use nom::combinator::{map, map_opt, map_res, not, recognize, value};
 use nom::error::context;
 use nom::sequence::{preceded, terminated};
 use nom::IResult;
+use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> CharLit<'s> {
     fn new(frag: Fragment<'s>, inner: char) -> Self {
@@ -91,4 +92,8 @@ impl<'s> CharLit<'s> {
 
 impl<'s> HasFragment<'s> for CharLit<'s> {
     fn get_fragment(&self) -> Fragment<'s> {self.frag}
+}
+
+impl<'s> ToExpression<'s> for CharLit<'s> {
+    fn create_expr(self) -> Expression<'s> {Expression::CharLit(self)}
 }
