@@ -7,10 +7,6 @@ use nom::character::complete::{char as ch, multispace0};
 use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> Parens<'s> {
-    fn new(frag: Fragment<'s>, inner: Box<Expression<'s>>) -> Self {
-        Self {frag, inner}
-    }
-
     fn inner(frag: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
         delimited(
             multispace0,
