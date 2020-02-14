@@ -105,7 +105,6 @@ pub enum BinaryOp {
     Xor,
     Dot,
     DotDot,
-    Semi, // fixme: should this be here?
 }
 
 /// A binary expression in source code.

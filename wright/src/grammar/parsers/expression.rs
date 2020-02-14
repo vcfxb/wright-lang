@@ -47,8 +47,7 @@ impl<'s> Expression<'s> {
     }
 
     fn parse_parens(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
-        Parens::parse(input)
-            .map(|(f,p)| (f, p.create_expr()))
+        map(Parens::parse, Parens::create_expr)(input)
     }
 
     fn parse_atom(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {

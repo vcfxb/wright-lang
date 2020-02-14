@@ -1,9 +1,26 @@
 use crate::grammar::model::{HasFragment, Fragment};
-use crate::grammar::ast::{BinaryExpression, Expression};
+use crate::grammar::ast::{BinaryExpression, Expression, BinaryOp};
 use crate::grammar::parsers::expression::ToExpression;
+use nom::IResult;
 
 impl<'s> BinaryExpression<'s> {
+    fn new(frag: Fragment<'s>,
+           left: Expression<'s>,
+           op: BinaryOp,
+           right: Expression<'s>) -> Self
+    {
+        Self {
+            frag,
+            left: Box::new(left),
+            op,
+            right: Box::new(right),
+        }
+    }
 
+    /// Parse a binary expression in source code.
+    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        unimplemented!()
+    }
 }
 
 impl<'s> HasFragment<'s> for BinaryExpression<'s> {
