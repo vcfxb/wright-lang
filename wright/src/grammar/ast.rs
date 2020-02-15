@@ -81,6 +81,34 @@ pub struct Parens<'s> {
     pub inner: Box<Expression<'s>>,
 }
 
+/// An expression statement is an expression followed
+/// by the statement terminator.
+#[derive(Clone, Debug)]
+pub struct ExpressionSt<'s> {
+    /// Fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The expression.
+    pub inner: Expression<'s>,
+}
+
+/// A statement. Statements do not have result values.
+#[derive(Clone, Debug)]
+pub enum Statement<'s> {
+    Expression(ExpressionSt<'s>),
+}
+
+/// A statement list inside a block.
+#[derive(Clone, Debug)]
+pub struct Block<'s> {
+    /// Fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The statements inside the block (possibly none).
+    pub statements: Vec<Statement<'s>>,
+    /// (Optional) The expression whose result
+    /// is the value of the block.
+    pub result: Option<Box<Expression<'s>>>,
+}
+
 /// The type of binary operation being done.
 #[allow(missing_docs)]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -133,4 +161,5 @@ pub enum Expression<'s> {
     Underscore(Underscore<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
+    Block(Block<'s>),
 }

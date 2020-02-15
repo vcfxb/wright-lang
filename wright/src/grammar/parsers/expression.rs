@@ -43,6 +43,7 @@ impl<'s> Expression<'s> {
             Expression::Underscore(inner) => inner.frag,
             Expression::Parens(inner) => inner.frag,
             Expression::BinaryExpression(inner) => inner.frag,
+            Expression::Block(inner) => inner.frag,
         }
     }
 
