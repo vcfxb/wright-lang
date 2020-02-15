@@ -93,6 +93,7 @@ pub struct ExpressionSt<'s> {
 
 /// A statement. Statements do not have result values.
 #[derive(Clone, Debug)]
+#[allow(missing_docs)]
 pub enum Statement<'s> {
     Expression(ExpressionSt<'s>),
 }
