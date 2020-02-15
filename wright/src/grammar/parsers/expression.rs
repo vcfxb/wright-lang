@@ -16,6 +16,9 @@ pub mod block;
 #[cfg(test)]
 mod expression_tests;
 
+#[cfg(test)]
+mod block_tests;
+
 use crate::grammar::ast::{
     BinaryExpression, BinaryOp, BooleanLit, CharLit, Expression, Identifier, NumLit, Parens,
     StringLit, Underscore,
