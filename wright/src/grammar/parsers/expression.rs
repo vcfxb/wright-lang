@@ -10,6 +10,9 @@ pub mod binary_expression;
 /// Parentheses parser.
 pub mod parens;
 
+/// Block parser.
+pub mod block;
+
 #[cfg(test)]
 mod expression_tests;
 
