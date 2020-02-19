@@ -1,10 +1,10 @@
 use crate::grammar::ast::{BooleanLit, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, recognize, value};
 use nom::IResult;
-use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> BooleanLit<'s> {
     /// Literal representing a true value.
@@ -32,11 +32,14 @@ impl<'s> BooleanLit<'s> {
     }
 }
 
-
 impl<'s> HasFragment<'s> for BooleanLit<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {self.frag}
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
+    }
 }
 
 impl<'s> ToExpression<'s> for BooleanLit<'s> {
-    fn create_expr(self) -> Expression<'s> {Expression::BooleanLit(self)}
+    fn create_expr(self) -> Expression<'s> {
+        Expression::BooleanLit(self)
+    }
 }
