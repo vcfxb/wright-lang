@@ -1,5 +1,5 @@
 /// Wright literal value parsers.
-pub mod literals;
+pub(crate) mod literals;
 
 /// Wright expression parsers.
-pub mod expression;
+pub(crate) mod expression;

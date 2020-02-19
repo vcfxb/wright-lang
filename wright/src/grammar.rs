@@ -1,7 +1,5 @@
-// private because all of the exposed api is in impl blocks for structs in ast
-// which are pub
-/// Wright parser module.
-mod parsers;
+/// Wright parser implementation module.
+pub mod parsers;
 
 /// Model for Wright's parser system.
 pub mod model;
