@@ -22,6 +22,32 @@ fn single_comment() {
 }
 
 #[test]
+fn empty_comment() {
+    let (f, h) = setup("//");
+    let frag = Fragment::new(&f, h);
+    let res = whitespace::line_comment(frag);
+    if let Ok((rem, _)) = res {
+        assert_eq!(rem.len(), 0);
+    } else {
+        eprintln!("{:#?}", res);
+        assert!(false);
+    }
+}
+
+#[test]
+fn comment_with_tail() {
+    let (f, h) = setup("// line comment\nnot a comment");
+    let frag = Fragment::new(&f, h);
+    let res = whitespace::line_comment(frag);
+    if let Ok((rem, _)) = res {
+        assert_eq!(rem.len(), 14);
+    } else {
+        eprintln!("{:#?}", res);
+        assert!(false);
+    }
+}
+
+#[test]
 fn comments_and_whitespace() {
     let (f, h) = setup("// line comment\n// this is another comment\n    // third comment\n");
     let frag = Fragment::new(&f, h);
