@@ -1,8 +1,14 @@
 /// Wright literal value parsers.
-pub mod literals;
+pub(crate) mod literals;
 
 /// Wright expression parsers.
-pub mod expression;
+pub(crate) mod expression;
+
+/// Wright comment and whitespace parsers.
+pub(crate) mod whitespace;
 
 /// Wright statement parsers.
-pub mod statement;
+pub(crate) mod statement;
+
+/// Whitespace module tests
+mod whitespace_tests;

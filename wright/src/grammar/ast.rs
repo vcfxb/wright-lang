@@ -63,6 +63,7 @@ pub struct Identifier<'s> {
 pub struct Underscore<'s> {
     /// Fragment in source code.
     pub frag: Fragment<'s>,
+    // todo: finish this struct.
 }
 
 /// A type in source code.
@@ -133,7 +134,6 @@ pub enum BinaryOp {
     Xor,
     Dot,
     DotDot,
-    Semi,
 }
 
 /// A binary expression in source code.
@@ -149,10 +149,9 @@ pub struct BinaryExpression<'s> {
     pub right: Box<Expression<'s>>,
 }
 
-
+/// An expression in wright source code.
 #[derive(Clone, Debug)]
 #[allow(missing_docs)]
-/// An expression in wright source code.
 pub enum Expression<'s> {
     NumLit(NumLit<'s>),
     CharLit(CharLit<'s>),
