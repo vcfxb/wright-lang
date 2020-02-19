@@ -1,6 +1,7 @@
-use crate::grammar::ast::CharLit;
-use crate::grammar::model::Fragment;
+use crate::grammar::ast::{CharLit, Expression};
+use crate::grammar::model::{Fragment, HasFragment};
 
+use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, one_of};
@@ -86,5 +87,17 @@ impl<'s> CharLit<'s> {
         map(recognize(Self::character_wrapper), |frag| {
             Self::new(frag, Self::character_wrapper(frag).unwrap().1)
         })(input)
+    }
+}
+
+impl<'s> HasFragment<'s> for CharLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
+    }
+}
+
+impl<'s> ToExpression<'s> for CharLit<'s> {
+    fn create_expr(self) -> Expression<'s> {
+        Expression::CharLit(self)
     }
 }
