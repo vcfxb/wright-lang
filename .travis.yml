@@ -20,10 +20,8 @@ env:
     - TARGET=arm-unknown-linux-gnueabi
     - TARGET=armv7-unknown-linux-gnueabihf
     - TARGET=i686-unknown-linux-gnu
-    - TARGET=i686-unknown-linux-musl
     - TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
     - TARGET=x86_64-unknown-linux-gnu
-    - TARGET=x86_64-unknown-linux-musl
     # *BSD
     - TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
     # Windows
