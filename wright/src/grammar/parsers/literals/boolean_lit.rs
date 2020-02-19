@@ -1,5 +1,6 @@
-use crate::grammar::ast::BooleanLit;
-use crate::grammar::model::Fragment;
+use crate::grammar::ast::{BooleanLit, Expression};
+use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, recognize, value};
@@ -28,5 +29,17 @@ impl<'s> BooleanLit<'s> {
         map(recognize(Self::parser_inner), |fr: Fragment<'s>| {
             Self::new(fr, Self::parser_inner(fr).unwrap().1)
         })(input)
+    }
+}
+
+impl<'s> HasFragment<'s> for BooleanLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
+    }
+}
+
+impl<'s> ToExpression<'s> for BooleanLit<'s> {
+    fn create_expr(self) -> Expression<'s> {
+        Expression::BooleanLit(self)
     }
 }

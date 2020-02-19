@@ -1,6 +1,6 @@
 use crate::grammar::ast::{BooleanLit, Identifier, Underscore};
-use crate::grammar::model::Fragment;
-use nom::bytes::complete::take_while;
+use crate::grammar::model::{Fragment, HasFragment};
+use nom::bytes::complete::{take_while, take_while1};
 use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
@@ -18,7 +18,7 @@ impl<'s> Identifier<'s> {
     fn raw_ident(input: Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
         verify(
             recognize(pair(
-                take_while(|c: char| c.is_ascii_alphabetic() || c == '_'),
+                take_while1(|c: char| c.is_ascii_alphabetic() || c == '_'),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             )),
             |fr: &Fragment<'s>| {
@@ -34,5 +34,11 @@ impl<'s> Identifier<'s> {
     /// An Identifier also must not be a reserved word.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         context("expected identifier", map(Self::raw_ident, Self::new))(input)
+    }
+}
+
+impl<'s> HasFragment<'s> for Identifier<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
     }
 }
