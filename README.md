@@ -6,8 +6,8 @@
 [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright)
 [![GitHub release](https://img.shields.io/github/release/Wright-Language-Developers/Wright-lang.svg)](https://github.com/Wright-Language-Developers/Wright-lang/releases)
 [![GitHub (pre-)release](https://img.shields.io/github/release/Wright-Language-Developers/Wright-lang/all.svg)](https://github.com/Wright-Language-Developers/Wright-lang/releases)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Average time to resolve an issue")
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/Wright-Language-Developers/Wright-lang.svg)](http://isitmaintained.com/project/Wright-Langauge-Developers/Wright-lang "Percentage of issues still open")
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Wright-Language-Developers/Wright-lang.svg)](https://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/Wright-Language-Developers/Wright-lang.svg)](https://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Percentage of issues still open")
 ![Status](https://img.shields.io/badge/status-actively--developed-green.svg)
 
 
