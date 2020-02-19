@@ -8,6 +8,9 @@ use nom::{
 
 use crate::grammar::{ast::NumLit, model::Fragment};
 
+use crate::grammar::ast::Expression;
+use crate::grammar::model::HasFragment;
+use crate::grammar::parsers::expression::ToExpression;
 use std::num::ParseIntError;
 
 impl<'s> NumLit<'s> {
@@ -103,5 +106,17 @@ impl<'s> NumLit<'s> {
                 constructor,
             ),
         ))(input)
+    }
+}
+
+impl<'s> HasFragment<'s> for NumLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
+    }
+}
+
+impl<'s> ToExpression<'s> for NumLit<'s> {
+    fn create_expr(self) -> Expression<'s> {
+        Expression::NumLit(self)
     }
 }
