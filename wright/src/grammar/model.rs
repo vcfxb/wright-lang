@@ -304,3 +304,9 @@ impl<'s> PartialEq for Fragment<'s> {
         other.handle == self.handle && other.span == self.span
     }
 }
+
+/// Trait for all types that have associated fragments in source code.
+pub trait HasFragment<'s> {
+    /// Get the associated fragment of source code.
+    fn get_fragment(&self) -> Fragment<'s>;
+}

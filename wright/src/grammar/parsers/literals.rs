@@ -1,14 +1,14 @@
 /// Module for parsing literal numbers in wright source code.
-pub mod num_lit;
+pub(crate) mod num_lit;
 
 /// Module for parsing character literals in Wright source code.
-pub mod char_lit;
+pub(crate) mod char_lit;
 
 /// Module for parsing string literals in Wright source code.
-pub mod string_lit;
+pub(crate) mod string_lit;
 
 /// Module for parsing boolean literals in wright source code.
-pub mod boolean_lit;
+pub(crate) mod boolean_lit;
 
 #[cfg(test)]
 mod num_lit_tests;
