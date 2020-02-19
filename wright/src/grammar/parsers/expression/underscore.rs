@@ -1,9 +1,9 @@
-use crate::grammar::ast::{Underscore, Expression};
+use crate::grammar::ast::{Expression, Underscore};
 use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::parsers::expression::ToExpression;
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::IResult;
-use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> Underscore<'s> {
     /// Underscore literal.
@@ -20,9 +20,13 @@ impl<'s> Underscore<'s> {
 }
 
 impl<'s> HasFragment<'s> for Underscore<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {self.frag}
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
+    }
 }
 
 impl<'s> ToExpression<'s> for Underscore<'s> {
-    fn create_expr(self) -> Expression<'s> {Expression::Underscore(self)}
+    fn create_expr(self) -> Expression<'s> {
+        Expression::Underscore(self)
+    }
 }
