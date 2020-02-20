@@ -17,6 +17,9 @@ pub(crate) mod block;
 mod expression_tests;
 
 #[cfg(test)]
+mod binary_expression_tests;
+
+#[cfg(test)]
 mod block_tests;
 
 use crate::grammar::ast::{
