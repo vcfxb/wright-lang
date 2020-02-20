@@ -11,9 +11,11 @@ impl<'s> Block<'s> {
         delimited(
             ch('{'),
             pair(
-                preceded(
-                    multispace0,
-                    many0(Statement::parse),
+                many0(
+                    preceded(
+                        multispace0,
+                        Statement::parse,
+                    ),
                 ),
                 delimited(
                     multispace0,
