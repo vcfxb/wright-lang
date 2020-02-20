@@ -19,15 +19,45 @@ mod expression_tests;
 #[cfg(test)]
 mod block_tests;
 
-use crate::grammar::ast::Expression;
+use crate::grammar::ast::{
+    BinaryExpression,
+    Block,
+    BooleanLit,
+    CharLit,
+    Expression,
+    Identifier,
+    NumLit,
+    Parens,
+    StringLit,
+    Underscore,
+};
 use crate::grammar::model::{Fragment, HasFragment};
-
+use nom::branch::alt;
+use nom::combinator::map;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
-    /// Parse an expression
+    /// Parse a primary expression. A primary expression may always
+    /// be the leading or trailing part of a binary expression.
+    pub fn primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        alt((
+            map(Block::parse, Expression::Block),
+            map(Parens::parse, Expression::Parens),
+            map(NumLit::parse, Expression::NumLit),
+            map(CharLit::parse, Expression::CharLit),
+            map(StringLit::parse, Expression::StringLit),
+            map(BooleanLit::parse, Expression::BooleanLit),
+            map(Underscore::parse, Expression::Underscore),
+            map(Identifier::parse, Expression::Identifier),
+        ))(input)
+    }
+
+    /// Parse an expression.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        todo!("Expression::parse is unimplemented")
+        alt((
+            BinaryExpression::parse,
+            Expression::primary,
+        ))(input)
     }
 }
 

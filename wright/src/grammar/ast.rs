@@ -130,7 +130,6 @@ pub enum BinaryOp {
     Ge,
     EqEq,
     NotEq,
-    Eq,
     Xor,
     Dot,
     DotDot,
