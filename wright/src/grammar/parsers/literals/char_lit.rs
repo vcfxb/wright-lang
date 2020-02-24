@@ -100,4 +100,6 @@ impl<'s> ToExpression<'s> for CharLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::CharLit(self)
     }
+    #[inline]
+    fn parse_self(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(input)}
 }

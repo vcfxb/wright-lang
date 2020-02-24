@@ -42,4 +42,5 @@ impl<'s> ToExpression<'s> for BooleanLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::BooleanLit(self)
     }
+    fn parse_self(i: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(i)}
 }

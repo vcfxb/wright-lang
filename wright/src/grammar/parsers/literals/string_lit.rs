@@ -105,4 +105,5 @@ impl<'s> ToExpression<'s> for StringLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::StringLit(self)
     }
+    fn parse_self(i: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(i)}
 }

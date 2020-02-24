@@ -63,7 +63,6 @@ pub struct Identifier<'s> {
 pub struct Underscore<'s> {
     /// Fragment in source code.
     pub frag: Fragment<'s>,
-    // todo: finish this struct.
 }
 
 /// A type in source code.
@@ -71,6 +70,7 @@ pub struct Underscore<'s> {
 pub struct Type<'s> {
     /// Associated Fragment in source code.
     pub frag: Fragment<'s>,
+    // todo: finish this.
 }
 
 /// An expression in parentheses in wright source code.
