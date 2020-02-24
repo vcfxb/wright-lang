@@ -94,9 +94,7 @@ fn comment_only() {
         assert_eq!(rem.len(), 0);
         assert_eq!(
             val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " comment",
-            ],
+            vec![" comment",],
         );
     } else {
         eprintln!("{:#?}", res);
