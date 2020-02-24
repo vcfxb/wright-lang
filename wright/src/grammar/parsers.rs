@@ -32,3 +32,23 @@ pub fn with_input<F, I, O>(parser: F) -> impl Fn(I) -> IResult<I, (I, O)>
         }
     }
 }
+
+#[cfg(test)]
+mod with_input_test {
+    use nom::bytes::complete::tag;
+    use crate::grammar::parsers::with_input;
+
+    #[test]
+    fn test_with_input() {
+        let parser = tag("abc");
+        match with_input(parser)("abcdef") {
+            Ok((rem, (consumed,res))) => {
+                assert_eq!(rem, "def");
+                assert_eq!(consumed, "abc");
+                assert_eq!(res, "abc");
+            },
+            Err(e) => panic!(e)
+        }
+
+    }
+}
