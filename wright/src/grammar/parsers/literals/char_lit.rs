@@ -2,12 +2,13 @@ use crate::grammar::ast::{CharLit, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, one_of};
-use nom::combinator::{map, map_opt, map_res, not, recognize, value};
+use nom::combinator::{map, map_opt, map_res, not, value};
 use nom::error::context;
-use nom::sequence::{preceded, terminated, delimited};
+use nom::sequence::{delimited, preceded};
 use nom::IResult;
 
 impl<'s> CharLit<'s> {
@@ -60,10 +61,11 @@ impl<'s> CharLit<'s> {
                                                 "expected between 1 and 6 hexadecimal digits",
                                                 take_while_m_n(1, 6, |c: char| {
                                                     c.is_ascii_hexdigit()
-                                            })),
-                                            from_str_radix
+                                                }),
+                                            ),
+                                            from_str_radix,
                                         ),
-                                        ch('}')
+                                        ch('}'),
                                     ),
                                 )),
                                 std::char::from_u32,
@@ -76,13 +78,13 @@ impl<'s> CharLit<'s> {
     }
 
     pub(super) fn character_wrapper(frag: Fragment<'s>) -> IResult<Fragment, char> {
-        preceded(tag("'"), terminated(Self::character_body, tag("'")))(frag)
+        delimited(tag("'"), Self::character_body, tag("'"))(frag)
     }
 
     /// Parse a character literal.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment, Self> {
-        map(recognize(Self::character_wrapper), |frag| {
-            Self::new(frag, Self::character_wrapper(frag).unwrap().1)
+        map(with_input(Self::character_wrapper), |(frag, ch)| {
+            Self::new(frag, ch)
         })(input)
     }
 }
