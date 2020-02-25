@@ -7,7 +7,7 @@ use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, one_of};
 use nom::combinator::{map, map_opt, map_res, not, recognize, value};
 use nom::error::context;
-use nom::sequence::{preceded, terminated};
+use nom::sequence::{preceded, terminated, delimited};
 use nom::IResult;
 
 impl<'s> CharLit<'s> {
@@ -15,11 +15,11 @@ impl<'s> CharLit<'s> {
         CharLit { frag, inner }
     }
 
-    pub(super) fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
+    fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
         preceded(not(one_of("\\\t\n\r'")), anychar)(frag)
     }
 
-    pub(super) fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
+    fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
         let vch = move |c: char, v: char| move |fragment: Fragment<'s>| value(v, ch(c))(fragment);
         let from_str_radix = |f: Fragment<'s>| u32::from_str_radix(f.source(), 16);
 
@@ -53,20 +53,17 @@ impl<'s> CharLit<'s> {
                                             from_str_radix,
                                         ),
                                     ),
-                                    preceded(
+                                    delimited(
                                         tag("u{"),
-                                        terminated(
-                                            map_res(
-                                                context(
-                                                    "expected between 1 and 6 hexadecimal digits",
-                                                    take_while_m_n(1, 6, |c: char| {
-                                                        c.is_ascii_hexdigit()
-                                                    }),
-                                                ),
-                                                from_str_radix,
-                                            ),
-                                            ch('}'),
+                                        map_res(
+                                            context(
+                                                "expected between 1 and 6 hexadecimal digits",
+                                                take_while_m_n(1, 6, |c: char| {
+                                                    c.is_ascii_hexdigit()
+                                            })),
+                                            from_str_radix
                                         ),
+                                        ch('}')
                                     ),
                                 )),
                                 std::char::from_u32,
