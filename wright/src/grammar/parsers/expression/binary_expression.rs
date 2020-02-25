@@ -9,14 +9,16 @@ use nom::multi::fold_many0;
 use nom::sequence::{delimited, pair};
 use nom::IResult;
 
-/// alt() for zero or more parsers (instead of two or more).
-fn alt_single(ops: &[BinaryOp]) -> impl Fn(Fragment) -> IResult<Fragment, BinaryOp> + '_ {
+/// alt() for one or more parsers (instead of two or more).
+fn alt_single(first: BinaryOp, rest: &[BinaryOp]) -> impl Fn(Fragment) -> IResult<Fragment, BinaryOp> + '_ {
     move |input| {
-        let mut res = Err(nom::Err::Error((input, ErrorKind::Alt)));
-        for op in ops {
-            res = value(*op, tag(op.token()))(input);
-            if res.is_ok() {
-                break;
+        let mut res = value(first, tag(first.token()))(input);
+        if res.is_err() {
+            for op in rest {
+                res = value(*op, tag(op.token()))(input);
+                if res.is_ok() {
+                    break;
+                }
             }
         }
         res
@@ -25,7 +27,7 @@ fn alt_single(ops: &[BinaryOp]) -> impl Fn(Fragment) -> IResult<Fragment, Binary
 
 /// Parses a left-associative binary expression
 /// `left op right` using a left fold operation.
-fn binary_parser<'s, E>(ends: E, ops: &'s [BinaryOp]) ->
+fn binary_parser<'s, E>(ends: E, first: BinaryOp, rest: &'s [BinaryOp]) ->
     impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>
     where E: Fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
 {
@@ -35,7 +37,7 @@ fn binary_parser<'s, E>(ends: E, ops: &'s [BinaryOp]) ->
             pair(
                 delimited(
                     multispace0,
-                    alt_single(ops),
+                    alt_single(first, rest),
                     multispace0,
                 ),
                 &ends,
@@ -55,6 +57,15 @@ fn binary_parser<'s, E>(ends: E, ops: &'s [BinaryOp]) ->
     }
 }
 
+macro_rules! binary_parser {
+    ($ends:expr, $op:expr) => {
+        binary_parser($ends, $op, &[])
+    };
+    ($ends:expr, $first:expr, $($rest:expr),+) => {
+        binary_parser($ends, $first, &[$($rest,)*])
+    };
+}
+
 impl<'s> BinaryExpression<'s> {
     fn new(frag: Fragment<'s>, left: Expression<'s>, op: BinaryOp, right: Expression<'s>) -> Self {
         Self {
@@ -66,79 +77,86 @@ impl<'s> BinaryExpression<'s> {
     }
 
     fn dot(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Expression::primary,
-            &[BinaryOp::Dot],
+            BinaryOp::Dot
         )(input)
     }
 
     fn dotdot(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::dot,
-            &[BinaryOp::DotDot],
+            BinaryOp::DotDot
         )(input)
     }
 
     fn mul(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
         binary_parser(
             Self::dotdot,
-            &[BinaryOp::Mul, BinaryOp::Div, BinaryOp::Mod],
+            BinaryOp::Mul,
+            BinaryOp::Div,
+            BinaryOp::Mod
         )(input)
     }
 
     fn add(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::mul,
-            &[BinaryOp::Add, BinaryOp::Sub, BinaryOp::Mod],
+            BinaryOp::Add,
+            BinaryOp::Sub
         )(input)
     }
 
     fn and(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::add,
-            &[BinaryOp::And],
+            BinaryOp::And
         )(input)
     }
 
     fn xor(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::and,
-            &[BinaryOp::Xor],
+            BinaryOp::Xor
         )(input)
     }
 
     fn or(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::xor,
-            &[BinaryOp::Or],
+            BinaryOp::Or
         )(input)
     }
 
     fn andand(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::or,
-            &[BinaryOp::AndAnd],
+            BinaryOp::AndAnd
         )(input)
     }
 
     fn oror(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::andand,
-            &[BinaryOp::OrOr],
+            BinaryOp::OrOr
         )(input)
     }
 
     fn cmp(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::oror,
-            &[BinaryOp::Lt, BinaryOp::Gt, BinaryOp::Le, BinaryOp::Ge],
+            BinaryOp::Lt,
+            BinaryOp::Gt,
+            BinaryOp::Le,
+            BinaryOp::Ge
         )(input)
     }
 
     fn eq(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::cmp,
-            &[BinaryOp::EqEq, BinaryOp::NotEq],
+            BinaryOp::EqEq,
+            BinaryOp::NotEq
         )(input)
     }
 
