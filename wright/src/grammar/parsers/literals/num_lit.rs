@@ -23,7 +23,7 @@ impl<'s> NumLit<'s> {
         u128::from_str_radix(input, 16)
     }
 
-    fn from_dec(input: &str) -> Result<u128, std::num::ParseIntError> {
+    pub(super) fn from_dec(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 10)
     }
 
@@ -70,7 +70,7 @@ impl<'s> NumLit<'s> {
         )(input)
     }
 
-    fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
+    pub(super) fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
                 peek(take_while_m_n(1, 1, |c: char| c.is_ascii_digit())),
