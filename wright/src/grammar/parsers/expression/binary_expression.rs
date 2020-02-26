@@ -91,7 +91,7 @@ impl<'s> BinaryExpression<'s> {
     }
 
     fn mul(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        binary_parser(
+        binary_parser!(
             Self::dotdot,
             BinaryOp::Mul,
             BinaryOp::Div,
