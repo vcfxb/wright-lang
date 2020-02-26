@@ -16,11 +16,11 @@ impl<'s> CharLit<'s> {
         CharLit { frag, inner }
     }
 
-    fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
+    pub(crate) fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
         preceded(not(one_of("\\\t\n\r'")), anychar)(frag)
     }
 
-    fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
+    pub(crate) fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
         let vch = move |c: char, v: char| move |fragment: Fragment<'s>| value(v, ch(c))(fragment);
         let from_str_radix = |f: Fragment<'s>| u32::from_str_radix(f.source(), 16);
 
