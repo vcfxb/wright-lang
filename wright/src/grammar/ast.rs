@@ -143,15 +143,6 @@ pub struct NumLitPattern<'s> {
     pub inner: NumLit<'s>,
 }
 
-/// An pattern in parentheses in wright source code.
-#[derive(Clone, Debug)]
-pub struct ParensPattern<'s> {
-    /// Fragment in source code.
-    pub frag: Fragment<'s>,
-    /// The pattern between these parentheses.
-    pub inner: Box<Pattern<'s>>,
-}
-
 /// Pattern node for pattern matching
 #[derive(Clone, Debug)]
 pub enum Pattern<'s> {

@@ -7,7 +7,6 @@ use crate::grammar::ast::BooleanLit;
 use crate::grammar::ast::CharLit;
 use crate::grammar::ast::Identifier;
 use crate::grammar::ast::NumLitPattern;
-use crate::grammar::ast::ParensPattern;
 use crate::grammar::ast::Pattern;
 use crate::grammar::ast::StringLit;
 use crate::grammar::ast::Underscore;
