@@ -1,8 +1,9 @@
 use crate::grammar::ast::{Block, Expression, Statement};
 use crate::grammar::model::{HasFragment, Fragment};
+use crate::grammar::parsers::with_input;
 use nom::IResult;
 use nom::character::complete::{char as ch, multispace0};
-use nom::combinator::{map, opt, recognize};
+use nom::combinator::{map, opt};
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, preceded};
 
@@ -31,9 +32,8 @@ impl<'s> Block<'s> {
     /// ignore any whitespace before and after.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
-            recognize(Self::inner),
-            |parse| {
-                let (statements, expr) = Self::inner(parse).unwrap().1;
+            with_input(Self::inner),
+            |(parse, (statements, expr))| {
                 Block {
                     frag: parse,
                     statements,

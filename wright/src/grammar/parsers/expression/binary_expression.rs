@@ -1,10 +1,10 @@
 use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::parsers::with_input;
 use crate::grammar::parsers::expression::ToExpression;
 use nom::bytes::complete::tag;
 use nom::character::complete::multispace0;
-use nom::combinator::{recognize, value};
-use nom::error::ErrorKind;
+use nom::combinator::value;
 use nom::multi::fold_many0;
 use nom::sequence::{delimited, pair};
 use nom::IResult;
@@ -44,10 +44,9 @@ fn binary_parser<'s, E>(ends: E, first: BinaryOp, rest: &'s [BinaryOp]) ->
             )
         };
         let r = fold_many0(
-            recognize(&inner),
+            with_input(&inner),
             left,
-            |left, frag| {
-                let (op, right) = inner(frag).unwrap().1;
+            |left, (frag, (op, right))| {
                 Expression::BinaryExpression(
                     BinaryExpression::new(frag, left, op, right),
                 )

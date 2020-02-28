@@ -1,8 +1,9 @@
 use crate::grammar::ast::{Expression, ExpressionSt};
 use crate::grammar::model::{HasFragment, Fragment};
+use crate::grammar::parsers::with_input;
 use nom::IResult;
 use nom::character::complete::{char as ch, multispace0};
-use nom::combinator::{map, recognize};
+use nom::combinator::map;
 use nom::sequence::{preceded, terminated};
 
 impl<'s> ExpressionSt<'s> {
@@ -15,15 +16,15 @@ impl<'s> ExpressionSt<'s> {
             ),
         )(frag)
     }
-    
+
     /// Matches an expression followed by any amount of whitespace, then a semicolon.
     pub fn parse(frag: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
-            recognize(Self::inner),
-            |parse| {
+            with_input(Self::inner),
+            |(parse, expr)| {
                 ExpressionSt {
                     frag: parse,
-                    inner: Self::inner(parse).unwrap().1,
+                    inner: expr,
                 }
             }
         )(frag)
