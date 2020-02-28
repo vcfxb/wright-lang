@@ -1,10 +1,14 @@
+use derivative::Derivative;
+
 use crate::grammar::model::Fragment;
 
 /// Numerical literal in wright source code.
 /// i.e. `10`, `0xCa1a0`, `0b0101_0101`, `100_000`
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct NumLit<'s> {
     /// Associated fragment of source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     /// Represented value.
     pub inner: u128,
@@ -14,9 +18,11 @@ pub struct NumLit<'s> {
 /// i.e `'a', '\n', '\u{01f441}', '\x00', '♦'`
 /// see [this page](https://doc.rust-lang.org/reference/tokens.html#ascii-escapes) for escape
 /// information.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct CharLit<'s> {
     /// Associated fragment of source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     /// Represented Value.
     pub inner: char,
@@ -28,9 +34,11 @@ pub struct CharLit<'s> {
 /// [here](https://doc.rust-lang.org/reference/tokens.html#ascii-escapes).
 /// Raw-strings and Byte-strings (like those in rust) are not currently
 /// supported but may be added in the future.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct StringLit<'s> {
     /// Associated fragment of source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     /// Represented string value. (not a reference into source code because
     /// source code may contain escaped characters.)
@@ -39,9 +47,11 @@ pub struct StringLit<'s> {
 
 /// Boolean literal in wright source code.
 /// i.e. `true`, `false`.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct BooleanLit<'s> {
     /// Associated fragment in source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     /// Represented value.
     pub inner: bool,
@@ -51,32 +61,40 @@ pub struct BooleanLit<'s> {
 /// There is only one field here, the fragment of source code being referenced.
 /// This is because the identifier itself will be the same as the fragment's
 /// source.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct Identifier<'s> {
     /// Fragment in wright source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
 }
 
 /// An underscore symbol. Underscores are their own expression in wright.
 /// (Similarly to their use in Rust)
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct Underscore<'s> {
     /// Fragment in source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     // todo: finish this struct.
 }
 
 /// A type in source code.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct Type<'s> {
     /// Associated Fragment in source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
 }
 
 /// An expression in parentheses in wright source code.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct Parens<'s> {
     /// Fragment in source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     /// The expression between these parentheses.
     pub inner: Box<Expression<'s>>,
@@ -108,9 +126,11 @@ pub enum BinaryOp {
 }
 
 /// A binary expression in source code.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Derivative)]
+#[derivative(PartialEq, Eq)]
 pub struct BinaryExpression<'s> {
     /// Fragment in source code.
+    #[derivative(PartialEq = "ignore")]
     pub frag: Fragment<'s>,
     /// Operation being done.
     pub op: BinaryOp,
@@ -121,7 +141,7 @@ pub struct BinaryExpression<'s> {
 }
 
 /// An expression in wright source code.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum Expression<'s> {
     NumLit(NumLit<'s>),

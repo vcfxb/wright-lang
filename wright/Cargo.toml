@@ -26,6 +26,7 @@ codespan-reporting = "0.7"
 exitcode = "1"
 #either = "1.5"
 nom = "5.1"
+derivative = "1.0.3"
 
 [[bin]]
 name = "wright"
