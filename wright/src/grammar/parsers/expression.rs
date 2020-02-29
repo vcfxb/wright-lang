@@ -44,14 +44,14 @@ impl<'s> Expression<'s> {
     /// be the leading or trailing part of a binary expression.
     pub fn primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         alt((
-            map(Block::parse, Expression::Block),
-            map(Parens::parse, Expression::Parens),
-            map(NumLit::parse, Expression::NumLit),
-            map(CharLit::parse, Expression::CharLit),
-            map(StringLit::parse, Expression::StringLit),
-            map(BooleanLit::parse, Expression::BooleanLit),
-            map(Underscore::parse, Expression::Underscore),
-            map(Identifier::parse, Expression::Identifier),
+            Block::expr_parse,
+            Parens::expr_parse,
+            NumLit::expr_parse,
+            CharLit::expr_parse,
+            StringLit::expr_parse,
+            BooleanLit::expr_parse,
+            Underscore::expr_parse,
+            Identifier::expr_parse,
         ))(input)
     }
 
@@ -83,7 +83,16 @@ impl<'s> HasFragment<'s> for Expression<'s> {
 
 /// Trait implemented by all members of the
 /// `Expression` node in an AST.
-pub(crate) trait ToExpression<'s> {
+pub(crate) trait ToExpression<'s>: Sized {
     /// Construct an `Expression` from this object.
     fn create_expr(self) -> Expression<'s>;
+
+    /// Parse self from input. Generally just an alias to a public `parse`
+    /// function.
+    fn parse_self(input: Fragment<'s>) -> IResult<Fragment<'s>, Self>;
+
+    /// Parse self from input and immediately convert to an `Expression`.
+    fn expr_parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
+        map(Self::parse_self, Self::create_expr)(input)
+    }
 }

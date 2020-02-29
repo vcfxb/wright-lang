@@ -119,4 +119,6 @@ impl<'s> ToExpression<'s> for NumLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::NumLit(self)
     }
+    #[inline]
+    fn parse_self(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(input)}
 }

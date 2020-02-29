@@ -29,4 +29,5 @@ impl<'s> ToExpression<'s> for Underscore<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::Underscore(self)
     }
+    fn parse_self(f:Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(f)}
 }
