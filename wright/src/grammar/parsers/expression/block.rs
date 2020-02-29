@@ -5,26 +5,22 @@ use nom::IResult;
 use nom::character::complete::{char as ch, multispace0};
 use nom::combinator::{map, opt};
 use nom::multi::many0;
-use nom::sequence::{delimited, pair, preceded};
+use nom::sequence::{delimited, pair, preceded, terminated};
 
 impl<'s> Block<'s> {
     fn inner(frag: Fragment<'s>) -> IResult<Fragment<'s>, (Vec<Statement<'s>>, Option<Expression<'s>>)> {
         delimited(
-            ch('{'),
+            terminated(ch('{'), multispace0),
             pair(
                 many0(
-                    preceded(
-                        multispace0,
+                    terminated(
                         Statement::parse,
+                        multispace0,
                     ),
                 ),
-                delimited(
-                    multispace0,
-                    opt(Expression::parse),
-                    multispace0,
-                )
+                opt(Expression::parse),
             ),
-            ch('}'),
+            preceded(multispace0, ch('}')),
         )(frag)
     }
 
