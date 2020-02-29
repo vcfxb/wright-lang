@@ -1,12 +1,12 @@
 use crate::grammar::ast::{Block, Expression, Statement};
 use crate::grammar::model::{HasFragment, Fragment};
 use crate::grammar::parsers::with_input;
+use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
 use nom::character::complete::{char as ch, multispace0};
 use nom::combinator::{map, opt};
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, preceded, terminated};
-use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> Block<'s> {
     fn inner(frag: Fragment<'s>) -> IResult<Fragment<'s>, (Vec<Statement<'s>>, Option<Expression<'s>>)> {
@@ -24,10 +24,20 @@ impl<'s> Block<'s> {
             preceded(multispace0, ch('}')),
         )(frag)
     }
+}
+
+impl<'s> HasFragment<'s> for Block<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {self.frag}
+}
+
+impl<'s> ToExpression<'s> for Block<'s> {
+    fn create_expr(self) -> Expression<'s> {
+        Expression::Block(self)
+    }
 
     /// Parse parentheses and the expression between them in source code. Will
     /// ignore any whitespace before and after.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
             with_input(Self::inner),
             |(parse, (statements, expr))| {
@@ -38,15 +48,5 @@ impl<'s> Block<'s> {
                 }
             },
         )(input)
-    }
-}
-
-impl<'s> HasFragment<'s> for Block<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {self.frag}
-}
-
-impl<'s> ToExpression<'s> for Block<'s> {
-    fn create_expr(self) -> Expression<'s> {
-        Expression::Block(self)
     }
 }

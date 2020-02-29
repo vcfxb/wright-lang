@@ -1,5 +1,6 @@
 use crate::grammar::ast::BooleanLit;
 use crate::grammar::model::Fragment;
+use crate::grammar::parsers::expression::ToExpression;
 use codespan::Files;
 
 #[test]

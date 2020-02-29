@@ -78,15 +78,9 @@ impl<'s> CharLit<'s> {
         )(frag)
     }
 
+    /// Parse a character literal.
     pub(super) fn character_wrapper(frag: Fragment<'s>) -> IResult<Fragment, char> {
         preceded(tag("'"), terminated(Self::character_body, tag("'")))(frag)
-    }
-
-    /// Parse a character literal.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment, Self> {
-        map(recognize(Self::character_wrapper), |frag| {
-            Self::new(frag, Self::character_wrapper(frag).unwrap().1)
-        })(input)
     }
 }
 
@@ -100,6 +94,10 @@ impl<'s> ToExpression<'s> for CharLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::CharLit(self)
     }
-    #[inline]
-    fn parse_self(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(input)}
+
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        map(recognize(Self::character_wrapper), |frag| {
+            Self::new(frag, Self::character_wrapper(frag).unwrap().1)
+        })(input)
+    }
 }

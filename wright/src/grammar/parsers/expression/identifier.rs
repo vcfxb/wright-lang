@@ -29,13 +29,6 @@ impl<'s> Identifier<'s> {
             },
         )(input)
     }
-
-    /// Parse an identifier from source code. Identifiers may include
-    /// ASCII alphanumerics and underscores, but must not start with a number.
-    /// An Identifier also must not be a reserved word.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        context("expected identifier", map(Self::raw_ident, Self::new))(input)
-    }
 }
 
 impl<'s> HasFragment<'s> for Identifier<'s> {
@@ -49,8 +42,10 @@ impl<'s> ToExpression<'s> for Identifier<'s> {
         Expression::Identifier(self)
     }
 
-    #[inline]
-    fn parse_self(input: Fragment) -> IResult<Fragment, Self> {
-        Self::parse(input)
+    /// Parse an identifier from source code. Identifiers may include
+    /// ASCII alphanumerics and underscores, but must not start with a number.
+    /// An Identifier also must not be a reserved word.
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        context("expected identifier", map(Self::raw_ident, Self::new))(input)
     }
 }

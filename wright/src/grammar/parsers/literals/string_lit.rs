@@ -86,13 +86,6 @@ impl<'s> StringLit<'s> {
     fn wrapper(i: Fragment<'s>) -> IResult<Fragment<'s>, String> {
         preceded(ch('\"'), terminated(Self::body, ch('\"')))(i)
     }
-
-    /// Parse a string literal in source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(recognize(Self::wrapper), |f| {
-            Self::new(f, Self::wrapper(f).unwrap().1)
-        })(input)
-    }
 }
 
 impl<'s> HasFragment<'s> for StringLit<'s> {
@@ -105,5 +98,11 @@ impl<'s> ToExpression<'s> for StringLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::StringLit(self)
     }
-    fn parse_self(i: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(i)}
+
+    /// Parse a string literal in source code.
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        map(recognize(Self::wrapper), |f| {
+            Self::new(f, Self::wrapper(f).unwrap().1)
+        })(input)
+    }
 }

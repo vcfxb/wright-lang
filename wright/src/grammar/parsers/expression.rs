@@ -58,7 +58,7 @@ impl<'s> Expression<'s> {
     /// Parse an expression.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         alt((
-            BinaryExpression::parse,
+            BinaryExpression::expr_parse,
             Expression::primary,
         ))(input)
     }
@@ -89,10 +89,10 @@ pub(crate) trait ToExpression<'s>: Sized {
 
     /// Parse self from input. Generally just an alias to a public `parse`
     /// function.
-    fn parse_self(input: Fragment<'s>) -> IResult<Fragment<'s>, Self>;
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self>;
 
     /// Parse self from input and immediately convert to an `Expression`.
     fn expr_parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        map(Self::parse_self, Self::create_expr)(input)
+        map(Self::parse, Self::create_expr)(input)
     }
 }

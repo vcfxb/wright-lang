@@ -20,15 +20,9 @@ impl<'s> BooleanLit<'s> {
         }
     }
 
+    /// Parses a boolean literal from wright source code.
     fn parser_inner(inp: Fragment<'s>) -> IResult<Fragment<'s>, bool> {
         alt((value(true, tag(Self::TRUE)), value(false, tag(Self::FALSE))))(inp)
-    }
-
-    /// Parses a boolean literal from wright source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(recognize(Self::parser_inner), |fr: Fragment<'s>| {
-            Self::new(fr, Self::parser_inner(fr).unwrap().1)
-        })(input)
     }
 }
 
@@ -42,5 +36,10 @@ impl<'s> ToExpression<'s> for BooleanLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::BooleanLit(self)
     }
-    fn parse_self(i: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(i)}
+
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        map(recognize(Self::parser_inner), |fr: Fragment<'s>| {
+            Self::new(fr, Self::parser_inner(fr).unwrap().1)
+        })(input)
+    }
 }

@@ -85,9 +85,21 @@ impl<'s> NumLit<'s> {
             },
         )(input)
     }
+}
+
+impl<'s> HasFragment<'s> for NumLit<'s> {
+    fn get_fragment(&self) -> Fragment<'s> {
+        self.frag
+    }
+}
+
+impl<'s> ToExpression<'s> for NumLit<'s> {
+    fn create_expr(self) -> Expression<'s> {
+        Expression::NumLit(self)
+    }
 
     /// Parse a numerical literal to a value.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         let constructor = |(frag, val)| Self::new(frag, val);
         let extractor = |func: fn(Fragment) -> IResult<Fragment, u128>| {
             move |frag| (frag, func(frag).unwrap().1)
@@ -107,18 +119,4 @@ impl<'s> NumLit<'s> {
             ),
         ))(input)
     }
-}
-
-impl<'s> HasFragment<'s> for NumLit<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
-    }
-}
-
-impl<'s> ToExpression<'s> for NumLit<'s> {
-    fn create_expr(self) -> Expression<'s> {
-        Expression::NumLit(self)
-    }
-    #[inline]
-    fn parse_self(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(input)}
 }

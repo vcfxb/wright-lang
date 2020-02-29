@@ -12,11 +12,6 @@ impl<'s> Underscore<'s> {
     fn new(frag: Fragment<'s>) -> Self {
         Self { frag }
     }
-
-    /// Parse underscore.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(tag(Self::UNDERSCORE), Self::new)(input)
-    }
 }
 
 impl<'s> HasFragment<'s> for Underscore<'s> {
@@ -29,5 +24,9 @@ impl<'s> ToExpression<'s> for Underscore<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::Underscore(self)
     }
-    fn parse_self(f:Fragment<'s>) -> IResult<Fragment<'s>, Self> {Self::parse(f)}
+
+    /// Parse underscore.
+    fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        map(tag(Self::UNDERSCORE), Self::new)(input)
+    }
 }

@@ -1,5 +1,6 @@
 use crate::grammar::ast::CharLit;
 use crate::grammar::model::Fragment;
+use crate::grammar::parsers::expression::ToExpression;
 use codespan::{FileId, Files};
 
 fn setup(s: &'static str) -> (Files<String>, FileId) {
