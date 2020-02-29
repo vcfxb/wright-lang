@@ -1,5 +1,6 @@
 use crate::grammar::model::Fragment;
 use crate::grammar::ast::{BinaryExpression as Bx, BinaryOp, Expression};
+use crate::grammar::parsers::expression::ToExpression;
 use codespan::{FileId, Files};
 
 fn setup(s: &str) -> (Files<String>, FileId) {
@@ -14,7 +15,7 @@ fn simple() {
     let (f, h) = setup("1 + 2");
     let frag = Fragment::new(&f, h);
     let res = Bx::parse(frag);
-    if let Ok((rem, BinaryExpression(val))) = res {
+    if let Ok((rem, val)) = res {
         assert_eq!(rem.len(), 0);
         if let (NumLit(left), op, NumLit(right)) = (*val.left, val.op, *val.right) {
             assert_eq!(op, BinaryOp::Add);
@@ -35,7 +36,7 @@ fn associativity() {
     let (f, h) = setup("1 + 2 - 3");
     let frag = Fragment::new(&f, h);
     let res = Bx::parse(frag);
-    if let Ok((rem, BinaryExpression(val))) = res {
+    if let Ok((rem, val)) = res {
         assert_eq!(rem.len(), 0);
         if let (BinaryExpression(left), op, NumLit(right)) = (&*val.left, val.op, &*val.right) {
             assert_eq!(op, BinaryOp::Sub);
@@ -64,7 +65,7 @@ fn precedence_left() {
     let (f, h) = setup("1 * 2 - 3");
     let frag = Fragment::new(&f, h);
     let res = Bx::parse(frag);
-    if let Ok((rem, BinaryExpression(val))) = res {
+    if let Ok((rem, val)) = res {
         assert_eq!(rem.len(), 0);
         if let (BinaryExpression(left), op, NumLit(right)) = (&*val.left, val.op, &*val.right) {
             assert_eq!(op, BinaryOp::Sub);
@@ -93,7 +94,7 @@ fn precedence_right() {
     let (f, h) = setup("1 + 2 * 3");
     let frag = Fragment::new(&f, h);
     let res = Bx::parse(frag);
-    if let Ok((rem, BinaryExpression(val))) = res {
+    if let Ok((rem, val)) = res {
         assert_eq!(rem.len(), 0);
         if let (NumLit(left), op, BinaryExpression(right)) = (&*val.left, val.op, &*val.right) {
             assert_eq!(op, BinaryOp::Add);
