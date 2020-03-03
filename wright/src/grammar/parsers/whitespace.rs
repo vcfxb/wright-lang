@@ -7,7 +7,7 @@ use nom::combinator::value;
 
 /// Parses a Wright single line comment.
 /// Wright single line comments start with `//` and will parse until a newline
-/// character is reached.
+/// character is reached. The returned value is the content of the comment.
 pub fn line_comment(input: Fragment) -> IResult<Fragment, Fragment> {
     preceded(count(ch('/'), 2), not_line_ending)(input)
 }
