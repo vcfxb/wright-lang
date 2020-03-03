@@ -8,9 +8,10 @@ pub(crate) mod literals;
 pub(crate) mod expression;
 
 /// Wright comment and whitespace parsers.
-pub(crate) mod whitespace;
+pub mod whitespace;
 
 /// Whitespace module tests
+#[cfg(test)]
 mod whitespace_tests;
 
 /// Call a parser and on success, return the input consumed as well as the
