@@ -1,13 +1,14 @@
 use crate::grammar::ast::{Expression, StringLit};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, multispace0, newline, one_of};
-use nom::combinator::{map, map_res, not, recognize, value};
+use nom::combinator::{map, map_res, not, value};
 use nom::error::context;
 use nom::multi::many0;
-use nom::sequence::{preceded, terminated};
+use nom::sequence::{delimited, preceded};
 use nom::IResult;
 
 impl<'s> StringLit<'s> {
@@ -51,20 +52,16 @@ impl<'s> StringLit<'s> {
                                 std::char::from_u32,
                             ),
                             map(
-                                preceded(
+                                delimited(
                                     tag("u{"),
-                                    terminated(
-                                        map_res(
-                                            context(
-                                                "expected between 1 and 6 hexadecimal digits",
-                                                take_while_m_n(1, 6, |c: char| {
-                                                    c.is_ascii_hexdigit()
-                                                }),
-                                            ),
-                                            from_str_radix,
+                                    map_res(
+                                        context(
+                                            "expected between 1 and 6 hexadecimal digits",
+                                            take_while_m_n(1, 6, |c: char| c.is_ascii_hexdigit()),
                                         ),
-                                        ch('}'),
+                                        from_str_radix,
                                     ),
+                                    ch('}'),
                                 ),
                                 std::char::from_u32,
                             ),
@@ -84,7 +81,7 @@ impl<'s> StringLit<'s> {
     }
 
     fn wrapper(i: Fragment<'s>) -> IResult<Fragment<'s>, String> {
-        preceded(ch('\"'), terminated(Self::body, ch('\"')))(i)
+        delimited(ch('\"'), Self::body, ch('\"'))(i)
     }
 }
 
@@ -101,8 +98,8 @@ impl<'s> ToExpression<'s> for StringLit<'s> {
 
     /// Parse a string literal in source code.
     fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(recognize(Self::wrapper), |f| {
-            Self::new(f, Self::wrapper(f).unwrap().1)
+        map(with_input(Self::wrapper), |(consumed, result)| {
+            Self::new(consumed, result)
         })(input)
     }
 }
