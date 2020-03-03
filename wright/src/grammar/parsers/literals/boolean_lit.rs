@@ -3,8 +3,9 @@ use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::{map, recognize, value};
+use nom::combinator::{map, value};
 use nom::IResult;
+use crate::grammar::parsers::with_input;
 
 impl<'s> BooleanLit<'s> {
     /// Literal representing a true value.
@@ -26,9 +27,10 @@ impl<'s> BooleanLit<'s> {
 
     /// Parses a boolean literal from wright source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(recognize(Self::parser_inner), |fr: Fragment<'s>| {
-            Self::new(fr, Self::parser_inner(fr).unwrap().1)
-        })(input)
+        map(
+            with_input(Self::parser_inner),
+            |(fr, v)| Self::new(fr, v)
+        )(input)
     }
 }
 
