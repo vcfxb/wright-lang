@@ -13,22 +13,9 @@ pub(crate) mod parens;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{
-    BinaryExpression, BinaryOp, BooleanLit, CharLit, Expression, Identifier, NumLit, Parens,
-    StringLit, Underscore,
-};
+use crate::grammar::ast::Expression;
 use crate::grammar::model::{Fragment, HasFragment};
 
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::char;
-use nom::character::complete::space0;
-use nom::combinator::map;
-use nom::combinator::opt;
-use nom::error::context;
-use nom::multi::fold_many0;
-use nom::sequence::delimited;
-use nom::sequence::pair;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
