@@ -1,9 +1,9 @@
 use crate::grammar::model::Fragment;
 use nom::character::complete::{char as ch, multispace0, not_line_ending};
+use nom::combinator::value;
 use nom::multi::{count, many0};
 use nom::sequence::{preceded, terminated};
 use nom::IResult;
-use nom::combinator::value;
 
 /// Parses a Wright single line comment.
 /// Wright single line comments start with `//` and will parse until a newline
@@ -15,15 +15,8 @@ pub fn line_comment(input: Fragment) -> IResult<Fragment, Fragment> {
 /// Parses a sequence of adjacent whitespace and comments,
 /// and discards the result.
 pub fn token_delimiter(input: Fragment) -> IResult<Fragment, ()> {
-    preceded(multispace0,
-             value(
-                 (),
-                 many0(
-                     terminated(
-                         line_comment,
-                         multispace0
-                     )
-                 )
-             )
+    preceded(
+        multispace0,
+        value((), many0(terminated(line_comment, multispace0))),
     )(input)
 }

@@ -1,5 +1,5 @@
-use crate::grammar::model::Fragment;
 use crate::grammar::ast::{BinaryExpression as Bx, BinaryOp, Expression};
+use crate::grammar::model::Fragment;
 use crate::grammar::parsers::expression::ToExpression;
 use codespan::{FileId, Files};
 

@@ -1,4 +1,3 @@
-
 /// Expression statement parser.
 pub mod expression_statement;
 
@@ -9,8 +8,8 @@ mod expression_statement_tests;
 
 use crate::grammar::ast::{ExpressionSt, Statement};
 use crate::grammar::model::Fragment;
-use nom::IResult;
 use nom::combinator::map;
+use nom::IResult;
 
 impl<'s> Statement<'s> {
     /// Parse a statement of any type.

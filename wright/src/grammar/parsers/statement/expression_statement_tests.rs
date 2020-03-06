@@ -1,5 +1,5 @@
-use crate::grammar::model::Fragment;
 use crate::grammar::ast::ExpressionSt;
+use crate::grammar::model::Fragment;
 use codespan::{FileId, Files};
 
 fn setup(s: &str) -> (Files<String>, FileId) {

@@ -1,11 +1,11 @@
-use crate::grammar::ast::{BooleanLit, Identifier, Underscore, Expression};
+use crate::grammar::ast::{BooleanLit, Expression, Identifier, Underscore};
 use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::parsers::expression::ToExpression;
 use nom::bytes::complete::{take_while, take_while1};
 use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
-use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.

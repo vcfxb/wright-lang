@@ -1,5 +1,5 @@
-use crate::grammar::model::Fragment;
 use crate::grammar::ast::Block;
+use crate::grammar::model::Fragment;
 use crate::grammar::parsers::expression::ToExpression;
 use codespan::{FileId, Files};
 

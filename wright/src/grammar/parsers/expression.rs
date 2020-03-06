@@ -23,16 +23,8 @@ mod binary_expression_tests;
 mod block_tests;
 
 use crate::grammar::ast::{
-    BinaryExpression,
-    Block,
-    BooleanLit,
-    CharLit,
-    Expression,
-    Identifier,
-    NumLit,
-    Parens,
-    StringLit,
-    Underscore,
+    BinaryExpression, Block, BooleanLit, CharLit, Expression, Identifier, NumLit, Parens,
+    StringLit, Underscore,
 };
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::branch::alt;
@@ -56,6 +48,7 @@ impl<'s> Expression<'s> {
     }
 
     /// Parse an expression.
+    #[rustfmt::skip] // allow easy addition of new expressions
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         alt((
             BinaryExpression::expr_parse,
