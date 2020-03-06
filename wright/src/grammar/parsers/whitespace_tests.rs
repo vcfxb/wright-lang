@@ -1,4 +1,3 @@
-#![allow(unused_imports)]
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::whitespace;
 use codespan::{FileId, Files};
