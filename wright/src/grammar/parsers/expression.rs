@@ -37,7 +37,7 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             Underscore(i) => i.get_fragment(),
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
-            SelfLit(i) => i.get_fragment()
+            SelfLit(i) => i.get_fragment(),
         }
     }
 }

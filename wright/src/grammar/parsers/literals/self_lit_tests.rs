@@ -1,6 +1,6 @@
-use crate::grammar::parsers::testing::setup;
-use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::ast::SelfLit;
+use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::parsers::testing::setup;
 
 #[test]
 fn test_self_lit() {

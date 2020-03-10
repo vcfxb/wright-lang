@@ -1,7 +1,7 @@
 use crate::grammar::ast::StringLit;
 use crate::grammar::model::Fragment;
-use codespan::{FileId, Files};
 use crate::grammar::parsers::testing::setup;
+use codespan::{FileId, Files};
 
 fn fragment(f: &Files<String>, h: FileId) -> Fragment {
     Fragment::new(f, h)

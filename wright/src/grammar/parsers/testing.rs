@@ -1,4 +1,4 @@
-use codespan::{Files, FileId};
+use codespan::{FileId, Files};
 
 pub fn setup(src: &'static str) -> (Files<String>, FileId) {
     let mut f: Files<String> = Files::new();
