@@ -127,7 +127,7 @@ pub struct UnaryExpression<'s> {
     /// The operation being done.
     pub op: UnaryOp,
     /// The expression being operated on.
-    pub inner: Box<Expression<'s>>
+    pub inner: Box<Expression<'s>>,
 }
 
 /// A block in source code.
@@ -138,7 +138,7 @@ pub struct Block<'s> {
     /// The statements in this block.
     pub statements: Vec<Statement<'s>>,
     /// The optional return/result expression.
-    pub result: Option<Box<Expression<'s>>>
+    pub result: Option<Box<Expression<'s>>>,
 }
 
 /// A conditional expression in wright source code.
@@ -197,9 +197,8 @@ pub struct ExpressionStatement<'s> {
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
 pub enum Statement<'s> {
-    ExpressionStatement(ExpressionStatement<'s>)
+    ExpressionStatement(ExpressionStatement<'s>),
 }
-
 
 /// A type in source code.
 #[derive(Clone, Debug)]

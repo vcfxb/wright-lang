@@ -4,7 +4,8 @@
 //! The Wright programming language crate.
 //!
 
-#[macro_use] extern crate enum_iterator;
+#[macro_use]
+extern crate enum_iterator;
 
 use codespan::{FileId, Files};
 
