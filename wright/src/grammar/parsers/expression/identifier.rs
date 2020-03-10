@@ -9,11 +9,8 @@ use nom::IResult;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.
-    pub const RESERVED_WORDS: [&'static str; 3] = [
-        BooleanLit::FALSE,
-        BooleanLit::TRUE,
-        SelfLit::SELF,
-    ];
+    pub const RESERVED_WORDS: [&'static str; 3] =
+        [BooleanLit::FALSE, BooleanLit::TRUE, SelfLit::SELF];
 
     fn new(frag: Fragment<'s>) -> Self {
         Self { frag }
