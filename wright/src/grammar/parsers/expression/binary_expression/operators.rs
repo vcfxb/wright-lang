@@ -2,7 +2,7 @@ use crate::grammar::ast::BinaryOp;
 
 /// Operator associativity.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Default)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Associativity {Left, Right}
 
 /// Information about an operator.
@@ -41,10 +41,12 @@ impl BinaryOp {
             Ge => OperatorInfo::new(Ge, ">=", 5, Left),
             Lt => OperatorInfo::new(Lt, "<", 5, Left),
             Gt => OperatorInfo::new(Gt, ">", 5, Left),
-
-
-            Add => OperatorInfo::new(Add, "+", -1, Left),
-
+            DotDot => OperatorInfo::new(DotDot, "..", 6, Left),
+            Add => OperatorInfo::new(Add, "+", 7, Left),
+            Sub => OperatorInfo::new(Sub, "-", 7, Left),
+            Mul => OperatorInfo::new(Mul, "*", 8, Left),
+            Mod => OperatorInfo::new(Mod, "%", 8, Left),
+            Div => OperatorInfo::new(Div, "/", 8, Left),
         }
     }
 }

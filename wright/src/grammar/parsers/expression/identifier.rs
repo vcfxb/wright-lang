@@ -1,5 +1,5 @@
 use crate::grammar::ast::SelfLit;
-use crate::grammar::ast::{BooleanLit, Identifier, Underscore};
+use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::{take_while, take_while1};
 use nom::combinator::{map, recognize, verify};
