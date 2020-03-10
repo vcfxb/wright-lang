@@ -64,15 +64,6 @@ pub struct Identifier<'s> {
     pub frag: Fragment<'s>,
 }
 
-/// An underscore symbol. Underscores are their own expression in wright.
-/// (Similarly to their use in Rust)
-#[derive(Copy, Clone, Debug)]
-pub struct Underscore<'s> {
-    /// Fragment in source code.
-    pub frag: Fragment<'s>,
-    // todo: finish this struct.
-}
-
 /// A type in source code.
 #[derive(Clone, Debug)]
 pub struct Type<'s> {
@@ -109,7 +100,7 @@ pub enum BinaryOp {
     EqEq,
     NotEq,
     Xor,
-    Dot,
+    // removed Dot, Walrus,  for reconsideration.
     DotDot,
 }
 
