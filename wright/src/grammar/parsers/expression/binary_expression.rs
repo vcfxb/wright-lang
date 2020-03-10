@@ -7,6 +7,9 @@ use nom::IResult;
 /// algorithm implementation.
 mod shunting_yard;
 
+/// Operator implementation stuff. Used with shunting yard.
+pub mod operators;
+
 impl<'s> BinaryExpression<'s> {
     fn new(
         frag: Fragment<'s>,

@@ -9,10 +9,9 @@ use nom::IResult;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.
-    pub const RESERVED_WORDS: [&'static str; 4] = [
+    pub const RESERVED_WORDS: [&'static str; 3] = [
         BooleanLit::FALSE,
         BooleanLit::TRUE,
-        Underscore::UNDERSCORE,
         SelfLit::SELF,
     ];
 
