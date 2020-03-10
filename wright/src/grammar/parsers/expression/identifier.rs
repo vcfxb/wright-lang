@@ -5,11 +5,13 @@ use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
+use crate::grammar::ast::SelfLit;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.
-    pub const RESERVED_WORDS: [&'static str; 3] =
-        [BooleanLit::FALSE, BooleanLit::TRUE, Underscore::UNDERSCORE];
+    pub const RESERVED_WORDS: [&'static str; 4] =
+        [BooleanLit::FALSE, BooleanLit::TRUE, Underscore::UNDERSCORE,
+            SelfLit::SELF];
 
     fn new(frag: Fragment<'s>) -> Self {
         Self { frag }
