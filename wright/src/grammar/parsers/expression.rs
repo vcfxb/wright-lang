@@ -1,9 +1,6 @@
 /// Wright identifier parser.
 pub(crate) mod identifier;
 
-/// Underscore expression parser.
-pub(crate) mod underscore;
-
 /// Binary Expression parser and utilities.
 pub mod binary_expression;
 
@@ -34,7 +31,6 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             StringLit(i) => i.get_fragment(),
             BooleanLit(i) => i.get_fragment(),
             Identifier(i) => i.get_fragment(),
-            Underscore(i) => i.get_fragment(),
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
             SelfLit(i) => i.get_fragment(),

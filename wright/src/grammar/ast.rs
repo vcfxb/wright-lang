@@ -91,7 +91,7 @@ pub struct Parens<'s> {
 
 /// The type of binary operation being done.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, IntoEnumIterator)]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -108,7 +108,6 @@ pub enum BinaryOp {
     Ge,
     EqEq,
     NotEq,
-    Walrus, // like python, see also `if let`
     Xor,
     Dot,
     DotDot,
@@ -136,7 +135,6 @@ pub enum Expression<'s> {
     StringLit(StringLit<'s>),
     BooleanLit(BooleanLit<'s>),
     Identifier(Identifier<'s>),
-    Underscore(Underscore<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
     SelfLit(SelfLit<'s>),
