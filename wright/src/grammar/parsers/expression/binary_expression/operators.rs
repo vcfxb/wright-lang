@@ -3,7 +3,10 @@ use crate::grammar::ast::BinaryOp;
 /// Operator associativity.
 #[allow(missing_docs)]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub enum Associativity {Left, Right}
+pub enum Associativity {
+    Left,
+    Right,
+}
 
 /// Information about an operator.
 #[allow(missing_docs)]
@@ -15,20 +18,25 @@ pub struct OperatorInfo {
     /// precedence. Lower means it binds more powerfully.
     pub prec: usize,
     /// Left or right associativity.
-    pub assoc: Associativity
+    pub assoc: Associativity,
 }
 
 impl OperatorInfo {
     fn new(id: BinaryOp, str: &'static str, prec: usize, assoc: Associativity) -> Self {
-        Self {id, str, prec, assoc}
+        Self {
+            id,
+            str,
+            prec,
+            assoc,
+        }
     }
 }
 
 impl BinaryOp {
     /// Get information on this binary operation.
     pub fn get_info(self) -> OperatorInfo {
-        use BinaryOp::*;
         use Associativity::*;
+        use BinaryOp::*;
         match self {
             OrOr => OperatorInfo::new(OrOr, "||", 0, Left),
             AndAnd => OperatorInfo::new(AndAnd, "&&", 1, Left),
