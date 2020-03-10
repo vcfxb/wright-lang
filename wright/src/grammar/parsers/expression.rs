@@ -4,8 +4,8 @@ pub(crate) mod identifier;
 /// Underscore expression parser.
 pub(crate) mod underscore;
 
-/// Binary Expression parser.
-pub(crate) mod binary_expression;
+/// Binary Expression parser and utilities.
+pub mod binary_expression;
 
 /// Parentheses parser.
 pub(crate) mod parens;
@@ -37,13 +37,14 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             Underscore(i) => i.get_fragment(),
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
+            SelfLit(i) => i.get_fragment()
         }
     }
 }
 
 /// Trait implemented by all members of the
 /// `Expression` node in an AST.
-pub(crate) trait ToExpression<'s> {
+pub(crate) trait ToExpression<'s>: HasFragment<'s> {
     /// Construct an `Expression` from this object.
     fn create_expr(self) -> Expression<'s>;
 }

@@ -3,13 +3,17 @@ use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
 
+/// [Shunting Yard](https://en.wikipedia.org/wiki/Shunting-yard_algorithm)
+/// algorithm implementation.
+mod shunting_yard;
+
 impl<'s> BinaryExpression<'s> {
-    fn new(frag: Fragment<'s>, left: Expression<'s>, op: BinaryOp, right: Expression<'s>) -> Self {
+    fn new(frag: Fragment<'s>, left: impl ToExpression<'s>, op: BinaryOp, right: impl ToExpression<'s>) -> Self {
         Self {
             frag,
-            left: Box::new(left),
+            left: Box::new(left.create_expr()),
             op,
-            right: Box::new(right),
+            right: Box::new(right.create_expr()),
         }
     }
 
