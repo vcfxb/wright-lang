@@ -47,6 +47,13 @@ pub struct BooleanLit<'s> {
     pub inner: bool,
 }
 
+/// `self` literal in wright source code.
+#[derive(Copy, Clone, Debug)]
+pub struct SelfLit<'s> {
+    /// Associated fragment in source code.
+    pub frag: Fragment<'s>
+}
+
 /// An identifier in Wright source code.
 /// There is only one field here, the fragment of source code being referenced.
 /// This is because the identifier itself will be the same as the fragment's
@@ -101,7 +108,7 @@ pub enum BinaryOp {
     Ge,
     EqEq,
     NotEq,
-    Eq,
+    Walrus, // like python, see also `if let`
     Xor,
     Dot,
     DotDot,
@@ -132,4 +139,5 @@ pub enum Expression<'s> {
     Underscore(Underscore<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
+    SelfLit(SelfLit<'s>)
 }
