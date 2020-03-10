@@ -1,5 +1,6 @@
 wright/target/
 wright/Cargo.lock
+wright/wright-derive/target/
+wright/wright-derive/Cargo.lock
 .idea/
 wright/.idea/
-

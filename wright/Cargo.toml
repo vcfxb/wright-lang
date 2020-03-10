@@ -26,6 +26,8 @@ codespan-reporting = "0.7"
 exitcode = "1"
 #either = "1.5"
 nom = "^5.1"
+wright-derive = { path = "wright-derive" }
+multi-eq = "0.1.1"
 
 [[bin]]
 name = "wright"

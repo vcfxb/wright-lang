@@ -1,0 +1,11 @@
+[package]
+name = "wright-derive"
+version = "0.1.0"
+authors = ["Benjamin Levy <blevy@protonmail.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+multi-eq = "0.1.1"
