@@ -64,13 +64,6 @@ pub struct Identifier<'s> {
     pub frag: Fragment<'s>,
 }
 
-/// A type in source code.
-#[derive(Clone, Debug)]
-pub struct Type<'s> {
-    /// Associated Fragment in source code.
-    pub frag: Fragment<'s>,
-}
-
 /// An expression in parentheses in wright source code.
 #[derive(Clone, Debug)]
 pub struct Parens<'s> {
@@ -117,6 +110,62 @@ pub struct BinaryExpression<'s> {
     pub right: Box<Expression<'s>>,
 }
 
+/// Unary expression operators.
+#[allow(missing_docs)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, IntoEnumIterator)]
+pub enum UnaryOp {
+    LogicalNot,
+    BitwiseNot,
+    Neg,
+}
+
+/// A unary expression in source code.
+#[derive(Clone, Debug)]
+pub struct UnaryExpression<'s> {
+    /// Fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The operation being done.
+    pub op: UnaryOp,
+    /// The expression being operated on.
+    pub inner: Box<Expression<'s>>
+}
+
+/// A block in source code.
+#[derive(Clone, Debug)]
+pub struct Block<'s> {
+    /// The fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The statements in this block.
+    pub statements: Vec<Statement<'s>>,
+    /// The optional return/result expression.
+    pub result: Option<Box<Expression<'s>>>
+}
+
+/// A conditional expression in wright source code.
+#[derive(Clone, Debug)]
+pub struct Conditional<'s> {
+    /// The associated fragment of source code.
+    pub frag: Fragment<'s>,
+    /// The primary condition.
+    pub primary: (Box<Expression<'s>>, Block<'s>),
+    /// All of the secondary conditions (note that the field is called `elifs`
+    /// but in wright code they should use `else if`).
+    pub elifs: Vec<(Expression<'s>, Block<'s>)>,
+    /// The optional else block at the end of the conditional.
+    pub default: Option<Block<'s>>,
+}
+
+/// Indexing expressions such as `array[1]` in wright source code.
+#[derive(Clone, Debug)]
+pub struct IndexExpression<'s> {
+    /// The fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The thing being indexed into. Usually a list, string, or map.
+    pub subject: Box<Expression<'s>>,
+    /// The indexing key. The thing that goes in the brackets.
+    pub object: Box<Expression<'s>>,
+}
+
 /// An expression in wright source code.
 #[derive(Clone, Debug)]
 #[allow(missing_docs)]
@@ -128,5 +177,34 @@ pub enum Expression<'s> {
     Identifier(Identifier<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
+    UnaryExpression(UnaryExpression<'s>),
     SelfLit(SelfLit<'s>),
+    Block(Block<'s>),
+    Conditional(Conditional<'s>),
+    IndexExpression(IndexExpression<'s>),
+}
+
+/// An expression whose results aren't used.
+#[derive(Clone, Debug)]
+pub struct ExpressionStatement<'s> {
+    /// Associated Fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The expression.
+    pub inner: Box<Expression<'s>>,
+}
+
+/// A statement in wright source code.
+#[allow(missing_docs)]
+#[derive(Clone, Debug)]
+pub enum Statement<'s> {
+    ExpressionStatement(ExpressionStatement<'s>)
+}
+
+
+/// A type in source code.
+#[derive(Clone, Debug)]
+pub struct Type<'s> {
+    /// Associated Fragment in source code.
+    pub frag: Fragment<'s>,
+    // todo: type parsing ans ast
 }
