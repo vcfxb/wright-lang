@@ -1,7 +1,7 @@
 use crate::grammar::ast::BooleanLit;
 use crate::grammar::model::Fragment;
-use codespan::Files;
 use crate::grammar::parsers::testing::setup;
+use codespan::Files;
 
 #[test]
 fn test_bool_lit() {

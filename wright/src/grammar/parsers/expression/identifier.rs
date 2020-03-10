@@ -1,3 +1,4 @@
+use crate::grammar::ast::SelfLit;
 use crate::grammar::ast::{BooleanLit, Identifier, Underscore};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::{take_while, take_while1};
@@ -5,13 +6,15 @@ use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
-use crate::grammar::ast::SelfLit;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.
-    pub const RESERVED_WORDS: [&'static str; 4] =
-        [BooleanLit::FALSE, BooleanLit::TRUE, Underscore::UNDERSCORE,
-            SelfLit::SELF];
+    pub const RESERVED_WORDS: [&'static str; 4] = [
+        BooleanLit::FALSE,
+        BooleanLit::TRUE,
+        Underscore::UNDERSCORE,
+        SelfLit::SELF,
+    ];
 
     fn new(frag: Fragment<'s>) -> Self {
         Self { frag }

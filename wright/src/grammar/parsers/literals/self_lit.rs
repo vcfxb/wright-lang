@@ -1,8 +1,8 @@
-use crate::grammar::ast::{SelfLit, Expression};
+use crate::grammar::ast::{Expression, SelfLit};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
-use nom::combinator::map;
 use nom::bytes::complete::tag;
+use nom::combinator::map;
 use nom::IResult;
 
 impl<'s> SelfLit<'s> {
@@ -10,7 +10,7 @@ impl<'s> SelfLit<'s> {
     pub const SELF: &'static str = "self";
 
     fn new(f: Fragment<'s>) -> Self {
-        Self {frag: f}
+        Self { frag: f }
     }
 
     /// Parse a self literal from input.
