@@ -51,7 +51,7 @@ pub struct BooleanLit<'s> {
 #[derive(Copy, Clone, Debug)]
 pub struct SelfLit<'s> {
     /// Associated fragment in source code.
-    pub frag: Fragment<'s>
+    pub frag: Fragment<'s>,
 }
 
 /// An identifier in Wright source code.
@@ -139,5 +139,5 @@ pub enum Expression<'s> {
     Underscore(Underscore<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
-    SelfLit(SelfLit<'s>)
+    SelfLit(SelfLit<'s>),
 }

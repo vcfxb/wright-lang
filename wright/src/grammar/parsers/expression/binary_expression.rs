@@ -8,7 +8,12 @@ use nom::IResult;
 mod shunting_yard;
 
 impl<'s> BinaryExpression<'s> {
-    fn new(frag: Fragment<'s>, left: impl ToExpression<'s>, op: BinaryOp, right: impl ToExpression<'s>) -> Self {
+    fn new(
+        frag: Fragment<'s>,
+        left: impl ToExpression<'s>,
+        op: BinaryOp,
+        right: impl ToExpression<'s>,
+    ) -> Self {
         Self {
             frag,
             left: Box::new(left.create_expr()),

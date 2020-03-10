@@ -1,7 +1,7 @@
 use crate::grammar::ast::NumLit;
 use crate::grammar::model::Fragment;
-use codespan::{FileId, Files};
 use crate::grammar::parsers::testing::setup;
+use codespan::{FileId, Files};
 
 #[test]
 fn from_dec() {

@@ -1,8 +1,9 @@
 use crate::grammar::ast::{Expression, Parens};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::with_input;
 use nom::character::complete::{char as ch, multispace0};
-use nom::combinator::{map, recognize};
+use nom::combinator::map;
 use nom::sequence::delimited;
 use nom::IResult;
 
@@ -18,9 +19,9 @@ impl<'s> Parens<'s> {
     /// Parse parentheses and the expression between them in source code. Will
     /// ignore any whitespace before and after.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(recognize(Self::inner), |parse| Parens {
-            frag: parse,
-            inner: Box::new(Self::inner(parse).unwrap().1),
+        map(with_input(Self::inner), |(consumed, expr)| Parens {
+            frag: consumed,
+            inner: Box::new(expr),
         })(input)
     }
 }
