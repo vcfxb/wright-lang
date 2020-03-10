@@ -1,11 +1,23 @@
 /// Wright identifier parser.
 pub(crate) mod identifier;
 
-/// Binary Expression parser and utilities.
+/// Binary expression parser and utilities.
 pub mod binary_expression;
+
+/// Unary expression parser.
+pub(crate) mod unary_expression;
+
+/// Index expression parsers.
+pub(crate) mod index_expression;
+
+/// Conditional expression parsers.
+pub(crate) mod conditional;
 
 /// Parentheses parser.
 pub(crate) mod parens;
+
+/// Block parser.
+pub(crate) mod block;
 
 #[cfg(test)]
 mod expression_tests;
@@ -34,6 +46,10 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
             SelfLit(i) => i.get_fragment(),
+            Block(i) => i.get_fragment(),
+            UnaryExpression(i) => i.get_fragment(),
+            Conditional(i) => i.get_fragment(),
+            IndexExpression(i) => i.get_fragment(),
         }
     }
 }

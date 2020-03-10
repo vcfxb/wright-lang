@@ -1,4 +1,3 @@
-use crate::grammar::model::Fragment;
 #[cfg(test)]
 use codespan::{FileId, Files};
 
