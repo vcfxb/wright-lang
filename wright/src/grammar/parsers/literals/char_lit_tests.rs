@@ -1,12 +1,7 @@
 use crate::grammar::ast::CharLit;
 use crate::grammar::model::Fragment;
 use codespan::{FileId, Files};
-
-fn setup(s: &'static str) -> (Files<String>, FileId) {
-    let mut f = Files::new();
-    let h = f.add("char_lit_test file", s.to_string());
-    (f, h)
-}
+use crate::grammar::parsers::testing::setup;
 
 #[test]
 fn body() {
