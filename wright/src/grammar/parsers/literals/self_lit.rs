@@ -1,4 +1,4 @@
-use crate::grammar::ast::{Expression, SelfLit};
+use crate::grammar::ast::{Expression, SelfLit, ASTEq};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::bytes::complete::tag;
@@ -29,4 +29,9 @@ impl<'s> HasFragment<'s> for SelfLit<'s> {
     fn get_fragment(&self) -> Fragment<'s> {
         self.frag
     }
+}
+
+impl<'s> ASTEq for SelfLit<'s> {
+    #[inline]
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {true}
 }
