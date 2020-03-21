@@ -1,4 +1,4 @@
-use crate::grammar::ast::{Expression, Parens};
+use crate::grammar::ast::{Expression, Parens, ASTEq};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;
@@ -36,4 +36,8 @@ impl<'s> ToExpression<'s> for Parens<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::Parens(self)
     }
+}
+
+impl<'s> ASTEq for Parens<'s> {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.inner == snd.inner}
 }

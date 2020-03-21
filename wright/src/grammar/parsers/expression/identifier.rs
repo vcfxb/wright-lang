@@ -1,4 +1,4 @@
-use crate::grammar::ast::SelfLit;
+use crate::grammar::ast::{SelfLit, Expression, ASTEq};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::{take_while, take_while1};
@@ -6,6 +6,7 @@ use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
+use crate::grammar::parsers::expression::ToExpression;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.
@@ -42,4 +43,12 @@ impl<'s> HasFragment<'s> for Identifier<'s> {
     fn get_fragment(&self) -> Fragment<'s> {
         self.frag
     }
+}
+
+impl<'s> ToExpression<'s> for Identifier<'s> {
+    fn create_expr(self) -> Expression<'s> {Expression::Identifier(self)}
+}
+
+impl<'s> ASTEq for Identifier<'s> {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.frag.source() == snd.frag.source()}
 }
