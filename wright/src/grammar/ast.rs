@@ -93,7 +93,7 @@ pub enum BinaryOp {
     EqEq,
     NotEq,
     Xor,
-    // removed Dot, Walrus,  for reconsideration.
+    // removed Dot, Walrus, for reconsideration.
     DotDot,
 }
 
@@ -205,5 +205,12 @@ pub enum Statement<'s> {
 pub struct Type<'s> {
     /// Associated Fragment in source code.
     pub frag: Fragment<'s>,
-    // todo: type parsing ans ast
+    // todo: type parsing and ast
+}
+
+
+/// Trait to check if two Syntax trees are equal to each other. Ignores Fragments/Locations in
+/// source code.
+pub trait ASTEq {
+    fn
 }
