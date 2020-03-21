@@ -212,5 +212,7 @@ pub struct Type<'s> {
 /// Trait to check if two Syntax trees are equal to each other. Ignores Fragments/Locations in
 /// source code.
 pub trait ASTEq {
-    fn
+    /// Check if the Abstract syntax trees are equal to each other. This doesn't necessarily mean
+    /// that the values are equal. Only that the tree produced by parsing is.
+    fn ast_eq(fst: &Self, snd: &Self) -> bool;
 }
