@@ -1,3 +1,9 @@
+
+/// Module to test equality between two AST Nodes.
+pub mod eq;
+
+#[cfg(test)] mod eq_tests;
+
 use crate::grammar::model::Fragment;
 
 /// Numerical literal in wright source code.
@@ -206,13 +212,4 @@ pub struct Type<'s> {
     /// Associated Fragment in source code.
     pub frag: Fragment<'s>,
     // todo: type parsing and ast
-}
-
-
-/// Trait to check if two Syntax trees are equal to each other. Ignores Fragments/Locations in
-/// source code.
-pub trait ASTEq {
-    /// Check if the Abstract syntax trees are equal to each other. This doesn't necessarily mean
-    /// that the values are equal. Only that the tree produced by parsing is.
-    fn ast_eq(fst: &Self, snd: &Self) -> bool;
 }

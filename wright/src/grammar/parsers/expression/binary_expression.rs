@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, ASTEq};
+use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, eq::ASTEq};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
