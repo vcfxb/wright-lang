@@ -8,7 +8,7 @@ use nom::{
 
 use crate::grammar::{ast::NumLit, model::Fragment};
 
-use crate::grammar::ast::{Expression, ASTEq};
+use crate::grammar::ast::{Expression, eq::ASTEq};
 use crate::grammar::model::HasFragment;
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;

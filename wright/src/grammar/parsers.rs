@@ -11,6 +11,9 @@ pub(crate) mod literals;
 /// Wright expression parsers.
 pub(crate) mod expression;
 
+/// Wright statement parsers.
+pub(crate) mod statements;
+
 /// Wright comment and whitespace parsers.
 pub mod whitespace;
 
