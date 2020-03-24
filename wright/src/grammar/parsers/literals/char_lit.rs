@@ -1,4 +1,4 @@
-use crate::grammar::ast::{CharLit, Expression, ASTEq};
+use crate::grammar::ast::{CharLit, Expression, eq::ASTEq};
 use crate::grammar::model::{Fragment, HasFragment};
 
 use crate::grammar::parsers::expression::ToExpression;
