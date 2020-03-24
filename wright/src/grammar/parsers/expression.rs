@@ -1,3 +1,5 @@
+use std::mem::discriminant;
+
 /// Wright identifier parser.
 pub(crate) mod identifier;
 
@@ -22,7 +24,7 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{Expression, ASTEq};
+use crate::grammar::ast::{Expression, eq::ASTEq};
 use crate::grammar::model::{Fragment, HasFragment};
 
 use nom::IResult;
@@ -67,7 +69,18 @@ impl<'s> ASTEq for Expression<'s> {
         // shorthand fn
         fn aeq<T: ASTEq>(a: T, b: T) -> bool {ASTEq::ast_eq(&a, &b)}
 
-        match (*fst, *snd) {
+        // discriminant is a function from std::mem
+        // (https://doc.rust-lang.org/std/mem/fn.discriminant.html)
+        // that returns an opaque type represents which variant of an enum
+        // a value uses.
+        // this check allows us to return `unimplemented!()` at the bottom of
+        // the match block instead of false. This will help us to catch bugs at
+        // testing time.
+        if discriminant(fst) != discriminant(snd) {
+            return false;
+        }
+
+        match (fst, snd) {
             (NumLit(a), NumLit(b)) => aeq(a,b),
             (CharLit(a), CharLit(b)) => aeq(a,b),
             (StringLit(a), StringLit(b)) => aeq(a,b),
@@ -80,7 +93,7 @@ impl<'s> ASTEq for Expression<'s> {
             (UnaryExpression(a), UnaryExpression(b)) => aeq(a,b),
             (Conditional(a), Conditional(b)) => aeq(a,b),
             (IndexExpression(a), IndexExpression(b)) => aeq(a,b),
-            (_, _) => false,
+            (_, _) => unimplemented!(),
         }
     }
 }

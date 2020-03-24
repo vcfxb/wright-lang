@@ -1,9 +1,13 @@
-use crate::grammar::ast::{UnaryExpression, Expression, UnaryOp, ASTEq};
+use crate::grammar::ast::{UnaryExpression, Expression, eq::ASTEq, UnaryOp};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 
-impl<'s> UnaryExpression<'s> {
+impl UnaryOp {
 
+}
+
+impl<'s> UnaryExpression<'s> {
+    /// Parse a unary expression in source code.
     pub fn parse(input: Fragment<'s>) -> Self {
         todo!()
     }
