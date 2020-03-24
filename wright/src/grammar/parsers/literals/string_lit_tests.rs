@@ -20,4 +20,9 @@ fn test_simple() {
     do_test(r#""Hello, World""#, r"", r"Hello, World")
 }
 
-// todo: more testing here.
+#[test]
+fn test_null_escape() {
+    do_test(r#""Null\0 character""#, r"", "Null\0 character")
+}
+
+// todo: more testing here
