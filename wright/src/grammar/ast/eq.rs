@@ -19,9 +19,13 @@ impl<T> ASTEq for Option<T> where T: ASTEq {
 
 
 impl<T> ASTEq for Box<T> where T: ASTEq {
-    #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        ASTEq::ast_eq(&*fst, &*snd)
+        ASTEq::ast_eq(&**fst, &**snd)
+        // weird double dereference here, but it works.
+        // *fst is Box<T>
+        // **fst is T
+        // &**fst is &T
+        // ast_eq requires &T
     }
 }
 
