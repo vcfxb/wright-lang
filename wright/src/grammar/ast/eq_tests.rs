@@ -1,4 +1,4 @@
-use crate::grammar::ast::eq;
+use crate::grammar::ast::{eq::ASTEq, NumLit};
 use crate::grammar::parsers::testing::setup;
 use crate::grammar::model::Fragment;
 use codespan::{Files, FileId};
@@ -9,11 +9,22 @@ fn setup2(src: &'static str) -> (Files<String>, FileId, FileId) {
     (files, h1, h2)
 }
 
+fn get_numlits(files: &Files<String>, h1: FileId, h2: FileId) -> (NumLit, NumLit) {
+    let a = NumLit::parse(Fragment::new(files, h1)).unwrap().1;
+    let b = NumLit::parse(Fragment::new(files, h2)).unwrap().1;
+    (a, b)
+}
+
 #[test]
 fn test_basic() {
-    let (mut files, h1) = setup("5");
-    let h2 = files.add("other", "5".to_owned());
-    let a = Fragment::new(&files, h1);
-    let b = Fragment::new(&files, h2);
-    
+    let (f, h1, h2) = setup2("5");
+    let (a,b) = get_numlits(&f, h1, h2);
+    assert!(ASTEq::ast_eq(&a,&b))
+}
+
+#[test]
+fn test_box() {
+    let (f, h1, h2) = setup2("5");
+    let (a,b) = get_numlits(&f, h1, h2);
+    assert!(ASTEq::ast_eq(&Box::new(a),&Box::new(b)))
 }
