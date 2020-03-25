@@ -1,8 +1,8 @@
-
 /// Module to test equality between two AST Nodes.
 pub mod eq;
 
-#[cfg(test)] mod eq_tests;
+#[cfg(test)]
+mod eq_tests;
 
 use crate::grammar::model::Fragment;
 

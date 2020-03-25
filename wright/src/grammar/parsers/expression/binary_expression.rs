@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, eq::ASTEq};
+use crate::grammar::ast::{eq::ASTEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
@@ -11,7 +11,7 @@ mod shunting_yard;
 pub mod operators;
 
 impl<'s> BinaryExpression<'s> {
-    fn new(
+    fn _new(
         frag: Fragment<'s>,
         left: impl ToExpression<'s>,
         op: BinaryOp,
@@ -26,7 +26,7 @@ impl<'s> BinaryExpression<'s> {
     }
 
     /// Parse a binary expression in source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+    pub fn parse(_input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("binary expression parser")
     }
 }
@@ -44,5 +44,7 @@ impl<'s> ToExpression<'s> for BinaryExpression<'s> {
 }
 
 impl<'s> ASTEq for BinaryExpression<'s> {
-    fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.op == snd.op && ASTEq::ast_eq(&*fst.left, &*snd.left)}
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.op == snd.op && ASTEq::ast_eq(&*fst.left, &*snd.left)
+    }
 }

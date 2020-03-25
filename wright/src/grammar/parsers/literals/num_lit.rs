@@ -8,7 +8,7 @@ use nom::{
 
 use crate::grammar::{ast::NumLit, model::Fragment};
 
-use crate::grammar::ast::{Expression, eq::ASTEq};
+use crate::grammar::ast::{eq::ASTEq, Expression};
 use crate::grammar::model::HasFragment;
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;
@@ -109,5 +109,7 @@ impl<'s> ToExpression<'s> for NumLit<'s> {
 }
 
 impl<'s> ASTEq for NumLit<'s> {
-    fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.inner == snd.inner}
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.inner == snd.inner
+    }
 }

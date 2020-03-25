@@ -24,14 +24,14 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{Expression, eq::ASTEq};
+use crate::grammar::ast::{eq::ASTEq, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 
 use nom::IResult;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+    pub fn parse(_input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("Expression::parse is unimplemented")
     }
 }
@@ -67,7 +67,9 @@ impl<'s> ASTEq for Expression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
         // shorthand fn
-        fn aeq<T: ASTEq>(a: T, b: T) -> bool {ASTEq::ast_eq(&a, &b)}
+        fn aeq<T: ASTEq>(a: T, b: T) -> bool {
+            ASTEq::ast_eq(&a, &b)
+        }
 
         // discriminant is a function from std::mem
         // (https://doc.rust-lang.org/std/mem/fn.discriminant.html)
@@ -81,18 +83,18 @@ impl<'s> ASTEq for Expression<'s> {
         }
 
         match (fst, snd) {
-            (NumLit(a), NumLit(b)) => aeq(a,b),
-            (CharLit(a), CharLit(b)) => aeq(a,b),
-            (StringLit(a), StringLit(b)) => aeq(a,b),
-            (BooleanLit(a), BooleanLit(b)) => aeq(a,b),
-            (Identifier(a), Identifier(b)) => aeq(a,b),
-            (Parens(a), Parens(b)) => aeq(a,b),
-            (BinaryExpression(a), BinaryExpression(b)) => aeq(a,b),
-            (SelfLit(a), SelfLit(b)) => aeq(a,b),
-            (Block(a), Block(b)) => aeq(a,b),
-            (UnaryExpression(a), UnaryExpression(b)) => aeq(a,b),
-            (Conditional(a), Conditional(b)) => aeq(a,b),
-            (IndexExpression(a), IndexExpression(b)) => aeq(a,b),
+            (NumLit(a), NumLit(b)) => aeq(a, b),
+            (CharLit(a), CharLit(b)) => aeq(a, b),
+            (StringLit(a), StringLit(b)) => aeq(a, b),
+            (BooleanLit(a), BooleanLit(b)) => aeq(a, b),
+            (Identifier(a), Identifier(b)) => aeq(a, b),
+            (Parens(a), Parens(b)) => aeq(a, b),
+            (BinaryExpression(a), BinaryExpression(b)) => aeq(a, b),
+            (SelfLit(a), SelfLit(b)) => aeq(a, b),
+            (Block(a), Block(b)) => aeq(a, b),
+            (UnaryExpression(a), UnaryExpression(b)) => aeq(a, b),
+            (Conditional(a), Conditional(b)) => aeq(a, b),
+            (IndexExpression(a), IndexExpression(b)) => aeq(a, b),
             (_, _) => unimplemented!(),
         }
     }

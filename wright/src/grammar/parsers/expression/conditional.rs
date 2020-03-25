@@ -1,10 +1,10 @@
-use crate::grammar::ast::{Conditional, eq::ASTEq};
+use crate::grammar::ast::{eq::ASTEq, Conditional};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
 
 impl<'s> Conditional<'s> {
     /// Parse a conditional expression in source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+    pub fn parse(_input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         unimplemented!()
     }
 }

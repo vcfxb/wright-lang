@@ -1,15 +1,14 @@
-use std::mem::discriminant;
 use crate::grammar::ast::eq::ASTEq;
 use crate::grammar::ast::Statement;
-use crate::grammar::model::{HasFragment, Fragment};
+use crate::grammar::model::{Fragment, HasFragment};
+use std::mem::discriminant;
 
 /// Expression statement parser.
 pub(crate) mod expression_statement;
 
 impl<'s> Statement<'s> {
     /// Semicolon in source code. Probably should never change.
-    pub const SEMICOLON: char = ';';
-
+    pub const TERMINATOR: char = ';';
 }
 
 impl<'s> ASTEq for Statement<'s> {
@@ -17,7 +16,9 @@ impl<'s> ASTEq for Statement<'s> {
         use Statement::*;
 
         // shorthand fn
-        fn aeq<T: ASTEq>(a: &T, b: &T) -> bool {ASTEq::ast_eq(a, b)}
+        fn aeq<T: ASTEq>(a: &T, b: &T) -> bool {
+            ASTEq::ast_eq(a, b)
+        }
 
         // discriminant is a function from std::mem
         // (https://doc.rust-lang.org/std/mem/fn.discriminant.html)
@@ -31,7 +32,7 @@ impl<'s> ASTEq for Statement<'s> {
         }
 
         match (fst, snd) {
-            (ExpressionStatement(a), ExpressionStatement(b)) => aeq(a,b),
+            (ExpressionStatement(a), ExpressionStatement(b)) => aeq(a, b),
             _ => unimplemented!(),
         }
     }
@@ -42,7 +43,6 @@ impl<'s> HasFragment<'s> for Statement<'s> {
         use Statement::*;
         match self {
             ExpressionStatement(s) => s.get_fragment(),
-            _ => unimplemented!(),
         }
     }
 }
