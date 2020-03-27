@@ -213,3 +213,17 @@ pub struct Type<'s> {
     pub frag: Fragment<'s>,
     // todo: type parsing and ast
 }
+
+/// A Pattern used in pattern matching.
+#[derive(Clone, Debug)]
+#[allow(missing_docs)]
+pub enum Pattern<'s> {
+    UnderscorePattern(UnderscorePattern<'s>),
+}
+
+/// An underscore pattern in source code.
+#[derive(Copy, Clone, Debug)]
+pub struct UnderscorePattern<'s> {
+    /// Associated fragment in source code.
+    pub frag: Fragment<'s>,
+}
