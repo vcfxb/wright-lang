@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::ASTEq, Expression, UnaryExpression, UnaryOp};
+use crate::grammar::ast::{eq::AstEq, Expression, UnaryExpression, UnaryOp};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 
@@ -23,8 +23,8 @@ impl<'s> HasFragment<'s> for UnaryExpression<'s> {
     }
 }
 
-impl<'s> ASTEq for UnaryExpression<'s> {
+impl<'s> AstEq for UnaryExpression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.op == snd.op && ASTEq::ast_eq(&*fst.inner, &*snd.inner)
+        fst.op == snd.op && AstEq::ast_eq(&*fst.inner, &*snd.inner)
     }
 }

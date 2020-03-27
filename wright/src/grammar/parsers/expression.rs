@@ -24,7 +24,7 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{eq::ASTEq, Expression};
+use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 
 use nom::IResult;
@@ -58,17 +58,17 @@ impl<'s> HasFragment<'s> for Expression<'s> {
 
 /// Trait implemented by all members of the
 /// `Expression` node in an AST.
-pub(crate) trait ToExpression<'s>: HasFragment<'s> + ASTEq {
+pub(crate) trait ToExpression<'s>: HasFragment<'s> + AstEq {
     /// Construct an `Expression` from this object.
     fn create_expr(self) -> Expression<'s>;
 }
 
-impl<'s> ASTEq for Expression<'s> {
+impl<'s> AstEq for Expression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
         // shorthand fn
-        fn aeq<T: ASTEq>(a: T, b: T) -> bool {
-            ASTEq::ast_eq(&a, &b)
+        fn aeq<T: AstEq>(a: T, b: T) -> bool {
+            AstEq::ast_eq(&a, &b)
         }
 
         // discriminant is a function from std::mem
