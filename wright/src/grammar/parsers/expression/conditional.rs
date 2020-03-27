@@ -5,7 +5,7 @@ use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, opt};
 use nom::multi::many0;
-use nom::sequence::{delimited, pair, preceded, separated_pair, terminated, tuple};
+use nom::sequence::{delimited, pair, preceded, separated_pair, tuple};
 use nom::IResult;
 
 impl<'s> Conditional<'s> {
