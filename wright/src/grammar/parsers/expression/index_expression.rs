@@ -11,7 +11,7 @@ use nom::IResult;
 
 impl<'s> IndexExpression<'s> {
     /// Square brace characters. Probably should never change.
-    pub const SQUARE_BRACKETS: (char, char) = ('[', ']');
+    pub const DELIMITERS: (char, char) = ('[', ']');
 
     /// Parse an index expression in wright source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
@@ -19,13 +19,13 @@ impl<'s> IndexExpression<'s> {
             with_input(pair(
                 terminated(
                     Expression::parse,
-                    pair(token_delimiter, ch(Self::SQUARE_BRACKETS.0)),
+                    pair(token_delimiter, ch(Self::DELIMITERS.0)),
                 ),
                 terminated(
                     Expression::parse,
                     delimited(
                         token_delimiter,
-                        ch(Self::SQUARE_BRACKETS.1),
+                        ch(Self::DELIMITERS.1),
                         token_delimiter,
                     ),
                 ),
