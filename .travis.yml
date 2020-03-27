@@ -8,13 +8,10 @@ rust:
   - beta
   - nightly
 
-jobs:
-
 services: docker
-sudo: required
 
 env:
-  matrix:
+  jobs:
     # Linux
     - TARGET=aarch64-unknown-linux-gnu
     - TARGET=arm-unknown-linux-gnueabi
@@ -52,7 +49,7 @@ before_deploy:
   - sh ci/before_deploy.sh
 
 deploy:
-  api_key:
+  token:
     secure: "iN6j+b4J11D+MAQMiljZqeNCAmAHkXVSwsCvLSjx6P279Q/uUG0dHuQKI9f0p+nU/1QP5Am4lWhbjCMuma9ctDtrB2I06YadSCI2pZBsMYrNBciFO+oInFsoIerH2r4fJ0wYljzk2G33VNWzBdPbGF96zz0F/gvz+O5oCNWwE2POWeQCj6+1wdRFOavLfEZ89Pzosg+JRfZWaoLmy8zXQK9iC9Bm9uzl6o10K4sx+08hdwp2z5Lkj0jqHCuSz1jR5QsWdilHTouGF61gNggtY5Z1hcX7tKhI7BFb/0flUH1E/NgSXhYGbw2N5N4PxGHqABcLauXHIaa5gcLBo2ZlcZ3joQDKnt1rmhNO51Brr6MH7xjMxi34ezBRMvsLSH1omOxNXCi3LU5eRne2hn/0oMMZKN+UvnT6bZ+P7J8VRCXR89+pMbS3YgcL4wrFPk8jM3LgHypr3tAM7oz6LFa6FOQkb9fDC2hryvPpRQNQzL967HhVT+WGPS1hFdU/h4MoIgtjekfhItTUit7NdLqrlKsXX7gh6r2Init+tp1ppXDUAkgitwcQVGxhalKa2VqVbX+TROQ0ipLj8lMJL0JVRKIi2josVoVfU/ZNSCOOlazEntL08GZO8VeCehjksbOtJr1nAFhXp7HLZruJtjWlqKIM6crYbI7lfGV1c1RXC9I="
   file_glob: true
   file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
@@ -60,7 +57,7 @@ deploy:
     condition: $TRAVIS_RUST_VERSION = stable
     tags: true
   provider: releases
-  skip_cleanup: true
+  cleanup: false
 
 cache: cargo
 before_cache:

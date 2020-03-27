@@ -1,9 +1,10 @@
-use crate::grammar::ast::{BooleanLit, Expression};
+use crate::grammar::ast::{eq::AstEq, BooleanLit, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::{map, recognize, value};
+use nom::combinator::{map, value};
 use nom::IResult;
 
 impl<'s> BooleanLit<'s> {
@@ -26,9 +27,7 @@ impl<'s> BooleanLit<'s> {
 
     /// Parses a boolean literal from wright source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(recognize(Self::parser_inner), |fr: Fragment<'s>| {
-            Self::new(fr, Self::parser_inner(fr).unwrap().1)
-        })(input)
+        map(with_input(Self::parser_inner), |(fr, v)| Self::new(fr, v))(input)
     }
 }
 
@@ -41,5 +40,11 @@ impl<'s> HasFragment<'s> for BooleanLit<'s> {
 impl<'s> ToExpression<'s> for BooleanLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::BooleanLit(self)
+    }
+}
+
+impl<'s> AstEq for BooleanLit<'s> {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.inner == snd.inner
     }
 }
