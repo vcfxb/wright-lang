@@ -23,11 +23,7 @@ impl<'s> IndexExpression<'s> {
                 ),
                 terminated(
                     Expression::parse,
-                    delimited(
-                        token_delimiter,
-                        ch(Self::DELIMITERS.1),
-                        token_delimiter,
-                    ),
+                    delimited(token_delimiter, ch(Self::DELIMITERS.1), token_delimiter),
                 ),
             )),
             move |(consumed, (subject, object))| Self {
