@@ -42,3 +42,12 @@ impl<T> ASTEq for Vec<T> where T: ASTEq {
             .all(|(a,b)| ASTEq::ast_eq(a,b))
     }
 }
+
+// impl used by conditional blocks (which use tuples).
+// probably should set up a macro for this or something.
+impl<T,U> ASTEq for (T, U) where T: ASTEq, U: ASTEq {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        ASTEq::ast_eq(&fst.0, &snd.0) &&
+        ASTEq::ast_eq(&fst.1, &snd.1)
+    }
+}
