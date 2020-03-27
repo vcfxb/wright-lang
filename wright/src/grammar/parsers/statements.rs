@@ -24,7 +24,7 @@ impl<'s> AstEq for Statement<'s> {
         // (https://doc.rust-lang.org/std/mem/fn.discriminant.html)
         // that returns an opaque type represents which variant of an enum
         // a value uses.
-        // this check allows us to return `unimplemented!()` at the bottom of
+        // this check allows us to return `unreachable!()` at the bottom of
         // the match block instead of false. This will help us to catch bugs at
         // testing time.
         if discriminant(fst) != discriminant(snd) {
