@@ -7,8 +7,8 @@ use std::mem::discriminant;
 pub(crate) mod expression_statement;
 
 impl<'s> Statement<'s> {
-    /// Semicolon in source code. Probably should never change.
-    pub const SEMICOLON: char = ';';
+    /// Statement terminator. Probably should never change.
+    pub const TERMINATOR: char = ';';
 }
 
 impl<'s> AstEq for Statement<'s> {
