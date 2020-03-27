@@ -1,4 +1,4 @@
-use crate::grammar::ast::eq::ASTEq;
+use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::{Expression, IndexExpression};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
@@ -45,9 +45,9 @@ impl<'s> HasFragment<'s> for IndexExpression<'s> {
     }
 }
 
-impl<'s> ASTEq for IndexExpression<'s> {
+impl<'s> AstEq for IndexExpression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        ASTEq::ast_eq(&*fst.subject, &*snd.subject) && ASTEq::ast_eq(&*fst.object, &*snd.object)
+        AstEq::ast_eq(&*fst.subject, &*snd.subject) && AstEq::ast_eq(&*fst.object, &*snd.object)
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::ASTEq, Block, Expression};
+use crate::grammar::ast::{eq::AstEq, Block, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
@@ -22,8 +22,8 @@ impl<'s> ToExpression<'s> for Block<'s> {
     }
 }
 
-impl<'s> ASTEq for Block<'s> {
+impl<'s> AstEq for Block<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        ASTEq::ast_eq(&fst.result, &snd.result) && ASTEq::ast_eq(&fst.statements, &snd.statements)
+        AstEq::ast_eq(&fst.result, &snd.result) && AstEq::ast_eq(&fst.statements, &snd.statements)
     }
 }
