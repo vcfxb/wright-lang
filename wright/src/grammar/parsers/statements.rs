@@ -41,8 +41,7 @@ impl<'s> HasFragment<'s> for Statement<'s> {
     fn get_fragment(&self) -> Fragment<'s> {
         use Statement::*;
         match self {
-            ExpressionStatement(s) => s.get_fragment(),
-            _ => unimplemented!(),
+            ExpressionStatement(s) => s.get_fragment()
         }
     }
 }
