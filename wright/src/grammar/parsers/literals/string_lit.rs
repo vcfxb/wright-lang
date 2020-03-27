@@ -1,4 +1,4 @@
-use crate::grammar::ast::{Expression, StringLit, eq::ASTEq};
+use crate::grammar::ast::{eq::ASTEq, Expression, StringLit};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;
@@ -105,5 +105,7 @@ impl<'s> ToExpression<'s> for StringLit<'s> {
 }
 
 impl<'s> ASTEq for StringLit<'s> {
-    fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.inner == snd.inner}
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.inner == snd.inner
+    }
 }
