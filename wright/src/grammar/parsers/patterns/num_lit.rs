@@ -1,6 +1,6 @@
+use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::NumLit;
 use crate::grammar::ast::NumLitPattern;
-use crate::grammar::ast::Pattern;
 use crate::grammar::model::Fragment;
 use crate::grammar::model::HasFragment;
 
@@ -11,6 +11,7 @@ use nom::sequence::pair;
 use nom::IResult;
 
 impl<'s> NumLitPattern<'s> {
+    /// Parse a numerical literal pattern. (e.g. "-12", "4")
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(pair(opt(char('-')), NumLit::parse), |(neg, inner)| {
             NumLitPattern {
@@ -18,6 +19,12 @@ impl<'s> NumLitPattern<'s> {
                 inner,
             }
         })(input)
+    }
+}
+
+impl<'s> AstEq for NumLitPattern<'s> {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.negative == snd.negative && NumLit::ast_eq(&fst.inner, &snd.inner)
     }
 }
 
