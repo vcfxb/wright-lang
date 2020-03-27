@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::ASTEq, Block, Conditional, Expression};
+use crate::grammar::ast::{eq::AstEq, Block, Conditional, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
@@ -74,10 +74,10 @@ impl<'s> HasFragment<'s> for Conditional<'s> {
     }
 }
 
-impl<'s> ASTEq for Conditional<'s> {
+impl<'s> AstEq for Conditional<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        ASTEq::ast_eq(&fst.default, &snd.default)
-            && ASTEq::ast_eq(&fst.elifs, &snd.elifs)
-            && ASTEq::ast_eq(&fst.primary, &snd.primary)
+        AstEq::ast_eq(&fst.default, &snd.default)
+            && AstEq::ast_eq(&fst.elifs, &snd.elifs)
+            && AstEq::ast_eq(&fst.primary, &snd.primary)
     }
 }
