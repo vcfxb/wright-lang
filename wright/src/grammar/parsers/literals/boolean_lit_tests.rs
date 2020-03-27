@@ -1,11 +1,11 @@
 use crate::grammar::ast::BooleanLit;
 use crate::grammar::model::Fragment;
+use crate::grammar::parsers::testing::setup;
 use codespan::Files;
 
 #[test]
 fn test_bool_lit() {
-    let mut f: Files<String> = Files::new();
-    let h = f.add("t", "true".to_string());
+    let (f, h) = setup("true");
     let fr = Fragment::new(&f, h);
     match BooleanLit::parse(fr) {
         Ok((rem, bool_lit)) => {
