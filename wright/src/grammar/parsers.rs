@@ -1,11 +1,21 @@
 use nom::{IResult, Offset, Slice};
 use std::ops::RangeTo;
 
+/// Testing utility functions.
+#[cfg(test)]
+pub(crate) mod testing;
+
 /// Wright literal value parsers.
 pub(crate) mod literals;
 
 /// Wright expression parsers.
 pub(crate) mod expression;
+
+/// Wright statement parsers.
+pub(crate) mod statements;
+
+/// Wright pattern parsers.
+pub(crate) mod patterns;
 
 /// Wright comment and whitespace parsers.
 pub mod whitespace;

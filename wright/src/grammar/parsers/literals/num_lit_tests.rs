@@ -1,12 +1,7 @@
 use crate::grammar::ast::NumLit;
 use crate::grammar::model::Fragment;
+use crate::grammar::parsers::testing::setup;
 use codespan::{FileId, Files};
-
-fn setup(val: &'static str) -> (Files<String>, FileId) {
-    let mut files: Files<String> = Files::new();
-    let h = files.add("dec", val.to_string());
-    (files, h)
-}
 
 #[test]
 fn from_dec() {
