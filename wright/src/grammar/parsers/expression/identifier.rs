@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::ASTEq, Expression, SelfLit};
+use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
@@ -51,7 +51,7 @@ impl<'s> ToExpression<'s> for Identifier<'s> {
     }
 }
 
-impl<'s> ASTEq for Identifier<'s> {
+impl<'s> AstEq for Identifier<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.frag.source() == snd.frag.source()
     }

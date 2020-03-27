@@ -1,4 +1,4 @@
-use crate::grammar::ast::eq::ASTEq;
+use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Statement;
 use crate::grammar::ast::{Expression, ExpressionStatement};
 use crate::grammar::model::{Fragment, HasFragment};
@@ -32,9 +32,9 @@ impl<'s> HasFragment<'s> for ExpressionStatement<'s> {
     }
 }
 
-impl<'s> ASTEq for ExpressionStatement<'s> {
+impl<'s> AstEq for ExpressionStatement<'s> {
     #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        ASTEq::ast_eq(&fst.inner, &snd.inner)
+        AstEq::ast_eq(&fst.inner, &snd.inner)
     }
 }

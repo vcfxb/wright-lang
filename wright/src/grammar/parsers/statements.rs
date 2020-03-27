@@ -1,4 +1,4 @@
-use crate::grammar::ast::eq::ASTEq;
+use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Statement;
 use crate::grammar::model::{Fragment, HasFragment};
 use std::mem::discriminant;
@@ -11,13 +11,13 @@ impl<'s> Statement<'s> {
     pub const SEMICOLON: char = ';';
 }
 
-impl<'s> ASTEq for Statement<'s> {
+impl<'s> AstEq for Statement<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Statement::*;
 
         // shorthand fn
-        fn aeq<T: ASTEq>(a: &T, b: &T) -> bool {
-            ASTEq::ast_eq(a, b)
+        fn aeq<T: AstEq>(a: &T, b: &T) -> bool {
+            AstEq::ast_eq(a, b)
         }
 
         // discriminant is a function from std::mem
