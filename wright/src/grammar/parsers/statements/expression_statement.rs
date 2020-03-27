@@ -15,7 +15,7 @@ impl<'s> ExpressionStatement<'s> {
         map(
             with_input(terminated(
                 Expression::parse,
-                pair(token_delimiter, ch(Statement::SEMICOLON)),
+                pair(token_delimiter, ch(Statement::TERMINATOR)),
             )),
             move |(consumed, result)| Self {
                 frag: consumed,
