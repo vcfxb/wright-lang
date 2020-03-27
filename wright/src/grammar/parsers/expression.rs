@@ -24,15 +24,32 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{eq::AstEq, Expression};
+use crate::grammar::ast::{
+    eq::AstEq, BinaryExpression, Block, BooleanLit, CharLit, Conditional, Expression, Identifier,
+    IndexExpression, NumLit, Parens, SelfLit, StringLit, UnaryExpression,
+};
 use crate::grammar::model::{Fragment, HasFragment};
-
+use nom::branch::alt;
+use nom::combinator::map;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        todo!("Expression::parse is unimplemented")
+        alt((
+            map(Conditional::parse, Expression::Conditional),
+            map(BinaryExpression::parse, Expression::BinaryExpression),
+            map(UnaryExpression::parse, Expression::UnaryExpression),
+            map(IndexExpression::parse, Expression::IndexExpression),
+            map(Block::parse, Expression::Block),
+            map(Parens::parse, Expression::Parens),
+            map(SelfLit::parse, Expression::SelfLit),
+            map(StringLit::parse, Expression::StringLit),
+            map(CharLit::parse, Expression::CharLit),
+            map(NumLit::parse, Expression::NumLit),
+            map(BooleanLit::parse, Expression::BooleanLit),
+            map(Identifier::parse, Expression::Identifier),
+        ))(input)
     }
 }
 
