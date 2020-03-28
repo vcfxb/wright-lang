@@ -1,16 +1,17 @@
 use nom::{
     branch::alt,
     bytes::complete::{is_a, tag, take_while1, take_while_m_n},
-    combinator::{map, map_res, peek, recognize},
+    combinator::{map, map_res, peek},
     sequence::preceded,
     IResult,
 };
 
 use crate::grammar::{ast::NumLit, model::Fragment};
 
-use crate::grammar::ast::Expression;
+use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::HasFragment;
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::with_input;
 use std::num::ParseIntError;
 
 impl<'s> NumLit<'s> {
@@ -18,7 +19,7 @@ impl<'s> NumLit<'s> {
         Self { frag, inner: num }
     }
 
-    pub(super) fn from_hex(input: &str) -> Result<u128, std::num::ParseIntError> {
+    fn from_hex(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 16)
     }
 
@@ -26,18 +27,16 @@ impl<'s> NumLit<'s> {
         u128::from_str_radix(input, 10)
     }
 
-    pub(super) fn from_bin(input: &str) -> Result<u128, std::num::ParseIntError> {
+    fn from_bin(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 2)
     }
 
-    pub(super) fn clear_underscores(input: &str) -> String {
-        //dbg!(input);
+    fn clear_underscores(input: &str) -> String {
         let res = input.replace("_", "");
-        //dbg!(res.clone());
         res
     }
 
-    pub(super) fn hex_primary(input: Fragment) -> IResult<Fragment, u128> {
+    fn hex_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
                 tag("0x"),
@@ -54,7 +53,7 @@ impl<'s> NumLit<'s> {
         )(input)
     }
 
-    pub(super) fn bin_primary(input: Fragment) -> IResult<Fragment, u128> {
+    fn bin_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
                 tag("0b"),
@@ -89,22 +88,10 @@ impl<'s> NumLit<'s> {
     /// Parse a numerical literal to a value.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         let constructor = |(frag, val)| Self::new(frag, val);
-        let extractor = |func: fn(Fragment) -> IResult<Fragment, u128>| {
-            move |frag| (frag, func(frag).unwrap().1)
-        };
         alt((
-            map(
-                map(recognize(Self::bin_primary), extractor(Self::bin_primary)),
-                constructor,
-            ),
-            map(
-                map(recognize(Self::hex_primary), extractor(Self::hex_primary)),
-                constructor,
-            ),
-            map(
-                map(recognize(Self::dec_primary), extractor(Self::dec_primary)),
-                constructor,
-            ),
+            map(with_input(Self::bin_primary), constructor),
+            map(with_input(Self::hex_primary), constructor),
+            map(with_input(Self::dec_primary), constructor),
         ))(input)
     }
 }
@@ -118,5 +105,11 @@ impl<'s> HasFragment<'s> for NumLit<'s> {
 impl<'s> ToExpression<'s> for NumLit<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::NumLit(self)
+    }
+}
+
+impl<'s> AstEq for NumLit<'s> {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.inner == snd.inner
     }
 }
