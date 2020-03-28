@@ -1,15 +1,27 @@
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression};
+use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
 
+/// [Shunting Yard](https://en.wikipedia.org/wiki/Shunting-yard_algorithm)
+/// algorithm implementation.
+mod shunting_yard;
+
+/// Operator implementation stuff. Used with shunting yard.
+pub mod operators;
+
 impl<'s> BinaryExpression<'s> {
-    fn new(frag: Fragment<'s>, left: Expression<'s>, op: BinaryOp, right: Expression<'s>) -> Self {
+    fn new(
+        frag: Fragment<'s>,
+        left: impl ToExpression<'s>,
+        op: BinaryOp,
+        right: impl ToExpression<'s>,
+    ) -> Self {
         Self {
             frag,
-            left: Box::new(left),
+            left: Box::new(left.create_expr()),
             op,
-            right: Box::new(right),
+            right: Box::new(right.create_expr()),
         }
     }
 
@@ -28,5 +40,11 @@ impl<'s> HasFragment<'s> for BinaryExpression<'s> {
 impl<'s> ToExpression<'s> for BinaryExpression<'s> {
     fn create_expr(self) -> Expression<'s> {
         Expression::BinaryExpression(self)
+    }
+}
+
+impl<'s> AstEq for BinaryExpression<'s> {
+    fn ast_eq(fst: &Self, snd: &Self) -> bool {
+        fst.op == snd.op && AstEq::ast_eq(&*fst.left, &*snd.left)
     }
 }
