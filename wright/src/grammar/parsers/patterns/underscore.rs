@@ -1,11 +1,11 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::UnderscorePattern;
+use crate::grammar::ast::Underscore;
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::IResult;
 
-impl<'s> UnderscorePattern<'s> {
+impl<'s> Underscore<'s> {
     /// The constant for an underscore literal in source code. Unlikely to change.
     pub const UNDERSCORE: &'static str = "_";
 
@@ -15,14 +15,14 @@ impl<'s> UnderscorePattern<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for UnderscorePattern<'s> {
+impl<'s> HasFragment<'s> for Underscore<'s> {
     #[inline]
     fn get_fragment(&self) -> Fragment<'s> {
         self.frag
     }
 }
 
-impl<'s> AstEq for UnderscorePattern<'s> {
+impl<'s> AstEq for Underscore<'s> {
     fn ast_eq(_: &Self, _: &Self) -> bool {
         true
     }
