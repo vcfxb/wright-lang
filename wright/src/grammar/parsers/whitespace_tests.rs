@@ -9,7 +9,7 @@ fn setup(src: &str) -> (Files<String>, FileId) {
 }
 
 #[test]
-fn single_comment() {
+pub fn single_comment() {
     let (f, h) = setup("// line comment");
     let frag = Fragment::new(&f, h);
     let res = whitespace::line_comment(frag);
@@ -97,16 +97,8 @@ fn comments_and_whitespace() {
     let (f, h) = setup("// line comment\n// this is another comment\n    // third comment\n");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
-        assert_eq!(
-            val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " line comment",
-                " this is another comment",
-                " third comment",
-            ],
-        );
     } else {
         eprintln!("{:#?}", res);
         assert!(false);
@@ -114,13 +106,12 @@ fn comments_and_whitespace() {
 }
 
 #[test]
-fn empty() {
+pub fn empty() {
     let (f, h) = setup("");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
-        assert_eq!(val.len(), 0);
     } else {
         eprintln!("{:#?}", res);
         assert!(false);
@@ -132,14 +123,8 @@ fn line_comment_only() {
     let (f, h) = setup("// comment");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
-        assert_eq!(
-            val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " comment",
-            ],
-        );
     } else {
         eprintln!("{:#?}", res);
         assert!(false);
@@ -147,13 +132,12 @@ fn line_comment_only() {
 }
 
 #[test]
-fn whitespace_only() {
+pub fn whitespace_only() {
     let (f, h) = setup("\t  \n\n   \t  ");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
-        assert_eq!(val.len(), 0);
     } else {
         eprintln!("{:#?}", res);
         assert!(false);
@@ -169,9 +153,7 @@ fn multiline_comment_only() {
         assert_eq!(rem.len(), 0);
         assert_eq!(
             val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " comment ",
-            ],
+            vec![" comment ",],
         );
     } else {
         eprintln!("{:#?}", res);
@@ -188,10 +170,7 @@ fn multiline_comments_and_whitespace() {
         assert_eq!(rem.len(), 0);
         assert_eq!(
             val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " these are many ",
-                " multiline comments ",
-            ],
+            vec![" these are many ", " multiline comments ",],
         );
     } else {
         eprintln!("{:#?}", res);
@@ -230,9 +209,7 @@ fn multi_in_single() {
         assert_eq!(rem.len(), 0);
         assert_eq!(
             val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " comment /* not nested */ comment",
-            ],
+            vec![" comment /* not nested */ comment",],
         );
     } else {
         eprintln!("{:#?}", res);
@@ -249,9 +226,7 @@ fn single_in_multi() {
         assert_eq!(rem.len(), 0);
         assert_eq!(
             val.iter().map(Fragment::source).collect::<Vec<_>>(),
-            vec![
-                " comment // not nested ",
-            ],
+            vec![" comment // not nested ",],
         );
     } else {
         eprintln!("{:#?}", res);
