@@ -3,7 +3,6 @@ use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{char, multispace0, not_line_ending};
 use nom::combinator::value;
-use nom::combinator::{map, not, recognize};
 use nom::multi::{count, many0};
 use nom::sequence::{delimited, preceded, terminated};
 use nom::IResult;
@@ -25,6 +24,12 @@ pub fn multiline_comment(input: Fragment) -> IResult<Fragment, Fragment> {
 pub fn token_delimiter(input: Fragment) -> IResult<Fragment, ()> {
     preceded(
         multispace0,
-        value((), many0(terminated(line_comment, multispace0))),
+        value(
+            (),
+            many0(terminated(
+                alt((line_comment, multiline_comment)),
+                multispace0,
+            )),
+        ),
     )(input)
 }
