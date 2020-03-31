@@ -76,7 +76,7 @@ impl Wright {
         if self.verbose {
             println!("Loading {:?}.", name)
         }
-        let handle = self.files.add(name, content.into());
+        let handle = self.files.add(name.into(), content.into());
         self.handles.push(handle);
         self
     }
