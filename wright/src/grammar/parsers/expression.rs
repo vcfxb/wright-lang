@@ -36,20 +36,7 @@ use nom::IResult;
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        alt((
-            map(Conditional::parse, Expression::Conditional),
-            map(BinaryExpression::parse, Expression::BinaryExpression),
-            map(UnaryExpression::parse, Expression::UnaryExpression),
-            map(IndexExpression::parse, Expression::IndexExpression),
-            map(Block::parse, Expression::Block),
-            map(Parens::parse, Expression::Parens),
-            map(SelfLit::parse, Expression::SelfLit),
-            map(StringLit::parse, Expression::StringLit),
-            map(CharLit::parse, Expression::CharLit),
-            map(NumLit::parse, Expression::NumLit),
-            map(BooleanLit::parse, Expression::BooleanLit),
-            map(Identifier::parse, Expression::Identifier),
-        ))(input)
+        todo!("Expression::parse is unimplemented")
     }
 }
 
