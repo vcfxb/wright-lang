@@ -22,7 +22,7 @@ pub struct OperatorInfo {
 }
 
 impl OperatorInfo {
-    fn new(id: BinaryOp, str: &'static str, prec: usize, assoc: Associativity) -> Self {
+    const fn new(id: BinaryOp, str: &'static str, prec: usize, assoc: Associativity) -> Self {
         Self {
             id,
             str,
@@ -30,6 +30,7 @@ impl OperatorInfo {
             assoc,
         }
     }
+    
 }
 
 impl BinaryOp {

@@ -23,6 +23,11 @@ pub struct Fragment<'source> {
     source: &'source str,
 }
 
+///
+pub enum MergeError {
+
+}
+
 impl<'s> Fragment<'s> {
     /// Construct a new parser input from a handle into a
     /// [Files](https://docs.rs/codespan/0.5.0/codespan/struct.Files.html)

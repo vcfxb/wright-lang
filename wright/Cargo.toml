@@ -18,7 +18,7 @@ doc = true
 
 [dependencies]
 clap = "~2.33"
-codespan = "0.7"
+codespan = "0.9"
 codespan-reporting = "0.7"
 exitcode = "1"
 nom = "^5.1"
