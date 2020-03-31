@@ -3,6 +3,9 @@ use std::mem::discriminant;
 /// Wright identifier parser.
 pub(crate) mod identifier;
 
+/// Wright scoped name parser.
+pub(crate) mod scoped_name;
+
 /// Binary expression parser and utilities.
 pub mod binary_expression;
 
@@ -23,6 +26,12 @@ pub(crate) mod block;
 
 #[cfg(test)]
 mod expression_tests;
+
+#[cfg(test)]
+mod identifier_tests;
+
+#[cfg(test)]
+mod scoped_name_tests;
 
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
@@ -45,6 +54,7 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             StringLit(i) => i.get_fragment(),
             BooleanLit(i) => i.get_fragment(),
             Identifier(i) => i.get_fragment(),
+            ScopedName(i) => i.get_fragment(),
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
             SelfLit(i) => i.get_fragment(),
