@@ -70,6 +70,16 @@ pub struct Identifier<'s> {
     pub frag: Fragment<'s>,
 }
 
+/// A scoped, or qualified, name.
+#[derive(Clone, Debug)]
+pub struct ScopedName<'s> {
+    /// The source code fragment.
+    pub frag: Fragment<'s>,
+    /// The sequence of simple identifiers.
+    /// Example: foo::bar::baz -> [ foo, bar, baz ]
+    pub names: Vec<Identifier<'s>>,
+}
+
 /// An expression in parentheses in wright source code.
 #[derive(Clone, Debug)]
 pub struct Parens<'s> {
@@ -181,6 +191,7 @@ pub enum Expression<'s> {
     StringLit(StringLit<'s>),
     BooleanLit(BooleanLit<'s>),
     Identifier(Identifier<'s>),
+    ScopedName(ScopedName<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
     UnaryExpression(UnaryExpression<'s>),
