@@ -1,4 +1,4 @@
-use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
+use codespan::{ByteIndex, ByteOffset, FileId, Files, Span, SpanOutOfBoundsError};
 
 use nom::error::{ErrorKind, ParseError};
 use nom::lib::std::ops::{Range, RangeFrom, RangeFull, RangeTo};
@@ -23,9 +23,13 @@ pub struct Fragment<'source> {
     source: &'source str,
 }
 
-///
-pub enum MergeError {
-
+/// An error when attempting to merge two fragments.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum FragmentError {
+    /// Fragments are from different files, and cannot be merged.
+    HandleMismatch,
+    /// Fragments are not in the same `Files<String>` object, and cannot be merged.
+    FilesRefMismatch,
 }
 
 impl<'s> Fragment<'s> {
@@ -88,6 +92,41 @@ impl<'s> Fragment<'s> {
     #[inline]
     pub fn get_handle(&self) -> FileId {
         self.handle
+    }
+
+    /// Check whether two `Fragment`s overlap. returns true if and only if
+    /// both Fragments are from the same `Files<String>` object, and both have
+    /// the same handle, and have an area of overlap.
+    #[inline]
+    pub fn overlap(fst: &Self, snd: &Self) -> bool {
+        fst.get_handle() == snd.get_handle() &&
+        std::ptr::eq(fst.files(), snd.files()) &&
+        !fst.get_span().disjoint(snd.get_span())
+    }
+
+    /// Merge two fragments into one.
+    /// ## Errors:
+    /// - [`Fragment::FilesRefMismatch`]() when there is a mismatch between the
+    ///     `Files<String>` objects referred to by the fragments.
+    /// - [`Fragment::HandleMismatch`]() when there is a mismatch between the
+    ///     source handles within the fragments.
+    /// ## Panics:
+    /// Panics when either fragment is internally corrupted such that a new
+    /// source string is not able to be read from the `File<String>` object.
+    pub fn merge(fst: Self, snd: Self) -> Result<Self, FragmentError> {
+        if std::ptr::eq(fst.files, snd.files) {
+            return Err(FragmentError::FilesRefMismatch);
+        }
+        else if fst.handle != snd.handle {
+            return Err(FragmentError::HandleMismatch);
+        }
+        else {
+            let span =  fst.span.merge(snd.span);
+            let files = fst.files;
+            let handle = fst.handle;
+            let source = files.source_slice(handle, span).unwrap();
+            Ok(Fragment{span, files, handle, source})
+        }
     }
 }
 
