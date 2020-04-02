@@ -24,9 +24,13 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{eq::AstEq, Expression};
+use crate::grammar::ast::{
+    eq::AstEq, BinaryExpression, Block, BooleanLit, CharLit, Conditional, Expression, Identifier,
+    IndexExpression, NumLit, Parens, SelfLit, StringLit, UnaryExpression,
+};
 use crate::grammar::model::{Fragment, HasFragment};
-
+use nom::branch::alt;
+use nom::combinator::map;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
