@@ -1,6 +1,8 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::Statement;
+use crate::grammar::ast::{ExpressionStatement, Statement};
 use crate::grammar::model::{Fragment, HasFragment};
+use nom::combinator::map;
+use nom::IResult;
 use std::mem::discriminant;
 
 /// Expression statement parser.
@@ -9,6 +11,11 @@ pub(crate) mod expression_statement;
 impl<'s> Statement<'s> {
     /// Statement terminator. Probably should never change.
     pub const TERMINATOR: char = ';';
+
+    /// Parses any statement.
+    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Statement<'s>> {
+        map(ExpressionStatement::parse, Statement::ExpressionStatement)(input)
+    }
 }
 
 impl<'s> AstEq for Statement<'s> {
