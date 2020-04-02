@@ -14,7 +14,7 @@ fn test_frag_str<'a, 'b, F1, F2>(
     f1: F1,
     f2: F2)
 where
-    F1: Fn(Fragment<'a>) -> IResult<Fragment<'a>, Fragment<'a>>,
+    F1: for<'d> Fn(Fragment<'d>) -> IResult<Fragment<'d>, Fragment<'d>>,
     F2: Fn(&'b str) -> IResult<&'b str, &'b str>,
 {
     let mut f: Files<String> = Files::new();
@@ -51,7 +51,7 @@ where
 #[test]
 fn test_take_while1() {
     let is_alpha = move |c: char| c.is_alphabetic();
-    let ff = take_while1(is_alpha);
+    let ff = |input: Fragment| take_while1(is_alpha)(input);
     let fs = take_while1( is_alpha);
     test_frag_str("", ff, fs);
 }
