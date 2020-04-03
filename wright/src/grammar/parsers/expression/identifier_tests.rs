@@ -1,7 +1,6 @@
 use crate::grammar::parsers::testing::setup;
 use crate::grammar::model::Fragment;
 use crate::grammar::ast::Identifier;
-use nom::error::ErrorKind;
 
 fn test_ident(s: &'static str, should_err: bool) {
     let (f, h) = setup(s);
@@ -12,7 +11,7 @@ fn test_ident(s: &'static str, should_err: bool) {
         r.map_err(|e| e.map(|t| {
             let fr: Fragment = t.0;
             assert_eq!(fr.source(), s);
-        }));
+        })).unwrap_err();
     } else {
         assert!(r.is_ok());
         let o = r.unwrap();
