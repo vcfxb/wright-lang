@@ -16,6 +16,12 @@ jobs:
     - name: Build
       run: cargo build --verbose
       working-directory: ${{env.working-directory}}
-    - name: Run tests
-      run: cargo test --verbose
-      working-directory: ${{env.working-directory}}
+  test:
+    runs-on: ubuntu-latest
+      env:
+        working-directory: ./wright
+      steps:
+        - uses: actions/checkout@v2
+        - name: Run tests
+          run: cargo test --verbose
+          working-directory: ${{env.working-directory}}
