@@ -48,6 +48,8 @@ where
 #[test]
 fn test_take_while1() {
     let is_alpha = move |c: char| c.is_alphabetic();
-    let fs = take_while1(is_alpha);
-    test_frag_str("", |input: Fragment| take_while1(is_alpha)(input), fs);
+    test_frag_str("",
+                  |input: Fragment| take_while1(is_alpha)(input),
+                  take_while1(is_alpha)
+    );
 }
