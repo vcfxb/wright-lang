@@ -3,11 +3,12 @@ use crate::grammar::parsers::testing::setup;
 use codespan::Files;
 use nom::bytes::complete::take_while1;
 use nom::character::is_alphabetic;
-use nom::Err;
+use nom::{Err, InputTakeAtPosition};
 use nom::IResult;
 use std::fmt::Debug;
 use std::mem::discriminant;
 use std::ptr::eq as ptr_eq;
+use nom::error::ErrorKind;
 
 fn test_frag_str<'a, F1, F2>(s: &'a str, f1: F1, f2: F2)
 where
@@ -47,9 +48,16 @@ where
 
 #[test]
 fn test_take_while1() {
-    let is_alpha = move |c: char| c.is_alphabetic();
     test_frag_str("",
-                  |input: Fragment| take_while1(is_alpha)(input),
-                  take_while1(is_alpha)
+                  |i| take_while1(char::is_alphabetic)(i),
+                  take_while1(char::is_alphabetic)
     );
+}
+
+#[test]
+fn test_split_at_position1_complete_empty() {
+    let (f, h) = setup("");
+    let fr = Fragment::new(&f,h);
+    let res: IResult<Fragment, Fragment> = fr.split_at_position1_complete(char::is_alphabetic, ErrorKind::TakeWhile1);
+    assert!(res.is_err());
 }
