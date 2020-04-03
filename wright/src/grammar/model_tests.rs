@@ -2,10 +2,10 @@ use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
 use codespan::Files;
 use nom::bytes::complete::take_while1;
-use nom::{Err, InputTakeAtPosition};
-use nom::IResult;
-use std::ptr::eq as ptr_eq;
 use nom::error::ErrorKind;
+use nom::IResult;
+use nom::{Err, InputTakeAtPosition};
+use std::ptr::eq as ptr_eq;
 
 fn test_frag_str<'a, F1, F2>(s: &'a str, f1: F1, f2: F2)
 where
@@ -45,16 +45,18 @@ where
 
 #[test]
 fn test_take_while1() {
-    test_frag_str("",
-                  |i| take_while1(char::is_alphabetic)(i),
-                  take_while1(char::is_alphabetic)
+    test_frag_str(
+        "",
+        |i| take_while1(char::is_alphabetic)(i),
+        take_while1(char::is_alphabetic),
     );
 }
 
 #[test]
 fn test_split_at_position1_complete_empty() {
     let (f, h) = setup("");
-    let fr = Fragment::new(&f,h);
-    let res: IResult<Fragment, Fragment> = fr.split_at_position1_complete(char::is_alphabetic, ErrorKind::TakeWhile1);
+    let fr = Fragment::new(&f, h);
+    let res: IResult<Fragment, Fragment> =
+        fr.split_at_position1_complete(char::is_alphabetic, ErrorKind::TakeWhile1);
     assert!(res.is_err());
 }

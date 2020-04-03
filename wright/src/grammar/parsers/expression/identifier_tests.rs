@@ -1,6 +1,6 @@
-use crate::grammar::parsers::testing::setup;
-use crate::grammar::model::Fragment;
 use crate::grammar::ast::Identifier;
+use crate::grammar::model::Fragment;
+use crate::grammar::parsers::testing::setup;
 
 fn test_ident(s: &'static str, should_err: bool) {
     let (f, h) = setup(s);
@@ -8,10 +8,13 @@ fn test_ident(s: &'static str, should_err: bool) {
     let r = Identifier::parse(fr);
     if should_err {
         assert!(r.is_err());
-        r.map_err(|e| e.map(|t| {
-            let fr: Fragment = t.0;
-            assert_eq!(fr.source(), s);
-        })).unwrap_err();
+        r.map_err(|e| {
+            e.map(|t| {
+                let fr: Fragment = t.0;
+                assert_eq!(fr.source(), s);
+            })
+        })
+        .unwrap_err();
     } else {
         assert!(r.is_ok());
         let o = r.unwrap();
@@ -37,11 +40,7 @@ fn test_reserved() {
 
 #[test]
 fn test_idents() {
-    [
-        "abc",
-        "a_bc",
-        "n0",
-        "xd"
-    ].iter()
+    ["abc", "a_bc", "n0", "xd"]
+        .iter()
         .for_each(|s| test_ident(s, false))
 }
