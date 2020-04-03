@@ -1,6 +1,7 @@
 # The Wright language
 ### *A language that flies*
 [![Build Status](https://travis-ci.org/Wright-Language-Developers/Wright-lang.svg?branch=master)](https://travis-ci.org/Wright-Language-Developers/Wright-lang)
+![Rust](https://github.com/Wright-Language-Developers/Wright-lang/workflows/Rust/badge.svg?branch=master)
 [![Build status](https://ci.appveyor.com/api/projects/status/kh76mn7ly95kish3?svg=true)](https://ci.appveyor.com/project/WrightLanguage/wright-lang)
 [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright)
 [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright)
