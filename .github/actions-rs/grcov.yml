@@ -5,6 +5,8 @@ name: Code Coverage
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./wright
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
@@ -15,6 +17,7 @@ jobs:
         with:
           command: test
           args: --all-features --no-fail-fast
+          working-directory: ${{env.working-directory}}
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads'
