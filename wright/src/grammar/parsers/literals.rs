@@ -1,4 +1,3 @@
-
 /// Module for parsing literal numbers in wright source code.
 pub(crate) mod num_lit;
 #[cfg(test)]
