@@ -2,11 +2,8 @@ use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
 use codespan::Files;
 use nom::bytes::complete::take_while1;
-use nom::character::is_alphabetic;
 use nom::{Err, InputTakeAtPosition};
 use nom::IResult;
-use std::fmt::Debug;
-use std::mem::discriminant;
 use std::ptr::eq as ptr_eq;
 use nom::error::ErrorKind;
 
