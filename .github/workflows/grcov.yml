@@ -15,10 +15,12 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
+          working-directory: ${{env.working-directory}}
           command: test
           args: --all-features --no-fail-fast
-          working-directory: ${{env.working-directory}}
         env:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zno-landing-pads'
       - uses: actions-rs/grcov@v0.1
+        with:
+          working-directory: ${{env.working-directory}}
