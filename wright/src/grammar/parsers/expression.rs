@@ -2,6 +2,8 @@ use std::mem::discriminant;
 
 /// Wright identifier parser.
 pub(crate) mod identifier;
+#[cfg(test)]
+mod identifier_tests;
 
 /// Binary expression parser and utilities.
 pub mod binary_expression;
@@ -24,13 +26,8 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::{
-    eq::AstEq, BinaryExpression, Block, BooleanLit, CharLit, Conditional, Expression, Identifier,
-    IndexExpression, NumLit, Parens, SelfLit, StringLit, UnaryExpression,
-};
+use crate::grammar::ast::{eq::AstEq, Expression, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
-use nom::branch::alt;
-use nom::combinator::map;
 use nom::IResult;
 
 impl<'s> Expression<'s> {
