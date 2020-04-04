@@ -1,6 +1,6 @@
-use crate::grammar::parsers::testing::setup;
-use crate::grammar::model::Fragment;
 use crate::grammar::ast::Block;
+use crate::grammar::model::Fragment;
+use crate::grammar::parsers::testing::setup;
 
 #[test]
 #[ignore] // waiting for expression parsing to be implemented
