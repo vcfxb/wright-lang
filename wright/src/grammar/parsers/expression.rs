@@ -22,7 +22,8 @@ pub(crate) mod parens;
 
 /// Block parser.
 pub(crate) mod block;
-#[cfg(test)] mod block_tests;
+#[cfg(test)]
+mod block_tests;
 
 #[cfg(test)]
 mod expression_tests;
