@@ -10,8 +10,10 @@ use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 
 impl<'s> Block<'s> {
-    /// Block delimiters. Should not change.
-    pub const DELIMITERS: (&'static str, &'static str) = ("{", "}");
+    /// Start of block in source code.
+    pub const START_DELIMITER: &'static str = "{";
+    /// End of a block in source code.
+    pub const END_DELIMITER: &'static str = "}";
 
     fn inner(
         input: Fragment<'s>,
@@ -26,9 +28,9 @@ impl<'s> Block<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
             with_input(delimited(
-                pair(tag(Self::DELIMITERS.0), token_delimiter),
+                pair(tag(Self::START_DELIMITER), token_delimiter),
                 Self::inner,
-                pair(token_delimiter, tag(Self::DELIMITERS.1)),
+                pair(token_delimiter, tag(Self::END_DELIMITER)),
             )),
             |(consumed, (statements, terminal))| Self {
                 frag: consumed,
