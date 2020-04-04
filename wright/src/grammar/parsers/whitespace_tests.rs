@@ -162,7 +162,7 @@ fn multiline_comments_and_whitespace() {
     let (f, h) = setup("/* these are many */\n  /* multiline comments */");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
     } else {
         eprintln!("{:#?}", res);
@@ -175,7 +175,7 @@ fn everything() {
     let (f, h) = setup(" // single\n /* these are many */\n  /* multiline comments */ // another");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
     } else {
         eprintln!("{:#?}", res);
@@ -188,7 +188,7 @@ fn multi_in_single() {
     let (f, h) = setup("// comment /* not nested */ comment");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
     } else {
         eprintln!("{:#?}", res);
@@ -201,7 +201,7 @@ fn single_in_multi() {
     let (f, h) = setup("/* comment // not nested */");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
     } else {
         eprintln!("{:#?}", res);
