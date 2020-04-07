@@ -29,6 +29,23 @@ impl<'s> BinaryExpression<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("binary expression parser")
     }
+
+    /// Parse a binary terminal symbol.
+    pub fn primary(input: Fragemnt<'s>) -> IResult<Fragment<'s>, Self> {
+        alt((
+            map(Conditional::parse, Expression::Conditional),
+            map(UnaryExpression::parse, Expression::UnaryExpression),
+            map(IndexExpression::parse, Expression::IndexExpression),
+            map(Block::parse, Expression::Block),
+            map(Parens::parse, Expression::Parens),
+            map(SelfLit::parse, Expression::SelfLit),
+            map(StringLit::parse, Expression::StringLit),
+            map(CharLit::parse, Expression::CharLit),
+            map(NumLit::parse, Expression::NumLit),
+            map(BooleanLit::parse, Expression::BooleanLit),
+            map(Identifier::parse, Expression::Identifier),
+        ))(input)
+    }
 }
 
 impl<'s> HasFragment<'s> for BinaryExpression<'s> {
