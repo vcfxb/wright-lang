@@ -33,7 +33,8 @@ use nom::IResult;
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        todo!("Expression::parse is unimplemented")
+        // temporary: call BinaryExpression::parse when implemented
+        BinaryExpression::primary(input)
     }
 }
 
