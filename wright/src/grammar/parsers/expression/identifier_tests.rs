@@ -2,62 +2,45 @@ use crate::grammar::ast::Identifier;
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
 
+fn test_ident(s: &'static str, should_err: bool) {
+    let (f, h) = setup(s);
+    let fr = Fragment::new(&f, h);
+    let r = Identifier::parse(fr);
+    if should_err {
+        assert!(r.is_err());
+        r.map_err(|e| {
+            e.map(|t| {
+                let fr: Fragment = t.0;
+                assert_eq!(fr.source(), s);
+            })
+        })
+        .unwrap_err();
+    } else {
+        assert!(r.is_ok());
+        let o = r.unwrap();
+        assert_eq!(o.0.len(), 0);
+        assert_eq!(o.1.frag.source(), s);
+    }
+}
+
 #[test]
 fn test_empty() {
-    let (f, h) = setup("");
-    let frag = Fragment::new(&f, h);
-    let result = Identifier::parse(frag);
-    assert!(result.is_err());
+    test_ident("", true);
 }
 
 #[test]
-fn test_single() {
-    let (f, h) = setup("foo");
-    let frag = Fragment::new(&f, h);
-    let result = Identifier::parse(frag);
-    if let Ok((_, id)) = result {
-        assert_eq!(id.frag.source(), "foo");
-    } else {
-        assert!(false);
-    }
+fn test_underscore() {
+    test_ident("_", true);
 }
 
 #[test]
-fn test_with_underscore() {
-    let (f, h) = setup("foo_3bar");
-    let frag = Fragment::new(&f, h);
-    let result = Identifier::parse(frag);
-    if let Ok((_, id)) = result {
-        assert_eq!(id.frag.source(), "foo_3bar");
-    } else {
-        assert!(false);
-    }
+fn test_reserved() {
+    test_ident("true", true);
 }
 
 #[test]
-fn test_with_underscore_start() {
-    let (f, h) = setup("_3foo_3bar");
-    let frag = Fragment::new(&f, h);
-    let result = Identifier::parse(frag);
-    if let Ok((_, id)) = result {
-        assert_eq!(id.frag.source(), "_3foo_3bar");
-    } else {
-        assert!(false);
-    }
-}
-
-#[test]
-fn test_invalid_start() {
-    let (f, h) = setup("3foo");
-    let frag = Fragment::new(&f, h);
-    let result = Identifier::parse(frag);
-    assert!(result.is_err());
-}
-
-#[test]
-fn test_keyword() {
-    let (f, h) = setup("false");
-    let frag = Fragment::new(&f, h);
-    let result = Identifier::parse(frag);
-    assert!(result.is_err());
+fn test_idents() {
+    ["abc", "a_bc", "n0", "xd"]
+        .iter()
+        .for_each(|s| test_ident(s, false))
 }
