@@ -187,8 +187,8 @@ impl<'s> InputTake for Fragment<'s> {
     }
 
     fn take_split(&self, count: usize) -> (Self, Self) {
-        let mut frag2 = self.clone();
-        let mut frag3 = self.clone();
+        let mut frag2 = *self;
+        let mut frag3 = *self;
         frag2.source = &self.source()[..count];
         frag3.source = &self.source()[count..];
         frag2.span = Span::new(self.start(), self.start() + ByteOffset(count as i64));
@@ -219,7 +219,7 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
         P: Fn(Self::Item) -> bool,
     {
         match self.source().find(predicate) {
-            Some(0) => Err(Err::Error(E::from_error_kind(self.clone(), e))),
+            Some(0) => Err(Err::Error(E::from_error_kind(*self, e))),
             Some(i) => Ok(self.take_split(i)),
             None => Err(Err::Incomplete(Needed::Size(1))),
         }
@@ -247,9 +247,15 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
         P: Fn(Self::Item) -> bool,
     {
         match self.source().find(predicate) {
-            Some(0) => Err(Err::Error(E::from_error_kind(self.clone(), e))),
+            Some(0) => Err(Err::Error(E::from_error_kind(*self, e))),
             Some(i) => Ok(self.take_split(i)),
-            None => Ok(self.take_split(self.input_len())),
+            None => {
+                if self.len() == 0 {
+                    Err(Err::Error(E::from_error_kind(*self, e)))
+                } else {
+                    Ok(self.take_split(self.input_len()))
+                }
+            }
         }
     }
 }

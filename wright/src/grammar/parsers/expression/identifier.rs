@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::AstEq, Conditional, Expression, SelfLit, UnderscorePattern};
+use crate::grammar::ast::{eq::AstEq, Conditional, Expression, SelfLit, Underscore};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
@@ -18,7 +18,7 @@ impl<'s> Identifier<'s> {
         SelfLit::SELF,
         Conditional::IF,
         Conditional::ELSE,
-        UnderscorePattern::UNDERSCORE,
+        Underscore::UNDERSCORE,
     ];
 
     fn new(frag: Fragment<'s>) -> Self {
