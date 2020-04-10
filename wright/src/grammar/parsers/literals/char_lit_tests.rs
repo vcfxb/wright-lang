@@ -1,7 +1,6 @@
 use crate::grammar::ast::CharLit;
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
-use codespan::{FileId, Files};
 
 #[test]
 fn body() {

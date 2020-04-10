@@ -2,9 +2,13 @@ use std::mem::discriminant;
 
 /// Wright identifier parser.
 pub(crate) mod identifier;
+#[cfg(test)]
+mod identifier_tests;
 
 /// Wright scoped name parser.
 pub(crate) mod scoped_name;
+#[cfg(test)]
+mod scoped_name_tests;
 
 /// Binary expression parser and utilities.
 pub mod binary_expression;
@@ -27,21 +31,15 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-#[cfg(test)]
-mod identifier_tests;
-
-#[cfg(test)]
-mod scoped_name_tests;
-
-use crate::grammar::ast::{eq::AstEq, Expression};
+use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
-
 use nom::IResult;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        todo!("Expression::parse is unimplemented")
+        // temporary: call BinaryExpression::parse when implemented
+        BinaryExpression::primary(input)
     }
 }
 
