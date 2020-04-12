@@ -172,6 +172,17 @@ pub struct IndexExpression<'s> {
     pub object: Box<Expression<'s>>,
 }
 
+/// Function call expressions such as `foo(bar, baz)` in wright source code.
+#[derive(Clone, Debug)]
+pub struct FuncCallExpression<'s> {
+    /// The fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The function being called
+    pub func: Box<Expression<'s>>,
+    /// The arguments passed to the function
+    pub args: Vec<Expression<'s>>,
+}
+
 /// An expression in wright source code.
 #[derive(Clone, Debug)]
 #[allow(missing_docs)]
@@ -188,6 +199,7 @@ pub enum Expression<'s> {
     Block(Block<'s>),
     Conditional(Conditional<'s>),
     IndexExpression(IndexExpression<'s>),
+    FuncCall(FuncCallExpression<'s>),
 }
 
 /// An expression whose results aren't used.
