@@ -14,6 +14,11 @@ pub(crate) mod unary_expression;
 /// Index expression parsers.
 pub(crate) mod index_expression;
 
+/// Function call expression parser.
+pub(crate) mod func_call;
+#[cfg(test)]
+mod func_call_tests;
+
 /// Conditional expression parsers.
 pub(crate) mod conditional;
 
@@ -54,6 +59,7 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             UnaryExpression(i) => i.get_fragment(),
             Conditional(i) => i.get_fragment(),
             IndexExpression(i) => i.get_fragment(),
+            FuncCall(i) => i.get_fragment(),
         }
     }
 }
