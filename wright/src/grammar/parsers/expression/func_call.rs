@@ -7,7 +7,7 @@ use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
 use nom::combinator::map;
 use nom::multi::separated_list;
-use nom::sequence::{delimited, pair, terminated};
+use nom::sequence::{delimited, pair, tuple};
 use nom::IResult;
 
 impl<'s> FuncCallExpression<'s> {
@@ -24,13 +24,11 @@ impl<'s> FuncCallExpression<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
             with_input(pair(
-                terminated(
-                    Expression::parse,
-                    pair(token_delimiter, ch(Self::DELIMITER_LEFT)),
-                ),
-                terminated(
+                Expression::parse,
+                delimited(
+                    tuple((token_delimiter, ch(Self::DELIMITER_LEFT), token_delimiter)),
                     separated_list(ch(Self::ARG_SEPARATOR), Expression::parse),
-                    delimited(token_delimiter, ch(Self::DELIMITER_RIGHT), token_delimiter),
+                    tuple((token_delimiter, ch(Self::DELIMITER_RIGHT), token_delimiter)),
                 ),
             )),
             move |(consumed, (func, args))| Self {
