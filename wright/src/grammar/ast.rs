@@ -1,6 +1,9 @@
 /// Module to test equality between two AST Nodes.
 pub mod eq;
 
+/// Re-export AstEq publicly.
+pub use eq::AstEq;
+
 #[cfg(test)]
 mod eq_tests;
 
