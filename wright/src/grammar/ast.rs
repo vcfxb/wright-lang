@@ -76,8 +76,11 @@ pub struct ScopedName<'s> {
     /// The source code fragment.
     pub frag: Fragment<'s>,
     /// The sequence of simple identifiers.
-    /// Example: foo::bar::baz -> [ foo, bar, baz ]
-    pub names: Vec<Identifier<'s>>,
+    /// Example: foo::bar::baz -> [ foo, bar ]
+    pub path: Vec<Identifier<'s>>,
+    /// The final simple identifier
+    /// Example: foo::bar::baz -> baz
+    pub name: Identifier<'s>,
 }
 
 /// An expression in parentheses in wright source code.
