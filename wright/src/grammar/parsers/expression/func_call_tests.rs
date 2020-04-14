@@ -34,8 +34,8 @@ fn test_underscore() {
 }
 
 #[test]
-fn test_reserved() {
-    test_call("true()", true);
+fn test_true() {
+    test_call("true()", false);
 }
 
 #[test]
