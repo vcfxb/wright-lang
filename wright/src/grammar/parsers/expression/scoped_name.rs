@@ -20,7 +20,11 @@ impl<'s> ScopedName<'s> {
                 delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
                 Identifier::parse,
             )),
-            |(frag, names)| Self { frag, names },
+            |(frag, names)| Self {
+                frag,
+                path: names[..names.len() - 1].to_vec(),
+                name: names[names.len() - 1],
+            },
         )(input)
     }
 }
@@ -39,6 +43,6 @@ impl<'s> ToExpression<'s> for ScopedName<'s> {
 
 impl<'s> AstEq for ScopedName<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        AstEq::ast_eq(&fst.names, &snd.names)
+        AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
     }
 }
