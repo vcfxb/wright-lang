@@ -1,6 +1,7 @@
 use crate::grammar::ast::ScopedName;
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
+use crate::grammar::ast::AstEq;
 
 #[test]
 fn test_empty() {
@@ -67,3 +68,15 @@ fn test_leading() {
     let result = ScopedName::parse(frag);
     assert!(result.is_err());
 }
+
+#[test]
+fn test_with_whitespace() {
+    let (mut f, h1) = setup("foo::bar::baz::biz");
+    let h2 = f.add("other", "foo \n::bar :: baz\t\t::biz".to_owned());
+    let f1 = Fragment::new(&f, h1);
+    let f2 = Fragment::new(&f, h2);
+    let r1 = ScopedName::parse(f1).unwrap().1;
+    let r2 = ScopedName::parse(f2).unwrap().1;
+    assert!(AstEq::ast_eq(&r1, &r2));
+}
+
