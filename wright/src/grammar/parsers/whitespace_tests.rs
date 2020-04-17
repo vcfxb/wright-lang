@@ -149,7 +149,7 @@ fn multiline_comment_only() {
     let (f, h) = setup("/* comment */");
     let frag = Fragment::new(&f, h);
     let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, val)) = res {
+    if let Ok((rem, _)) = res {
         assert_eq!(rem.len(), 0);
     } else {
         eprintln!("{:#?}", res);
