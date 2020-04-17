@@ -114,7 +114,7 @@ impl<'s> Fragment<'s> {
     /// Panics when either fragment is internally corrupted such that a new
     /// source string is not able to be read from the `File<String>` object.
     pub fn merge(fst: Self, snd: Self) -> Result<Self, FragmentError> {
-        if std::ptr::eq(fst.files, snd.files) {
+        if !std::ptr::eq(fst.files, snd.files) {
             return Err(FragmentError::FilesRefMismatch);
         } else if fst.handle != snd.handle {
             return Err(FragmentError::HandleMismatch);
