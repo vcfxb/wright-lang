@@ -1,6 +1,11 @@
-use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
+use crate::grammar::ast::{
+    eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression,
+    Identifier, IndexExpression, NumLit, Parens, SelfLit, StringLit, UnaryExpression,
+};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
+use nom::branch::alt;
+use nom::combinator::map;
 use nom::IResult;
 
 /// [Shunting Yard](https://en.wikipedia.org/wiki/Shunting-yard_algorithm)
@@ -28,6 +33,23 @@ impl<'s> BinaryExpression<'s> {
     /// Parse a binary expression in source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("binary expression parser")
+    }
+
+    /// Parse a binary terminal symbol.
+    pub fn primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
+        alt((
+            map(Conditional::parse, Expression::Conditional),
+            map(UnaryExpression::parse, Expression::UnaryExpression),
+            map(IndexExpression::parse, Expression::IndexExpression),
+            map(Block::parse, Expression::Block),
+            map(Parens::parse, Expression::Parens),
+            map(SelfLit::parse, Expression::SelfLit),
+            map(StringLit::parse, Expression::StringLit),
+            map(CharLit::parse, Expression::CharLit),
+            map(NumLit::parse, Expression::NumLit),
+            map(BooleanLit::parse, Expression::BooleanLit),
+            map(Identifier::parse, Expression::Identifier),
+        ))(input)
     }
 }
 
