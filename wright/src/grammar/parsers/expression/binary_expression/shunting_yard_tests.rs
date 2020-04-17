@@ -14,13 +14,15 @@ fn ensure_number(expr: Expression, value: u128, err: &'static str) {
 
 #[test]
 fn test_simple() {
-    let (f, h) = setup("2 + 2");
+    let (f, h) = setup("1 + 2");
     let frag = Fragment::new(&f, h);
     let res = shunting_yard(frag);
     assert!(res.is_ok());
     let binexp = res.unwrap().1;
-    assert_eq!(binexp.frag.source(), "2 + 2");
+    assert_eq!(binexp.frag.source(), "1 + 2");
     assert_eq!(binexp.op, BinaryOp::Add);
+    ensure_number(*binexp.left, 1, "Left not a number");
+    ensure_number(*binexp.right, 2, "Right not a number");
 }
 
 #[test]
@@ -109,4 +111,27 @@ fn test_subtraction_addition() {
         }
         _ => panic!("Left not a binary expression"),
     }
+}
+
+#[test]
+fn test_only_primary() {
+    use Expression::BinaryExpression as Bxp;
+    let (f, h) = setup("1");
+    let frag = Fragment::new(&f, h);
+    let res = shunting_yard(frag);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_leftover() {
+    let (f, h) = setup("1 + 2 +");
+    let frag = Fragment::new(&f, h);
+    let res = shunting_yard(frag);
+    assert!(res.is_ok());
+    let (rem, binexp) = res.unwrap();
+    assert_eq!(rem.source(), " +");
+    assert_eq!(binexp.frag.source(), "1 + 2");
+    assert_eq!(binexp.op, BinaryOp::Add);
+    ensure_number(*binexp.left, 1, "Left not a number");
+    ensure_number(*binexp.right, 2, "Right not a number");
 }
