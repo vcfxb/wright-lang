@@ -30,7 +30,6 @@ impl OperatorInfo {
             assoc,
         }
     }
-    
 }
 
 impl BinaryOp {

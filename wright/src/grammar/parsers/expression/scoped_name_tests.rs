@@ -1,7 +1,7 @@
+use crate::grammar::ast::AstEq;
 use crate::grammar::ast::ScopedName;
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
-use crate::grammar::ast::AstEq;
 
 #[test]
 fn test_empty() {
@@ -79,4 +79,3 @@ fn test_with_whitespace() {
     let r2 = ScopedName::parse(f2).unwrap().1;
     assert!(AstEq::ast_eq(&r1, &r2));
 }
-

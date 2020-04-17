@@ -1,4 +1,4 @@
-use codespan::{ByteIndex, ByteOffset, FileId, Files, Span, SpanOutOfBoundsError};
+use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
 
 use nom::error::{ErrorKind, ParseError};
 use nom::lib::std::ops::{Range, RangeFrom, RangeFull, RangeTo};
@@ -24,7 +24,7 @@ pub struct Fragment<'source> {
 }
 
 /// An error when attempting to merge two fragments.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum FragmentError {
     /// Fragments are from different files, and cannot be merged.
     HandleMismatch,
@@ -99,9 +99,9 @@ impl<'s> Fragment<'s> {
     /// the same handle, and have an area of overlap.
     #[inline]
     pub fn overlap(fst: &Self, snd: &Self) -> bool {
-        fst.get_handle() == snd.get_handle() &&
-        std::ptr::eq(fst.files(), snd.files()) &&
-        !fst.get_span().disjoint(snd.get_span())
+        fst.get_handle() == snd.get_handle()
+            && std::ptr::eq(fst.files(), snd.files())
+            && !fst.get_span().disjoint(snd.get_span())
     }
 
     /// Merge two fragments into one.
@@ -116,16 +116,19 @@ impl<'s> Fragment<'s> {
     pub fn merge(fst: Self, snd: Self) -> Result<Self, FragmentError> {
         if std::ptr::eq(fst.files, snd.files) {
             return Err(FragmentError::FilesRefMismatch);
-        }
-        else if fst.handle != snd.handle {
+        } else if fst.handle != snd.handle {
             return Err(FragmentError::HandleMismatch);
-        }
-        else {
-            let span =  fst.span.merge(snd.span);
+        } else {
+            let span = fst.span.merge(snd.span);
             let files = fst.files;
             let handle = fst.handle;
             let source = files.source_slice(handle, span).unwrap();
-            Ok(Fragment{span, files, handle, source})
+            Ok(Fragment {
+                span,
+                files,
+                handle,
+                source,
+            })
         }
     }
 }
