@@ -1,6 +1,9 @@
 /// Module to test equality between two AST Nodes.
 pub mod eq;
 
+/// Re-export AstEq publicly.
+pub use eq::AstEq;
+
 #[cfg(test)]
 mod eq_tests;
 
@@ -68,6 +71,19 @@ pub struct SelfLit<'s> {
 pub struct Identifier<'s> {
     /// Fragment in wright source code.
     pub frag: Fragment<'s>,
+}
+
+/// A scoped, or qualified, name.
+#[derive(Clone, Debug)]
+pub struct ScopedName<'s> {
+    /// The source code fragment.
+    pub frag: Fragment<'s>,
+    /// The sequence of simple identifiers.
+    /// Example: foo::bar::baz -> [ foo, bar ]
+    pub path: Vec<Identifier<'s>>,
+    /// The final simple identifier
+    /// Example: foo::bar::baz -> baz
+    pub name: Identifier<'s>,
 }
 
 /// An expression in parentheses in wright source code.
@@ -192,6 +208,7 @@ pub enum Expression<'s> {
     StringLit(StringLit<'s>),
     BooleanLit(BooleanLit<'s>),
     Identifier(Identifier<'s>),
+    ScopedName(ScopedName<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
     UnaryExpression(UnaryExpression<'s>),
