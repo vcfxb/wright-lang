@@ -8,8 +8,8 @@ use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, value};
-use nom::sequence::delimited;
 use nom::error::ErrorKind;
+use nom::sequence::delimited;
 use nom::Err::Error;
 use nom::IResult;
 
