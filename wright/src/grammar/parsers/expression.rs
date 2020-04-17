@@ -75,7 +75,9 @@ pub(crate) trait ToExpression<'s>: HasFragment<'s> + AstEq {
 
 impl<'s> ToExpression<'s> for Expression<'s> {
     #[inline]
-    fn create_expr(self) -> Expression<'s> {self}
+    fn create_expr(self) -> Expression<'s> {
+        self
+    }
 }
 
 impl<'s> AstEq for Expression<'s> {
