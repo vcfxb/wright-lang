@@ -10,5 +10,6 @@ fn test_simple() {
     let res = shunting_yard(frag);
     assert!(res.is_ok());
     let binexp = res.unwrap().1;
-    assert_eq!(binexp.op, BinaryOp::Add)
+    assert_eq!(binexp.frag.source(), "2 + 2");
+    assert_eq!(binexp.op, BinaryOp::Add);
 }
