@@ -1,12 +1,43 @@
-use crate::grammar::ast::{eq::AstEq, Block, Expression};
+use crate::grammar::ast::{eq::AstEq, Block, Expression, Statement};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::whitespace::token_delimiter;
+use crate::grammar::parsers::with_input;
+use nom::bytes::complete::tag;
+use nom::combinator::{map, opt};
+use nom::multi::many0;
+use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 
 impl<'s> Block<'s> {
+    /// Start of block in source code.
+    pub const START_DELIMITER: &'static str = "{";
+    /// End of a block in source code.
+    pub const END_DELIMITER: &'static str = "}";
+
+    fn inner(
+        input: Fragment<'s>,
+    ) -> IResult<Fragment<'s>, (Vec<Statement<'s>>, Option<Box<Expression<'s>>>)> {
+        pair(
+            many0(terminated(Statement::parse, token_delimiter)),
+            opt(map(Expression::parse, |e| Box::new(e))),
+        )(input)
+    }
+
     /// Parse a block in source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment, Self> {
-        todo!()
+    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        map(
+            with_input(delimited(
+                pair(tag(Self::START_DELIMITER), token_delimiter),
+                Self::inner,
+                pair(token_delimiter, tag(Self::END_DELIMITER)),
+            )),
+            |(consumed, (statements, terminal))| Self {
+                frag: consumed,
+                statements,
+                result: terminal,
+            },
+        )(input)
     }
 }
 

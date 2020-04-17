@@ -2,7 +2,8 @@ use crate::grammar::ast::{eq::AstEq, Conditional, Expression, SelfLit, Underscor
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
-use nom::bytes::complete::{take_while, take_while1};
+use nom::bytes::complete::take_while;
+use nom::character::complete::anychar;
 use nom::combinator::{map, recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
@@ -26,7 +27,7 @@ impl<'s> Identifier<'s> {
     fn raw_ident(input: Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
         verify(
             recognize(pair(
-                take_while1(|c: char| c.is_ascii_alphabetic() || c == '_'),
+                verify(anychar, |c| c.is_ascii_alphabetic() || *c == '_'),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             )),
             |fr: &Fragment<'s>| {

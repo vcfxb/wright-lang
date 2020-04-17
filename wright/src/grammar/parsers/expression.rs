@@ -5,6 +5,11 @@ pub(crate) mod identifier;
 #[cfg(test)]
 mod identifier_tests;
 
+/// Wright scoped name parser.
+pub(crate) mod scoped_name;
+#[cfg(test)]
+mod scoped_name_tests;
+
 /// Binary expression parser and utilities.
 pub mod binary_expression;
 
@@ -28,6 +33,8 @@ pub(crate) mod parens;
 
 /// Block parser.
 pub(crate) mod block;
+#[cfg(test)]
+mod block_tests;
 
 #[cfg(test)]
 mod expression_tests;
@@ -53,6 +60,7 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             StringLit(i) => i.get_fragment(),
             BooleanLit(i) => i.get_fragment(),
             Identifier(i) => i.get_fragment(),
+            ScopedName(i) => i.get_fragment(),
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
             SelfLit(i) => i.get_fragment(),
