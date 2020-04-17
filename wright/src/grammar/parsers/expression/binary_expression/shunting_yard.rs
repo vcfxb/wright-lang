@@ -59,11 +59,12 @@ pub fn shunting_yard<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, BinaryExp
     let mut ops = Vec::<OperatorInfo>::new();
     // expose remaining input at top-level
     let mut rem = input;
-    while let Ok((rem1, operand)) = BinaryExpression::primary(rem) {
+    // parse the first operand
+    if let Ok((rem1, operand)) = BinaryExpression::primary(rem) {
         rem = rem1;
         exprs.push(operand);
-        if let Ok((rem1, operator)) = binary_operator(rem1) {
-            rem = rem1;
+        // parse the operator chain
+        while let Ok((rem1, operator)) = binary_operator(rem) {
             // shunt operators of greater precedence over
             while let Some(top) = ops.pop() {
                 use Associativity::Left;
@@ -79,10 +80,15 @@ pub fn shunting_yard<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, BinaryExp
                     break;
                 }
             }
-            ops.push(operator);
-        } else {
-            // no operator, stop parsing
-            break;
+            if let Ok((rem1, operand)) = BinaryExpression::primary(rem1) {
+                // commit consuming the source of (operator + second operand)
+                rem = rem1;
+                ops.push(operator);
+                exprs.push(operand);
+            } else {
+                // don't comsume the source of (operator)
+                break;
+            }
         }
     }
     // shunt over remaining operators
