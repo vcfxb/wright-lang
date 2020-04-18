@@ -70,6 +70,8 @@ impl<'s> ToExpression<'s> for BinaryExpression<'s> {
 
 impl<'s> AstEq for BinaryExpression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.op == snd.op && AstEq::ast_eq(&*fst.left, &*snd.left)
+        fst.op == snd.op &&
+        AstEq::ast_eq(&*fst.left, &*snd.left) &&
+        AstEq::ast_eq(&*fst.right, &*snd.right)
     }
 }
