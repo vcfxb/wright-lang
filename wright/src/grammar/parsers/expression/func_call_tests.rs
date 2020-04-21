@@ -40,7 +40,14 @@ fn test_true() {
 
 #[test]
 fn test_calls() {
-    ["abc()", "a_bc(1, \"abc\")", "n0(a, b, c)", "xd(e)"]
-        .iter()
-        .for_each(|s| test_call(s, false))
+    [
+        "abc()",
+        "a_bc(1, \"abc\")",
+        "n0(a, b, c)",
+        "xd(e)",
+        "foo(bar(baz), baz(bar(), foo), bar)",
+        "a(b(), c(), d())",
+    ]
+    .iter()
+    .for_each(|s| test_call(s, false))
 }
