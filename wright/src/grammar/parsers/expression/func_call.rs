@@ -1,9 +1,12 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{Expression, FuncCallExpression};
+use crate::grammar::ast::{
+    Block, Expression, FuncCallExpression, Identifier, IndexExpression, Parens, ScopedName,
+};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use nom::branch::alt;
 use nom::character::complete::char as ch;
 use nom::combinator::map;
 use nom::multi::separated_list;
@@ -20,11 +23,21 @@ impl<'s> FuncCallExpression<'s> {
     /// Comma separating arguments. Probably should never change.
     pub const ARG_SEPARATOR: char = ',';
 
+    fn func_call_primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
+        alt((
+            map(IndexExpression::parse, Expression::IndexExpression),
+            map(Block::parse, Expression::Block),
+            map(Parens::parse, Expression::Parens),
+            map(Identifier::parse, Expression::Identifier),
+            map(ScopedName::parse, Expression::ScopedName),
+        ))(input)
+    }
+
     /// Parse an index expression in wright source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
             with_input(pair(
-                Expression::parse,
+                Self::func_call_primary,
                 delimited(
                     tuple((token_delimiter, ch(Self::DELIMITER_LEFT), token_delimiter)),
                     separated_list(ch(Self::ARG_SEPARATOR), Expression::parse),
