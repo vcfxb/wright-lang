@@ -253,6 +253,8 @@ pub struct Underscore<'s> {
 /// Number literal pattern
 #[derive(Clone, Debug)]
 pub struct NumLitPattern<'s> {
+    /// Associated Fragment in source code.
+    pub frag: Fragment<'s>,
     /// Whether the number literal pattern has '-' in front
     pub negative: bool,
     /// Inner number literal value
