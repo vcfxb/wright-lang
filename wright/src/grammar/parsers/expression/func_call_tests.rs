@@ -35,7 +35,7 @@ fn test_underscore() {
 
 #[test]
 fn test_true() {
-    test_call("true()", false);
+    test_call("true()", true);
 }
 
 #[test]
