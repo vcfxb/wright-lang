@@ -4,24 +4,24 @@ use crate::grammar::ast::NumLitPattern;
 use crate::grammar::model::Fragment;
 use crate::grammar::model::HasFragment;
 
+use crate::grammar::parsers::with_input;
 use nom::character::complete::char;
 use nom::combinator::map;
 use nom::combinator::opt;
 use nom::sequence::pair;
 use nom::IResult;
-use crate::grammar::parsers::with_input;
 
 impl<'s> NumLitPattern<'s> {
     /// Parse a numerical literal pattern. (e.g. "-12", "4")
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(with_input(pair(opt(char('-')), NumLit::parse)),
-            |(f, (neg, inner))| {
-                NumLitPattern {
-                    frag: f,
-                    negative: neg.is_some(),
-                    inner,
-                }
-        })(input)
+        map(
+            with_input(pair(opt(char('-')), NumLit::parse)),
+            |(f, (neg, inner))| NumLitPattern {
+                frag: f,
+                negative: neg.is_some(),
+                inner,
+            },
+        )(input)
     }
 }
 
