@@ -9,7 +9,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{map, value};
 use nom::error::ErrorKind;
-use nom::sequence::delimited;
+use nom::sequence::{delimited, pair};
 use nom::Err::Error;
 use nom::IResult;
 
@@ -53,50 +53,69 @@ fn build_binary_expr<'s>(a: Expression<'s>, op: OperatorInfo, b: Expression<'s>)
     .create_expr()
 }
 
-/// Shunting yard algorithm for structuring binary expressions. Takes
+/// Shunting yard algorithm for structuring binary expressions.
+///
+/// The parser structure can be expressed in pseudo-code as
+/// ```text
+/// parse_primary;
+/// while (op, primary) = (parse_operator, parse_primary) {
+///    shunt_operators;
+/// }
+/// shunt_remaining_ops;
+/// return_binary_expr;
+/// ```
 pub fn shunting_yard<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, BinaryExpression<'s>> {
+    // expression and operator stacks
+    // the top (and only) element of the expression
+    // stack is returned when this algorithm terminates
     let mut exprs = Vec::new();
     let mut ops = Vec::<OperatorInfo>::new();
-    // expose remaining input at top-level
+    // expose remaining input at top-level. The remaining input is steadily consumed
+    // within this parser and eventually returned to the client.
     let mut rem = input;
-    // parse the first operand
-    if let Ok((rem1, operand)) = BinaryExpression::primary(rem) {
+    // parse the first primary expression
+    // if we can't parse a single primary, skip everything else
+    let (rem1, operand) = BinaryExpression::primary(rem)?;
+    // comsume the input used for the first primary
+    rem = rem1;
+    exprs.push(operand);
+    // parse the operator chain
+    while let Ok((rem1, (operator, operand))) =
+        pair(binary_operator, BinaryExpression::primary)(rem)
+    {
+        // consume the input used for parsing the operator + operand pair
         rem = rem1;
-        exprs.push(operand);
-        // parse the operator chain
-        while let Ok((rem1, operator)) = binary_operator(rem) {
-            // shunt operators of greater precedence over
-            while let Some(top) = ops.pop() {
-                use Associativity::Left;
-                if top.prec > operator.prec || (top.prec == operator.prec && operator.assoc == Left)
-                {
-                    // build BinaryExpression and push onto exprs
-                    let b = exprs.pop().expect("(b1) exprs stack must be len >= 2");
-                    let a = exprs.pop().expect("(a1) exprs stack must be len >= 2");
-                    exprs.push(build_binary_expr(a, top, b));
-                } else {
-                    // repush popped operator, not shunting
-                    ops.push(top);
-                    break;
-                }
-            }
-            if let Ok((rem1, operand)) = BinaryExpression::primary(rem1) {
-                // commit consuming the source of (operator + second operand)
-                rem = rem1;
-                ops.push(operator);
-                exprs.push(operand);
+        // shunt operators of greater precedence over
+        while let Some(top) = ops.last() {
+            use Associativity::Left;
+            if top.prec > operator.prec || (top.prec == operator.prec && operator.assoc == Left) {
+                // pop the operator off the operator stack
+                let top = ops.pop().unwrap();
+                // build BinaryExpression and push onto exprs
+                let b = exprs.pop().expect("(b1) exprs stack must be len >= 2");
+                let a = exprs.pop().expect("(a1) exprs stack must be len >= 2");
+                exprs.push(build_binary_expr(a, top, b));
             } else {
-                // don't comsume the source of (operator)
+                // no more operators to shunt
                 break;
             }
         }
+        // push parsed operator and operand to stacks
+        // it is important to do this _after_ shunting operators
+        ops.push(operator);
+        exprs.push(operand);
     }
-    // shunt over remaining operators
+    // shunt over remaining operators still on the operator stack
     while let Some(op) = ops.pop() {
         let b = exprs.pop().expect("(b2) exprs stack must be len >= 2");
         let a = exprs.pop().expect("(a2) exprs stack must be len >= 2");
         exprs.push(build_binary_expr(a, op, b));
     }
+    // return the remaining expression in the expression stack.
+    // Note that this algorithm guarantees that there is at most
+    // one expression on the stack at this point. If there is
+    // an expression, and it is futhermore a binary expression,
+    // it is returned; else, this parser errors.
     if let Some(Expression::BinaryExpression(expr)) = exprs.pop() {
         Ok((rem, expr))
     } else {
