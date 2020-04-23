@@ -16,28 +16,32 @@ use nom::IResult;
 fn binary_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
     use BinaryOp::*;
     let get_token = |op: BinaryOp| op.get_info().token;
-    let value_tag = |op:BinaryOp| value(op, get_token(op));
-    alt((
-        // some of these are sequentially important; AndAnd needs to go before And
-        // to avoid under-parsing.
-        value_tag(OrOr),
-        value_tag(Or),
-        value_tag(AndAnd),
-        value_tag(And),
-        value_tag(Ge),
-        value_tag(Gt),
-        value_tag(Le),
-        value_tag(Lt),
-        value_tag(Xor),
-        value_tag(NotEq),
-        value_tag(EqEq),
-        value_tag(DotDot),
-        value_tag(Add),
-        value_tag(Sub),
-        value_tag(Mul),
-        value_tag(Div),
-        value_tag(Mod),
-    ))(input)
+    let value_tag = |op:BinaryOp| value(op, tag(get_token(op)));
+    delimited(
+        token_delimiter,
+        alt((
+            // some of these are sequentially important; AndAnd needs to go before And
+            // to avoid under-parsing.
+            value_tag(OrOr),
+            value_tag(Or),
+            value_tag(AndAnd),
+            value_tag(And),
+            value_tag(Ge),
+            value_tag(Gt),
+            value_tag(Le),
+            value_tag(Lt),
+            value_tag(Xor),
+            value_tag(NotEq),
+            value_tag(EqEq),
+            value_tag(DotDot),
+            value_tag(Add),
+            value_tag(Sub),
+            value_tag(Mul),
+            value_tag(Div),
+            value_tag(Mod),
+        )),
+        token_delimiter
+    )(input)
 }
 
 fn build_binary_expr<'s>(a: Expression<'s>, op: OperatorInfo, b: Expression<'s>) -> Expression<'s> {
