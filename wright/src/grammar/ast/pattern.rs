@@ -1,4 +1,4 @@
-use crate::grammar::ast::{CharLit, StringLit, BooleanLit, Identifier, ScopedName, NumLit};
+use crate::grammar::ast::{BooleanLit, CharLit, Identifier, NumLit, ScopedName, StringLit};
 use crate::grammar::model::Fragment;
 
 /// A Pattern used in pattern matching.
