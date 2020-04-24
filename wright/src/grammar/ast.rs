@@ -235,12 +235,16 @@ pub enum Statement<'s> {
     ExpressionStatement(ExpressionStatement<'s>),
 }
 
+/// A wright primitive type.
+pub enum PrimitiveTypeVariant {
+    
+}
+
 /// A type in source code.
+#[allow(missing_docs)]
 #[derive(Clone, Debug)]
-pub struct Type<'s> {
-    /// Associated Fragment in source code.
-    pub frag: Fragment<'s>,
-    // todo: type parsing and ast
+pub enum Type<'s> {
+
 }
 
 /// A Pattern used in pattern matching.
