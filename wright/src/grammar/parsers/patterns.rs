@@ -96,7 +96,7 @@ impl<'s> AstEq for Pattern<'s> {
             (StringLit(a), StringLit(b)) => aeq(a, b),
             (BooleanLit(a), BooleanLit(b)) => aeq(a, b),
             (Identifier(a), Identifier(b)) => aeq(a, b),
-            (ScopedName(s), ScopedName(b)) => aeq(a,b),
+            (ScopedName(a), ScopedName(b)) => aeq(a,b),
             _ => unimplemented!(),
         }
     }

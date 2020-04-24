@@ -7,7 +7,7 @@ pub struct ExpressionStatement<'s> {
     /// Associated Fragment in source code.
     pub frag: Fragment<'s>,
     /// The expression.
-    pub inner: Box<Expressionn<'s>>,
+    pub inner: Box<Expression<'s>>,
 }
 
 /// A statement in wright source code.
