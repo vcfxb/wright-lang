@@ -15,6 +15,7 @@ use std::mem::discriminant;
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
+use crate::grammar::ast::ScopedName;
 
 pub(crate) mod underscore;
 
@@ -43,6 +44,10 @@ impl<'s> Pattern<'s> {
         map(Underscore::parse, Pattern::Underscore)(input)
     }
 
+    fn parse_scoped_name(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        map(ScopedName::parse, Pattern::ScopedName)(input)
+    }
+
     /// Parse a pattern
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         alt((
@@ -50,6 +55,7 @@ impl<'s> Pattern<'s> {
             Self::parse_char_lit,
             Self::parse_string_lit,
             Self::parse_boolean_lit,
+            Self::parse_scoped_name, // must come before identifier due to precedence issues
             Self::parse_identifier,
             Self::parse_underscore,
         ))(input)
@@ -66,6 +72,7 @@ impl<'s> HasFragment<'s> for Pattern<'s> {
             BooleanLit(p) => p.get_fragment(),
             Identifier(p) => p.get_fragment(),
             Underscore(p) => p.get_fragment(),
+            ScopedName(p) => p.get_fragment(),
         }
     }
 }
@@ -89,7 +96,8 @@ impl<'s> AstEq for Pattern<'s> {
             (StringLit(a), StringLit(b)) => aeq(a, b),
             (BooleanLit(a), BooleanLit(b)) => aeq(a, b),
             (Identifier(a), Identifier(b)) => aeq(a, b),
-            _ => unreachable!(),
+            (ScopedName(s), ScopedName(b)) => aeq(a,b),
+            _ => unimplemented!(),
         }
     }
 }
