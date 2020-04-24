@@ -1,5 +1,5 @@
-use crate::grammar::model::Fragment;
 use crate::grammar::ast::Expression;
+use crate::grammar::model::Fragment;
 
 /// An expression whose results aren't used.
 #[derive(Clone, Debug)]

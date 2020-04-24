@@ -1,5 +1,5 @@
+use crate::grammar::ast::{BooleanLit, CharLit, NumLit, SelfLit, Statement, StringLit};
 use crate::grammar::model::Fragment;
-use crate::grammar::ast::{Statement, NumLit, CharLit, StringLit, BooleanLit, SelfLit};
 
 /// An identifier in Wright source code.
 /// There is only one field here, the fragment of source code being referenced.
