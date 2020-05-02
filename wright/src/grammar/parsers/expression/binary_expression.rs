@@ -1,6 +1,6 @@
 use crate::grammar::ast::{
     eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression,
-    Identifier, IndexExpression, NumLit, Parens, SelfLit, StringLit, UnaryExpression,
+    Identifier, NumLit, Parens, SelfLit, StringLit,
 };
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
@@ -11,6 +11,8 @@ use nom::IResult;
 /// [Shunting Yard](https://en.wikipedia.org/wiki/Shunting-yard_algorithm)
 /// algorithm implementation.
 mod shunting_yard;
+#[cfg(test)]
+mod shunting_yard_tests;
 
 /// Operator implementation stuff. Used with shunting yard.
 pub mod operators;
@@ -39,8 +41,9 @@ impl<'s> BinaryExpression<'s> {
     pub fn primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
         alt((
             map(Conditional::parse, Expression::Conditional),
-            map(UnaryExpression::parse, Expression::UnaryExpression),
-            map(IndexExpression::parse, Expression::IndexExpression),
+            // commented out until implemented
+            // map(UnaryExpression::parse, Expression::UnaryExpression),
+            // map(IndexExpression::parse, Expression::IndexExpression),
             map(Block::parse, Expression::Block),
             map(Parens::parse, Expression::Parens),
             map(SelfLit::parse, Expression::SelfLit),
@@ -67,6 +70,8 @@ impl<'s> ToExpression<'s> for BinaryExpression<'s> {
 
 impl<'s> AstEq for BinaryExpression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.op == snd.op && AstEq::ast_eq(&*fst.left, &*snd.left)
+        fst.op == snd.op
+            && AstEq::ast_eq(&*fst.left, &*snd.left)
+            && AstEq::ast_eq(&*fst.right, &*snd.right)
     }
 }
