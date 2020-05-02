@@ -84,6 +84,7 @@ pub fn shunting_yard<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, BinaryExp
     while let Ok((rem1, (operator, operand))) =
         pair(binary_operator, BinaryExpression::primary)(rem)
     {
+        let operator = operator.get_info();
         // consume the input used for parsing the operator + operand pair
         rem = rem1;
         // shunt operators of greater precedence over
