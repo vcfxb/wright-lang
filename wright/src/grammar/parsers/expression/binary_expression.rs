@@ -1,6 +1,6 @@
 use crate::grammar::ast::{
     eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression,
-    Identifier, IndexExpression, NumLit, Parens, SelfLit, StringLit, UnaryExpression,
+    Identifier, NumLit, Parens, SelfLit, StringLit,
 };
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
@@ -70,8 +70,8 @@ impl<'s> ToExpression<'s> for BinaryExpression<'s> {
 
 impl<'s> AstEq for BinaryExpression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.op == snd.op &&
-        AstEq::ast_eq(&*fst.left, &*snd.left) &&
-        AstEq::ast_eq(&*fst.right, &*snd.right)
+        fst.op == snd.op
+            && AstEq::ast_eq(&*fst.left, &*snd.left)
+            && AstEq::ast_eq(&*fst.right, &*snd.right)
     }
 }

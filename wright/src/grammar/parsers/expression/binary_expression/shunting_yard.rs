@@ -16,7 +16,7 @@ use nom::IResult;
 fn binary_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
     use BinaryOp::*;
     let get_token = |op: BinaryOp| op.get_info().token;
-    let value_tag = |op:BinaryOp| value(op, tag(get_token(op)));
+    let value_tag = |op: BinaryOp| value(op, tag(get_token(op)));
     delimited(
         token_delimiter,
         alt((
@@ -40,7 +40,7 @@ fn binary_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
             value_tag(Div),
             value_tag(Mod),
         )),
-        token_delimiter
+        token_delimiter,
     )(input)
 }
 
@@ -67,6 +67,7 @@ pub fn shunting_yard<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, BinaryExp
         // parse the operator chain
         while let Ok((rem1, operator)) = binary_operator(rem) {
             // shunt operators of greater precedence over
+            let operator = operator.get_info();
             while let Some(top) = ops.pop() {
                 use Associativity::Left;
                 if top.prec > operator.prec || (top.prec == operator.prec && operator.assoc == Left)
