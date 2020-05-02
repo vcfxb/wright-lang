@@ -18,13 +18,18 @@ pub struct OperatorInfo {
     /// Left or right associativity.
     pub assoc: Associativity,
     /// Matching token in source code.
-    pub token: &'static str
+    pub token: &'static str,
 }
 
 impl OperatorInfo {
     /// Construct a new operator description.
     pub const fn new(id: BinaryOp, prec: usize, assoc: Associativity, token: &'static str) -> Self {
-        Self { id, prec, assoc, token}
+        Self {
+            id,
+            prec,
+            assoc,
+            token,
+        }
     }
 }
 
