@@ -13,32 +13,33 @@ use nom::sequence::{delimited, pair};
 use nom::Err::Error;
 use nom::IResult;
 
-fn binary_operator<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, OperatorInfo> {
+fn binary_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
     use BinaryOp::*;
+    let get_token = |op: BinaryOp| op.get_info().token;
+    let value_tag = |op: BinaryOp| value(op, tag(get_token(op)));
     delimited(
         token_delimiter,
-        map(
-            alt((
-                value(OrOr, tag("||")),
-                value(AndAnd, tag("&&")),
-                value(Or, tag("|")),
-                value(Xor, tag("^")),
-                value(And, tag("&")),
-                value(EqEq, tag("==")),
-                value(NotEq, tag("!=")),
-                value(Le, tag("<=")),
-                value(Ge, tag(">=")),
-                value(Lt, tag("<")),
-                value(Gt, tag(">")),
-                value(DotDot, tag("..")),
-                value(Add, tag("+")),
-                value(Sub, tag("-")),
-                value(Mul, tag("*")),
-                value(Div, tag("/")),
-                value(Mod, tag("%")),
-            )),
-            BinaryOp::get_info,
-        ),
+        alt((
+            // some of these are sequentially important; AndAnd needs to go before And
+            // to avoid under-parsing.
+            value_tag(OrOr),
+            value_tag(Or),
+            value_tag(AndAnd),
+            value_tag(And),
+            value_tag(Ge),
+            value_tag(Gt),
+            value_tag(Le),
+            value_tag(Lt),
+            value_tag(Xor),
+            value_tag(NotEq),
+            value_tag(EqEq),
+            value_tag(DotDot),
+            value_tag(Add),
+            value_tag(Sub),
+            value_tag(Mul),
+            value_tag(Div),
+            value_tag(Mod),
+        )),
         token_delimiter,
     )(input)
 }
@@ -83,6 +84,7 @@ pub fn shunting_yard<'s>(input: Fragment<'s>) -> IResult<Fragment<'s>, BinaryExp
     while let Ok((rem1, (operator, operand))) =
         pair(binary_operator, BinaryExpression::primary)(rem)
     {
+        let operator = operator.get_info();
         // consume the input used for parsing the operator + operand pair
         rem = rem1;
         // shunt operators of greater precedence over
