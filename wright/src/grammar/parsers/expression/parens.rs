@@ -1,18 +1,23 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Parens};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
+use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::{char as ch, multispace0};
 use nom::combinator::map;
-use nom::sequence::delimited;
+use nom::sequence::{delimited, terminated};
 use nom::IResult;
 
 impl<'s> Parens<'s> {
     fn inner(frag: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
         delimited(
-            multispace0,
-            delimited(ch('('), Expression::parse, ch(')')),
-            multispace0,
+            token_delimiter,
+            delimited(
+                terminated(ch('('), token_delimiter),
+                Expression::parse,
+                terminated(ch(')'), token_delimiter),
+            ),
+            token_delimiter,
         )(frag)
     }
 
