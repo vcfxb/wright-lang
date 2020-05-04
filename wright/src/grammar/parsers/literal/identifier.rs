@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::AstEq, Conditional, Expression, SelfLit, Underscore};
+use crate::grammar::ast::{eq::AstEq, Conditional, Expression, SelfLit, Underscore, Name};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
@@ -54,7 +54,7 @@ impl<'s> HasFragment<'s> for Identifier<'s> {
 
 impl<'s> ToExpression<'s> for Identifier<'s> {
     fn create_expr(self) -> Expression<'s> {
-        Expression::Identifier(self)
+        Expression::Name(Name::Identifier(self))
     }
 }
 

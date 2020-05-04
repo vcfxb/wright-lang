@@ -1,15 +1,5 @@
 use std::mem::discriminant;
 
-/// Wright identifier parser.
-pub(crate) mod identifier;
-#[cfg(test)]
-mod identifier_tests;
-
-/// Wright scoped name parser.
-pub(crate) mod scoped_name;
-#[cfg(test)]
-mod scoped_name_tests;
-
 /// Binary expression parser and utilities.
 pub mod binary_expression;
 
@@ -59,8 +49,7 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             CharLit(i) => i.get_fragment(),
             StringLit(i) => i.get_fragment(),
             BooleanLit(i) => i.get_fragment(),
-            Identifier(i) => i.get_fragment(),
-            ScopedName(i) => i.get_fragment(),
+            Name(i) => i.get_fragment(),
             Parens(i) => i.get_fragment(),
             BinaryExpression(i) => i.get_fragment(),
             SelfLit(i) => i.get_fragment(),
@@ -111,7 +100,7 @@ impl<'s> AstEq for Expression<'s> {
             (CharLit(a), CharLit(b)) => aeq(a, b),
             (StringLit(a), StringLit(b)) => aeq(a, b),
             (BooleanLit(a), BooleanLit(b)) => aeq(a, b),
-            (Identifier(a), Identifier(b)) => aeq(a, b),
+            (Name(a), Name(b)) => aeq(a, b),
             (Parens(a), Parens(b)) => aeq(a, b),
             (BinaryExpression(a), BinaryExpression(b)) => aeq(a, b),
             (SelfLit(a), SelfLit(b)) => aeq(a, b),

@@ -1,7 +1,5 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{
-    Block, Expression, FuncCallExpression, Identifier, IndexExpression, Parens, ScopedName,
-};
+use crate::grammar::ast::{Block, Expression, FuncCallExpression, IndexExpression, Parens, Name};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;
@@ -28,8 +26,7 @@ impl<'s> FuncCallExpression<'s> {
             map(IndexExpression::parse, Expression::IndexExpression),
             map(Block::parse, Expression::Block),
             map(Parens::parse, Expression::Parens),
-            map(Identifier::parse, Expression::Identifier),
-            map(ScopedName::parse, Expression::ScopedName),
+            map(Name::parse, Expression::Name),
         ))(input)
     }
 

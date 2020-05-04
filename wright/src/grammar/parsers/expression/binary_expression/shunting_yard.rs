@@ -7,7 +7,7 @@ use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::{map, value};
+use nom::combinator::{value};
 use nom::error::ErrorKind;
 use nom::sequence::{delimited, pair};
 use nom::Err::Error;

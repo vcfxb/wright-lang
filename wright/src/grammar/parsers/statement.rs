@@ -40,7 +40,7 @@ impl<'s> AstEq for Statement<'s> {
 
         match (fst, snd) {
             (ExpressionStatement(a), ExpressionStatement(b)) => aeq(a, b),
-            _ => unreachable!(),
+            _ => unimplemented!(),
         }
     }
 }

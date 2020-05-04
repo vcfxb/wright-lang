@@ -1,7 +1,4 @@
-use crate::grammar::ast::{
-    eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression,
-    Identifier, NumLit, Parens, SelfLit, StringLit,
-};
+use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression, NumLit, Parens, SelfLit, StringLit, Name};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;
@@ -51,7 +48,7 @@ impl<'s> BinaryExpression<'s> {
             map(CharLit::parse, Expression::CharLit),
             map(NumLit::parse, Expression::NumLit),
             map(BooleanLit::parse, Expression::BooleanLit),
-            map(Identifier::parse, Expression::Identifier),
+            map(Name::parse, Expression::Name),
         ))(input)
     }
 }
