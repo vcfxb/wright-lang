@@ -28,7 +28,7 @@ pub struct ScopedName<'s> {
 #[allow(missing_docs)]
 pub enum Name<'s> {
     Identifier(Identifier<'s>),
-    ScopedName(ScopedName<'s>)
+    ScopedName(ScopedName<'s>),
 }
 
 /// Numerical literal in wright source code.

@@ -1,10 +1,10 @@
-use crate::grammar::model::{HasFragment, Fragment};
-use crate::grammar::ast::{Name, AstEq, Expression, ScopedName, Identifier};
-use std::mem::discriminant;
+use crate::grammar::ast::{AstEq, Expression, Identifier, Name, ScopedName};
+use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
-use nom::IResult;
 use nom::branch::alt;
 use nom::combinator::map;
+use nom::IResult;
+use std::mem::discriminant;
 
 impl<'s> Name<'s> {
     /// Parse a name in source code. This tries to parse a scoped name, and
@@ -12,7 +12,7 @@ impl<'s> Name<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         alt((
             map(ScopedName::parse, Name::ScopedName),
-            map(Identifier::parse, Name::Identifier)
+            map(Identifier::parse, Name::Identifier),
         ))(input)
     }
 }
@@ -57,9 +57,9 @@ impl<'s> AstEq for Name<'s> {
 
         use Name::*;
         match (fst, snd) {
-            (Identifier(a), Identifier(b)) => aeq(a,b),
-            (ScopedName(a), ScopedName(b)) => aeq(a,b),
-            (_, _) => unimplemented!()
+            (Identifier(a), Identifier(b)) => aeq(a, b),
+            (ScopedName(a), ScopedName(b)) => aeq(a, b),
+            (_, _) => unimplemented!(),
         }
     }
 }

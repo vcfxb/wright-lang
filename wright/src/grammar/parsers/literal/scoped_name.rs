@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName, Name};
+use crate::grammar::ast::{eq::AstEq, Expression, Identifier, Name, ScopedName};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;

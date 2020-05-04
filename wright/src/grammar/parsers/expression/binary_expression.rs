@@ -1,4 +1,7 @@
-use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression, NumLit, Parens, SelfLit, StringLit, Name};
+use crate::grammar::ast::{
+    eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression,
+    Name, NumLit, Parens, SelfLit, StringLit,
+};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;

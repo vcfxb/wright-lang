@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::AstEq, Conditional, Expression, SelfLit, Underscore, Name};
+use crate::grammar::ast::{eq::AstEq, Conditional, Expression, Name, SelfLit, Underscore};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;

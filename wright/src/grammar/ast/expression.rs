@@ -1,6 +1,4 @@
-use crate::grammar::ast::{
-    BooleanLit,
-    CharLit, NumLit, SelfLit, Statement, StringLit, Name};
+use crate::grammar::ast::{BooleanLit, CharLit, Name, NumLit, SelfLit, Statement, StringLit};
 use crate::grammar::model::Fragment;
 
 /// An expression in parentheses in wright source code.

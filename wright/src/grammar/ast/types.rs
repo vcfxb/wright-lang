@@ -9,7 +9,16 @@ use crate::grammar::model::Fragment;
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum PrimitiveTypeVariant {
     Char,
-    U8, I8, U16, I16, U32, I32, U64, I64, U128, I128,
+    U8,
+    I8,
+    U16,
+    I16,
+    U32,
+    I32,
+    U64,
+    I64,
+    U128,
+    I128,
     Bool,
     String,
 }
@@ -20,18 +29,18 @@ pub struct PrimitiveType<'s> {
     /// Associated fragment in source code.
     pub frag: Fragment<'s>,
     /// Represented variant.
-    pub variant: PrimitiveTypeVariant
+    pub variant: PrimitiveTypeVariant,
 }
 
 /// A user defined type.
 pub struct UserType<'s> {
     /// Associated fragment in source code.
-    pub frag: Fragment<'s>
+    pub frag: Fragment<'s>,
 }
 
 /// A type in source code.
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
-pub enum Type<> {
-    Primitive(PrimitiveTypeVariant)
+pub enum Type {
+    Primitive(PrimitiveTypeVariant),
 }
