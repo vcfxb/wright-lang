@@ -6,16 +6,19 @@ use std::ops::RangeTo;
 pub(crate) mod testing;
 
 /// Wright literal value parsers.
-pub(crate) mod literals;
+pub(crate) mod literal;
 
 /// Wright expression parsers.
 pub(crate) mod expression;
 
 /// Wright statement parsers.
-pub(crate) mod statements;
+pub(crate) mod statement;
 
 /// Wright pattern parsers.
-pub(crate) mod patterns;
+pub(crate) mod pattern;
+
+/// Wright type parsers.
+pub(crate) mod types;
 
 /// Wright comment and whitespace parsers.
 pub mod whitespace;
