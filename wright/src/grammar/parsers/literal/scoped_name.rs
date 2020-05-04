@@ -1,4 +1,4 @@
-use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
+use crate::grammar::ast::{eq::AstEq, Expression, Identifier, Name, ScopedName};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;
@@ -37,7 +37,7 @@ impl<'s> HasFragment<'s> for ScopedName<'s> {
 
 impl<'s> ToExpression<'s> for ScopedName<'s> {
     fn create_expr(self) -> Expression<'s> {
-        Expression::ScopedName(self)
+        Expression::Name(Name::ScopedName(self))
     }
 }
 

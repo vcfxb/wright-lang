@@ -22,3 +22,18 @@ mod boolean_lit_tests;
 pub(crate) mod self_lit;
 #[cfg(test)]
 mod self_lit_tests;
+
+/// Wright identifier parser.
+pub(crate) mod identifier;
+#[cfg(test)]
+mod identifier_tests;
+
+/// Wright scoped name parser.
+pub(crate) mod scoped_name;
+#[cfg(test)]
+mod scoped_name_tests;
+
+/// Wright name parser.
+pub(crate) mod name;
+#[cfg(test)]
+mod name_tests;
