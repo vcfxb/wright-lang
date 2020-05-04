@@ -36,8 +36,7 @@ use nom::IResult;
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        // temporary: call BinaryExpression::parse when implemented
-        BinaryExpression::primary(input)
+        todo!("Expression parser")
     }
 }
 
@@ -59,20 +58,6 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             IndexExpression(i) => i.get_fragment(),
             FuncCall(i) => i.get_fragment(),
         }
-    }
-}
-
-/// Trait implemented by all members of the
-/// `Expression` node in an AST.
-pub(crate) trait ToExpression<'s>: HasFragment<'s> + AstEq {
-    /// Construct an `Expression` from this object.
-    fn create_expr(self) -> Expression<'s>;
-}
-
-impl<'s> ToExpression<'s> for Expression<'s> {
-    #[inline]
-    fn create_expr(self) -> Expression<'s> {
-        self
     }
 }
 

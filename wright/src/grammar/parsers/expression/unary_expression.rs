@@ -1,6 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, UnaryExpression, UnaryOp};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use nom::IResult;
 
 impl UnaryOp {}
@@ -12,8 +11,8 @@ impl<'s> UnaryExpression<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for UnaryExpression<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for UnaryExpression<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::UnaryExpression(self)
     }
 }
