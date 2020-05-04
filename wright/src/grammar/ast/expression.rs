@@ -12,7 +12,7 @@ pub struct Parens<'s> {
 
 /// The type of binary operation being done.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum BinaryOp {
     Add,
     Sub,
@@ -49,7 +49,7 @@ pub struct BinaryExpression<'s> {
 
 /// Unary expression operators.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum UnaryOp {
     LogicalNot,
     BitwiseNot,
