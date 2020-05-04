@@ -1,7 +1,7 @@
 use std::mem::discriminant;
 
 /// Binary expression parser and utilities.
-pub mod binary_expression;
+pub(crate) mod binary_expression;
 
 /// Unary expression parser.
 pub(crate) mod unary_expression;

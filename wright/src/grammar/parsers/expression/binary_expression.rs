@@ -5,6 +5,12 @@ use crate::grammar::ast::{
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
 
+/// Operator parsing functions.
+pub mod operator;
+
+/// Primary parsing functions used in manual recursive descent parsing.
+pub mod primary;
+
 impl<'s> BinaryExpression<'s> {
     fn new(
         frag: Fragment<'s>,
@@ -20,7 +26,13 @@ impl<'s> BinaryExpression<'s> {
         }
     }
 
-    fn new_merge(left: impl Into<Expression<'s>>,
+    /// Create a new Binary Expression by merging two subexpressions, and adding
+    /// a given operator between them. This assumes that the fragment merging of
+    /// the sub expressions will not fail.
+    ///
+    /// ## Panics:
+    /// Panics when the Fragment::merge fails on the children.
+    pub(self) fn new_merge(left: impl Into<Expression<'s>>,
                  op: BinaryOp,
                  right: impl Into<Expression<'s>>
     ) -> Self {
