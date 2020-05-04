@@ -12,11 +12,23 @@ impl BinaryOp {
     pub const LOGICAL_OR: &'static str = "or";
 }
 
-/// Parse the logical and operator. Currently matches on `&&` or
-/// [the logical and constant](consts.LOGICAL_AND.html).
-pub fn parse_logical_and(input: Fragment) -> IResult<Fragment, Fragment> {
+/// Parse the short or long version of a binary operator.
+fn short_or_long<'s>(short: &'static str, long: &'static str)
+    -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
     alt((
-        tag("&&"),
-        tag(BinaryOp::LOGICAL_AND)
-    ))(input)
+        tag(short),
+        tag(long),
+    ))
+}
+
+/// Parse the logical AND operator. Currently matches on `&&` or
+/// the logical AND associated constant defined in BinaryOp.
+pub fn parse_logical_and(input: Fragment) -> IResult<Fragment, Fragment> {
+    short_or_long("&&", BinaryOp::LOGICAL_AND)(input)
+}
+
+/// Parse the logical OR operator. Currently matches on `||` or
+/// the logical OR associated constant defined in BinaryOp.
+pub fn parse_logical_or(input: Fragment) -> IResult<Fragment, Fragment> {
+    short_or_long("||", BinaryOp::LOGICAL_OR)(input)
 }
