@@ -1,15 +1,20 @@
 use crate::grammar::model::Fragment;
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, Name};
+use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, Name, Parens};
 use nom::IResult;
 use nom::combinator::map;
 use nom::sequence::{separated_pair, delimited, pair, preceded};
 use crate::grammar::parsers::whitespace::token_delimiter;
-use crate::grammar::parsers::expression::binary_expression::operator::parse_logical_and;
 use nom::multi::many1;
 use nom::branch::alt;
 
+/// Module for parsing logical or expressions.
+pub mod logical_or;
+
+/// Module for parsing logical and expressions.
+pub(self) mod logical_and;
+
 /// A single operator parsing level.
-fn single_operator_level<'s, O>(
+pub(self) fn single_operator_level<'s, O>(
     child: fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
     operator: O
 ) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, (Expression<'s>, Vec<Expression<'s>>)>
@@ -46,24 +51,18 @@ fn fold_left<'s>(first: Expression<'s>, list: Vec<Expression<'s>>, op: BinaryOp)
     acc
 }
 
-fn logical_or(input: Fragment) -> IResult<Fragment, BinaryExpression> {
-    todo!()
-}
-
-fn logical_and_primary(input: Fragment) -> IResult<Fragment, Expression> {
-    fn expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {e.into()}
+/// Parser for the base expressions that can appear as a child in any binary
+/// expression, down to the lowest node.
+pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {
     alt((
-        map(logical_or, expr),
-        map(Name::parse, expr)
+        map(Parens::parse, to_expr),
+        map(Name::parse, to_expr),
     ))(input)
 }
 
-/// 'boolean and' or 'logical and' is the lowest precedence binary operator.
-pub fn logical_and(input: Fragment) -> IResult<Fragment, Expression> {
-    map(
-        single_operator_level(
-            logical_and_primary, parse_logical_and),
-        |(first, list)|
-            fold_left(first, list, BinaryOp::AndAnd)
-    )(input)
+/// Convert the result of a parser into an expression
+pub(self) fn to_expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {e.into()}
+
+pub(super) fn bitwise_or(input: Fragment) -> IResult<Fragment, Expression> {
+    todo!()
 }

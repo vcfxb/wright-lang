@@ -1,15 +1,14 @@
 use crate::grammar::ast::{
-    eq::AstEq, BinaryExpression, BinaryOp, Block, BooleanLit, CharLit, Conditional, Expression,
-    Name, NumLit, Parens, SelfLit, StringLit,
+    eq::AstEq, BinaryExpression, BinaryOp, Expression,
 };
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
 
 /// Operator parsing functions.
-pub mod operator;
+pub(crate) mod operator;
 
 /// Primary parsing functions used in manual recursive descent parsing.
-pub mod primary;
+pub(crate) mod primary;
 
 impl<'s> BinaryExpression<'s> {
     fn new(
