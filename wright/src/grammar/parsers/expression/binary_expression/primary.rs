@@ -1,11 +1,11 @@
+use crate::grammar::ast::{BinaryExpression, BinaryOp, Conditional, Expression, Name, Parens};
 use crate::grammar::model::Fragment;
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, Name, Parens, Conditional};
-use nom::IResult;
-use nom::combinator::map;
-use nom::sequence::{separated_pair, delimited, pair, preceded};
 use crate::grammar::parsers::whitespace::token_delimiter;
-use nom::multi::many1;
 use nom::branch::alt;
+use nom::combinator::map;
+use nom::multi::many1;
+use nom::sequence::{delimited, pair, preceded, separated_pair};
+use nom::IResult;
 
 /// Module for parsing logical or expressions.
 pub mod logical_or;
@@ -16,7 +16,7 @@ pub(self) mod logical_and;
 /// A single operator parsing level.
 pub(self) fn single_operator_level<'s, O>(
     child: fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
-    operator: O
+    operator: O,
 ) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, (Expression<'s>, Vec<Expression<'s>>)>
 where
     O: Fn(Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>>,
@@ -24,13 +24,9 @@ where
     pair(
         child,
         many1(preceded(
-            delimited(
-                token_delimiter,
-                operator,
-                token_delimiter,
-            ),
+            delimited(token_delimiter, operator, token_delimiter),
             child,
-        ))
+        )),
     )
 }
 
@@ -41,12 +37,7 @@ fn fold_left<'s>(first: Expression<'s>, list: Vec<Expression<'s>>, op: BinaryOp)
     stack.reverse();
     let mut acc = first;
     while !stack.is_empty() {
-        acc =
-            BinaryExpression::new_merge(
-                acc,
-                op,
-                stack.pop().unwrap())
-                .into();
+        acc = BinaryExpression::new_merge(acc, op, stack.pop().unwrap()).into();
     }
     acc
 }
@@ -62,7 +53,9 @@ pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {
 }
 
 /// Convert the result of a parser into an expression
-pub(self) fn to_expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {e.into()}
+pub(self) fn to_expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {
+    e.into()
+}
 
 pub(super) fn bitwise_or(input: Fragment) -> IResult<Fragment, Expression> {
     todo!()

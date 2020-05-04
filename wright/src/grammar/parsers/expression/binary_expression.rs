@@ -1,6 +1,4 @@
-use crate::grammar::ast::{
-    eq::AstEq, BinaryExpression, BinaryOp, Expression,
-};
+use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
 
@@ -31,25 +29,23 @@ impl<'s> BinaryExpression<'s> {
     ///
     /// ## Panics:
     /// Panics when the Fragment::merge fails on the children.
-    pub(self) fn new_merge(left: impl Into<Expression<'s>>,
-                 op: BinaryOp,
-                 right: impl Into<Expression<'s>>
+    pub(self) fn new_merge(
+        left: impl Into<Expression<'s>>,
+        op: BinaryOp,
+        right: impl Into<Expression<'s>>,
     ) -> Self {
         let e1 = left.into();
         let e2 = right.into();
         // currently use unwrap here. fragment merging should not fail
         // internally.
-        let frag =
-            Fragment::merge(e1.get_fragment(), e2.get_fragment())
-                .unwrap();
+        let frag = Fragment::merge(e1.get_fragment(), e2.get_fragment()).unwrap();
         Self::new(frag, e1, op, e2)
     }
-    
+
     /// Parse a binary expression in source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("binary expression parser")
     }
-
 }
 
 impl<'s> HasFragment<'s> for BinaryExpression<'s> {

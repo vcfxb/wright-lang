@@ -2,7 +2,7 @@ use crate::grammar::ast::{eq::AstEq, Expression, Parens};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use nom::character::complete::{char as ch};
+use nom::character::complete::char as ch;
 use nom::combinator::map;
 use nom::sequence::{delimited, terminated};
 use nom::IResult;

@@ -1,4 +1,6 @@
-use crate::grammar::ast::{eq::AstEq, Conditional, Expression, Name, SelfLit, Underscore, BinaryOp};
+use crate::grammar::ast::{
+    eq::AstEq, BinaryOp, Conditional, Expression, Name, SelfLit, Underscore,
+};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::bytes::complete::take_while;

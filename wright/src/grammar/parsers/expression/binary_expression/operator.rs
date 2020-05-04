@@ -1,8 +1,8 @@
+use crate::grammar::ast::{BinaryExpression, BinaryOp};
 use crate::grammar::model::Fragment;
-use nom::IResult;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use crate::grammar::ast::{BinaryExpression, BinaryOp};
+use nom::IResult;
 
 impl BinaryOp {
     /// Logical AND operator in long form.
@@ -13,12 +13,11 @@ impl BinaryOp {
 }
 
 /// Parse the short or long version of a binary operator.
-fn short_or_long<'s>(short: &'static str, long: &'static str)
-    -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
-    alt((
-        tag(short),
-        tag(long),
-    ))
+fn short_or_long<'s>(
+    short: &'static str,
+    long: &'static str,
+) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
+    alt((tag(short), tag(long)))
 }
 
 /// Parse the logical AND operator. Currently matches on `&&` or
