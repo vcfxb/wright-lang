@@ -81,3 +81,7 @@ impl<'s> AstEq for Conditional<'s> {
             && AstEq::ast_eq(&fst.primary, &snd.primary)
     }
 }
+
+impl<'s> Into<Expression<'s>> for Conditional<'s> {
+    fn into(self) -> Expression<'s> {Expression::Conditional(self)}
+}

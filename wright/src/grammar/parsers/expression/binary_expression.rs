@@ -44,9 +44,7 @@ impl<'s> BinaryExpression<'s> {
                 .unwrap();
         Self::new(frag, e1, op, e2)
     }
-
-
-
+    
     /// Parse a binary expression in source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("binary expression parser")

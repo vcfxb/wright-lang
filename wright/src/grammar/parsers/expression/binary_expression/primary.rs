@@ -1,5 +1,5 @@
 use crate::grammar::model::Fragment;
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, Name, Parens};
+use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression, Name, Parens, Conditional};
 use nom::IResult;
 use nom::combinator::map;
 use nom::sequence::{separated_pair, delimited, pair, preceded};
@@ -56,6 +56,7 @@ fn fold_left<'s>(first: Expression<'s>, list: Vec<Expression<'s>>, op: BinaryOp)
 pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {
     alt((
         map(Parens::parse, to_expr),
+        map(Conditional::parse, to_expr),
         map(Name::parse, to_expr),
     ))(input)
 }
