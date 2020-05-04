@@ -13,7 +13,7 @@ pub mod expression;
 /// Reexport expression nodes publicly.
 pub use expression::*;
 
-/// Nodes for literals in AST.
+/// Nodes for literal in AST.
 pub mod literal;
 
 /// Reexport literal nodes publicly.

@@ -6,7 +6,7 @@ use std::ops::RangeTo;
 pub(crate) mod testing;
 
 /// Wright literal value parsers.
-pub(crate) mod literals;
+pub(crate) mod literal;
 
 /// Wright expression parsers.
 pub(crate) mod expression;
