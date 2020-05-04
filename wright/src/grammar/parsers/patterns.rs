@@ -66,6 +66,7 @@ impl<'s> HasFragment<'s> for Pattern<'s> {
             BooleanLit(p) => p.get_fragment(),
             Identifier(p) => p.get_fragment(),
             Underscore(p) => p.get_fragment(),
+            ScopedName(p) => p.get_fragment(),
         }
     }
 }
