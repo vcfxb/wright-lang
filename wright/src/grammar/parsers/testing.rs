@@ -23,7 +23,7 @@ pub fn test_ast_eq<T: AstEq>(
     let fr2 = Fragment::new(&f, h2);
     let ast1 = parser(fr1).unwrap().1;
     let ast2 = parser(fr2).unwrap().1;
-    assert!(AstEq::ast_eq(ast1, ast2));
+    assert!(AstEq::ast_eq(&ast1, &ast2));
 }
 
 /// Run a specific test on a given parser.
@@ -42,7 +42,7 @@ fn run_test<T>(
     } else {
         assert!(res.is_ok());
         let (rem, node) = res.unwrap();
-        assert_eq!(rem, remaining.unwrap());
+        assert_eq!(rem.source(), remaining.unwrap());
         assert!(output_test(node));
     }
 }

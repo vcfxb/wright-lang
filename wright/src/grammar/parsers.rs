@@ -1,9 +1,8 @@
 use nom::{IResult, Offset, Slice};
 use std::ops::RangeTo;
 
-/// Testing utility functions.
-#[cfg(test)]
-pub(crate) mod testing;
+/// Utility functions for testing parsers.
+pub mod testing;
 
 /// Wright literal value parsers.
 pub(self) mod literal;

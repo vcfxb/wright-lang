@@ -7,7 +7,6 @@ use nom::combinator::{map, opt};
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use std::io::Write;
 
 impl<'s> Block<'s> {
     /// Start of block in source code.
