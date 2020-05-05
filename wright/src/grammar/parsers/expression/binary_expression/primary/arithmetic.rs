@@ -16,6 +16,6 @@ pub fn arithmetic1(input: Fragment) -> IResult<Fragment, Expression> {
 }
 
 /// Parse higher precedence arithmetic expression.
-fn arithmetic2(input: Fragment) -> IResult<Fragment, Expression> {
+pub fn arithmetic2(input: Fragment) -> IResult<Fragment, Expression> {
     parser_left(base_primary, parse_arithmetic_operator2)(input)
 }

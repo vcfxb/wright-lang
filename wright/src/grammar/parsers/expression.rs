@@ -32,11 +32,15 @@ mod expression_tests;
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
+use nom::branch::alt;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        todo!("Expression parser")
+        alt((
+            BinaryExpression::parse,
+            binary_expression::base_primary,
+        ))(input)
     }
 }
 

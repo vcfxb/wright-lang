@@ -8,12 +8,12 @@ use nom::IResult;
 use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{bitwise_or, bitwise_or_primary};
 
 /// Parse possible children of a logical OR expression.
-pub(super) fn logical_or_primary(input: Fragment) -> IResult<Fragment, Expression> {
+pub fn logical_or_primary(input: Fragment) -> IResult<Fragment, Expression> {
     alt((map(logical_and, to_expr), logical_and_primary))(input)
 }
 
 /// 'boolean or' or 'logical or' is the lowest precedence binary operator.
-pub(super) fn logical_or(input: Fragment) -> IResult<Fragment, Expression> {
+pub fn logical_or(input: Fragment) -> IResult<Fragment, Expression> {
     parser_left(logical_or_primary, parse_logical_or)(input)
 }
 
@@ -23,6 +23,6 @@ fn logical_and_primary(input: Fragment) -> IResult<Fragment, Expression> {
 }
 
 /// Parse a 'logical and' expression.
-fn logical_and(input: Fragment) -> IResult<Fragment, Expression> {
+pub fn logical_and(input: Fragment) -> IResult<Fragment, Expression> {
     parser_left(logical_and_primary, parse_logical_and)(input)
 }

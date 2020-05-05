@@ -2,6 +2,7 @@ use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
 use nom::branch::alt;
+use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
 
 /// Operator parsing functions.
 pub(self) mod operator;
@@ -44,12 +45,16 @@ impl<'s> BinaryExpression<'s> {
     }
 
     /// Parse a binary expression in source code.
+    ///
+    /// Despite the return type being `Expression`, this function should
+    /// always return a binary expression.
+    ///
     /// ## Operator precedence:
     /// Wright binary operators are parsed internally using a precedence
     /// climbing algorithm. The operator precedences are documented
     /// [here](https://github.com/Wright-Language-Developers/docs/blob/master/syntax/operator-precedence.md).
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-
+    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
+        parse_binary_expr(input)
     }
 }
 
@@ -72,3 +77,6 @@ impl<'s> AstEq for BinaryExpression<'s> {
             && AstEq::ast_eq(&*fst.right, &*snd.right)
     }
 }
+
+/// Re-export the base-primary for use in the general expression parser.
+pub(crate) use primary::base_primary;
