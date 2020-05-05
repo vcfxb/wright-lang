@@ -14,7 +14,9 @@ pub fn line_comment(input: Fragment) -> IResult<Fragment, Fragment> {
     preceded(count(char('/'), 2), not_line_ending)(input)
 }
 
-/// Parses a Wright multiline comment
+/// Parses a Wright multiline comment. Wright multiline comments are delimited
+/// by `/*` and `*/`. They are not recursive. Wright has no concept of nested
+/// comments, or any of the content within a comment for that matter.
 pub fn multiline_comment(input: Fragment) -> IResult<Fragment, Fragment> {
     delimited(tag("/*"), take_until("*/"), tag("*/"))(input)
 }
