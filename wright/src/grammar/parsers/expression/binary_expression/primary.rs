@@ -2,45 +2,24 @@ use crate::grammar::ast::{BinaryExpression, BinaryOp, Conditional, Expression, N
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
-use nom::combinator::map;
+use nom::combinator::{map, value};
 use nom::multi::many1;
 use nom::sequence::{delimited, pair, preceded, separated_pair};
 use nom::IResult;
+use nom::bytes::complete::tag;
 
-/// Module for parsing logical or expressions.
-pub mod logical_or;
+/// Module for parsing range expressions.
+/// This includes Range and RangeTo operators.
+pub mod range;
 
-/// Module for parsing logical and expressions.
+/// Module for parsing 'logical or' expressions.
+pub(self) mod logical_or;
+
+/// Module for parsing 'logical and' expressions.
 pub(self) mod logical_and;
 
-/// A single operator parsing level.
-pub(self) fn single_operator_level<'s, O>(
-    child: fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
-    operator: O,
-) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, (Expression<'s>, Vec<Expression<'s>>)>
-where
-    O: Fn(Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>>,
-{
-    pair(
-        child,
-        many1(preceded(
-            delimited(token_delimiter, operator, token_delimiter),
-            child,
-        )),
-    )
-}
-
-/// Fold a beginning expression and a following list of expressions into a single
-/// expression left-associatively. Connect them all using the same operator.
-fn fold_left<'s>(first: Expression<'s>, list: Vec<Expression<'s>>, op: BinaryOp) -> Expression<'s> {
-    let mut stack = list;
-    stack.reverse();
-    let mut acc = first;
-    while !stack.is_empty() {
-        acc = BinaryExpression::new_merge(acc, op, stack.pop().unwrap()).into();
-    }
-    acc
-}
+/// Module for parsing 'bitwise or' expressions.
+pub(self) mod bitwise_or;
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
@@ -57,6 +36,34 @@ pub(self) fn to_expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {
     e.into()
 }
 
-pub(super) fn bitwise_or(input: Fragment) -> IResult<Fragment, Expression> {
-    todo!()
+/// Return a parser for a precedence level of left associative operator.
+pub(self) fn parser_left<'s, >(
+    child: fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
+    operator: fn(Fragment<'s>) -> IResult<Fragment<'s>, BinaryOp>,
+) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
+    move |input: Fragment<'s>| {
+        map(
+            pair(
+                child,
+                many1(pair(
+                    delimited(
+                        token_delimiter,
+                        operator.clone(),
+                        token_delimiter
+                    ),
+                    child
+                ))
+            ),
+            |(fst, following)| {
+                let mut acc = fst;
+                let mut stack = following;
+                stack.reverse();
+                while !stack.is_empty() {
+                    let (op, right) = stack.pop().unwrap();
+                    acc = BinaryExpression::new_merge(acc, op, right).into();
+                }
+                acc
+            }
+        )(input)
+    }
 }

@@ -4,9 +4,7 @@ use crate::grammar::parsers::expression::binary_expression::operator::parse_logi
 use crate::grammar::parsers::expression::binary_expression::primary::logical_and::{
     logical_and, logical_and_primary,
 };
-use crate::grammar::parsers::expression::binary_expression::primary::{
-    fold_left, single_operator_level, to_expr,
-};
+use crate::grammar::parsers::expression::binary_expression::primary::{to_expr, parser_left};
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
@@ -18,8 +16,5 @@ pub(super) fn logical_or_primary(input: Fragment) -> IResult<Fragment, Expressio
 
 /// 'boolean or' or 'logical or' is the lowest precedence binary operator.
 pub(super) fn logical_or(input: Fragment) -> IResult<Fragment, Expression> {
-    map(
-        single_operator_level(logical_or_primary, parse_logical_or),
-        |(first, list)| fold_left(first, list, BinaryOp::OrOr),
-    )(input)
+    parser_left(logical_or_primary, parse_logical_or)(input)
 }

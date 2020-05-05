@@ -43,6 +43,10 @@ impl<'s> BinaryExpression<'s> {
     }
 
     /// Parse a binary expression in source code.
+    /// ## Operator precedence:
+    /// Wright binary operators are parsed internally using a precedence
+    /// climbing algorithm. The operator precedences are as follows:
+
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         todo!("binary expression parser")
     }
