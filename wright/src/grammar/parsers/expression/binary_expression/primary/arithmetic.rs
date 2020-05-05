@@ -1,9 +1,11 @@
-use crate::grammar::model::Fragment;
-use nom::IResult;
 use crate::grammar::ast::Expression;
-use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, base_primary};
-use crate::grammar::parsers::expression::binary_expression::operator::{parse_arithmetic_operator1, parse_arithmetic_operator2};
+use crate::grammar::model::Fragment;
+use crate::grammar::parsers::expression::binary_expression::operator::{
+    parse_arithmetic_operator1, parse_arithmetic_operator2,
+};
+use crate::grammar::parsers::expression::binary_expression::primary::{base_primary, parser_left};
 use nom::branch::alt;
+use nom::IResult;
 
 /// Parse child of a lower precedence arithmetic operator.
 pub fn arithmetic1_primary(input: Fragment) -> IResult<Fragment, Expression> {

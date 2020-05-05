@@ -58,7 +58,7 @@ pub enum RangeOperator {
     /// A RangeFrom Expression of the form `n..`.
     RangeFrom,
     /// A RangeFromInclusive Expression of the form `..=n`.
-    RangeToInclusive
+    RangeToInclusive,
 }
 
 /// A RangeTo, RangeFrom, or RangeToInclusive expression.

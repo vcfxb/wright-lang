@@ -1,7 +1,7 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
-use nom::IResult;
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
+use nom::IResult;
 
 /// Operator parsing functions.
 pub(self) mod operator;

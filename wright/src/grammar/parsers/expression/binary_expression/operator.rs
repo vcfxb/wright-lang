@@ -1,10 +1,10 @@
-use crate::grammar::ast::{BinaryOp};
+use crate::grammar::ast::BinaryOp;
 use crate::grammar::model::Fragment;
 use nom::branch::alt;
-use nom::character::complete::char as ch;
-use nom::IResult;
-use nom::combinator::value;
 use nom::bytes::complete::tag;
+use nom::character::complete::char as ch;
+use nom::combinator::value;
+use nom::IResult;
 
 impl BinaryOp {
     /// Logical AND operator in long form.
@@ -29,21 +29,13 @@ fn short_or_long<'s>(
 /// Parse the logical AND operator. Currently matches on `&&` or
 /// the logical AND associated constant defined in BinaryOp.
 pub fn parse_logical_and(input: Fragment) -> IResult<Fragment, BinaryOp> {
-    short_or_long(
-        "&&",
-        BinaryOp::LOGICAL_AND,
-        BinaryOp::LogicalAnd
-    )(input)
+    short_or_long("&&", BinaryOp::LOGICAL_AND, BinaryOp::LogicalAnd)(input)
 }
 
 /// Parse the logical OR operator. Currently matches on `||` or
 /// the logical OR associated constant defined in BinaryOp.
 pub fn parse_logical_or(input: Fragment) -> IResult<Fragment, BinaryOp> {
-    short_or_long(
-        "||",
-        BinaryOp::LOGICAL_OR,
-        BinaryOp::LogicalOr
-    )(input)
+    short_or_long("||", BinaryOp::LOGICAL_OR, BinaryOp::LogicalOr)(input)
 }
 
 /// Parse a 'bitwise or' operator ('|').
@@ -65,7 +57,7 @@ pub fn parse_and(input: Fragment) -> IResult<Fragment, BinaryOp> {
 pub fn parse_equality_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
     alt((
         value(BinaryOp::EqEq, tag("==")),
-        value(BinaryOp::NotEq, tag("!="))
+        value(BinaryOp::NotEq, tag("!=")),
     ))(input)
 }
 
@@ -95,10 +87,7 @@ pub fn parse_bitshift_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
 /// Parse an arithmetic operator of lower precedence.
 /// This is currently just addition and subtraction.
 pub fn parse_arithmetic_operator1(input: Fragment) -> IResult<Fragment, BinaryOp> {
-    alt((
-        value(BinaryOp::Add, ch('+')),
-        value(BinaryOp::Sub, ch('-')),
-    ))(input)
+    alt((value(BinaryOp::Add, ch('+')), value(BinaryOp::Sub, ch('-'))))(input)
 }
 
 /// Parse an arithmetic operator of higher precedence.

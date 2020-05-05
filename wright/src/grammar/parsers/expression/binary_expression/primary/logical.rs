@@ -1,11 +1,15 @@
-use crate::grammar::ast::{Expression};
+use crate::grammar::ast::Expression;
 use crate::grammar::model::Fragment;
-use crate::grammar::parsers::expression::binary_expression::operator::{parse_logical_or, parse_logical_and};
-use crate::grammar::parsers::expression::binary_expression::primary::{to_expr, parser_left};
+use crate::grammar::parsers::expression::binary_expression::operator::{
+    parse_logical_and, parse_logical_or,
+};
+use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{
+    bitwise_or, bitwise_or_primary,
+};
+use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, to_expr};
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
-use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{bitwise_or, bitwise_or_primary};
 
 /// Parse possible children of a logical OR expression.
 pub fn logical_or_primary(input: Fragment) -> IResult<Fragment, Expression> {

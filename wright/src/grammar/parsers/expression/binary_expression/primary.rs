@@ -1,21 +1,24 @@
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Conditional, Expression, Name, Parens, NumLit, StringLit, BooleanLit, SelfLit, FuncCallExpression};
+use crate::grammar::ast::Block;
+use crate::grammar::ast::{
+    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, FuncCallExpression, Name,
+    NumLit, Parens, SelfLit, StringLit,
+};
 use crate::grammar::model::Fragment;
+use crate::grammar::parsers::expression::binary_expression::primary::{
+    arithmetic::{arithmetic1, arithmetic2},
+    bitshift::bitshift,
+    bitwise::{bitwise_and, bitwise_or, bitwise_xor},
+    equality::equality,
+    logical::{logical_and, logical_or},
+    range::range_expr,
+    relational::relational,
+};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
-use nom::combinator::{map};
+use nom::combinator::map;
 use nom::multi::many1;
-use nom::sequence::{delimited, pair,};
+use nom::sequence::{delimited, pair};
 use nom::IResult;
-use crate::grammar::parsers::expression::binary_expression::primary::{
-    equality::equality,
-    relational::relational,
-    range::range_expr,
-    logical::{logical_or, logical_and},
-    bitwise::{bitwise_or, bitwise_xor, bitwise_and},
-    bitshift::bitshift,
-    arithmetic::{arithmetic1, arithmetic2},
-};
-use crate::grammar::ast::Block;
 
 /// Module for parsing range expressions.
 /// This includes Range and RangeTo operators.
@@ -65,7 +68,7 @@ pub(self) fn to_expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {
 }
 
 /// Return a parser for a precedence level of left associative operator.
-pub(self) fn parser_left<'s, >(
+pub(self) fn parser_left<'s>(
     child: fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
     operator: fn(Fragment<'s>) -> IResult<Fragment<'s>, BinaryOp>,
 ) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
@@ -74,13 +77,9 @@ pub(self) fn parser_left<'s, >(
             pair(
                 child,
                 many1(pair(
-                    delimited(
-                        token_delimiter,
-                        operator.clone(),
-                        token_delimiter
-                    ),
-                    child
-                ))
+                    delimited(token_delimiter, operator.clone(), token_delimiter),
+                    child,
+                )),
             ),
             |(fst, following)| {
                 let mut acc = fst;
@@ -91,7 +90,7 @@ pub(self) fn parser_left<'s, >(
                     acc = BinaryExpression::new_merge(acc, op, right).into();
                 }
                 acc
-            }
+            },
         )(input)
     }
 }
