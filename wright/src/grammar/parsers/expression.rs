@@ -1,7 +1,7 @@
 use std::mem::discriminant;
 
 /// Binary expression parser and utilities.
-pub mod binary_expression;
+pub(crate) mod binary_expression;
 
 /// Unary expression parser.
 pub(crate) mod unary_expression;
@@ -32,12 +32,15 @@ mod expression_tests;
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
+use nom::branch::alt;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        // temporary: call BinaryExpression::parse when implemented
-        BinaryExpression::primary(input)
+        alt((
+            BinaryExpression::parse,
+            binary_expression::base_primary,
+        ))(input)
     }
 }
 
@@ -59,20 +62,6 @@ impl<'s> HasFragment<'s> for Expression<'s> {
             IndexExpression(i) => i.get_fragment(),
             FuncCall(i) => i.get_fragment(),
         }
-    }
-}
-
-/// Trait implemented by all members of the
-/// `Expression` node in an AST.
-pub(crate) trait ToExpression<'s>: HasFragment<'s> + AstEq {
-    /// Construct an `Expression` from this object.
-    fn create_expr(self) -> Expression<'s>;
-}
-
-impl<'s> ToExpression<'s> for Expression<'s> {
-    #[inline]
-    fn create_expr(self) -> Expression<'s> {
-        self
     }
 }
 

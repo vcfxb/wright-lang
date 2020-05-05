@@ -1,6 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Block, Expression, Statement};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
@@ -47,8 +46,8 @@ impl<'s> HasFragment<'s> for Block<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for Block<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for Block<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::Block(self)
     }
 }

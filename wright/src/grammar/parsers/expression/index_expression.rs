@@ -1,7 +1,6 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::{Expression, IndexExpression};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
@@ -47,8 +46,8 @@ impl<'s> AstEq for IndexExpression<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for IndexExpression<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for IndexExpression<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::IndexExpression(self)
     }
 }
