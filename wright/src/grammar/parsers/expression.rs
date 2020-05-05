@@ -1,19 +1,20 @@
 use std::mem::discriminant;
 
 /// Binary expression parser and utilities.
-pub(crate) mod binary_expression;
+pub(self) mod binary_expression;
+#[cfg(test)]
+mod binary_expression_tests;
 
 /// Unary expression parser.
-pub(crate) mod unary_expression;
+pub(self) mod unary_expression;
 
 /// Index expression parsers.
-pub(crate) mod index_expression;
+pub(self) mod index_expression;
 
 /// Function call expression parser.
-pub(crate) mod func_call;
-// TODO: uncomment this when expression parser is done (it hits a `todo!()` otherwise)
-//#[cfg(test)]
-//mod func_call_tests;
+pub(self) mod func_call;
+#[cfg(test)]
+mod func_call_tests;
 
 /// Conditional expression parsers.
 pub(crate) mod conditional;

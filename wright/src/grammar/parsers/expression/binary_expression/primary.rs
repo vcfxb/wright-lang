@@ -2,11 +2,10 @@ use crate::grammar::ast::{BinaryExpression, BinaryOp, Conditional, Expression, N
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
-use nom::combinator::{map, value};
+use nom::combinator::{map};
 use nom::multi::many1;
-use nom::sequence::{delimited, pair, preceded, separated_pair};
+use nom::sequence::{delimited, pair,};
 use nom::IResult;
-use nom::bytes::complete::tag;
 use crate::grammar::parsers::expression::binary_expression::primary::{
     equality::equality,
     relational::relational,

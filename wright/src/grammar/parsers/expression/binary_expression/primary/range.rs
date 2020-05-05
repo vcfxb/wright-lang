@@ -3,7 +3,7 @@ use nom::IResult;
 use crate::grammar::ast::{Expression, BinaryOp, BinaryExpression};
 use nom::branch::alt;
 use crate::grammar::parsers::expression::binary_expression::primary::logical::{logical_or, logical_or_primary};
-use nom::sequence::{separated_pair, tuple, delimited};
+use nom::sequence::{tuple, delimited};
 use nom::combinator::{map, value};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::bytes::complete::tag;

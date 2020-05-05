@@ -1,10 +1,8 @@
 use crate::grammar::model::Fragment;
 use nom::IResult;
-use crate::grammar::ast::{Expression, BinaryOp};
+use crate::grammar::ast::{Expression};
 use nom::branch::alt;
-use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, base_primary};
-use nom::combinator::value;
-use nom::bytes::complete::tag;
+use crate::grammar::parsers::expression::binary_expression::primary::{parser_left};
 use crate::grammar::parsers::expression::binary_expression::operator::{parse_or, parse_xor, parse_and};
 use crate::grammar::parsers::expression::binary_expression::primary::equality::{equality, equality_primary};
 

@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression};
+use crate::grammar::ast::{BinaryOp};
 use crate::grammar::model::Fragment;
 use nom::branch::alt;
 use nom::character::complete::char as ch;

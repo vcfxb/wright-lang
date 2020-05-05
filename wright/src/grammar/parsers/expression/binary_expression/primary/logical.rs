@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BinaryOp, Expression};
+use crate::grammar::ast::{Expression};
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::expression::binary_expression::operator::{parse_logical_or, parse_logical_and};
 use crate::grammar::parsers::expression::binary_expression::primary::{to_expr, parser_left};
