@@ -24,8 +24,8 @@ pub(crate) mod parens;
 
 /// Block parser.
 pub(crate) mod block;
-#[cfg(test)]
-mod block_tests;
+//#[cfg(test)]
+//mod block_tests;
 
 #[cfg(test)]
 mod expression_tests;
@@ -39,6 +39,7 @@ use crate::grammar::ast::eq::ast_eq;
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        println!("Expr::parse"); assert!(false);
         alt((BinaryExpression::parse, binary_expression::base_primary))(input)
     }
 }

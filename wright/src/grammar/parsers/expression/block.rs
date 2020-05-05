@@ -7,6 +7,7 @@ use nom::combinator::{map, opt};
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
+use std::io::Write;
 
 impl<'s> Block<'s> {
     /// Start of block in source code.
@@ -17,6 +18,7 @@ impl<'s> Block<'s> {
     fn inner(
         input: Fragment<'s>,
     ) -> IResult<Fragment<'s>, (Vec<Statement<'s>>, Option<Box<Expression<'s>>>)> {
+        //println!("Calling Block::inner");
         pair(
             many0(terminated(Statement::parse, token_delimiter)),
             opt(map(Expression::parse, |e| Box::new(e))),
@@ -28,6 +30,7 @@ impl<'s> Block<'s> {
     /// the end. There may be no statements, in which case it is considered to
     /// be a series of length 0.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        //println!("Block::parse");
         map(
             with_input(delimited(
                 pair(tag(Self::START_DELIMITER), token_delimiter),

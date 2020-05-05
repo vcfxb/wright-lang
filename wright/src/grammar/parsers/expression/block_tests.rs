@@ -2,16 +2,57 @@ use crate::grammar::ast::Block;
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
 
-#[test]
-#[ignore] // waiting for expression parsing to be implemented
-fn test_empty_block() {
-    let (f, h) = setup("{} ");
+fn test_eq(src1: &'static str, src2: &'static str) {
+
+}
+
+fn block_test(
+    src: &'static str,
+    should_fail: bool,
+    remaining: Option<&'static str>,
+    block_params: impl Fn(Block) -> bool
+) {
+    let (f, h) = setup(src);
     let fr = Fragment::new(&f, h);
     let res = Block::parse(fr);
-    assert!(res.is_ok());
-    let (remaining, block) = res.unwrap();
-    assert_eq!(remaining.len(), 1);
-    assert!(block.result.is_none());
-    assert!(block.statements.is_empty());
-    assert_eq!(block.frag.len(), 2);
+    if should_fail {
+        assert!(res.is_err());
+    } else {
+        assert!(res.is_ok());
+        let (rem, node) = res.unwrap();
+        assert_eq!(rem.source(), remaining.unwrap());
+        assert!(block_params(node));
+    }
+}
+
+/// Block test (should succeed).
+fn btss(
+    src: &'static str,
+    rem: &'static str,
+    block_params: impl Fn(Block) -> bool
+) {block_test(src, false, Some(rem), block_params)}
+
+#[test]
+fn test_empty_block() {
+    btss(
+        "{} ",
+        " ",
+        |b| {
+            b.result.is_none() && b.statements.is_empty()
+    })
+}
+
+#[test]
+fn test_discarded_expression() {
+    btss(
+        "{2+2; } ",
+        " ",
+        |b| {
+            b.result.is_none() && b.statements.len() == 1
+    })
+}
+
+#[test]
+fn test_unterminated() {
+    block_test("{", true, None, |b| {true})
 }
