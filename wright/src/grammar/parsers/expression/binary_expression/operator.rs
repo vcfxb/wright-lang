@@ -47,3 +47,8 @@ pub fn parse_logical_or(input: Fragment) -> IResult<Fragment, BinaryOp> {
 pub fn parse_or(input: Fragment) -> IResult<Fragment, BinaryOp> {
     value(BinaryOp::Or, ch('|'))(input)
 }
+
+/// Parse a 'bitwise xor' operator ('^').
+pub fn parse_xor(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    value(BinaryOp::Xor, ch('^'))(input)
+}
