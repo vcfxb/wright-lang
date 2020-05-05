@@ -1,4 +1,4 @@
-use crate::grammar::ast::eq::AstEq;
+use crate::grammar::ast::eq::{AstEq, ast_eq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::combinator::map;
@@ -21,12 +21,6 @@ impl<'s> Statement<'s> {
 impl<'s> AstEq for Statement<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Statement::*;
-
-        // shorthand fn
-        fn aeq<T: AstEq>(a: &T, b: &T) -> bool {
-            AstEq::ast_eq(a, b)
-        }
-
         // discriminant is a function from std::mem
         // (https://doc.rust-lang.org/std/mem/fn.discriminant.html)
         // that returns an opaque type represents which variant of an enum
@@ -39,7 +33,7 @@ impl<'s> AstEq for Statement<'s> {
         }
 
         match (fst, snd) {
-            (ExpressionStatement(a), ExpressionStatement(b)) => aeq(a, b),
+            (ExpressionStatement(a), ExpressionStatement(b)) => ast_eq(a, b),
             _ => unimplemented!(),
         }
     }

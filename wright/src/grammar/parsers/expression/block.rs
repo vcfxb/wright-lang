@@ -23,7 +23,10 @@ impl<'s> Block<'s> {
         )(input)
     }
 
-    /// Parse a block in source code.
+    /// Parse a block in source code. A block is delimited by `{` and `}`.
+    /// Blocks contain a series of statements, and optionally an expression at
+    /// the end. There may be no statements, in which case it is considered to
+    /// be a series of length 0.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
             with_input(delimited(

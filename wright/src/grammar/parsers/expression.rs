@@ -34,6 +34,7 @@ use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::branch::alt;
 use nom::IResult;
+use crate::grammar::ast::eq::ast_eq;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
@@ -66,10 +67,6 @@ impl<'s> HasFragment<'s> for Expression<'s> {
 impl<'s> AstEq for Expression<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
-        // shorthand fn
-        fn aeq<T: AstEq>(a: T, b: T) -> bool {
-            AstEq::ast_eq(&a, &b)
-        }
 
         // discriminant is a function from std::mem
         // (https://doc.rust-lang.org/std/mem/fn.discriminant.html)
@@ -83,18 +80,18 @@ impl<'s> AstEq for Expression<'s> {
         }
 
         match (fst, snd) {
-            (NumLit(a), NumLit(b)) => aeq(a, b),
-            (CharLit(a), CharLit(b)) => aeq(a, b),
-            (StringLit(a), StringLit(b)) => aeq(a, b),
-            (BooleanLit(a), BooleanLit(b)) => aeq(a, b),
-            (Name(a), Name(b)) => aeq(a, b),
-            (Parens(a), Parens(b)) => aeq(a, b),
-            (BinaryExpression(a), BinaryExpression(b)) => aeq(a, b),
-            (SelfLit(a), SelfLit(b)) => aeq(a, b),
-            (Block(a), Block(b)) => aeq(a, b),
-            (UnaryExpression(a), UnaryExpression(b)) => aeq(a, b),
-            (Conditional(a), Conditional(b)) => aeq(a, b),
-            (IndexExpression(a), IndexExpression(b)) => aeq(a, b),
+            (NumLit(a), NumLit(b)) => ast_eq(a, b),
+            (CharLit(a), CharLit(b)) => ast_eq(a, b),
+            (StringLit(a), StringLit(b)) => ast_eq(a, b),
+            (BooleanLit(a), BooleanLit(b)) => ast_eq(a, b),
+            (Name(a), Name(b)) => ast_eq(a, b),
+            (Parens(a), Parens(b)) => ast_eq(a, b),
+            (BinaryExpression(a), BinaryExpression(b)) => ast_eq(a, b),
+            (SelfLit(a), SelfLit(b)) => ast_eq(a, b),
+            (Block(a), Block(b)) => ast_eq(a, b),
+            (UnaryExpression(a), UnaryExpression(b)) => ast_eq(a, b),
+            (Conditional(a), Conditional(b)) => ast_eq(a, b),
+            (IndexExpression(a), IndexExpression(b)) => ast_eq(a, b),
             (_, _) => unimplemented!(),
         }
     }

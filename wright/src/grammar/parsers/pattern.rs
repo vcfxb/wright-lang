@@ -1,6 +1,6 @@
 mod num_lit;
 
-use crate::grammar::ast::eq::AstEq;
+use crate::grammar::ast::eq::{AstEq, ast_eq};
 use crate::grammar::ast::BooleanLit;
 use crate::grammar::ast::CharLit;
 use crate::grammar::ast::Identifier;
@@ -76,20 +76,14 @@ impl<'s> AstEq for Pattern<'s> {
         if discriminant(fst) != discriminant(snd) {
             return false;
         }
-
-        // shorthand fn
-        fn aeq<T: AstEq>(a: &T, b: &T) -> bool {
-            AstEq::ast_eq(a, b)
-        }
-
         use Pattern::*;
         match (fst, snd) {
-            (Underscore(a), Underscore(b)) => aeq(a, b),
-            (NumLit(a), NumLit(b)) => aeq(a, b),
-            (CharLit(a), CharLit(b)) => aeq(a, b),
-            (StringLit(a), StringLit(b)) => aeq(a, b),
-            (BooleanLit(a), BooleanLit(b)) => aeq(a, b),
-            (Identifier(a), Identifier(b)) => aeq(a, b),
+            (Underscore(a), Underscore(b)) => ast_eq(a, b),
+            (NumLit(a), NumLit(b)) => ast_eq(a, b),
+            (CharLit(a), CharLit(b)) => ast_eq(a, b),
+            (StringLit(a), StringLit(b)) => ast_eq(a, b),
+            (BooleanLit(a), BooleanLit(b)) => ast_eq(a, b),
+            (Identifier(a), Identifier(b)) => ast_eq(a, b),
             _ => unreachable!(),
         }
     }
