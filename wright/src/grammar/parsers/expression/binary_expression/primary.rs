@@ -12,14 +12,18 @@ use nom::bytes::complete::tag;
 /// This includes Range and RangeTo operators.
 pub mod range;
 
-/// Module for parsing 'logical or' expressions.
-pub(self) mod logical_or;
+/// Module for parsing logical expressions, including
+/// logical 'or', and logical 'and'.
+pub(self) mod logical;
 
-/// Module for parsing 'logical and' expressions.
-pub(self) mod logical_and;
+/// Module for parsing bitwise expressions, including
+/// bitwise 'or', 'xor', and 'and' operations.
+pub(self) mod bitwise;
 
-/// Module for parsing 'bitwise or' expressions.
-pub(self) mod bitwise_or;
+/// Module for parsing equality expressions, including
+/// 'equals' and 'not equals'.
+pub(self) mod equality;
+
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.

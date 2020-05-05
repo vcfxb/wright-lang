@@ -52,3 +52,16 @@ pub fn parse_or(input: Fragment) -> IResult<Fragment, BinaryOp> {
 pub fn parse_xor(input: Fragment) -> IResult<Fragment, BinaryOp> {
     value(BinaryOp::Xor, ch('^'))(input)
 }
+
+/// Parse a 'bitwise and' operator ('&').
+pub fn parse_and(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    value(BinaryOp::And, ch('&'))(input)
+}
+
+/// Parse an 'equals' (`==`) or 'not equals' (`!=`).
+pub fn parse_equality_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    alt((
+        value(BinaryOp::EqEq, tag("==")),
+        value(BinaryOp::NotEq, tag("!="))
+    ))(input)
+}
