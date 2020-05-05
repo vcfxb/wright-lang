@@ -1,12 +1,13 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
+use nom::branch::alt;
 
 /// Operator parsing functions.
-pub(crate) mod operator;
+pub(self) mod operator;
 
 /// Primary parsing functions used in manual recursive descent parsing.
-pub(crate) mod primary;
+pub(self) mod primary;
 
 impl<'s> BinaryExpression<'s> {
     fn new(
@@ -45,10 +46,10 @@ impl<'s> BinaryExpression<'s> {
     /// Parse a binary expression in source code.
     /// ## Operator precedence:
     /// Wright binary operators are parsed internally using a precedence
-    /// climbing algorithm. The operator precedences are as follows:
-
+    /// climbing algorithm. The operator precedences are documented
+    /// [here](https://github.com/Wright-Language-Developers/docs/blob/master/syntax/operator-precedence.md).
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        todo!("binary expression parser")
+
     }
 }
 

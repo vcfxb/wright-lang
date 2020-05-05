@@ -12,6 +12,9 @@ impl BinaryOp {
 
     /// Logical OR operator in long form.
     pub const LOGICAL_OR: &'static str = "or";
+
+    /// Modulus operator in long form.
+    pub const MOD: &'static str = "mod";
 }
 
 /// Parse the short or long version of a binary operator.
@@ -78,7 +81,7 @@ pub fn parse_relational_operator(input: Fragment) -> IResult<Fragment, BinaryOp>
     ))(input)
 }
 
-/// Parse a bitshift expression.
+/// Parse a bitshift operator.
 /// These include 'left shift' (`<<`), 'right shift' (`>>`),
 /// and 'unsigned right shift' (`>>>`).
 pub fn parse_bitshift_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
@@ -86,5 +89,24 @@ pub fn parse_bitshift_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
         value(BinaryOp::LeftShift, tag("<<")),
         value(BinaryOp::UnsignedRightShift, tag(">>>")),
         value(BinaryOp::RightShift, tag(">>")),
+    ))(input)
+}
+
+/// Parse an arithmetic operator of lower precedence.
+/// This is currently just addition and subtraction.
+pub fn parse_arithmetic_operator1(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    alt((
+        value(BinaryOp::Add, ch('+')),
+        value(BinaryOp::Sub, ch('-')),
+    ))(input)
+}
+
+/// Parse an arithmetic operator of higher precedence.
+/// This includes multiplication, division, and the modulus operator.
+pub fn parse_arithmetic_operator2(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    alt((
+        value(BinaryOp::Mul, ch('*')),
+        value(BinaryOp::Div, ch('/')),
+        short_or_long("%", BinaryOp::MOD, BinaryOp::Mod),
     ))(input)
 }

@@ -80,3 +80,8 @@ pub(self) fn parser_left<'s, >(
         )(input)
     }
 }
+
+/// Parse a binary expression.
+pub fn parse_binary_expr(inpuf: Fragment) -> IResult<Fragment, Expression> {
+
+}

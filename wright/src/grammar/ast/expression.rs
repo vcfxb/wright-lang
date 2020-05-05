@@ -35,7 +35,6 @@ pub enum BinaryOp {
     Mul,
     Div,
     Mod,
-    MemberAccess
 }
 
 /// A binary expression in source code.
