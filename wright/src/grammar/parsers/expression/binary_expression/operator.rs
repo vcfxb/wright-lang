@@ -65,3 +65,15 @@ pub fn parse_equality_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
         value(BinaryOp::NotEq, tag("!="))
     ))(input)
 }
+
+/// Parse a relational operator.
+/// Relational operators include greater than (`>`), less than (`<`),
+/// and their inclusive counterparts (`>=` and `<=` respectively).
+pub fn parse_relational_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    alt((
+        value(BinaryOp::Ge, tag(">=")),
+        value(BinaryOp::Le, tag("<=")),
+        value(BinaryOp::Gt, ch('>')),
+        value(BinaryOp::Lt, ch('<')),
+    ))(input)
+}

@@ -24,6 +24,9 @@ pub(self) mod bitwise;
 /// 'equals' and 'not equals'.
 pub(self) mod equality;
 
+/// Module for parsing relational expressions.
+/// These include all of the comparison operators.
+pub(self) mod relational;
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
