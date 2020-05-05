@@ -28,6 +28,12 @@ pub(self) mod equality;
 /// These include all of the comparison operators.
 pub(self) mod relational;
 
+/// Module for parsing bitshift expressions.
+pub(self) mod bitshift;
+
+/// Module for parsing arithmetic operators.
+pub(self) mod arithmetic;
+
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
 pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {

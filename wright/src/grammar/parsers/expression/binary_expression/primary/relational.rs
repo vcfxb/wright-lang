@@ -4,10 +4,11 @@ use crate::grammar::ast::Expression;
 use crate::grammar::parsers::expression::binary_expression::primary::parser_left;
 use nom::branch::alt;
 use crate::grammar::parsers::expression::binary_expression::operator::parse_relational_operator;
+use crate::grammar::parsers::expression::binary_expression::primary::bitshift::{bitshift, bitshift_primary};
 
 /// Parser for sub expressions of a relational expression.
 pub fn relational_primary(input: Fragment) -> IResult<Fragment, Expression> {
-    todo!()
+    alt((bitshift, bitshift_primary))(input)
 }
 
 /// Parse a relational expression.

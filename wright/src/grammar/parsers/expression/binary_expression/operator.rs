@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BinaryExpression, BinaryOp};
+use crate::grammar::ast::{BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::Fragment;
 use nom::branch::alt;
 use nom::character::complete::char as ch;
@@ -75,5 +75,16 @@ pub fn parse_relational_operator(input: Fragment) -> IResult<Fragment, BinaryOp>
         value(BinaryOp::Le, tag("<=")),
         value(BinaryOp::Gt, ch('>')),
         value(BinaryOp::Lt, ch('<')),
+    ))(input)
+}
+
+/// Parse a bitshift expression.
+/// These include 'left shift' (`<<`), 'right shift' (`>>`),
+/// and 'unsigned right shift' (`>>>`).
+pub fn parse_bitshift_operator(input: Fragment) -> IResult<Fragment, BinaryOp> {
+    alt((
+        value(BinaryOp::LeftShift, tag("<<")),
+        value(BinaryOp::UnsignedRightShift, tag(">>>")),
+        value(BinaryOp::RightShift, tag(">>")),
     ))(input)
 }
