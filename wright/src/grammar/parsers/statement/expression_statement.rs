@@ -12,7 +12,6 @@ use nom::IResult;
 impl<'s> ExpressionStatement<'s> {
     /// Parse an expression followed by a semicolon in source code.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        //println!("ExprStmnt::parse");
         map(
             with_input(terminated(
                 Expression::parse,

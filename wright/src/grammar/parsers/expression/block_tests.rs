@@ -2,10 +2,6 @@ use crate::grammar::ast::Block;
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::testing::setup;
 
-fn test_eq(src1: &'static str, src2: &'static str) {
-
-}
-
 fn block_test(
     src: &'static str,
     should_fail: bool,
