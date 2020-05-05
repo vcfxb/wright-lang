@@ -1,7 +1,6 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::IResult;
-use nom::branch::alt;
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
 
 /// Operator parsing functions.
