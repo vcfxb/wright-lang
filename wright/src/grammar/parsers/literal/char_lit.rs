@@ -1,7 +1,6 @@
 use crate::grammar::ast::{eq::AstEq, CharLit, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 
-use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
@@ -95,8 +94,8 @@ impl<'s> HasFragment<'s> for CharLit<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for CharLit<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for CharLit<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::CharLit(self)
     }
 }

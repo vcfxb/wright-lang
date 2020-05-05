@@ -1,6 +1,5 @@
 use crate::grammar::ast::{AstEq, Expression, Identifier, Name, ScopedName};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use nom::branch::alt;
 use nom::combinator::map;
 use nom::IResult;
@@ -27,12 +26,12 @@ impl<'s> HasFragment<'s> for Name<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for Name<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for Name<'s> {
+    fn into(self) -> Expression<'s> {
         use Name::*;
         match self {
-            Identifier(n) => n.create_expr(),
-            ScopedName(n) => n.create_expr(),
+            Identifier(n) => n.into(),
+            ScopedName(n) => n.into(),
         }
     }
 }

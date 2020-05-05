@@ -10,7 +10,6 @@ use crate::grammar::{ast::NumLit, model::Fragment};
 
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::HasFragment;
-use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;
 use std::num::ParseIntError;
 
@@ -102,8 +101,8 @@ impl<'s> HasFragment<'s> for NumLit<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for NumLit<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for NumLit<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::NumLit(self)
     }
 }

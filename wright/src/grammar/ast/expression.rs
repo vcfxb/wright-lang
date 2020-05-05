@@ -12,26 +12,29 @@ pub struct Parens<'s> {
 
 /// The type of binary operation being done.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum BinaryOp {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    And,
-    AndAnd,
+    Range,
+    RangeInclusive,
+    LogicalOr,
+    LogicalAnd,
     Or,
-    OrOr,
-    Mod,
+    Xor,
+    And,
+    EqEq,
+    NotEq,
     Lt,
     Gt,
     Le,
     Ge,
-    EqEq,
-    NotEq,
-    Xor,
-    // removed Dot, Walrus, for reconsideration.
-    DotDot,
+    LeftShift,
+    RightShift,
+    UnsignedRightShift,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
 }
 
 /// A binary expression in source code.
@@ -47,9 +50,37 @@ pub struct BinaryExpression<'s> {
     pub right: Box<Expression<'s>>,
 }
 
+/// Type of range expression.
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
+pub enum RangeOperator {
+    /// A RangeTo Expression of the form `..n`.
+    RangeTo,
+    /// A RangeFrom Expression of the form `n..`.
+    RangeFrom,
+    /// A RangeFromInclusive Expression of the form `..=n`.
+    RangeToInclusive
+}
+
+/// A RangeTo, RangeFrom, or RangeToInclusive expression.
+/// RangeTo: `..100`.
+/// RangeFrom: `100..`.
+/// RangeToInclusive: `..=100`.
+///
+/// Full range expressions are handled by the
+/// [binary expression parser](struct.BinaryExpression.html).
+#[derive(Debug, Clone)]
+pub struct RangeExpression<'s> {
+    /// Associated fragment in source code.
+    pub frag: Fragment<'s>,
+    /// The range operator in use.
+    pub op: RangeOperator,
+    /// The expression being operated on.
+    pub expr: Box<Expression<'s>>,
+}
+
 /// Unary expression operators.
 #[allow(missing_docs)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, IntoEnumIterator)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum UnaryOp {
     LogicalNot,
     BitwiseNot,

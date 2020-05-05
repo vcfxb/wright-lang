@@ -9,7 +9,6 @@ fn setup(val: &'static str) -> (Files<String>, FileId) {
 }
 
 #[test]
-#[ignore] // remove when expressions are implemented
 fn bin_op() {
     let (files, h) = setup("2 + 2");
     let frag = Fragment::new(&files, h);

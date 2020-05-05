@@ -22,7 +22,6 @@ codespan = "0.9"
 codespan-reporting = "0.7"
 exitcode = "1"
 nom = "^5.1"
-enum-iterator = "0.6.0"
 
 [[bin]]
 name = "wright"

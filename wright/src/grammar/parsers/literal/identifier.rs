@@ -1,7 +1,8 @@
-use crate::grammar::ast::{eq::AstEq, Conditional, Expression, Name, SelfLit, Underscore};
+use crate::grammar::ast::{
+    eq::AstEq, BinaryOp, Conditional, Expression, Name, SelfLit, Underscore,
+};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use nom::bytes::complete::take_while;
 use nom::character::complete::anychar;
 use nom::combinator::{map, recognize, verify};
@@ -11,13 +12,15 @@ use nom::IResult;
 
 impl<'s> Identifier<'s> {
     /// Reserved words that an identifier must not match.
-    pub const RESERVED_WORDS: [&'static str; 6] = [
+    pub const RESERVED_WORDS: [&'static str; 8] = [
         BooleanLit::FALSE,
         BooleanLit::TRUE,
         SelfLit::SELF,
         Conditional::IF,
         Conditional::ELSE,
         Underscore::UNDERSCORE,
+        BinaryOp::LOGICAL_AND,
+        BinaryOp::LOGICAL_OR,
     ];
 
     fn new(frag: Fragment<'s>) -> Self {
@@ -52,8 +55,8 @@ impl<'s> HasFragment<'s> for Identifier<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for Identifier<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for Identifier<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::Name(Name::Identifier(self))
     }
 }

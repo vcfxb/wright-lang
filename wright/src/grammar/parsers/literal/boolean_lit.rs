@@ -1,6 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, BooleanLit, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -37,8 +36,8 @@ impl<'s> HasFragment<'s> for BooleanLit<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for BooleanLit<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for BooleanLit<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::BooleanLit(self)
     }
 }

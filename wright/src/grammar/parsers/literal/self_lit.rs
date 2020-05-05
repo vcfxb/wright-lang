@@ -1,6 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
 use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::expression::ToExpression;
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::IResult;
@@ -19,8 +18,8 @@ impl<'s> SelfLit<'s> {
     }
 }
 
-impl<'s> ToExpression<'s> for SelfLit<'s> {
-    fn create_expr(self) -> Expression<'s> {
+impl<'s> Into<Expression<'s>> for SelfLit<'s> {
+    fn into(self) -> Expression<'s> {
         Expression::SelfLit(self)
     }
 }
