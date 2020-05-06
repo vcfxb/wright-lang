@@ -27,7 +27,7 @@ pub fn test_ast_eq<T: AstEq>(
 }
 
 /// Run a specific test on a given parser.
-fn run_test<O, T>(
+fn run_test<'a, O, I, T>(
     parser: fn(Fragment) -> IResult<Fragment, O>,
     src: &'static str,
     should_fail: bool,
@@ -35,7 +35,8 @@ fn run_test<O, T>(
     output_test: T
 )
 where
-    T: FnOnce(O) -> bool,
+    T: FnOnce(I) -> bool,
+    O: Into<I>
 {
     let mut f: Files<String> = Files::new();
     let h: FileId = f.add("test", src.to_string());
@@ -47,24 +48,24 @@ where
         assert!(res.is_ok());
         let (rem, node) = res.unwrap();
         assert_eq!(rem.source(), remaining.unwrap());
-        assert!(output_test(node));
+        assert!(output_test(node.into()));
     }
 }
 
 /// Run a test on a parser using a certain input and expect it to succeed.
 #[inline]
-pub fn test_should_succeed<T>(
-    parser: fn(Fragment) -> IResult<Fragment, T>,
+pub fn test_should_succeed<O, I: From<O>>(
+    parser: fn(Fragment) -> IResult<Fragment, O>,
     src: &'static str,
     remaining: &'static str,
-    output_test: impl Fn(T) -> bool
+    output_test: impl Fn(I) -> bool
 ) {
     run_test(parser, src, false, Some(remaining), output_test)
 }
 
-/// Run a test on a parser using a given input and expect it to fail.
-#[inline]
-pub fn test_should_fail<T>(
-    parser: fn(Fragment) -> IResult<Fragment, T>,
-    src: &'static str,
-) {run_test(parser, src, true, None, |_| true)}
+// /// Run a test on a parser using a given input and expect it to fail.
+// #[inline]
+// pub fn test_should_fail<T>(
+//     parser: fn(Fragment) -> IResult<Fragment, T>,
+//     src: &'static str,
+// ) {run_test(parser, src, true, None, |_| true)}

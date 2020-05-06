@@ -9,6 +9,9 @@ pub(self) mod operator;
 /// Primary parsing functions used in manual recursive descent parsing.
 pub(self) mod primary;
 
+/// Re-export the base-primary for use in the general expression parser.
+pub(crate) use primary::base_primary;
+
 impl<'s> BinaryExpression<'s> {
     fn new(
         frag: Fragment<'s>,
@@ -77,5 +80,3 @@ impl<'s> AstEq for BinaryExpression<'s> {
     }
 }
 
-/// Re-export the base-primary for use in the general expression parser.
-pub(crate) use primary::base_primary;
