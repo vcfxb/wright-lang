@@ -1,7 +1,7 @@
 use codespan::{FileId, Files};
 use crate::grammar::model::Fragment;
 use nom::IResult;
-use crate::grammar::ast::AstEq;
+use crate::grammar::ast::{AstEq};
 
 /// Setup function to create a Files object and return a handle with it.
 pub fn setup(src: &'static str) -> (Files<String>, FileId) {
@@ -27,14 +27,18 @@ pub fn test_ast_eq<T: AstEq>(
 }
 
 /// Run a specific test on a given parser.
-fn run_test<T>(
-    parser: fn(Fragment) -> IResult<Fragment, T>,
+fn run_test<O, T>(
+    parser: fn(Fragment) -> IResult<Fragment, O>,
     src: &'static str,
     should_fail: bool,
     remaining: Option<&'static str>,
-    output_test: impl Fn(T) -> bool
-) {
-    let (f, h) = setup(src);
+    output_test: T
+)
+where
+    T: FnOnce(O) -> bool,
+{
+    let mut f: Files<String> = Files::new();
+    let h: FileId = f.add("test", src.to_string());
     let fr = Fragment::new(&f, h);
     let res = parser(fr);
     if should_fail {
@@ -54,7 +58,9 @@ pub fn test_should_succeed<T>(
     src: &'static str,
     remaining: &'static str,
     output_test: impl Fn(T) -> bool
-) {run_test(parser, src, false, Some(remaining), output_test)}
+) {
+    run_test(parser, src, false, Some(remaining), output_test)
+}
 
 /// Run a test on a parser using a given input and expect it to fail.
 #[inline]
