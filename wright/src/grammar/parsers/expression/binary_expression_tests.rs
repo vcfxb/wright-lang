@@ -8,8 +8,8 @@ fn p(f: Fragment) -> IResult<Fragment, Expression> {
 }
 
 #[test]
-fn test_binary_expr_simple() {
-    test_should_succeed(
+fn test_binary_expr_simple<'a>() {
+    test_should_succeed::<Expression<'a>, _>(
         p,
         "2 + 2",
         "",

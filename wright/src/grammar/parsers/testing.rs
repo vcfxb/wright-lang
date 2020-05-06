@@ -27,7 +27,7 @@ pub fn test_ast_eq<T: AstEq>(
 }
 
 /// Run a specific test on a given parser.
-fn run_test<'a, O, I, T>(
+fn run_test<'a, O, T>(
     parser: fn(Fragment) -> IResult<Fragment, O>,
     src: &'static str,
     should_fail: bool,
@@ -35,8 +35,7 @@ fn run_test<'a, O, I, T>(
     output_test: T
 )
 where
-    T: FnOnce(I) -> bool,
-    O: Into<I>
+    T: FnOnce(O) -> bool,
 {
     let mut f: Files<String> = Files::new();
     let h: FileId = f.add("test", src.to_string());
@@ -54,12 +53,14 @@ where
 
 /// Run a test on a parser using a certain input and expect it to succeed.
 #[inline]
-pub fn test_should_succeed<O, I: From<O>>(
+pub fn test_should_succeed<O, T>(
     parser: fn(Fragment) -> IResult<Fragment, O>,
     src: &'static str,
     remaining: &'static str,
-    output_test: impl Fn(I) -> bool
-) {
+    output_test: T
+)
+where T: FnOnce(O) -> bool
+{
     run_test(parser, src, false, Some(remaining), output_test)
 }
 
