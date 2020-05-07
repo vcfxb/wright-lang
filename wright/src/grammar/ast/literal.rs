@@ -23,14 +23,6 @@ pub struct ScopedName<'s> {
     pub name: Identifier<'s>,
 }
 
-/// Either an identifier or a scoped name.
-#[derive(Clone, Debug)]
-#[allow(missing_docs)]
-pub enum Name<'s> {
-    Identifier(Identifier<'s>),
-    ScopedName(ScopedName<'s>),
-}
-
 /// Numerical literal in wright source code.
 /// i.e. `10`, `0xCa1a0`, `0b0101_0101`, `100_000`
 #[derive(Copy, Clone, Debug)]

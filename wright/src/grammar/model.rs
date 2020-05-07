@@ -43,7 +43,7 @@ impl<'s> Fragment<'s> {
             files,
             handle,
             span,
-            source,
+            source
         }
     }
 
@@ -132,6 +132,7 @@ impl<'s> Fragment<'s> {
         }
     }
 }
+
 
 impl<'s> AsBytes for Fragment<'s> {
     #[inline]

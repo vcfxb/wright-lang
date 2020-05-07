@@ -1,5 +1,5 @@
 use crate::grammar::ast::Identifier;
-use crate::grammar::model::Fragment;
+use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::testing::TestingContext;
 
 fn test_ident(s: &'static str, should_err: bool) {
@@ -43,4 +43,13 @@ fn test_idents() {
     ["abc", "a_bc", "n0", "xd"]
         .iter()
         .for_each(|s| test_ident(s, false))
+}
+
+#[test]
+fn test_trailing() {
+    TestingContext::with(&["variable "])
+        .test_output(Identifier::parse, 0, |(rem, node)| {
+            assert_eq!(rem.source(), " ");
+            assert_eq!(node.get_fragment().source(), "variable");
+        })
 }

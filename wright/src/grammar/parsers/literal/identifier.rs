@@ -1,5 +1,5 @@
 use crate::grammar::ast::{
-    eq::AstEq, BinaryOp, Conditional, Expression, Name, SelfLit, Underscore,
+    eq::AstEq, BinaryOp, Conditional, SelfLit, Underscore,
 };
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{Fragment, HasFragment};
@@ -52,12 +52,6 @@ impl<'s> Identifier<'s> {
 impl<'s> HasFragment<'s> for Identifier<'s> {
     fn get_fragment(&self) -> Fragment<'s> {
         self.frag
-    }
-}
-
-impl<'s> Into<Expression<'s>> for Identifier<'s> {
-    fn into(self) -> Expression<'s> {
-        Expression::Name(Name::Identifier(self))
     }
 }
 

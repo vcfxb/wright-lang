@@ -1,6 +1,6 @@
 use crate::grammar::ast::Block;
 use crate::grammar::ast::{
-    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, Name, NumLit, Parens, SelfLit,
+    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, ScopedName, NumLit, Parens, SelfLit,
     StringLit,
 };
 use crate::grammar::model::Fragment;
@@ -58,7 +58,7 @@ pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {
         map(SelfLit::parse, to_expr),
         map(Conditional::parse, to_expr),
         //map(FuncCallExpression::parse, to_expr), // make sure we aren't causing recursion
-        map(Name::parse, to_expr),
+        map(ScopedName::parse, to_expr),
     ))(input)
 }
 

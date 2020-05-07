@@ -1,5 +1,5 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{Block, Expression, FuncCall, Name, Parens};
+use crate::grammar::ast::{Block, Expression, FuncCall, ScopedName, Parens};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
@@ -24,9 +24,9 @@ impl<'s> FuncCall<'s> {
         alt((
             // map(IndexExpression::parse, Expression::IndexExpression),
             // commented out to avoid possible recursion.
-            map(Block::parse, Expression::Block),
-            map(Parens::parse, Expression::Parens),
-            map(Name::parse, Expression::Name),
+            map(Block::parse, Block::into),
+            map(Parens::parse, Parens::into),
+            map(ScopedName::parse, ScopedName::into),
         ))(input)
     }
 

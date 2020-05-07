@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BooleanLit, CharLit, Name, NumLit, SelfLit, Statement, StringLit};
+use crate::grammar::ast::{BooleanLit, CharLit, NumLit, SelfLit, Statement, StringLit, ScopedName};
 use crate::grammar::model::Fragment;
 
 /// An expression in parentheses in wright source code.
@@ -153,7 +153,7 @@ pub enum Expression<'s> {
     CharLit(CharLit<'s>),
     StringLit(StringLit<'s>),
     BooleanLit(BooleanLit<'s>),
-    Name(Name<'s>),
+    ScopedName(ScopedName<'s>),
     Parens(Parens<'s>),
     BinaryExpression(BinaryExpression<'s>),
     UnaryExpression(UnaryExpression<'s>),

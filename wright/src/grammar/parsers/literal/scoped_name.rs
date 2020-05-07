@@ -1,11 +1,11 @@
-use crate::grammar::ast::{eq::AstEq, Expression, Identifier, Name, ScopedName};
+use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
 use nom::combinator::map;
-use nom::multi::separated_nonempty_list;
-use nom::sequence::delimited;
+use nom::multi::{many0};
+use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 
 impl<'s> ScopedName<'s> {
@@ -15,14 +15,20 @@ impl<'s> ScopedName<'s> {
     /// Parses a ScopedName from the given input fragment.
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
-            with_input(separated_nonempty_list(
-                delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
+            with_input(pair(
+                many0(terminated(
+                    Identifier::parse,
+                    delimited(token_delimiter,
+                        tag(Self::SEPARATOR),
+                        token_delimiter
+                    )
+                )),
                 Identifier::parse,
             )),
-            |(frag, names)| Self {
+            |(frag, (path, name))| Self {
                 frag,
-                path: names[..names.len() - 1].to_vec(),
-                name: names[names.len() - 1],
+                path,
+                name,
             },
         )(input)
     }
@@ -36,7 +42,7 @@ impl<'s> HasFragment<'s> for ScopedName<'s> {
 
 impl<'s> Into<Expression<'s>> for ScopedName<'s> {
     fn into(self) -> Expression<'s> {
-        Expression::Name(Name::ScopedName(self))
+        Expression::ScopedName(self)
     }
 }
 

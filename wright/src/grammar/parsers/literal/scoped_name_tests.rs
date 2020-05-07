@@ -1,5 +1,6 @@
 use crate::grammar::ast::ScopedName;
 use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::model::HasFragment;
 
 #[test]
 fn test_empty() {
@@ -31,18 +32,24 @@ fn test_delimiter() {
 
 #[test]
 fn test_trailing() {
-    let ctx = TestingContext::with(&["foo::", "foo ::"]);
+    let ctx = TestingContext::with(&["foo::", "foo ::", "foo::1"]);
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
         assert_eq!(remaining.source(), "::");
-        assert_eq!(node.path.len(), 0);
+        assert!(node.path.is_empty());
         assert_eq!(node.name.frag.source(), "foo");
     });
 
+    ctx.test_output(ScopedName::parse, 2, |(rem, node)| {
+        assert_eq!(rem.source(), "::1");
+        assert!(node.path.is_empty());
+        assert_eq!(node.name.get_fragment().source(), "foo");
+    });
+
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
+        assert_eq!(node.name.frag.source(), "foo");
         assert_eq!(remaining.source(), " ::");
         assert_eq!(node.path.len(), 0);
-        assert_eq!(node.name.frag.source(), "foo");
     })
 }
 
