@@ -1,7 +1,7 @@
 use crate::grammar::ast::Block;
 use crate::grammar::ast::{
-    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, Name,
-    NumLit, Parens, SelfLit, StringLit,
+    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, Name, NumLit, Parens, SelfLit,
+    StringLit,
 };
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::expression::binary_expression::primary::{

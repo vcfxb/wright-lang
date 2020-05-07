@@ -30,16 +30,17 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
+use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::ast::eq::ast_eq;
 
 impl<'s> Expression<'s> {
     /// Parse an expression
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        println!("Expr::parse"); assert!(false);
+        println!("Expr::parse");
+        assert!(false);
         alt((BinaryExpression::parse, binary_expression::base_primary))(input)
     }
 }

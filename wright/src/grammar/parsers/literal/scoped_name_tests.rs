@@ -8,28 +8,25 @@ fn test_empty() {
 
 #[test]
 fn test_single() {
-    TestingContext::with(&["foo"])
-        .test_output_node(ScopedName::parse, 0, |sn| {
-            assert_eq!(sn.path.len(), 0);
-            assert_eq!(sn.name.frag.source(), "foo");
-        })
+    TestingContext::with(&["foo"]).test_output_node(ScopedName::parse, 0, |sn| {
+        assert_eq!(sn.path.len(), 0);
+        assert_eq!(sn.name.frag.source(), "foo");
+    })
 }
 
 #[test]
 fn test_multiple() {
-    TestingContext::with(&["foo::bar :: baz"])
-        .test_output_node(ScopedName::parse, 0, |sn| {
-            assert_eq!(sn.path.len(), 2);
-            assert_eq!(sn.path[0].frag.source(), "foo");
-            assert_eq!(sn.path[1].frag.source(), "bar");
-            assert_eq!(sn.name.frag.source(), "baz");
-        });
+    TestingContext::with(&["foo::bar :: baz"]).test_output_node(ScopedName::parse, 0, |sn| {
+        assert_eq!(sn.path.len(), 2);
+        assert_eq!(sn.path[0].frag.source(), "foo");
+        assert_eq!(sn.path[1].frag.source(), "bar");
+        assert_eq!(sn.name.frag.source(), "baz");
+    });
 }
 
 #[test]
 fn test_delimiter() {
-    TestingContext::with(&["::"])
-        .test_all_fail(ScopedName::parse)
+    TestingContext::with(&["::"]).test_all_fail(ScopedName::parse)
 }
 
 #[test]
@@ -51,14 +48,13 @@ fn test_trailing() {
 
 #[test]
 fn test_leading() {
-    TestingContext::with(&["::foo", ":: foo"])
-        .test_all_fail(ScopedName::parse);
+    TestingContext::with(&["::foo", ":: foo"]).test_all_fail(ScopedName::parse);
 }
 
 #[test]
 fn test_with_whitespace() {
-    assert!(TestingContext::with(&[
-        "foo::bar::baz::biz",
-        "foo \n::bar :: baz\t\t::biz"
-    ]).ast_eq(ScopedName::parse, (0,1)))
+    assert!(
+        TestingContext::with(&["foo::bar::baz::biz", "foo \n::bar :: baz\t\t::biz"])
+            .ast_eq(ScopedName::parse, (0, 1))
+    )
 }

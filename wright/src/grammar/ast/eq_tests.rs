@@ -1,6 +1,6 @@
+use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, NumLit};
 use crate::grammar::parsers::testing::TestingContext;
-use crate::grammar::ast::eq::ast_eq;
 
 #[test]
 fn test_ast_eq() {
@@ -10,7 +10,8 @@ fn test_ast_eq() {
     }
 
     let tcx = TestingContext::with(&["5", "5", "6"]);
-    let nodes = tcx.run_parser_on_all(NumLit::parse)
+    let nodes = tcx
+        .run_parser_on_all(NumLit::parse)
         .iter()
         .map(|r| r.as_ref().unwrap())
         .map(|(_, node)| *node)

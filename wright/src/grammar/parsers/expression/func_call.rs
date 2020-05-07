@@ -38,12 +38,9 @@ impl<'s> FuncCall<'s> {
                 delimited(
                     ch(Self::DELIMITER_LEFT),
                     separated_list(
-                        delimited(
-                            token_delimiter,
-                            ch(Self::ARG_SEPARATOR),
-                            token_delimiter
-                        ),
-                        Expression::parse),
+                        delimited(token_delimiter, ch(Self::ARG_SEPARATOR), token_delimiter),
+                        Expression::parse,
+                    ),
                     ch(Self::DELIMITER_RIGHT),
                 ),
             )),

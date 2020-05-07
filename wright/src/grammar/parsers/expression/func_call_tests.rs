@@ -3,20 +3,17 @@ use crate::grammar::parsers::testing::TestingContext;
 
 #[test]
 fn test_empty() {
-    TestingContext::with(&["", " ", "\n"])
-        .test_all_fail(FuncCall::parse)
+    TestingContext::with(&["", " ", "\n"]).test_all_fail(FuncCall::parse)
 }
 
 #[test]
 fn test_underscore() {
-    TestingContext::with(&["_()"])
-        .test_all_fail(FuncCall::parse)
+    TestingContext::with(&["_()"]).test_all_fail(FuncCall::parse)
 }
 
 #[test]
 fn test_reserved() {
-    TestingContext::with(&["true()", "if()", "else()"])
-        .test_all_fail(FuncCall::parse)
+    TestingContext::with(&["true()", "if()", "else()"]).test_all_fail(FuncCall::parse)
 }
 
 #[test]
@@ -28,5 +25,6 @@ fn test_calls() {
         "xd(e)",
         "foo(bar(baz), baz(bar(), foo), bar)",
         "a(b(), c(), d())",
-    ]).test_all_succeed(FuncCall::parse)
+    ])
+    .test_all_succeed(FuncCall::parse)
 }

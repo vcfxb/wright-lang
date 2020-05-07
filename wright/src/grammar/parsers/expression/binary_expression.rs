@@ -79,4 +79,3 @@ impl<'s> AstEq for BinaryExpression<'s> {
             && AstEq::ast_eq(&*fst.right, &*snd.right)
     }
 }
-

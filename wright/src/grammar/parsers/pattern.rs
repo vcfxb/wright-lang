@@ -1,6 +1,6 @@
 mod num_lit;
 
-use crate::grammar::ast::eq::{AstEq, ast_eq};
+use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::BooleanLit;
 use crate::grammar::ast::CharLit;
 use crate::grammar::ast::Identifier;

@@ -1,19 +1,18 @@
 use crate::grammar::model::Fragment;
+use crate::grammar::parsers::testing::TestingContext;
 use nom::bytes::complete::take_while1;
 use nom::error::ErrorKind;
 use nom::IResult;
 use nom::{Err, InputTakeAtPosition};
 use std::ptr::eq as ptr_eq;
-use crate::grammar::parsers::testing::TestingContext;
 
 fn test_frag_str<'a, F1, F2>(s: &'a str, f1: F1, f2: F2)
 where
     F1: for<'b> Fn(Fragment<'b>) -> IResult<Fragment<'b>, Fragment<'b>>,
     F2: Fn(&'a str) -> IResult<&'a str, &'a str>,
 {
-
     let tcx = TestingContext::with(&[s]);
-    let frag= tcx.get_fragment(0);
+    let frag = tcx.get_fragment(0);
     let p1 = f1(frag);
     let p2 = f2(s);
     match (p1, p2) {

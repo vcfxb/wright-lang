@@ -9,7 +9,9 @@ pub trait AstEq {
 /// Call to ast_eq for types that implement it.
 /// See [AstEq](trait.AstEq.html) for more information.
 #[inline]
-pub fn ast_eq<T: AstEq>(a: &T, b: &T) -> bool {AstEq::ast_eq(a,b)}
+pub fn ast_eq<T: AstEq>(a: &T, b: &T) -> bool {
+    AstEq::ast_eq(a, b)
+}
 
 impl<T> AstEq for Option<T>
 where

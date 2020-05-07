@@ -1,4 +1,4 @@
-use crate::grammar::ast::eq::{AstEq, ast_eq};
+use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
 use crate::grammar::model::{Fragment, HasFragment};
 use nom::combinator::map;
