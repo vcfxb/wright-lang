@@ -1,20 +1,19 @@
 use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::setup;
-use codespan::Files;
 use nom::bytes::complete::take_while1;
 use nom::error::ErrorKind;
 use nom::IResult;
 use nom::{Err, InputTakeAtPosition};
 use std::ptr::eq as ptr_eq;
+use crate::grammar::parsers::testing::TestingContext;
 
 fn test_frag_str<'a, F1, F2>(s: &'a str, f1: F1, f2: F2)
 where
     F1: for<'b> Fn(Fragment<'b>) -> IResult<Fragment<'b>, Fragment<'b>>,
     F2: Fn(&'a str) -> IResult<&'a str, &'a str>,
 {
-    let mut f: Files<String> = Files::new();
-    let h = f.add("test", s.to_owned());
-    let frag: Fragment = Fragment::new(&f, h);
+
+    let tcx = TestingContext::with(&[s]);
+    let frag= tcx.get_fragment(0);
     let p1 = f1(frag);
     let p2 = f2(s);
     match (p1, p2) {
@@ -54,8 +53,8 @@ fn test_take_while1() {
 
 #[test]
 fn test_split_at_position1_complete_empty() {
-    let (f, h) = setup("");
-    let fr = Fragment::new(&f, h);
+    let tcx = TestingContext::with(&[""]);
+    let fr = tcx.get_fragment(0);
     let res: IResult<Fragment, Fragment> =
         fr.split_at_position1_complete(char::is_alphabetic, ErrorKind::TakeWhile1);
     assert!(res.is_err());

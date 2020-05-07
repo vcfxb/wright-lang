@@ -1,12 +1,18 @@
 use crate::grammar::ast::SelfLit;
-use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::testing::setup;
+use crate::grammar::model::HasFragment;
+use crate::grammar::parsers::testing::TestingContext;
 
 #[test]
 fn test_self_lit() {
-    let (f, h) = setup("self");
-    let fr = Fragment::new(&f, h);
-    let parse = SelfLit::parse(fr).unwrap();
-    assert_eq!(parse.0.len(), 0);
-    assert_eq!(parse.1.get_fragment().source(), "self");
+    let tcx = TestingContext::with(&["self", "self "]);
+
+    tcx.test_output(SelfLit::parse, 0, |(remaining, node)| {
+        assert_eq!(remaining.len(), 0);
+        assert_eq!(node.get_fragment().source(), "self");
+    });
+
+    tcx.test_output(SelfLit::parse, 1, |(remaining, node)| {
+        assert_eq!(remaining.source(), " ");
+        assert_eq!(node.get_fragment().source(), "self");
+    });
 }

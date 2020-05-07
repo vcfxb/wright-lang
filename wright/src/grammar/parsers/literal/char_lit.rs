@@ -15,11 +15,13 @@ impl<'s> CharLit<'s> {
         CharLit { frag, inner }
     }
 
-    pub(crate) fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
+    /// Parse an unescaped unicode character.
+    pub(super) fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
         preceded(not(one_of("\\\t\n\r'")), anychar)(frag)
     }
 
-    pub(crate) fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
+    /// Parse any escaped or unescaped character.
+    pub(super) fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
         let vch = move |c: char, v: char| move |fragment: Fragment<'s>| value(v, ch(c))(fragment);
         let from_str_radix = |f: Fragment<'s>| u32::from_str_radix(f.source(), 16);
 

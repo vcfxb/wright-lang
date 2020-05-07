@@ -1,30 +1,21 @@
 use crate::grammar::ast::{eq::AstEq, NumLit};
-use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::setup;
-use codespan::{FileId, Files};
-
-fn setup2(src: &'static str) -> (Files<String>, FileId, FileId) {
-    let (mut files, h1) = setup(src);
-    let h2 = files.add("other", src.to_owned());
-    (files, h1, h2)
-}
-
-fn get_numlits(files: &Files<String>, h1: FileId, h2: FileId) -> (NumLit, NumLit) {
-    let a = NumLit::parse(Fragment::new(files, h1)).unwrap().1;
-    let b = NumLit::parse(Fragment::new(files, h2)).unwrap().1;
-    (a, b)
-}
+use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::ast::eq::ast_eq;
 
 #[test]
-fn test_basic() {
-    let (f, h1, h2) = setup2("5");
-    let (a, b) = get_numlits(&f, h1, h2);
-    assert!(AstEq::ast_eq(&a, &b))
-}
+fn test_ast_eq() {
+    fn test_aeq<T: AstEq>(v: &Vec<T>) {
+        assert!(ast_eq(&v[0], &v[1]));
+        assert!(!ast_eq(&v[1], &v[2]));
+    }
 
-#[test]
-fn test_box() {
-    let (f, h1, h2) = setup2("5");
-    let (a, b) = get_numlits(&f, h1, h2);
-    assert!(AstEq::ast_eq(&Box::new(a), &Box::new(b)))
+    let tcx = TestingContext::with(&["5", "5", "6"]);
+    let nodes = tcx.run_parser_on_all(NumLit::parse)
+        .iter()
+        .map(|r| r.as_ref().unwrap())
+        .map(|(_, node)| *node)
+        .collect();
+
+    test_aeq(&nodes);
+    test_aeq(&nodes.iter().map(Box::new).collect());
 }

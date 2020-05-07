@@ -1,5 +1,5 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{Block, Expression, FuncCallExpression, IndexExpression, Name, Parens};
+use crate::grammar::ast::{Block, Expression, FuncCall, Name, Parens};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
@@ -7,10 +7,10 @@ use nom::branch::alt;
 use nom::character::complete::char as ch;
 use nom::combinator::map;
 use nom::multi::separated_list;
-use nom::sequence::{delimited, pair, tuple};
+use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 
-impl<'s> FuncCallExpression<'s> {
+impl<'s> FuncCall<'s> {
     /// Left parenthesis delimiting argument list. Probably should never change.
     pub const DELIMITER_LEFT: char = '(';
 
@@ -22,7 +22,8 @@ impl<'s> FuncCallExpression<'s> {
 
     fn func_call_primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
         alt((
-            map(IndexExpression::parse, Expression::IndexExpression),
+            // map(IndexExpression::parse, Expression::IndexExpression),
+            // commented out to avoid possible recursion.
             map(Block::parse, Expression::Block),
             map(Parens::parse, Expression::Parens),
             map(Name::parse, Expression::Name),
@@ -33,11 +34,17 @@ impl<'s> FuncCallExpression<'s> {
     pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
         map(
             with_input(pair(
-                Self::func_call_primary,
+                terminated(Self::func_call_primary, token_delimiter),
                 delimited(
-                    tuple((token_delimiter, ch(Self::DELIMITER_LEFT), token_delimiter)),
-                    separated_list(ch(Self::ARG_SEPARATOR), Expression::parse),
-                    tuple((token_delimiter, ch(Self::DELIMITER_RIGHT), token_delimiter)),
+                    ch(Self::DELIMITER_LEFT),
+                    separated_list(
+                        delimited(
+                            token_delimiter,
+                            ch(Self::ARG_SEPARATOR),
+                            token_delimiter
+                        ),
+                        Expression::parse),
+                    ch(Self::DELIMITER_RIGHT),
                 ),
             )),
             move |(consumed, (func, args))| Self {
@@ -49,19 +56,19 @@ impl<'s> FuncCallExpression<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for FuncCallExpression<'s> {
+impl<'s> HasFragment<'s> for FuncCall<'s> {
     fn get_fragment(&self) -> Fragment<'s> {
         self.frag
     }
 }
 
-impl<'s> AstEq for FuncCallExpression<'s> {
+impl<'s> AstEq for FuncCall<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.func, &snd.func) && AstEq::ast_eq(&fst.args, &snd.args)
     }
 }
 
-impl<'s> Into<Expression<'s>> for FuncCallExpression<'s> {
+impl<'s> Into<Expression<'s>> for FuncCall<'s> {
     fn into(self) -> Expression<'s> {
         Expression::FuncCall(self)
     }

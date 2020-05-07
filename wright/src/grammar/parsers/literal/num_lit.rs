@@ -18,23 +18,28 @@ impl<'s> NumLit<'s> {
         Self { frag, inner: num }
     }
 
+    /// Convert a number from a string using base 16.
     fn from_hex(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 16)
     }
 
+    /// Convert a number from a string using base 10.
     pub(super) fn from_dec(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 10)
     }
 
+    /// Convert a number from a string using base 2.
     fn from_bin(input: &str) -> Result<u128, std::num::ParseIntError> {
         u128::from_str_radix(input, 2)
     }
 
+    /// Remove all underscores from a string.
     fn clear_underscores(input: &str) -> String {
         let res = input.replace("_", "");
         res
     }
 
+    /// Parse a properly formatted hexadecimal number.
     fn hex_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
@@ -52,6 +57,7 @@ impl<'s> NumLit<'s> {
         )(input)
     }
 
+    /// Parse a properly formatted binary number.
     fn bin_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(
@@ -69,6 +75,7 @@ impl<'s> NumLit<'s> {
         )(input)
     }
 
+    /// Parse a properly formatted positive decimal integer.
     pub(super) fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
         map_res(
             preceded(

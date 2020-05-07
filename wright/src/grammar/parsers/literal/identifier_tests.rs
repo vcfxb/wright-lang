@@ -1,10 +1,10 @@
 use crate::grammar::ast::Identifier;
 use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::setup;
+use crate::grammar::parsers::testing::TestingContext;
 
 fn test_ident(s: &'static str, should_err: bool) {
-    let (f, h) = setup(s);
-    let fr = Fragment::new(&f, h);
+    let tcx = TestingContext::with(&[s]);
+    let fr = tcx.get_fragment(0);
     let r = Identifier::parse(fr);
     if should_err {
         assert!(r.is_err());
