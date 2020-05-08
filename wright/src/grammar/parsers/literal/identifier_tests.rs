@@ -19,7 +19,7 @@ fn test_ident(s: &'static str, should_err: bool) {
         assert!(r.is_ok());
         let o = r.unwrap();
         assert_eq!(o.0.len(), 0);
-        assert_eq!(o.1.frag.source(), s);
+        assert_eq!(o.1.source.source(), s);
     }
 }
 

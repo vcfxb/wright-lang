@@ -65,7 +65,7 @@ fn multi_comment_single() {
 }
 
 #[test]
-fn multi_comment_mutli() {
+fn multi_comment_multi() {
     let (f, h) = setup("/* mutli line\n * multi comment */");
     let frag = Fragment::new(&f, h);
     let res = whitespace::multiline_comment(frag);

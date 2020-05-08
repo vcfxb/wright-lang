@@ -2,6 +2,19 @@ use std::io;
 use io::Write;
 use std::collections::HashMap;
 use termcolor::{ColorChoice, Color, StandardStream, ColorSpec, WriteColor};
+use nom::IResult;
+use crate::grammar::tracing::input::OptionallyTraceable;
+
+/// Traced versions of nom and wright parsers. These
+/// are currently implemented on an as used / as needed basis,
+/// so if there are some missing, you would like implemented,
+/// or you want the implementation to be more generic,
+/// make a pull request.
+/// [here](https://github.com/Wright-Language-Developers/Wright-lang/pull/new/master).
+pub mod parsers;
+
+/// Module for defining parser input accross all wright and nom parsers.
+pub mod input;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct TraceRecord {
@@ -144,7 +157,7 @@ impl TraceInfo {
             // filters terminal width to only be `Some` if it limits the
             // natural output display. Whenever it is some, it will be the required
             // width of the whitespace and arrow.
-            let mut limiting_term_width = term_width
+            let limiting_term_width = term_width
                 .filter(|w| *w<19+record.depth-1+"-> ".len()+text_width)
                 .filter(|w| *w >= 22+text_width)
                 .map(|w| w-19-text_width-1);
@@ -175,4 +188,12 @@ impl TraceInfo {
 
         Ok(())
     }
+}
+
+// FIXME link
+/// Function to automatically apply tracing information to the
+/// remainder and error branches of a nom parser result, or [`IResult`]()
+pub fn trace_result<I: OptionallyTraceable, O>(tag: &'static str, res: IResult<I, O>) -> IResult<I, O> {
+    res.map(|(r, p)| (r.trace_end_clone(tag, true), p))
+        .map_err(|err| err.map_input(|i: I| i.trace_end_clone(tag, false)))
 }

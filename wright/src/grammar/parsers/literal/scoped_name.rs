@@ -1,12 +1,14 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
 use crate::grammar::model::{Fragment, HasFragment};
 use crate::grammar::parsers::whitespace::token_delimiter;
-use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
-use nom::combinator::map;
 use nom::multi::{many0};
 use nom::sequence::{delimited, pair, terminated};
 use nom::{IResult, Err};
+use crate::grammar::tracing::{input::OptionallyTraceable, parsers::{
+    with_input::WithInputConsumed,
+    map::map
+}, trace_result};
 
 impl<'s> ScopedName<'s> {
     /// The scope separator string.
@@ -16,10 +18,11 @@ impl<'s> ScopedName<'s> {
     pub const TRACE_NAME: &'static str = "ScopedName";
 
     /// Parses a ScopedName from the given input fragment.
-    pub fn parse(mut input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        input.trace_start(Self::TRACE_NAME);
-        let res = map(
-            with_input(pair(
+    pub fn parse<I: OptionallyTraceable>(input: I) -> IResult<I, Self> {
+        let mut i: I = input.clone();
+        i.trace_start(Self::TRACE_NAME);
+        let res: IResult<I, Self> = map(
+            WithInputConsumed::with_input(pair(
                 many0(terminated(
                     Identifier::parse,
                     delimited(token_delimiter,
@@ -29,23 +32,17 @@ impl<'s> ScopedName<'s> {
                 )),
                 Identifier::parse,
             )),
-            |(frag, (path, name))| Self {
-                frag,
-                path,
-                name,
+            |wi| {
+                let (consumed, (path, name)) = wi.into();
+                Self {
+                    frag: consumed,
+                    path,
+                    name,
+                }
             },
-        )(input);
+        )(i);
 
-        res.map(|(mut rem, pr)| {
-                rem.trace_end(Self::TRACE_NAME, true);
-                (rem, pr)
-            })
-            .map_err(|e| {
-                e.map_input(|mut f| {
-                    f.trace_end(Self::TRACE_NAME, false);
-                    f
-                })
-            })
+        trace_result(Self::TRACE_NAME, res)
     }
 }
 
@@ -55,13 +52,13 @@ impl<'s> HasFragment<'s> for ScopedName<'s> {
     }
 }
 
-impl<'s> Into<Expression<'s>> for ScopedName<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I> Into<Expression<I>> for ScopedName<I> {
+    fn into(self) -> Expression<I> {
         Expression::ScopedName(self)
     }
 }
 
-impl<'s> AstEq for ScopedName<'s> {
+impl<T> AstEq for ScopedName<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
     }

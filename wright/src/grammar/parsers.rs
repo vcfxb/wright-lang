@@ -1,5 +1,6 @@
 use nom::{IResult, Offset, Slice};
 use std::ops::RangeTo;
+use crate::grammar::model::Fragment;
 
 /// Wright literal value parsers.
 pub(self) mod literal;
@@ -44,6 +45,16 @@ where
             Err(e) => Err(e),
         }
     }
+}
+
+// FIXME: test link
+/// Call [`with_input`](fn.with_input.html) on a given input fragmen
+pub fn with_input_call<F, I, O>(parser: F, input: I) -> IResult<I, (I, O)>
+    where
+        I: Clone + Offset + Slice<RangeTo<usize>>,
+        F: Fn(I) -> IResult<I, O>,
+{
+    with_input(parser)(input)
 }
 
 #[cfg(test)]

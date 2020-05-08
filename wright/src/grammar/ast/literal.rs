@@ -1,26 +1,27 @@
 use crate::grammar::model::Fragment;
+use std::fmt::Debug;
 
 /// An identifier in Wright source code.
-/// There is only one field here, the fragment of source code being referenced.
-/// This is because the identifier itself will be the same as the fragment's
+/// There is only one field here, the source code of the identifier.
+/// This is because the identifier itself will be the same as the
 /// source.
 #[derive(Clone, Debug)]
-pub struct Identifier<'s> {
-    /// Fragment in wright source code.
-    pub frag: Fragment<'s>,
+pub struct Identifier<SourceCodeReference: Copy + Debug> {
+    /// Reference to associated source code.
+    pub source: SourceCodeReference,
 }
 
 /// A scoped, or qualified, name.
 #[derive(Clone, Debug)]
-pub struct ScopedName<'s> {
+pub struct ScopedName<SourceCodeReference: Clone + Debug> {
     /// The source code fragment.
-    pub frag: Fragment<'s>,
+    pub frag: SourceCodeReference,
     /// The sequence of simple identifiers.
     /// Example: foo::bar::baz -> [ foo, bar ]
-    pub path: Vec<Identifier<'s>>,
+    pub path: Vec<SourceCodeReference>,
     /// The final simple identifier
     /// Example: foo::bar::baz -> baz
-    pub name: Identifier<'s>,
+    pub name: Identifier<SourceCodeReference>,
 }
 
 /// Numerical literal in wright source code.

@@ -10,7 +10,7 @@ use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
 
-impl<'s> Identifier<'s> {
+impl<I> Identifier<I> {
     /// Reserved words that an identifier must not match.
     pub const RESERVED_WORDS: [&'static str; 8] = [
         BooleanLit::FALSE,
@@ -23,8 +23,8 @@ impl<'s> Identifier<'s> {
         BinaryOp::LOGICAL_OR,
     ];
 
-    fn new(frag: Fragment<'s>) -> Self {
-        Self { frag }
+    fn new(source: I) -> Self {
+        Self {  }
     }
 
     fn raw_ident(input: Fragment<'s>) -> IResult<Fragment<'s>, Fragment<'s>> {
@@ -44,19 +44,19 @@ impl<'s> Identifier<'s> {
     /// Parse an identifier from source code. Identifiers may include
     /// ASCII alphanumerics and underscores, but must not start with a number.
     /// An Identifier also must not be a reserved word.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+    pub fn parse(input: I) -> IResult<Fragment<'s>, Self> {
         context("expected identifier", map(Self::raw_ident, Self::new))(input)
     }
 }
 
 impl<'s> HasFragment<'s> for Identifier<'s> {
     fn get_fragment_reference(&self) -> &Fragment<'s> {
-        &self.frag
+        &self.source
     }
 }
 
 impl<'s> AstEq for Identifier<'s> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.frag.source() == snd.frag.source()
+        fst.source.source() == snd.source.source()
     }
 }

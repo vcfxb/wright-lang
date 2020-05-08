@@ -9,6 +9,7 @@ use nom::{
     InputLength, InputTake, InputTakeAtPosition, Needed, Offset, ParseTo, Slice,
 };
 use crate::grammar::tracing::TraceInfo;
+use crate::grammar::tracing::input::{OptionallyTraceable};
 
 /// A piece of source code. Generally used to replace strings in the nom parser,
 /// this structure stores extra information about the location of a fragment of
@@ -146,11 +147,10 @@ impl<'s> Fragment<'s> {
             })
         }
     }
+}
 
-    /// If function tracing is enabled, this will record a
-    /// start tag to the tracing object. Otherwise, this
-    /// does nothing.
-    pub fn trace_start(&mut self, tag: &'static str) {
+impl<'s> OptionallyTraceable for Fragment<'s> {
+    fn trace_start(&mut self, tag: &'static str) {
         if self.tracer.is_some() {
             let mut t = self.tracer.clone().unwrap();
             t.start(tag);
@@ -158,11 +158,7 @@ impl<'s> Fragment<'s> {
         }
     }
 
-
-    /// If function tracing is enabled, this will record a
-    /// end tag (with success flag) to the tracing object. Otherwise, this
-    /// does nothing.
-    pub fn trace_end(&mut self, tag: &'static str, success: bool) {
+    fn trace_end(&mut self, tag: &'static str, success: bool) {
         if self.tracer.is_some() {
             let mut t = self.tracer.clone().unwrap();
             t.end(tag, success);
@@ -170,8 +166,7 @@ impl<'s> Fragment<'s> {
         }
     }
 
-    /// Get a clone of this object's trace (if available.)
-    pub fn get_trace(&self) -> Option<TraceInfo> {
+    fn get_trace(&self) -> Option<TraceInfo> {
         self.tracer.clone()
     }
 }

@@ -2,6 +2,7 @@ use crate::grammar::ast::AstEq;
 use crate::grammar::model::Fragment;
 use codespan::{FileId, Files};
 use nom::IResult;
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 /// A testing context that holds test cases for wright parsers and
 /// runs those tests via the exposed methods.
@@ -145,12 +146,11 @@ impl TestingContext {
         validation: impl FnOnce((Fragment<'a>, N)),
     ) {
         validation(self.run_parser_on(index, parser).map_err(|e| {
-            println!("Error: {:#?}", e);
             e.map_input(|f: Fragment| {
                 f.get_trace().unwrap().print().unwrap();
                 f
             })
-        }).unwrap())
+        }).expect("parser failed"))
     }
 
     /// Run a given test on the output of a given parser when applied to the
