@@ -35,6 +35,8 @@ fn test_trailing() {
     let ctx = TestingContext::with(&["foo::", "foo ::", "foo::1"]);
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
+        println!("{:?}", remaining.get_trace());
+        //remaining.get_trace().unwrap().print().unwrap();
         assert_eq!(remaining.source(), "::");
         assert!(node.path.is_empty());
         assert_eq!(node.name.frag.source(), "foo");

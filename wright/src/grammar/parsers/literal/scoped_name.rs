@@ -6,15 +6,19 @@ use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::multi::{many0};
 use nom::sequence::{delimited, pair, terminated};
-use nom::IResult;
+use nom::{IResult, Err};
 
 impl<'s> ScopedName<'s> {
     /// The scope separator string.
     pub const SEPARATOR: &'static str = "::";
 
+    /// The name this will appear under when tracing a parse.
+    pub const TRACE_NAME: &'static str = "ScopedName";
+
     /// Parses a ScopedName from the given input fragment.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(
+    pub fn parse(mut input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
+        input.trace_start(Self::TRACE_NAME);
+        let res = map(
             with_input(pair(
                 many0(terminated(
                     Identifier::parse,
@@ -30,7 +34,18 @@ impl<'s> ScopedName<'s> {
                 path,
                 name,
             },
-        )(input)
+        )(input);
+
+        res.map(|(mut rem, pr)| {
+                rem.trace_end(Self::TRACE_NAME, true);
+                (rem, pr)
+            })
+            .map_err(|e| {
+                e.map_input(|mut f| {
+                    f.trace_end(Self::TRACE_NAME, false);
+                    f
+                })
+            })
     }
 }
 

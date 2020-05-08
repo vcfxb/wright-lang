@@ -40,7 +40,9 @@ impl TestingContext {
 
     /// Get the fragment of a given file by index. Panics if index is out of bounds.
     pub fn get_fragment<'a>(&'a self, index: usize) -> Fragment<'a> {
-        Fragment::new(&self.files, self.handles[index])
+        let mut f = Fragment::new(&self.files, self.handles[index]);
+        f.enable_trace();
+        f
     }
 
     /// Run a parser on a source in this object. return the output in the
@@ -98,6 +100,7 @@ impl TestingContext {
                         "Parser succeeded on \"{}\" when it should have failed. (test case {})",
                         source, ind
                     );
+                    r.as_ref().unwrap().0.get_trace().unwrap().print().unwrap();
                 }
                 r
             })
@@ -117,6 +120,7 @@ impl TestingContext {
                 if !r.is_ok() {
                     let source = self.get_fragment(ind).source();
                     println!("Parser failed on \"{}\". (test case {})", source, ind);
+                    r.as_ref().unwrap().0.get_trace().unwrap().print().unwrap();
                 }
                 r
             })
@@ -140,7 +144,13 @@ impl TestingContext {
         index: usize,
         validation: impl FnOnce((Fragment<'a>, N)),
     ) {
-        validation(self.run_parser_on(index, parser).expect("parser failed"))
+        validation(self.run_parser_on(index, parser).map_err(|e| {
+            println!("Error: {:#?}", e);
+            e.map_input(|f: Fragment| {
+                f.get_trace().unwrap().print().unwrap();
+                f
+            })
+        }).unwrap())
     }
 
     /// Run a given test on the output of a given parser when applied to the

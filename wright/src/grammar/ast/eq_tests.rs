@@ -13,8 +13,8 @@ fn test_ast_eq() {
     let nodes = tcx
         .run_parser_on_all(NumLit::parse)
         .iter()
-        .map(|r| r.as_ref().unwrap())
-        .map(|(_, node)| *node)
+        // extract actual numlit nodes
+        .map(|r| r.as_ref().unwrap().1.clone())
         .collect();
 
     test_aeq(&nodes);

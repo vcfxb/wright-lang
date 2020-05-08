@@ -53,7 +53,7 @@ impl TraceInfo {
     /// try to reverse find from a specific index.
     /// will not include the specified index.
     /// searches for another record of the same depth and tag.
-    fn rfind(&self, index: usize) -> Option<usize> {
+    pub(super) fn rfind(&self, index: usize) -> Option<usize> {
         if index >= 1 && index < self.inner.len() {
             let depth = self.inner[index].depth;
             let tag = self.inner[index].tag;
@@ -61,13 +61,14 @@ impl TraceInfo {
             let mut i = index-1;
             // iterate backwards through record history
             // and try to find one with matching depth and tag.
-            while i > 0 {
+            loop {
                 let r = &self.inner[i];
                 // if found, return.
                 if r.depth == depth && r.tag == tag {
                     return Some(i);
                 }
                 i -= 1;
+                if i == 0 {break};
             }
             None
         } else {None}
@@ -98,6 +99,10 @@ impl TraceInfo {
     /// We use [atty](https://crates.io/crates/atty)
     /// and [termcolor](https://crates.io/crates/termcolor)
     /// to do our best to determine when to color the output.
+    ///
+    /// This also uses conditional compilation to ensure that
+    /// we still reach the standard output in testing environments
+    /// (when `cfg!(test)` is true).
     pub fn print(&self) -> io::Result<()> {
         let color_config = if atty::is(atty::Stream::Stdout) {
             ColorChoice::Auto
@@ -111,7 +116,10 @@ impl TraceInfo {
         let mut stdout = StandardStream::stdout(color_config);
 
         // write header
+        #[cfg(not(test))]
         writeln!(&mut stdout, "|{:>7} |{:>7} | {}", "->", "<-", "parser")?;
+        #[cfg(test)]
+        println!("|{:>7} |{:>7} | {}", "->", "<-", "parser");
 
         // color specification.
         let mut success_spec = ColorSpec::new();
@@ -151,6 +159,7 @@ impl TraceInfo {
             let forwards = record.depth >= prev_depth;
 
             // write call level info.
+            #[cfg(not(test))]
             write!(&mut stdout, "|{:>7} |{:>7} |",
                 if forwards {level.to_string()} else {"".to_owned()},
 
@@ -158,6 +167,15 @@ impl TraceInfo {
                 else if !forwards {level.to_string()}
                 else {"".to_owned()}
             )?;
+
+            #[cfg(test)]
+            print!("|{:>7} |{:>7} |",
+                   if forwards {level.to_string()} else {"".to_owned()},
+
+                   if !forwards && level == 0 {"---".to_owned()}
+                   else if !forwards {level.to_string()}
+                   else {"".to_owned()}
+            );
 
             // get the appropriate color spec.
             let spec = record.success
@@ -176,12 +194,23 @@ impl TraceInfo {
                 .filter(|w| *w<19+record.depth-1+"-> ".len()+text_width)
                 .filter(|w| *w >= 22+text_width)
                 .map(|w| w-19-text_width-1);
+
+            #[cfg(not(test))]
             write!(&mut stdout, "{1:>0$} ",
                 limiting_term_width.unwrap_or(record.depth-1+2),
                 if forwards {"-> "} else {"<- "}
             )?;
+
+            #[cfg(test)]
+            print!("{1:>0$} ", record.depth-1+2, if forwards {"-> "} else {"<- "});
+
             stdout.reset()?;
+
+            #[cfg(not(test))]
             writeln!(&mut stdout, "{}", record.tag)?;
+
+            #[cfg(test)]
+            println!("{}", record.tag);
         }
 
         Ok(())
