@@ -46,22 +46,22 @@ impl<'s> Expression<'s> {
 }
 
 impl<'s> HasFragment<'s> for Expression<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
         use Expression::*;
         match self {
-            NumLit(i) => i.get_fragment(),
-            CharLit(i) => i.get_fragment(),
-            StringLit(i) => i.get_fragment(),
-            BooleanLit(i) => i.get_fragment(),
-            ScopedName(i) => i.get_fragment(),
-            Parens(i) => i.get_fragment(),
-            BinaryExpression(i) => i.get_fragment(),
-            SelfLit(i) => i.get_fragment(),
-            Block(i) => i.get_fragment(),
-            UnaryExpression(i) => i.get_fragment(),
-            Conditional(i) => i.get_fragment(),
-            IndexExpression(i) => i.get_fragment(),
-            FuncCall(i) => i.get_fragment(),
+            NumLit(i) => i.get_fragment_reference(),
+            CharLit(i) => i.get_fragment_reference(),
+            StringLit(i) => i.get_fragment_reference(),
+            BooleanLit(i) => i.get_fragment_reference(),
+            ScopedName(i) => i.get_fragment_reference(),
+            Parens(i) => i.get_fragment_reference(),
+            BinaryExpression(i) => i.get_fragment_reference(),
+            SelfLit(i) => i.get_fragment_reference(),
+            Block(i) => i.get_fragment_reference(),
+            UnaryExpression(i) => i.get_fragment_reference(),
+            Conditional(i) => i.get_fragment_reference(),
+            IndexExpression(i) => i.get_fragment_reference(),
+            FuncCall(i) => i.get_fragment_reference(),
         }
     }
 }

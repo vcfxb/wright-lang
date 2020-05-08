@@ -42,7 +42,10 @@ impl<'s> BinaryExpression<'s> {
         let e2 = right.into();
         // currently use unwrap here. fragment merging should not fail
         // internally.
-        let frag = Fragment::merge(e1.get_fragment(), e2.get_fragment()).unwrap();
+        let frag = Fragment::merge(
+            e1.get_fragment_reference(),
+            e2.get_fragment_reference())
+            .unwrap();
         Self::new(frag, e1, op, e2)
     }
 
@@ -61,8 +64,8 @@ impl<'s> BinaryExpression<'s> {
 }
 
 impl<'s> HasFragment<'s> for BinaryExpression<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
+        &self.frag
     }
 }
 

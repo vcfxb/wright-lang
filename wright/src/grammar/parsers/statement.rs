@@ -40,10 +40,10 @@ impl<'s> AstEq for Statement<'s> {
 }
 
 impl<'s> HasFragment<'s> for Statement<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
         use Statement::*;
         match self {
-            ExpressionStatement(s) => s.get_fragment(),
+            ExpressionStatement(s) => s.get_fragment_reference(),
         }
     }
 }

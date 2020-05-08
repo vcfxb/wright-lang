@@ -1,5 +1,5 @@
 use crate::grammar::ast::StringLit;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 
 fn do_test(s: &'static str, r: &'static str, o: &'static str) {
     let tcx = TestingContext::with(&[s]);

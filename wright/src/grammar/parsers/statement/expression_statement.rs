@@ -27,8 +27,8 @@ impl<'s> ExpressionStatement<'s> {
 
 impl<'s> HasFragment<'s> for ExpressionStatement<'s> {
     #[inline]
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
+        &self.frag
     }
 }
 

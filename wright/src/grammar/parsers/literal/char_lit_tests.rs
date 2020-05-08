@@ -1,5 +1,5 @@
 use crate::grammar::ast::CharLit;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 
 #[test]
 fn body() {

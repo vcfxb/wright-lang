@@ -4,7 +4,7 @@ use crate::grammar::model::Fragment;
 /// There is only one field here, the fragment of source code being referenced.
 /// This is because the identifier itself will be the same as the fragment's
 /// source.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Identifier<'s> {
     /// Fragment in wright source code.
     pub frag: Fragment<'s>,
@@ -25,7 +25,7 @@ pub struct ScopedName<'s> {
 
 /// Numerical literal in wright source code.
 /// i.e. `10`, `0xCa1a0`, `0b0101_0101`, `100_000`
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct NumLit<'s> {
     /// Associated fragment of source code.
     pub frag: Fragment<'s>,
@@ -37,7 +37,7 @@ pub struct NumLit<'s> {
 /// i.e `'a', '\n', '\u{01f441}', '\x00', '♦'`
 /// see [this page](https://doc.rust-lang.org/reference/tokens.html#ascii-escapes) for escape
 /// information.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct CharLit<'s> {
     /// Associated fragment of source code.
     pub frag: Fragment<'s>,
@@ -62,7 +62,7 @@ pub struct StringLit<'s> {
 
 /// Boolean literal in wright source code.
 /// i.e. `true`, `false`.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct BooleanLit<'s> {
     /// Associated fragment in source code.
     pub frag: Fragment<'s>,
@@ -71,7 +71,7 @@ pub struct BooleanLit<'s> {
 }
 
 /// `self` literal in wright source code.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct SelfLit<'s> {
     /// Associated fragment in source code.
     pub frag: Fragment<'s>,

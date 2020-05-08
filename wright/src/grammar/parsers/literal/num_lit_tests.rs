@@ -1,5 +1,5 @@
 use crate::grammar::ast::NumLit;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 
 #[test]
 fn from_dec() {

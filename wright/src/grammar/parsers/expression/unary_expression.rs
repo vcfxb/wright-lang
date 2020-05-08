@@ -18,8 +18,8 @@ impl<'s> Into<Expression<'s>> for UnaryExpression<'s> {
 }
 
 impl<'s> HasFragment<'s> for UnaryExpression<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
+        &self.frag
     }
 }
 

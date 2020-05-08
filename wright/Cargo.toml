@@ -23,6 +23,8 @@ codespan-reporting = "0.9"
 exitcode = "1"
 nom = "^5.1"
 term_size = "0.3"
+termcolor = "1.1"
+atty = "0.2.14"
 
 [[bin]]
 name = "wright"

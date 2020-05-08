@@ -15,7 +15,7 @@ pub enum Pattern<'s> {
 }
 
 /// An underscore pattern in source code.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Underscore<'s> {
     /// Associated fragment in source code.
     pub frag: Fragment<'s>,

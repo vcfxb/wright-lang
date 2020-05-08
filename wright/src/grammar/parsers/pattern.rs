@@ -57,16 +57,16 @@ impl<'s> Pattern<'s> {
 }
 
 impl<'s> HasFragment<'s> for Pattern<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
         use Pattern::*;
         match self {
-            NumLit(p) => p.get_fragment(),
-            CharLit(p) => p.get_fragment(),
-            StringLit(p) => p.get_fragment(),
-            BooleanLit(p) => p.get_fragment(),
-            Identifier(p) => p.get_fragment(),
-            Underscore(p) => p.get_fragment(),
-            ScopedName(p) => p.get_fragment(),
+            NumLit(p) => p.get_fragment_reference(),
+            CharLit(p) => p.get_fragment_reference(),
+            StringLit(p) => p.get_fragment_reference(),
+            BooleanLit(p) => p.get_fragment_reference(),
+            Identifier(p) => p.get_fragment_reference(),
+            Underscore(p) => p.get_fragment_reference(),
+            ScopedName(p) => p.get_fragment_reference(),
         }
     }
 }

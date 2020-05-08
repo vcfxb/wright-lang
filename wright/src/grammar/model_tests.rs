@@ -1,5 +1,5 @@
 use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 use nom::bytes::complete::take_while1;
 use nom::error::ErrorKind;
 use nom::IResult;

@@ -35,8 +35,8 @@ impl<'s> IndexExpression<'s> {
 }
 
 impl<'s> HasFragment<'s> for IndexExpression<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
+        &self.frag
     }
 }
 

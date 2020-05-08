@@ -91,8 +91,8 @@ impl<'s> CharLit<'s> {
 }
 
 impl<'s> HasFragment<'s> for CharLit<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
+        &self.frag
     }
 }
 

@@ -35,8 +35,8 @@ impl<'s> ScopedName<'s> {
 }
 
 impl<'s> HasFragment<'s> for ScopedName<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+    fn get_fragment_reference(&self) -> &Fragment<'s> {
+        &self.frag
     }
 }
 

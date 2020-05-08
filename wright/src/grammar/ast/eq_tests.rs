@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, NumLit};
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 
 #[test]
 fn test_ast_eq() {

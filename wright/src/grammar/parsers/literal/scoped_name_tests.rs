@@ -1,5 +1,5 @@
 use crate::grammar::ast::ScopedName;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 use crate::grammar::model::HasFragment;
 
 #[test]
@@ -43,7 +43,7 @@ fn test_trailing() {
     ctx.test_output(ScopedName::parse, 2, |(rem, node)| {
         assert_eq!(rem.source(), "::1");
         assert!(node.path.is_empty());
-        assert_eq!(node.name.get_fragment().source(), "foo");
+        assert_eq!(node.name.get_fragment_reference().source(), "foo");
     });
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {

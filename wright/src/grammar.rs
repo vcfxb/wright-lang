@@ -1,4 +1,4 @@
-/// Wright parser implementation module.
+/// Wright's parser implementation.
 pub mod parsers;
 
 /// Model for Wright's parser system.
@@ -9,3 +9,9 @@ mod model_tests;
 
 /// Model for Wright's Abstract Syntax Tree.
 pub mod ast;
+
+/// Utilities for tracing the parsing of source code.
+pub mod tracing;
+
+/// Utility functions for testing wright's parsing systems.
+pub mod testing;

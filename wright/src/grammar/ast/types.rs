@@ -24,7 +24,7 @@ pub enum PrimitiveTypeVariant {
 }
 
 /// A primitive type in source code.
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct PrimitiveType<'s> {
     /// Associated fragment in source code.
     pub frag: Fragment<'s>,
