@@ -1,9 +1,12 @@
 use std::io;
 use io::Write;
+use std::collections::HashMap;
 use termcolor::{ColorChoice, Color, StandardStream, ColorSpec, WriteColor};
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct TraceRecord {
+    forwards: bool,
+    id: usize,
     depth: usize,
     tag: &'static str,
     success: Option<bool>
@@ -11,9 +14,13 @@ struct TraceRecord {
 
 impl TraceRecord {
     /// Construct a new trace record.
-    fn new(depth: usize, tag: &'static str) -> Self {
+    fn new(depth: usize, tag: &'static str, forwards: bool, id: usize) -> Self {
         Self {
-            depth, tag, success: None
+            forwards,
+            id,
+            depth,
+            tag,
+            success: None,
         }
     }
 
@@ -30,7 +37,12 @@ pub struct TraceInfo {
     /// The current trace depth.
     depth: usize,
     /// Trace including depth and function name.
-    inner: Vec<TraceRecord>
+    inner: Vec<TraceRecord>,
+    /// the next id to be assigned.
+    next_id: usize,
+    /// Active unterminated function calls.
+    /// (tag, depth) -> (id, index)
+    active_ids: HashMap<(&'static str, usize), (usize, usize)>
 }
 
 impl TraceInfo {
@@ -39,57 +51,35 @@ impl TraceInfo {
         Self::default()
     }
 
-    /// Get the depth of this tracing object.
-    pub fn get_depth(&self) -> usize {
-        self.depth
+    /// Get the next available id.
+    fn get_next_id(&mut self) -> usize {
+        self.next_id += 1;
+        self.next_id - 1
     }
 
     /// Record the start of a function call.
     pub fn start(&mut self, tag: &'static str) {
         self.depth += 1;
-        self.inner.push(TraceRecord::new(self.depth, tag));
-    }
-
-    /// try to reverse find from a specific index.
-    /// will not include the specified index.
-    /// searches for another record of the same depth and tag.
-    pub(super) fn rfind(&self, index: usize) -> Option<usize> {
-        if index >= 1 && index < self.inner.len() {
-            let depth = self.inner[index].depth;
-            let tag = self.inner[index].tag;
-
-            let mut i = index-1;
-            // iterate backwards through record history
-            // and try to find one with matching depth and tag.
-            loop {
-                let r = &self.inner[i];
-                // if found, return.
-                if r.depth == depth && r.tag == tag {
-                    return Some(i);
-                }
-                i -= 1;
-                if i == 0 {break};
-            }
-            None
-        } else {None}
+        let id = self.get_next_id();
+        self.active_ids.insert((tag, self.depth), (id, self.inner.len()));
+        self.inner.push(TraceRecord::new(self.depth, tag, true, id));
     }
 
     /// Record the end of function call.
     ///
-    /// If a previous function call can be found of the
-    /// same name and depth as this one, it will be labeled
-    /// with the same success marker.
-    ///
     /// ## Panics:
-    /// -- if depth is 0.
+    /// - if depth is 0.
+    /// - if a matching function start record was not found.
     pub fn end(&mut self, tag: &'static str, success: bool) {
         assert_ne!(self.depth, 0);
-        self.inner.push(TraceRecord::new(self.depth, tag).success(success));
 
-        // attempt to label the matching record.
-        if let Some(i) = self.rfind(self.inner.len()-1) {
-            self.inner[i].success = Some(success);
-        }
+        let (id, index) = self.active_ids.remove(&(tag, self.depth))
+            .expect("no matching function start found.");
+
+        self.inner.push(
+            TraceRecord::new(self.depth, tag, false, id).success(success));
+
+        self.inner[index].success = Some(success); // set the success of the matching start call.
 
         self.depth -= 1;
     }
@@ -117,9 +107,9 @@ impl TraceInfo {
 
         // write header
         #[cfg(not(test))]
-        writeln!(&mut stdout, "|{:>7} |{:>7} | {}", "->", "<-", "parser")?;
+        writeln!(&mut stdout, "|{0:>7} |{1:>7} | {2}\n:{3}:{3}:{3}", "->", "<-", "parser", "-".repeat(8))?;
         #[cfg(test)]
-        println!("|{:>7} |{:>7} | {}", "->", "<-", "parser");
+        println!("|{0:>7} |{1:>7} | {2}\n:{3}:{3}:{3}", "->", "<-", "parser", "-".repeat(8));
 
         // color specification.
         let mut success_spec = ColorSpec::new();
@@ -129,53 +119,17 @@ impl TraceInfo {
         success_spec.set_intense(true);
         failure_spec.set_intense(true);
 
-        // record tagging.
-        let mut tagged_records = Vec::new();
-
-        let mut prev_depth = 0;
-        let mut fw: usize = 0;
-        let mut index = 0;
-
         for record in self.inner.iter() {
-            // is this entry into a parser a function call
-            let forwards = record.depth >= prev_depth;
-            if forwards {
-                fw += 1;
-                tagged_records.push((fw, record));
-            } else {
-                let t = self
-                    .rfind(index)
-                    .map(|i| tagged_records[i].0)
-                    .unwrap_or(0);
-                tagged_records.push((t, record));
-            }
-            index += 1;
-            prev_depth = record.depth;
-        }
+            let labels = (
+                if record.forwards {record.id.to_string()} else {"".to_owned()},
+                if !record.forwards {record.id.to_string()} else {"".to_owned()}
+            );
 
-        prev_depth = 0;
-
-        for (level, record)  in tagged_records {
-            let forwards = record.depth >= prev_depth;
-
-            // write call level info.
             #[cfg(not(test))]
-            write!(&mut stdout, "|{:>7} |{:>7} |",
-                if forwards {level.to_string()} else {"".to_owned()},
-
-                if !forwards && level == 0 {"---".to_owned()}
-                else if !forwards {level.to_string()}
-                else {"".to_owned()}
-            )?;
+            write!(&mut stdout, "|{:>7} |{:>7} |", labels.0, labels.1)?;
 
             #[cfg(test)]
-            print!("|{:>7} |{:>7} |",
-                   if forwards {level.to_string()} else {"".to_owned()},
-
-                   if !forwards && level == 0 {"---".to_owned()}
-                   else if !forwards {level.to_string()}
-                   else {"".to_owned()}
-            );
+            print!("|{:>7} |{:>7} |", labels.0, labels.1);
 
             // get the appropriate color spec.
             let spec = record.success
@@ -186,31 +140,37 @@ impl TraceInfo {
             }
 
             // 19 should be the amount of space used to write call level info.
-            let text_width = record.tag.len();
+            let text_width = record.tag.len() + 4; // add for for a (✓) or (x)
             // filters terminal width to only be `Some` if it limits the
             // natural output display. Whenever it is some, it will be the required
             // width of the whitespace and arrow.
-            let limiting_term_width = term_width
+            let mut limiting_term_width = term_width
                 .filter(|w| *w<19+record.depth-1+"-> ".len()+text_width)
                 .filter(|w| *w >= 22+text_width)
                 .map(|w| w-19-text_width-1);
 
+            let spaces = limiting_term_width.unwrap_or(record.depth-1);
+
+            let string =
+                format!("{}{}", " ".repeat(spaces+1), if record.forwards {"->"} else {"<-"});
+
             #[cfg(not(test))]
-            write!(&mut stdout, "{1:>0$} ",
-                limiting_term_width.unwrap_or(record.depth-1+2),
-                if forwards {"-> "} else {"<- "}
-            )?;
+            write!(&mut stdout, "{} ", string)?;
 
             #[cfg(test)]
-            print!("{1:>0$} ", record.depth-1+2, if forwards {"-> "} else {"<- "});
+            print!("{} ", string);
 
             stdout.reset()?;
 
+            let success_str = record.success
+                .map(|s| if s {"(✓)"} else {"(x)"})
+                .unwrap_or("( )");
+
             #[cfg(not(test))]
-            writeln!(&mut stdout, "{}", record.tag)?;
+            writeln!(&mut stdout, "{} {}", record.tag, success_str)?;
 
             #[cfg(test)]
-            println!("{}", record.tag);
+            println!("{} {}", record.tag, success_str);
         }
 
         Ok(())
