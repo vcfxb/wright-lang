@@ -6,33 +6,43 @@ use crate::grammar::model::HasSourceReference;
 
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char;
-use nom::combinator::map;
 use nom::combinator::opt;
 use nom::sequence::pair;
 use nom::IResult;
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    parsers::map::map,
+    trace_result
+};
 
-impl<'s> NumLitPattern<'s> {
+
+impl<T> NumLitPattern<T> {
+    /// Name of this parser when appearing in traces.
+    pub const TRACE_NAME: &'static str = "NumLitPattern";
+}
+
+impl<I: OptionallyTraceable> NumLitPattern<I> {
     /// Parse a numerical literal pattern. (e.g. "-12", "4")
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(Self::TRACE_NAME, map(
             with_input(pair(opt(char('-')), NumLit::parse)),
-            |(f, (neg, inner))| NumLitPattern {
-                frag: f,
+            |(consumed, (neg, inner))| NumLitPattern {
+                source: consumed,
                 negative: neg.is_some(),
                 inner,
             },
-        )(input)
+        )(input.trace_start_clone(Self::TRACE_NAME)))
     }
 }
 
-impl<'s> AstEq for NumLitPattern<'s> {
+impl<I> AstEq for NumLitPattern<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.negative == snd.negative && NumLit::ast_eq(&fst.inner, &snd.inner)
     }
 }
 
-impl<'s> HasSourceReference<'s> for NumLitPattern<'s> {
-    fn get_source_ref(&self) -> &Fragment<'s> {
-        &self.frag
+impl<I> HasSourceReference<I> for NumLitPattern<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }

@@ -26,7 +26,7 @@ pub struct Underscore<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct NumLitPattern<SourceCodeReference: Clone + Debug> {
     /// Associated source code reference.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// Whether the number literal pattern has '-' in front
     pub negative: bool,
     /// Inner number literal value

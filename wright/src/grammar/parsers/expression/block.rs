@@ -3,20 +3,27 @@ use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
-use nom::combinator::{map, opt};
+use nom::combinator::opt;
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 
-impl<'s> Block<'s> {
+impl<T> Block<T> {
+    /// Name that appears in traces.
+    pub const TRACE_NAME: &'static str = "Block";
+
     /// Start of block in source code.
     pub const START_DELIMITER: &'static str = "{";
+
     /// End of a block in source code.
     pub const END_DELIMITER: &'static str = "}";
+}
 
-    fn inner(
-        input: Fragment<'s>,
-    ) -> IResult<Fragment<'s>, (Vec<Statement<'s>>, Option<Box<Expression<'s>>>)> {
+impl<I: OptionallyTraceable> Block<I> {
+    fn inner(input: I) -> IResult<I, (Vec<Statement<I>>, Option<Box<Expression<I>>>)> {
         pair(
             many0(terminated(Statement::parse, token_delimiter)),
             opt(map(Expression::parse, |e| Box::new(e))),
@@ -27,8 +34,8 @@ impl<'s> Block<'s> {
     /// Blocks contain a series of statements, and optionally an expression at
     /// the end. There may be no statements, in which case it is considered to
     /// be a series of length 0.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(Self::TRACE_NAME, map(
             with_input(delimited(
                 pair(tag(Self::START_DELIMITER), token_delimiter),
                 Self::inner,
@@ -39,24 +46,25 @@ impl<'s> Block<'s> {
                 statements,
                 result: terminal,
             },
-        )(input)
+        )(input.trace_start_clone(Self::TRACE_NAME)))
     }
 }
 
-impl<'s> HasSourceReference<'s> for Block<'s> {
-    fn get_source_ref(&self) -> &Fragment<'s> {
+impl<I> HasSourceReference<I> for Block<I> {
+    fn get_source_ref(&self) -> &I {
         &self.frag
     }
 }
 
-impl<'s> Into<Expression<'s>> for Block<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I> Into<Expression<I>> for Block<I> {
+    fn into(self) -> Expression<I> {
         Expression::Block(self)
     }
 }
 
-impl<'s> AstEq for Block<'s> {
+impl<I> AstEq for Block<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        AstEq::ast_eq(&fst.result, &snd.result) && AstEq::ast_eq(&fst.statements, &snd.statements)
+        AstEq::ast_eq(&fst.result, &snd.result) &&
+            AstEq::ast_eq(&fst.statements, &snd.statements)
     }
 }
