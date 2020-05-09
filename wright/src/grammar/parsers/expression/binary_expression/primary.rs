@@ -76,10 +76,13 @@ where
 }
 
 /// Return a parser for a precedence level of left associative operator.
-pub(self) fn parser_left<I: OptionallyTraceable + std::fmt::Debug + Clone>(
+pub(self) fn parser_left<I>(
     child: impl Fn(I) -> IResult<I, Expression<I>>,
-    operator: impl Fn(I) -> IResult<I, BinaryOp>,
-) -> impl Fn(I) -> IResult<I, Expression<I>> {
+    operator: fn(I) -> IResult<I, BinaryOp>,
+) -> impl Fn(I) -> IResult<I, Expression<I>>
+where
+    I: OptionallyTraceable + std::fmt::Debug + Clone + PartialEq
+{
     let trace= "BinaryExpr::parser_left";
     move |input| {
         let res = map(
@@ -100,6 +103,7 @@ pub(self) fn parser_left<I: OptionallyTraceable + std::fmt::Debug + Clone>(
                 stack.reverse();
                 while !stack.is_empty() {
                     let (op, right) = stack.pop().unwrap();
+                    let sp1 =
                     acc = BinaryExpression::new_merge(acc, op, right).into();
                 }
                 acc

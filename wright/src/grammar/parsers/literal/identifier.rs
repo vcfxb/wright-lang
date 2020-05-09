@@ -69,7 +69,3 @@ impl<'a> AstEq for Identifier<Fragment<'a>> {
         fst.source.source() == snd.source.source()
     }
 }
-
-impl<T: PartialEq + std::fmt::Debug + Clone> AstEq for Identifier<T> {
-    fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.source == snd.source}
-}

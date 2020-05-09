@@ -3,7 +3,7 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char as ch;
 use nom::combinator::value;
-use nom::IResult;
+use nom::{IResult, InputTake, Compare};
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
@@ -22,11 +22,14 @@ impl BinaryOp {
 
 impl BinaryOp {
     /// Parse the short or long version of a binary operator.
-    fn short_or_long<I: OptionallyTraceable + std::fmt::Debug + Clone>(
+    fn short_or_long<'a, I>(
         short: &'static str,
         long: &'static str,
         result: BinaryOp,
-    ) -> impl Fn(I) -> IResult<I, BinaryOp> {
+    ) -> impl Fn(I) -> IResult<I, BinaryOp>
+    where
+        I: OptionallyTraceable + std::fmt::Debug + Clone + InputTake + Compare<&'a str>
+    {
         let trace = "BinaryOp::short_or_long";
         move |input| {
             trace_result(
