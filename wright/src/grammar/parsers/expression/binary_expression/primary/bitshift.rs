@@ -12,7 +12,7 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
 /// Subexpressions of a bitshift expression.
-pub fn bitshift_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitshift_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitshift_primary";
     trace_result(
         trace,
@@ -24,7 +24,7 @@ pub fn bitshift_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expressi
 }
 
 /// Bitshift expression.
-pub fn bitshift<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitshift<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitshift";
     trace_result(
         trace,

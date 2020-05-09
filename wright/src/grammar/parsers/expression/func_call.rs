@@ -12,7 +12,7 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
-impl<T> FuncCall<T> {
+impl<T: Clone + std::fmt::Debug> FuncCall<T> {
     /// Name of this parser in parse traces.
     pub const TRACE_NAME: &'static str = "FuncCall";
 
@@ -26,7 +26,7 @@ impl<T> FuncCall<T> {
     pub const ARG_SEPARATOR: char = ',';
 }
 
-impl<I: OptionallyTraceable> FuncCall<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> FuncCall<I> {
 
     fn func_call_primary(input: I) -> IResult<I, Expression<I>> {
         alt((
@@ -61,19 +61,19 @@ impl<I: OptionallyTraceable> FuncCall<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for FuncCall<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for FuncCall<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> AstEq for FuncCall<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for FuncCall<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.func, &snd.func) && AstEq::ast_eq(&fst.args, &snd.args)
     }
 }
 
-impl<I> Into<Expression<I>> for FuncCall<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for FuncCall<I> {
     fn into(self) -> Expression<I> {
         Expression::FuncCall(self)
     }

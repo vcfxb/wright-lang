@@ -10,7 +10,7 @@ use crate::grammar::tracing::trace_result;
 /// Expression statement parser.
 pub(crate) mod expression_statement;
 
-impl<T> Statement<T> {
+impl<T: Clone + std::fmt::Debug> Statement<T> {
     /// Name that appears in parse traces.
     pub const TRACE_NAME: &'static str = "Statement";
 
@@ -18,7 +18,7 @@ impl<T> Statement<T> {
     pub const TERMINATOR: char = ';';
 }
 
-impl<I: OptionallyTraceable> Statement<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Statement<I> {
     /// Parses any statement.
     pub fn parse(input: I) -> IResult<I, Statement<I>> {
         trace_result(
@@ -31,7 +31,7 @@ impl<I: OptionallyTraceable> Statement<I> {
     }
 }
 
-impl<I> AstEq for Statement<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for Statement<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Statement::*;
         // discriminant is a function from std::mem
@@ -52,7 +52,7 @@ impl<I> AstEq for Statement<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Statement<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Statement<I> {
     fn get_source_ref(&self) -> &I {
         use Statement::*;
         match self {

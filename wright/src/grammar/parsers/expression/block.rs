@@ -11,7 +11,7 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
-impl<T> Block<T> {
+impl<T: Clone + std::fmt::Debug> Block<T> {
     /// Name that appears in traces.
     pub const TRACE_NAME: &'static str = "Block";
 
@@ -22,7 +22,7 @@ impl<T> Block<T> {
     pub const END_DELIMITER: &'static str = "}";
 }
 
-impl<I: OptionallyTraceable> Block<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Block<I> {
     fn inner(input: I) -> IResult<I, (Vec<Statement<I>>, Option<Box<Expression<I>>>)> {
         pair(
             many0(terminated(Statement::parse, token_delimiter)),
@@ -50,19 +50,19 @@ impl<I: OptionallyTraceable> Block<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Block<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Block<I> {
     fn get_source_ref(&self) -> &I {
         &self.frag
     }
 }
 
-impl<I> Into<Expression<I>> for Block<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Block<I> {
     fn into(self) -> Expression<I> {
         Expression::Block(self)
     }
 }
 
-impl<I> AstEq for Block<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for Block<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.result, &snd.result) &&
             AstEq::ast_eq(&fst.statements, &snd.statements)

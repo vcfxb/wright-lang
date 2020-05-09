@@ -8,7 +8,7 @@ use crate::grammar::tracing::{
     trace_result
 };
 
-impl<T> SelfLit<T> {
+impl<T: std::fmt::Debug + Clone> SelfLit<T> {
     /// The trace name used in parser tracing.
     pub const TRACE_NAME: &'static str = "SelfLit";
 
@@ -16,7 +16,7 @@ impl<T> SelfLit<T> {
     pub const SELF: &'static str = "self";
 }
 
-impl<I: OptionallyTraceable> SelfLit<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> SelfLit<I> {
     fn new(source: I) -> Self {
         Self { source }
     }
@@ -33,19 +33,19 @@ impl<I: OptionallyTraceable> SelfLit<I> {
     }
 }
 
-impl<I> Into<Expression<I>> for SelfLit<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for SelfLit<I> {
     fn into(self) -> Expression<I> {
         Expression::SelfLit(self)
     }
 }
 
-impl<I> HasSourceReference<I> for SelfLit<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for SelfLit<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> AstEq for SelfLit<I> {
+impl<I: std::fmt::Debug + Clone> AstEq for SelfLit<I> {
     #[inline]
     fn ast_eq(_: &Self, _: &Self) -> bool {
         true

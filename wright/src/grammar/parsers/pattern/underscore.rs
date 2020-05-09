@@ -9,7 +9,7 @@ use crate::grammar::tracing::{
     trace_result
 };
 
-impl<T> Underscore<T> {
+impl<T: Clone + std::fmt::Debug> Underscore<T> {
     /// The name of this parser as it appears in parse traces.
     pub const TRACE_NAME: &'static str = "Underscore";
 
@@ -17,7 +17,7 @@ impl<T> Underscore<T> {
     pub const UNDERSCORE: &'static str = "_";
 }
 
-impl<I: OptionallyTraceable> Underscore<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Underscore<I> {
     /// Parse an underscore from source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(
@@ -27,14 +27,14 @@ impl<I: OptionallyTraceable> Underscore<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Underscore<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Underscore<I> {
     #[inline]
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> AstEq for Underscore<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for Underscore<I> {
     fn ast_eq(_: &Self, _: &Self) -> bool {
         true
     }

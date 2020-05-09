@@ -9,14 +9,19 @@ use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use crate::grammar::tracing::{input::OptionallyTraceable, parsers::map::map, trace_result};
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    parsers::map::map,
+    trace_result
+};
+use std::fmt::Debug;
 
-impl<T> StringLit<T> {
+impl<T: Debug + Clone> StringLit<T> {
     /// Name of this parser in parser tracing.
     pub const TRACE_NAME: &'static str = "StringLit";
 }
 
-impl<I: OptionallyTraceable> StringLit<I> {
+impl<I: Debug + Clone + OptionallyTraceable> StringLit<I> {
     fn new(source: I, inner: String) -> Self {
         Self { source, inner }
     }
@@ -101,19 +106,19 @@ impl<I: OptionallyTraceable> StringLit<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for StringLit<I> {
+impl<I: Debug + Clone> HasSourceReference<I> for StringLit<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for StringLit<I> {
+impl<I: Debug + Clone> Into<Expression<I>> for StringLit<I> {
     fn into(self) -> Expression<I> {
         Expression::StringLit(self)
     }
 }
 
-impl<I> AstEq for StringLit<I> {
+impl<I: Debug + Clone> AstEq for StringLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }

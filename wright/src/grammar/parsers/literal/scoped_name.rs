@@ -12,7 +12,7 @@ use crate::grammar::tracing::{
 };
 use crate::grammar::parsers::with_input;
 
-impl<T> ScopedName<T> {
+impl<T: std::fmt::Debug + Clone> ScopedName<T> {
     /// The scope separator string.
     pub const SEPARATOR: &'static str = "::";
 
@@ -20,7 +20,7 @@ impl<T> ScopedName<T> {
     pub const TRACE_NAME: &'static str = "ScopedName";
 }
 
-impl<I: OptionallyTraceable> ScopedName<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> ScopedName<I> {
     /// Parses a ScopedName from the given input fragment.
     pub fn parse(input: I) -> IResult<I, Self> {
         let res: IResult<I, Self> = map(
@@ -47,19 +47,19 @@ impl<I: OptionallyTraceable> ScopedName<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for ScopedName<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for ScopedName<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for ScopedName<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for ScopedName<I> {
     fn into(self) -> Expression<I> {
         Expression::ScopedName(self)
     }
 }
 
-impl<T> AstEq for ScopedName<T> {
+impl<T: std::fmt::Debug + Clone> AstEq for ScopedName<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
     }

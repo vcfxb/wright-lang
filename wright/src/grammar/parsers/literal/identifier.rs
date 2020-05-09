@@ -12,7 +12,7 @@ use nom::IResult;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
-impl<I: OptionallyTraceable> Identifier<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Identifier<I> {
 
     /// Name used in function tracing.
     pub const TRACE_NAME: &'static str = "Identifier";
@@ -58,7 +58,7 @@ impl<I: OptionallyTraceable> Identifier<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Identifier<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Identifier<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
@@ -70,6 +70,6 @@ impl<'a> AstEq for Identifier<Fragment<'a>> {
     }
 }
 
-impl<T: PartialEq> AstEq for Identifier<T> {
+impl<T: PartialEq + std::fmt::Debug + Clone> AstEq for Identifier<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {fst.source == snd.source}
 }

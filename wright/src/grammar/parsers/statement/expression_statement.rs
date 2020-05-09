@@ -11,12 +11,12 @@ use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
-impl<T> ExpressionStatement<T> {
+impl<T: Clone + std::fmt::Debug> ExpressionStatement<T> {
     /// Name that appears in parse traces.
     pub const TRACE_NAME: &'static str = "ExpressionStatement";
 }
 
-impl<I: OptionallyTraceable> ExpressionStatement<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> ExpressionStatement<I> {
     /// Parse an expression followed by a semicolon in source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(
@@ -32,14 +32,14 @@ impl<I: OptionallyTraceable> ExpressionStatement<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for ExpressionStatement<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for ExpressionStatement<I> {
     #[inline]
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> AstEq for ExpressionStatement<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for ExpressionStatement<I> {
     #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.inner, &snd.inner)

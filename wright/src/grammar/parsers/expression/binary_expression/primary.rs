@@ -50,7 +50,7 @@ pub(self) mod arithmetic;
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
-pub fn base_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn base_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::base_primary";
     let res = alt((
         map(Parens::parse, to_expr),
@@ -67,12 +67,17 @@ pub fn base_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I
 }
 
 /// Convert the result of a parser into an expression
-pub(self) fn to_expr<I, E: Into<Expression<I>>>(e: E) -> Expression<I> {
+#[inline]
+pub(self) fn to_expr<I, E>(e: E) -> Expression<I>
+where
+    I: std::fmt::Debug + Clone,
+    E: Into<Expression<I>>
+{
     e.into()
 }
 
 /// Return a parser for a precedence level of left associative operator.
-pub(self) fn parser_left<I: OptionallyTraceable>(
+pub(self) fn parser_left<I: OptionallyTraceable + std::fmt::Debug + Clone>(
     child: impl Fn(I) -> IResult<I, Expression<I>>,
     operator: impl Fn(I) -> IResult<I, BinaryOp>,
 ) -> impl Fn(I) -> IResult<I, Expression<I>> {
@@ -106,7 +111,7 @@ pub(self) fn parser_left<I: OptionallyTraceable>(
 }
 
 /// Parse a binary expression.
-pub fn parse_binary_expr<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn parse_binary_expr<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::parse_binary_expr";
     trace_result(trace, alt((
         range_expr,

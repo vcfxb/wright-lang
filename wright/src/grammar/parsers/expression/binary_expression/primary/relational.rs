@@ -12,7 +12,7 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
 /// Parser for sub expressions of a relational expression.
-pub fn relational_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn relational_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::relational_primary";
     trace_result(
         trace,
@@ -24,7 +24,7 @@ pub fn relational_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expres
 }
 
 /// Parse a relational expression.
-pub fn relational<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn relational<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::relational";
     trace_result(
         trace,

@@ -11,7 +11,7 @@ use crate::grammar::tracing::{
     trace_result
 };
 
-impl<T> BooleanLit<T> {
+impl<T: std::fmt::Debug + Clone> BooleanLit<T> {
     /// Literal representing a true value.
     pub const TRUE: &'static str = "true";
 
@@ -22,7 +22,7 @@ impl<T> BooleanLit<T> {
     pub const TRACE_NAME: &'static str = "BooleanLit";
 }
 
-impl<I: OptionallyTraceable> BooleanLit<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> BooleanLit<I> {
     fn new(source: I, val: bool) -> Self {
         Self {
             source,
@@ -44,19 +44,19 @@ impl<I: OptionallyTraceable> BooleanLit<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for BooleanLit<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for BooleanLit<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for BooleanLit<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for BooleanLit<I> {
     fn into(self) -> Expression<I> {
         Expression::BooleanLit(self)
     }
 }
 
-impl<I> AstEq for BooleanLit<I> {
+impl<I: std::fmt::Debug + Clone> AstEq for BooleanLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }

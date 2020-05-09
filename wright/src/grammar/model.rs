@@ -1,8 +1,8 @@
 use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
 
 use nom::error::{ErrorKind, ParseError};
-use nom::lib::std::ops::{Range, RangeFrom, RangeFull, RangeTo};
-use nom::lib::std::str::FromStr;
+use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
+use std::str::FromStr;
 use nom::Err;
 use nom::{
     AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, IResult, InputIter,

@@ -9,7 +9,7 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
 /// Parse child of a lower precedence arithmetic operator.
-pub fn arithmetic1_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn arithmetic1_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::arithmetic1_primary";
     trace_result(
         trace,
@@ -21,7 +21,7 @@ pub fn arithmetic1_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expre
 }
 
 /// Parse lower precedence arithmetic expression.
-pub fn arithmetic1<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn arithmetic1<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::arithmetic1";
     trace_result(
         trace,
@@ -33,7 +33,7 @@ pub fn arithmetic1<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>
 }
 
 /// Parse higher precedence arithmetic expression.
-pub fn arithmetic2<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn arithmetic2<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::arithmetic2";
     trace_result(
         trace,

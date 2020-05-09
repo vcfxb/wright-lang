@@ -12,7 +12,7 @@ use crate::grammar::tracing::{
     trace_result
 };
 
-impl<T> IndexExpression<T> {
+impl<T: Clone + std::fmt::Debug> IndexExpression<T> {
     /// Name used in parse traces.
     pub const TRACE_NAME: &'static str = "IndexExpression";
 
@@ -20,7 +20,7 @@ impl<T> IndexExpression<T> {
     pub const DELIMITERS: (char, char) = ('[', ']');
 }
 
-impl<I: OptionallyTraceable> IndexExpression<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> IndexExpression<I> {
     /// Parse an index expression in wright source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(
@@ -43,19 +43,19 @@ impl<I: OptionallyTraceable> IndexExpression<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for IndexExpression<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for IndexExpression<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> AstEq for IndexExpression<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for IndexExpression<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&*fst.subject, &*snd.subject) && AstEq::ast_eq(&*fst.object, &*snd.object)
     }
 }
 
-impl<I> Into<Expression<I>> for IndexExpression<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for IndexExpression<I> {
     fn into(self) -> Expression<I> {
         Expression::IndexExpression(self)
     }

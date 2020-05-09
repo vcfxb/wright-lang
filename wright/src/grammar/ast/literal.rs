@@ -5,7 +5,7 @@ use std::fmt::Debug;
 /// This is because the identifier itself will be the same as the
 /// source.
 #[derive(Clone, Debug)]
-pub struct Identifier<SourceCodeReference: Copy + Debug> {
+pub struct Identifier<SourceCodeReference: Clone + Debug> {
     /// Reference to associated source code.
     pub source: SourceCodeReference,
 }

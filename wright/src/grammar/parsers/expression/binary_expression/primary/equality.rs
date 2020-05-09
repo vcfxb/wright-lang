@@ -11,7 +11,7 @@ use nom::IResult;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
-pub fn equality_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn equality_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::equality_primary";
     trace_result(
         trace,
@@ -23,7 +23,7 @@ pub fn equality_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expressi
 }
 
 /// Parse equality expression.
-pub fn equality<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+pub fn equality<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::equality";
     trace_result(
         trace,

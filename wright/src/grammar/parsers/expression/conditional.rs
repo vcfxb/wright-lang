@@ -11,7 +11,7 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
-impl<T> Conditional<T> {
+impl<T: Clone + std::fmt::Debug> Conditional<T> {
     /// Name that appears in parse traces.
     pub const TRACE_NAME: &'static str = "Conditional";
 
@@ -22,7 +22,7 @@ impl<T> Conditional<T> {
     pub const ELSE: &'static str = "else";
 }
 
-impl<I: OptionallyTraceable> Conditional<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Conditional<I> {
     // parse an expression followed by a block.
     fn parse_branch(input: I) -> IResult<I, (Expression<I>, Block<I>)> {
         separated_pair(Expression::parse, token_delimiter, Block::parse)(input)
@@ -76,13 +76,13 @@ impl<I: OptionallyTraceable> Conditional<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Conditional<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Conditional<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> AstEq for Conditional<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for Conditional<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.default, &snd.default)
             && AstEq::ast_eq(&fst.elifs, &snd.elifs)
@@ -90,7 +90,7 @@ impl<I> AstEq for Conditional<I> {
     }
 }
 
-impl<I> Into<Expression<I>> for Conditional<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Conditional<I> {
     fn into(self) -> Expression<I> {
         Expression::Conditional(self)
     }

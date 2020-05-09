@@ -37,12 +37,12 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-impl<T> Expression<T> {
+impl<T: Clone + std::fmt::Debug> Expression<T> {
     /// The name of this parser when appearing in traces.
     pub const TRACE_NAME: &'static str = "Expression";
 }
 
-impl<I: OptionallyTraceable> Expression<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Expression<I> {
     /// Parse an expression
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(
@@ -55,7 +55,7 @@ impl<I: OptionallyTraceable> Expression<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Expression<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Expression<I> {
     fn get_source_ref(&self) -> &I {
         use Expression::*;
         match self {
@@ -76,7 +76,7 @@ impl<I> HasSourceReference<I> for Expression<I> {
     }
 }
 
-impl<T> AstEq for Expression<T> {
+impl<T: Clone + std::fmt::Debug> AstEq for Expression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
 

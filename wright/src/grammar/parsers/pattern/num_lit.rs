@@ -16,12 +16,12 @@ use crate::grammar::tracing::{
 };
 
 
-impl<T> NumLitPattern<T> {
+impl<T: Clone + std::fmt::Debug> NumLitPattern<T> {
     /// Name of this parser when appearing in traces.
     pub const TRACE_NAME: &'static str = "NumLitPattern";
 }
 
-impl<I: OptionallyTraceable> NumLitPattern<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> NumLitPattern<I> {
     /// Parse a numerical literal pattern. (e.g. "-12", "4")
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(
@@ -35,13 +35,13 @@ impl<I: OptionallyTraceable> NumLitPattern<I> {
     }
 }
 
-impl<I> AstEq for NumLitPattern<I> {
+impl<I: std::fmt::Debug + Clone> AstEq for NumLitPattern<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.negative == snd.negative && NumLit::ast_eq(&fst.inner, &snd.inner)
     }
 }
 
-impl<I> HasSourceReference<I> for NumLitPattern<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for NumLitPattern<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }

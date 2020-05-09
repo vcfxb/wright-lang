@@ -16,12 +16,12 @@ pub(self) mod primary;
 /// Re-export the base-primary for use in the general expression parser.
 pub(super) use primary::base_primary;
 
-impl<T> BinaryExpression<T> {
+impl<T: Clone + std::fmt::Debug> BinaryExpression<T> {
     /// The name of this expression when it appears in traces.
     pub const TRACE_NAME: &'static str = "BinaryExpression";
 }
 
-impl<I: OptionallyTraceable> BinaryExpression<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> BinaryExpression<I> {
     fn new(
         source: I,
         left: impl Into<Expression<I>>,
@@ -55,19 +55,19 @@ impl<I: OptionallyTraceable> BinaryExpression<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for BinaryExpression<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for BinaryExpression<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for BinaryExpression<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for BinaryExpression<I> {
     fn into(self) -> Expression<I> {
         Expression::BinaryExpression(self)
     }
 }
 
-impl<T> AstEq for BinaryExpression<T> {
+impl<T: Clone + std::fmt::Debug> AstEq for BinaryExpression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.op == snd.op
             && AstEq::ast_eq(&*fst.left, &*snd.left)

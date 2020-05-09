@@ -9,12 +9,12 @@ use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
-impl<T> Parens<T> {
+impl<T: Clone + std::fmt::Debug> Parens<T> {
     /// Name that appears in parse traces.
     pub const TRACE_NAME: &'static str = "";
 }
 
-impl<I: OptionallyTraceable> Parens<I> {
+impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Parens<I> {
     fn inner(input: I) -> IResult<I, Expression<I>> {
         delimited(
             token_delimiter,
@@ -40,19 +40,19 @@ impl<I: OptionallyTraceable> Parens<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Parens<I> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Parens<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for Parens<I> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Parens<I> {
     fn into(self) -> Expression<I> {
         Expression::Parens(self)
     }
 }
 
-impl<I> AstEq for Parens<I> {
+impl<I: Clone + std::fmt::Debug> AstEq for Parens<I> {
     #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&*fst.inner, &*snd.inner)
