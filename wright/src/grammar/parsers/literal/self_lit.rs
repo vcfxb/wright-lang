@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use nom::bytes::complete::tag;
 use nom::IResult;
 use crate::grammar::tracing::{

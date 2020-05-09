@@ -1,5 +1,4 @@
 use crate::grammar::ast::{BooleanLit, CharLit, NumLit, SelfLit, Statement, StringLit, ScopedName};
-use crate::grammar::model::Fragment;
 use std::fmt::Debug;
 
 /// An expression in parentheses in wright source code.

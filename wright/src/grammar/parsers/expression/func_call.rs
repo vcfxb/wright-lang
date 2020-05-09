@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::{Block, Expression, FuncCall, ScopedName, Parens};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;

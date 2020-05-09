@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use nom::IResult;
 use std::mem::discriminant;
 use crate::grammar::tracing::input::OptionallyTraceable;

@@ -1,10 +1,10 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::bytes::complete::tag;
 use nom::multi::{many0};
 use nom::sequence::{delimited, pair, terminated};
-use nom::{IResult, Err};
+use nom::IResult;
 use crate::grammar::tracing::{
     input::OptionallyTraceable,
     parsers::map::map,

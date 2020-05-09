@@ -3,7 +3,6 @@ use crate::grammar::ast::{
     BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, ScopedName, NumLit, Parens, SelfLit,
     StringLit,
 };
-use crate::grammar::model::Fragment;
 use crate::grammar::parsers::expression::binary_expression::primary::{
     arithmetic::{arithmetic1, arithmetic2},
     bitshift::bitshift,

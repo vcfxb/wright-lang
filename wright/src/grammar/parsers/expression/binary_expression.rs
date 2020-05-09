@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
 use nom::IResult;
 use crate::grammar::tracing::{

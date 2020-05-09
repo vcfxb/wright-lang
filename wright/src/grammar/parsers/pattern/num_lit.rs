@@ -1,9 +1,7 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::NumLit;
 use crate::grammar::ast::NumLitPattern;
-use crate::grammar::model::Fragment;
 use crate::grammar::model::HasSourceReference;
-
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char;
 use nom::combinator::opt;

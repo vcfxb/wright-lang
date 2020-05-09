@@ -1,5 +1,4 @@
 use crate::grammar::ast::BinaryOp;
-use crate::grammar::model::Fragment;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::char as ch;

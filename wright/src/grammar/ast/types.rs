@@ -1,4 +1,3 @@
-use crate::grammar::model::Fragment;
 
 /// A wright primitive type.
 /// Wright has almost the same set of primitive types as rust.

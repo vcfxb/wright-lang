@@ -6,7 +6,7 @@ use crate::grammar::ast::NumLitPattern;
 use crate::grammar::ast::Pattern;
 use crate::grammar::ast::StringLit;
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use crate::grammar::tracing::{
     trace_result,
     parsers::map::map,

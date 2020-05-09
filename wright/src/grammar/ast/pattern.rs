@@ -1,5 +1,4 @@
 use crate::grammar::ast::{BooleanLit, CharLit, Identifier, NumLit, ScopedName, StringLit};
-use crate::grammar::model::Fragment;
 use std::fmt::Debug;
 
 /// A Pattern used in pattern matching.

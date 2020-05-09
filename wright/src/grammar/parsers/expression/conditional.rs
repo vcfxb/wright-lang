@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Block, Conditional, Expression};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;

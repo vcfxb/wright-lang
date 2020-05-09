@@ -1,7 +1,7 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Statement;
 use crate::grammar::ast::{Expression, ExpressionStatement};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
