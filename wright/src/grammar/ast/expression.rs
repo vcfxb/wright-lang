@@ -6,7 +6,7 @@ use std::fmt::Debug;
 #[derive(Clone, Debug)]
 pub struct Parens<SourceCodeReference: Clone + Debug> {
     /// Associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// The expression between these parentheses.
     pub inner: Box<Expression<SourceCodeReference>>,
 }
@@ -115,7 +115,7 @@ pub struct Block<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct Conditional<SourceCodeReference: Clone + Debug> {
     /// The associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// The primary condition.
     pub primary: (Box<Expression<SourceCodeReference>>, Block<SourceCodeReference>),
     /// All of the secondary conditions (note that the field is called `elifs`
@@ -129,7 +129,7 @@ pub struct Conditional<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct IndexExpression<SourceCodeReference: Clone + Debug> {
     /// The associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// The thing being indexed into. Usually a list, string, or map.
     pub subject: Box<Expression<SourceCodeReference>>,
     /// The indexing key. The thing that goes in the brackets.
@@ -140,7 +140,7 @@ pub struct IndexExpression<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct FuncCall<SourceCodeReference: Clone + Debug> {
     /// The associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// The function being called
     pub func: Box<Expression<SourceCodeReference>>,
     /// The arguments passed to the function

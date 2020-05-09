@@ -25,17 +25,17 @@ pub enum PrimitiveTypeVariant {
 
 /// A primitive type in source code.
 #[derive(Clone, Debug)]
-pub struct PrimitiveType<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct PrimitiveType<I> {
+    /// Associated source code.
+    pub source: I,
     /// Represented variant.
     pub variant: PrimitiveTypeVariant,
 }
 
 /// A user defined type.
-pub struct UserType<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct UserType<I> {
+    /// Associated source code.
+    pub source: I,
 }
 
 /// A type in source code.

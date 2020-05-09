@@ -1,5 +1,4 @@
 use crate::grammar::ast::Expression;
-use crate::grammar::model::Fragment;
 use std::fmt::Debug;
 
 /// An expression whose results aren't used.

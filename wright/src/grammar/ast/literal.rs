@@ -1,4 +1,3 @@
-use crate::grammar::model::Fragment;
 use std::fmt::Debug;
 
 /// An identifier in Wright source code.

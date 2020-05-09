@@ -17,6 +17,7 @@ use std::mem::discriminant;
 use nom::branch::alt;
 use nom::IResult;
 use crate::grammar::tracing::input::OptionallyTraceable;
+use std::fmt::Debug;
 
 /// Underscore Pattern.
 pub(crate) mod underscore;
@@ -24,12 +25,12 @@ pub(crate) mod underscore;
 /// Numerical literal pattern.
 mod num_lit;
 
-impl<T> Pattern<T> {
+impl<T: Debug + Clone> Pattern<T> {
     /// The name of this parser that appears in tracing.
     pub const TRACE_NAME: &'static str = "Pattern";
 }
 
-impl<I: OptionallyTraceable> Pattern<I> {
+impl<I: Debug + Clone + OptionallyTraceable> Pattern<I> {
     fn parse_num_lit(input: I) -> IResult<I, Self> {
         map(NumLitPattern::parse, Pattern::NumLit)(input)
     }
@@ -67,7 +68,7 @@ impl<I: OptionallyTraceable> Pattern<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for Pattern<I> {
+impl<I: Debug + Clone> HasSourceReference<I> for Pattern<I> {
     fn get_source_ref(&self) -> &I {
         use Pattern::*;
         match self {
@@ -82,7 +83,7 @@ impl<I> HasSourceReference<I> for Pattern<I> {
     }
 }
 
-impl<I> AstEq for Pattern<I> {
+impl<I: Debug + Clone> AstEq for Pattern<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         if discriminant(fst) != discriminant(snd) {
             return false;

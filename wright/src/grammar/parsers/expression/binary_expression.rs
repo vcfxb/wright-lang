@@ -7,8 +7,8 @@ use crate::grammar::tracing::{
     trace_result
 };
 
-/// Operator parsing functions.
-pub(self) mod operator;
+/// Operator parsing implementation.
+mod operator;
 
 /// Primary parsing functions used in manual recursive descent parsing.
 pub(self) mod primary;

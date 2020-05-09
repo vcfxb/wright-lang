@@ -356,15 +356,6 @@ impl<'s> Slice<RangeFull> for Fragment<'s> {
     }
 }
 
-impl<'s> PartialEq for Fragment<'s> {
-    fn eq(&self, other: &Self) -> bool {
-        std::ptr::eq(self.files, other.files) &&
-            other.handle == self.handle &&
-            other.span == self.span &&
-            self.tracer == other.tracer
-    }
-}
-
 /// Trait for all types that have associated fragments in source code.
 pub trait HasSourceReference<SourceCodeReference: Clone + Debug> {
     /// Get reference to the associated fragment of source code.

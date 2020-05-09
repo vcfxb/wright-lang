@@ -1,7 +1,6 @@
-use crate::grammar::ast::Expression;
-use crate::grammar::model::Fragment;
-use crate::grammar::parsers::expression::binary_expression::operator::{
-    parse_logical_and, parse_logical_or,
+use crate::grammar::ast::{
+    Expression,
+    BinaryOp,
 };
 use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{
     bitwise_or, bitwise_or_primary,
@@ -35,7 +34,7 @@ pub fn logical_or<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>>
         trace,
         parser_left(
             logical_or_primary,
-            parse_logical_or
+            BinaryOp::parse_logical_or
         )(input.trace_start_clone(trace))
     )
 }
@@ -56,7 +55,7 @@ pub fn logical_and<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>
         trace,
         parser_left(
             logical_and_primary,
-            parse_logical_and
+            BinaryOp::parse_logical_and
         )(input.trace_start_clone(trace))
     )
 }

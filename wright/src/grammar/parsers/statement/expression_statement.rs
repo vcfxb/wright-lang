@@ -5,14 +5,21 @@ use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
-use nom::combinator::map;
 use nom::sequence::{pair, terminated};
 use nom::IResult;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::trace_result;
 
-impl<'s> ExpressionStatement<'s> {
+impl<T> ExpressionStatement<T> {
+    /// Name that appears in parse traces.
+    pub const TRACE_NAME: &'static str = "ExpressionStatement";
+}
+
+impl<I: OptionallyTraceable> ExpressionStatement<I> {
     /// Parse an expression followed by a semicolon in source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(Self::TRACE_NAME, map(
             with_input(terminated(
                 Expression::parse,
                 pair(token_delimiter, ch(Statement::TERMINATOR)),
@@ -21,18 +28,18 @@ impl<'s> ExpressionStatement<'s> {
                 source: consumed,
                 inner: Box::new(result),
             },
-        )(input)
+        )(input.trace_start_clone(Self::TRACE_NAME)))
     }
 }
 
-impl<'s> HasSourceReference<'s> for ExpressionStatement<'s> {
+impl<I> HasSourceReference<I> for ExpressionStatement<I> {
     #[inline]
-    fn get_source_ref(&self) -> &Fragment<'s> {
+    fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<'s> AstEq for ExpressionStatement<'s> {
+impl<I> AstEq for ExpressionStatement<I> {
     #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.inner, &snd.inner)

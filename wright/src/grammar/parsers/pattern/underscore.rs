@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 use nom::bytes::complete::tag;
 use nom::IResult;
 use crate::grammar::tracing::{

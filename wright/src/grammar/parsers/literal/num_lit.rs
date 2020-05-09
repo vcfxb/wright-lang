@@ -10,13 +10,14 @@ use crate::grammar::{ast::NumLit, model::Fragment};
 
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::HasSourceReference;
-use crate::grammar::tracing::parsers::{map::map};
+use crate::grammar::tracing::parsers::map::map;
 use std::num::ParseIntError;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 use crate::grammar::parsers::with_input;
+use std::fmt::Debug;
 
-impl<I: OptionallyTraceable> NumLit<I> {
+impl<I: OptionallyTraceable + Debug> NumLit<I> {
 
     /// Name used to refer to this parser in traces.
     pub const TRACE_NAME: &'static str = "NumLit";
@@ -109,19 +110,19 @@ impl<I: OptionallyTraceable> NumLit<I> {
     }
 }
 
-impl<I> HasSourceReference<I> for NumLit<I> {
+impl<I: Debug + Clone> HasSourceReference<I> for NumLit<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for NumLit<I> {
+impl<I: Debug + Clone> Into<Expression<I>> for NumLit<I> {
     fn into(self) -> Expression<I> {
         Expression::NumLit(self)
     }
 }
 
-impl<I> AstEq for NumLit<I> {
+impl<I: Debug + Clone> AstEq for NumLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }

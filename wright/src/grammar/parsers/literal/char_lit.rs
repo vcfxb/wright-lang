@@ -14,13 +14,14 @@ use crate::grammar::tracing::{
     trace_result,
     parsers::map::map,
 };
+use std::fmt::Debug;
 
-impl<T> CharLit<T> {
+impl<T: Debug + Clone> CharLit<T> {
     /// The name of this parser in traces.
     pub const TRACE_NAME: &'static str = "CharLit";
 }
 
-impl<I: OptionallyTraceable> CharLit<I> {
+impl<I: Debug + Clone + OptionallyTraceable> CharLit<I> {
     fn new(source: I, inner: char) -> Self {
         Self { source, inner }
     }
@@ -98,23 +99,23 @@ impl<I: OptionallyTraceable> CharLit<I> {
             with_input(Self::character_wrapper),
             |(input, ch)| Self::new(input, ch)
         )(input.trace_start_clone(Self::TRACE_NAME));
-        trace_result(res)
+        trace_result(Self::TRACE_NAME, res)
     }
 }
 
-impl<I> HasSourceReference<I> for CharLit<I> {
+impl<I: Debug + Clone> HasSourceReference<I> for CharLit<I> {
     fn get_source_ref(&self) -> &I {
         &self.source
     }
 }
 
-impl<I> Into<Expression<I>> for CharLit<I> {
+impl<I: Debug + Clone> Into<Expression<I>> for CharLit<I> {
     fn into(self) -> Expression<I> {
         Expression::CharLit(self)
     }
 }
 
-impl<I> AstEq for CharLit<I> {
+impl<I: Debug + Clone> AstEq for CharLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }
