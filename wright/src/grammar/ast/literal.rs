@@ -17,7 +17,7 @@ pub struct ScopedName<SourceCodeReference: Clone + Debug> {
     pub source: SourceCodeReference,
     /// The sequence of simple identifiers.
     /// Example: foo::bar::baz -> [ foo, bar ]
-    pub path: Vec<SourceCodeReference>,
+    pub path: Vec<Identifier<SourceCodeReference>>,
     /// The final simple identifier
     /// Example: foo::bar::baz -> baz
     pub name: Identifier<SourceCodeReference>,

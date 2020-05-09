@@ -55,7 +55,7 @@ where
 /// Call [`with_input`](fn.with_input.html) on a given input fragmen
 pub fn with_input_call<F, I, O>(parser: F, input: I) -> IResult<I, (I, O)>
     where
-        I: Clone + Offset + Slice<RangeTo<usize>>,
+        I: Clone + Offset + Slice<RangeTo<usize>> + OptionallyTraceable,
         F: Fn(I) -> IResult<I, O>,
 {
     with_input(parser)(input)

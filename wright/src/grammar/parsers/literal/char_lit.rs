@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, CharLit, Expression};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
@@ -21,7 +21,7 @@ impl<T: Debug + Clone> CharLit<T> {
     pub const TRACE_NAME: &'static str = "CharLit";
 }
 
-impl<I: Debug + Clone + OptionallyTraceable> CharLit<I> {
+impl<'a, I: WrightInput<'a>> CharLit<I> {
     fn new(source: I, inner: char) -> Self {
         Self { source, inner }
     }
@@ -34,7 +34,7 @@ impl<I: Debug + Clone + OptionallyTraceable> CharLit<I> {
     /// Parse any escaped or unescaped character.
     pub(super) fn character_body(source: I) -> IResult<I, char> {
         let vch = move |c: char, v: char| move |s: I| value(v, ch(c))(s);
-        let from_str_radix = |i: I| u32::from_str_radix(i.source(), 16);
+        let from_str_radix = |i: I| u32::from_str_radix(&i.into(), 16);
 
         context(
             "expected character literal",

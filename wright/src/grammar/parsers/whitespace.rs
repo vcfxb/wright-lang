@@ -4,9 +4,10 @@ use nom::character::complete::{char, multispace0, not_line_ending};
 use nom::combinator::value;
 use nom::multi::{count, many0};
 use nom::sequence::{delimited, preceded, terminated};
-use nom::IResult;
+use nom::{IResult};
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
+use crate::grammar::model::WrightInput;
 
 /// Parses a Wright single line comment.
 /// Wright single line comments start with `//` and will parse until a newline
@@ -39,7 +40,7 @@ pub fn multiline_comment<I: OptionallyTraceable>(input: I) -> IResult<I, I> {
 
 /// Parses a sequence of adjacent whitespace and comments,
 /// and discards the result.
-pub fn token_delimiter<I: OptionallyTraceable>(input: I) -> IResult<I, ()> {
+pub fn token_delimiter<'a, I: WrightInput<'a>>(input: I) -> IResult<I, ()> {
     let trace = "token_delimiter";
     trace_result(trace,preceded(
         multispace0,

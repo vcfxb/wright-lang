@@ -45,7 +45,7 @@ impl<I: OptionallyTraceable + std::fmt::Debug + Clone> BinaryExpression<I> {
     /// Wright binary operators are parsed internally using a precedence
     /// climbing algorithm. The operator precedences are documented
     /// [here](https://github.com/Wright-Language-Developers/docs/blob/master/syntax/operator-precedence.md).
-    pub fn parse(input: I) -> IResult<I, I> {
+    pub fn parse(input: I) -> IResult<I, Expression<I>> {
         trace_result(
             Self::TRACE_NAME,
             parse_binary_expr(
@@ -67,7 +67,7 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for BinaryExpression<I> {
     }
 }
 
-impl<T: Clone + std::fmt::Debug> AstEq for BinaryExpression<T> {
+impl<T: Clone + std::fmt::Debug + Into<String>> AstEq for BinaryExpression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.op == snd.op
             && AstEq::ast_eq(&*fst.left, &*snd.left)

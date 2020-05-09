@@ -1,12 +1,11 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::bytes::complete::tag;
 use nom::multi::{many0};
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
@@ -20,7 +19,7 @@ impl<T: std::fmt::Debug + Clone> ScopedName<T> {
     pub const TRACE_NAME: &'static str = "ScopedName";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> ScopedName<I> {
+impl<'a, I: WrightInput<'a>> ScopedName<I> {
     /// Parses a ScopedName from the given input fragment.
     pub fn parse(input: I) -> IResult<I, Self> {
         let res: IResult<I, Self> = map(
@@ -59,7 +58,7 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for ScopedName<I> {
     }
 }
 
-impl<T: std::fmt::Debug + Clone> AstEq for ScopedName<T> {
+impl<T: std::fmt::Debug + Clone + Into<String>> AstEq for ScopedName<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
     }

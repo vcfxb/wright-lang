@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, StringLit};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
@@ -21,7 +21,7 @@ impl<T: Debug + Clone> StringLit<T> {
     pub const TRACE_NAME: &'static str = "StringLit";
 }
 
-impl<I: Debug + Clone + OptionallyTraceable> StringLit<I> {
+impl<'a, I: WrightInput<'a>> StringLit<I> {
     fn new(source: I, inner: String) -> Self {
         Self { source, inner }
     }
@@ -33,7 +33,7 @@ impl<I: Debug + Clone + OptionallyTraceable> StringLit<I> {
     fn body(input: I) -> IResult<I, String> {
         let vch =
             move |c: char, v: char| move |source: I| value(Some(v), ch(c))(source);
-        let from_str_radix = |str: I| u32::from_str_radix(str.into(), 16);
+        let from_str_radix = |str: I| u32::from_str_radix(&str.into(), 16);
         map(
             many0(alt((
                 Self::anych,

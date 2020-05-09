@@ -14,12 +14,13 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
 };
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
-use nom::multi::many1;
-use nom::sequence::{delimited, pair};
-use nom::IResult;
+use nom::sequence::{delimited, pair, tuple};
+use nom::{IResult, Offset, Slice};
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
+use crate::grammar::parsers::with_input;
+use crate::grammar::model::WrightInput;
 
 /// Module for parsing range expressions.
 /// This includes Range and RangeTo operators.
@@ -76,40 +77,45 @@ where
 }
 
 /// Return a parser for a precedence level of left associative operator.
-pub(self) fn parser_left<I>(
-    child: impl Fn(I) -> IResult<I, Expression<I>>,
+pub(self) fn parser_left<'a, I: WrightInput<'a>>(
+    child: fn(I) -> IResult<I, Expression<I>>,
     operator: fn(I) -> IResult<I, BinaryOp>,
-) -> impl Fn(I) -> IResult<I, Expression<I>>
-where
-    I: OptionallyTraceable + std::fmt::Debug + Clone + PartialEq
-{
+) -> impl Fn(I) -> IResult<I, Expression<I>> {
     let trace= "BinaryExpr::parser_left";
-    move |input| {
-        let res = map(
-            pair(
-                child,
-                many1(pair(
+    move |input| -> IResult<I, Expression<I>> {
+        let source = input.trace_start_clone(trace);
+
+        let first: (I, Expression<I>) = map(
+            with_input(
+                tuple((
+                    child,
                     delimited(
                         token_delimiter,
-                        operator.clone(),
+                        operator,
                         token_delimiter
                     ),
-                    child,
-                )),
+                    child
+                ))
             ),
-            |(fst, following)| {
-                let mut acc = fst;
-                let mut stack = following;
-                stack.reverse();
-                while !stack.is_empty() {
-                    let (op, right) = stack.pop().unwrap();
-                    let sp1 =
-                    acc = BinaryExpression::new_merge(acc, op, right).into();
-                }
-                acc
-            },
-        )(input.trace_start_clone(trace));
-        trace_result(trace, res)
+            |(consumed, (left, op, right))| {
+                BinaryExpression::new(consumed, left, op, right).into()
+            }
+        )(source)?;
+
+        let mut rem = first.0;
+        let mut acc = first.1;
+
+        while let
+            Ok((new_rem, (op, right)))
+        = pair(delimited(token_delimiter,operator, token_delimiter),
+               child)(rem) {
+            rem = new_rem;
+            let index = source.offset(&rem);
+            let consumed = source.slice(..index);
+            acc = BinaryExpression::new(consumed, acc, op, right).into();
+        }
+
+        Ok((rem.trace_end_clone(trace, true), acc))
     }
 }
 

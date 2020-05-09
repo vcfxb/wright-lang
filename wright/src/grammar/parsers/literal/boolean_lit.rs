@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, BooleanLit, Expression};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -22,7 +22,7 @@ impl<T: std::fmt::Debug + Clone> BooleanLit<T> {
     pub const TRACE_NAME: &'static str = "BooleanLit";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> BooleanLit<I> {
+impl<'a, I: WrightInput<'a>> BooleanLit<I> {
     fn new(source: I, val: bool) -> Self {
         Self {
             source,

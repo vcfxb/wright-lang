@@ -1,5 +1,4 @@
 use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
-
 use nom::error::{ErrorKind, ParseError};
 use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 use std::str::FromStr;
@@ -365,6 +364,12 @@ impl<'s> PartialEq for Fragment<'s> {
     }
 }
 
+impl<'s, 'a> PartialEq<&'a str> for Fragment<'s> {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.source() == *other
+    }
+}
+
 /// Trait for all types that have associated fragments in source code.
 pub trait HasSourceReference<SourceCodeReference: Clone + Debug> {
     /// Get reference to the associated fragment of source code.
@@ -380,3 +385,22 @@ impl<'s> Into<String> for Fragment<'s> {
     fn into(self) -> String {self.source().to_owned()}
 }
 
+/// Trait alias for all wright parser inputs.
+/// All inputs are required to implement Debug,
+/// Clone, and a number of nom traits.
+pub trait WrightInput<'a>:
+    OptionallyTraceable +
+    Debug +
+    Clone +
+    InputTake +
+    Compare<&'a str> +
+    InputIter<Item=char> +
+    InputLength +
+    Slice<RangeFrom<usize>> +
+    Slice<RangeTo<usize>> +
+    InputTakeAtPosition<Item=char> +
+    Into<String> +
+    Offset +
+    PartialEq +
+    PartialEq<&'a str>
+{}

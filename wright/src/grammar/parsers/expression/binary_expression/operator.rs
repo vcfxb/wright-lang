@@ -6,6 +6,7 @@ use nom::combinator::value;
 use nom::{IResult, InputTake, Compare};
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
+use crate::grammar::model::WrightInput;
 
 impl BinaryOp {
     /// Logical AND operator in long form.
@@ -48,7 +49,7 @@ impl BinaryOp {
 
     /// Parse the logical AND operator. Currently matches on `&&` or
     /// the logical AND associated constant defined in BinaryOp.
-    pub fn parse_logical_and<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_logical_and<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_logical_and";
         trace_result(
             trace,
@@ -62,7 +63,7 @@ impl BinaryOp {
 
     /// Parse the logical OR operator. Currently matches on `||` or
     /// the logical OR associated constant defined in BinaryOp.
-    pub fn parse_logical_or<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_logical_or<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_logical_or";
         trace_result(
             trace,
@@ -75,7 +76,7 @@ impl BinaryOp {
     }
 
     /// Parse a 'bitwise or' operator ('|').
-    pub fn parse_or<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_or<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_or";
         trace_result(
             trace,
@@ -87,7 +88,7 @@ impl BinaryOp {
     }
 
     /// Parse a 'bitwise xor' operator ('^').
-    pub fn parse_xor<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_xor<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_xor";
         trace_result(
             trace,
@@ -99,7 +100,7 @@ impl BinaryOp {
     }
 
     /// Parse a 'bitwise and' operator ('&').
-    pub fn parse_and<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_and<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_and";
         trace_result(
             trace,
@@ -111,7 +112,7 @@ impl BinaryOp {
     }
 
     /// Parse an 'equals' (`==`) or 'not equals' (`!=`).
-    pub fn parse_equality_operator<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_equality_operator<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_equality_operator";
         trace_result(trace, alt((
             value(BinaryOp::EqEq, tag("==")),
@@ -122,7 +123,7 @@ impl BinaryOp {
     /// Parse a relational operator.
     /// Relational operators include greater than (`>`), less than (`<`),
     /// and their inclusive counterparts (`>=` and `<=` respectively).
-    pub fn parse_relational_operator<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_relational_operator<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_relational_operator";
         trace_result(trace, alt((
             value(BinaryOp::Ge, tag(">=")),
@@ -135,7 +136,7 @@ impl BinaryOp {
     /// Parse a bitshift operator.
     /// These include 'left shift' (`<<`), 'right shift' (`>>`),
     /// and 'unsigned right shift' (`>>>`).
-    pub fn parse_bitshift_operator<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_bitshift_operator<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_bitshift_operator";
         trace_result(trace, alt((
             value(BinaryOp::LeftShift, tag("<<")),
@@ -146,7 +147,7 @@ impl BinaryOp {
 
     /// Parse an arithmetic operator of lower precedence.
     /// This is currently just addition and subtraction.
-    pub fn parse_arithmetic_operator1<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_arithmetic_operator1<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_arithmetic_operator1";
         trace_result(
             trace,
@@ -165,7 +166,7 @@ impl BinaryOp {
 
     /// Parse an arithmetic operator of higher precedence.
     /// This includes multiplication, division, and the modulus operator.
-    pub fn parse_arithmetic_operator2<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, BinaryOp> {
+    pub fn parse_arithmetic_operator2<'a, I: WrightInput<'a>>(input: I) -> IResult<I, BinaryOp> {
         let trace = "BinaryOp::parse_arithmetic_operator2";
         trace_result(trace, alt((
             value(BinaryOp::Mul, ch('*')),

@@ -2,33 +2,37 @@ use crate::grammar::ast::{
     eq::AstEq, BinaryOp, Conditional, SelfLit, Underscore,
 };
 use crate::grammar::ast::{BooleanLit, Identifier};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::bytes::complete::take_while;
 use nom::character::complete::anychar;
-use nom::combinator::{map, recognize, verify};
+use nom::combinator::{recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
-use crate::grammar::tracing::trace_result;
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    parsers::map::map,
+    trace_result
+};
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Identifier<I> {
-
+impl<T: std::fmt::Debug + Clone> Identifier<T> {
     /// Name used in function tracing.
     pub const TRACE_NAME: &'static str = "Identifier";
 
     /// Reserved words that an identifier must not match.
     pub const RESERVED_WORDS: [&'static str; 8] = [
-        BooleanLit::FALSE,
-        BooleanLit::TRUE,
-        SelfLit::SELF,
-        Conditional::IF,
-        Conditional::ELSE,
-        Underscore::UNDERSCORE,
+        BooleanLit::<T>::FALSE,
+        BooleanLit::<T>::TRUE,
+        SelfLit::<T>::SELF,
+        Conditional::<T>::IF,
+        Conditional::<T>::ELSE,
+        Underscore::<T>::UNDERSCORE,
         BinaryOp::LOGICAL_AND,
         BinaryOp::LOGICAL_OR,
     ];
+}
 
+impl<'a, I: WrightInput<'a>> Identifier<I> {
     fn new(source: I) -> Self {
         Self { source }
     }
@@ -39,10 +43,10 @@ impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Identifier<I> {
                 verify(anychar, |c| c.is_ascii_alphabetic() || *c == '_'),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             )),
-            |fr: &I| {
+            |i: &I| {
                 Self::RESERVED_WORDS
                     .iter()
-                    .all(|s: &&str| *s != fr.source())
+                    .all(|s: &&str| i != s)
             },
         )(input)
     }
@@ -64,8 +68,8 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Identifier<I> {
     }
 }
 
-impl<'a> AstEq for Identifier<Fragment<'a>> {
+impl<I: std::fmt::Debug + Clone + Into<String>> AstEq for Identifier<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.source.source() == snd.source.source()
+        fst.source.into() == snd.source.into()
     }
 }

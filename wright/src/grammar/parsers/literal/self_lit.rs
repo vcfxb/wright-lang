@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::bytes::complete::tag;
 use nom::IResult;
 use crate::grammar::tracing::{
@@ -16,7 +16,7 @@ impl<T: std::fmt::Debug + Clone> SelfLit<T> {
     pub const SELF: &'static str = "self";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> SelfLit<I> {
+impl<'a, I: WrightInput<'a>> SelfLit<I> {
     fn new(source: I) -> Self {
         Self { source }
     }

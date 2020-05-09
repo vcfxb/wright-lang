@@ -3,13 +3,13 @@ use nom::{
     bytes::complete::{is_a, tag, take_while1, take_while_m_n},
     combinator::{map_res, peek},
     sequence::preceded,
-    IResult,
+    IResult
 };
 
-use crate::grammar::{ast::NumLit, model::Fragment};
+use crate::grammar::{ast::NumLit};
 
 use crate::grammar::ast::{eq::AstEq, Expression};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::tracing::parsers::map::map;
 use std::num::ParseIntError;
 use crate::grammar::tracing::input::OptionallyTraceable;
@@ -17,11 +17,12 @@ use crate::grammar::tracing::trace_result;
 use crate::grammar::parsers::with_input;
 use std::fmt::Debug;
 
-impl<I: OptionallyTraceable + Debug> NumLit<I> {
-
+impl<T: Debug + Clone> NumLit<T> {
     /// Name used to refer to this parser in traces.
     pub const TRACE_NAME: &'static str = "NumLit";
+}
 
+impl<'a, I: WrightInput<'a>> NumLit<I> {
     fn new(source: I, num: u128) -> Self {
         Self { source, inner: num }
     }
@@ -57,8 +58,8 @@ impl<I: OptionallyTraceable + Debug> NumLit<I> {
                     take_while1(|c: char| c.is_ascii_hexdigit() || c == '_'),
                 ),
             ),
-            |frag: Fragment| -> Result<u128, ParseIntError> {
-                let mut s = String::from(frag.source());
+            |source: I| -> Result<u128, ParseIntError> {
+                let mut s = String::from(source.into());
                 s = Self::clear_underscores(&s);
                 Self::from_hex(&s)
             },
@@ -75,8 +76,8 @@ impl<I: OptionallyTraceable + Debug> NumLit<I> {
                     is_a("10_"),
                 ),
             ),
-            |source| -> Result<u128, ParseIntError> {
-                let mut s = String::from(source);
+            |source: I| -> Result<u128, ParseIntError> {
+                let mut s: String = source.into();
                 s = Self::clear_underscores(&s);
                 Self::from_bin(&s)
             },
@@ -90,8 +91,8 @@ impl<I: OptionallyTraceable + Debug> NumLit<I> {
                 peek(take_while_m_n(1, 1, |c: char| c.is_ascii_digit())),
                 take_while1(|c: char| c.is_ascii_digit() || c == '_'),
             ),
-            |source| -> Result<u128, ParseIntError> {
-                let mut s = String::from(source);
+            |source: I| -> Result<u128, ParseIntError> {
+                let mut s = source.into();
                 s = Self::clear_underscores(&s);
                 Self::from_dec(&s)
             },
