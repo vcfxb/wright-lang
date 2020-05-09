@@ -27,9 +27,9 @@ pub struct ScopedName<SourceCodeReference: Clone + Debug> {
 /// Numerical literal in wright source code.
 /// i.e. `10`, `0xCa1a0`, `0b0101_0101`, `100_000`
 #[derive(Clone, Debug)]
-pub struct NumLit<'s> {
-    /// Associated fragment of source code.
-    pub frag: Fragment<'s>,
+pub struct NumLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Represented value.
     pub inner: u128,
 }
@@ -39,9 +39,9 @@ pub struct NumLit<'s> {
 /// see [this page](https://doc.rust-lang.org/reference/tokens.html#ascii-escapes) for escape
 /// information.
 #[derive(Clone, Debug)]
-pub struct CharLit<'s> {
-    /// Associated fragment of source code.
-    pub frag: Fragment<'s>,
+pub struct CharLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Represented Value.
     pub inner: char,
 }
@@ -53,9 +53,9 @@ pub struct CharLit<'s> {
 /// Raw-strings and Byte-strings (like those in rust) are not currently
 /// supported but may be added in the future.
 #[derive(Clone, Debug)]
-pub struct StringLit<'s> {
-    /// Associated fragment of source code.
-    pub frag: Fragment<'s>,
+pub struct StringLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub frag: SourceCodeReference,
     /// Represented string value. (not a reference into source code because
     /// source code may contain escaped characters.)
     pub inner: String,
@@ -64,16 +64,16 @@ pub struct StringLit<'s> {
 /// Boolean literal in wright source code.
 /// i.e. `true`, `false`.
 #[derive(Clone, Debug)]
-pub struct BooleanLit<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct BooleanLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub frag: SourceCodeReference,
     /// Represented value.
     pub inner: bool,
 }
 
 /// `self` literal in wright source code.
 #[derive(Clone, Debug)]
-pub struct SelfLit<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct SelfLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub frag: SourceCodeReference,
 }

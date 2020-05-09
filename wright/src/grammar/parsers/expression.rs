@@ -32,7 +32,7 @@ mod expression_tests;
 
 use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use nom::branch::alt;
 use nom::IResult;
 
@@ -45,23 +45,23 @@ impl<'s> Expression<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for Expression<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for Expression<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         use Expression::*;
         match self {
-            NumLit(i) => i.get_fragment_reference(),
-            CharLit(i) => i.get_fragment_reference(),
-            StringLit(i) => i.get_fragment_reference(),
-            BooleanLit(i) => i.get_fragment_reference(),
-            ScopedName(i) => i.get_fragment_reference(),
-            Parens(i) => i.get_fragment_reference(),
-            BinaryExpression(i) => i.get_fragment_reference(),
-            SelfLit(i) => i.get_fragment_reference(),
-            Block(i) => i.get_fragment_reference(),
-            UnaryExpression(i) => i.get_fragment_reference(),
-            Conditional(i) => i.get_fragment_reference(),
-            IndexExpression(i) => i.get_fragment_reference(),
-            FuncCall(i) => i.get_fragment_reference(),
+            NumLit(i) => i.get_source_ref(),
+            CharLit(i) => i.get_source_ref(),
+            StringLit(i) => i.get_source_ref(),
+            BooleanLit(i) => i.get_source_ref(),
+            ScopedName(i) => i.get_source_ref(),
+            Parens(i) => i.get_source_ref(),
+            BinaryExpression(i) => i.get_source_ref(),
+            SelfLit(i) => i.get_source_ref(),
+            Block(i) => i.get_source_ref(),
+            UnaryExpression(i) => i.get_source_ref(),
+            Conditional(i) => i.get_source_ref(),
+            IndexExpression(i) => i.get_source_ref(),
+            FuncCall(i) => i.get_source_ref(),
         }
     }
 }

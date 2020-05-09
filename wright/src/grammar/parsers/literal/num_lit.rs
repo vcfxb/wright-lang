@@ -1,7 +1,7 @@
 use nom::{
     branch::alt,
     bytes::complete::{is_a, tag, take_while1, take_while_m_n},
-    combinator::{map, map_res, peek},
+    combinator::{map_res, peek},
     sequence::preceded,
     IResult,
 };
@@ -9,13 +9,23 @@ use nom::{
 use crate::grammar::{ast::NumLit, model::Fragment};
 
 use crate::grammar::ast::{eq::AstEq, Expression};
-use crate::grammar::model::HasFragment;
-use crate::grammar::parsers::with_input;
+use crate::grammar::model::HasSourceReference;
+use crate::grammar::tracing::parsers::{
+    map::map,
+    with_input::WithInputConsumed
+};
 use std::num::ParseIntError;
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::trace_result;
+use crate::grammar::parsers::with_input;
 
-impl<'s> NumLit<'s> {
-    fn new(frag: Fragment<'s>, num: u128) -> Self {
-        Self { frag, inner: num }
+impl<I: OptionallyTraceable> NumLit<I> {
+
+    /// Name used to refer to this parser in traces.
+    pub const TRACE_NAME: &'static str = "NumLit";
+
+    fn new(source: I, num: u128) -> Self {
+        Self { source, inner: num }
     }
 
     /// Convert a number from a string using base 16.
@@ -40,7 +50,7 @@ impl<'s> NumLit<'s> {
     }
 
     /// Parse a properly formatted hexadecimal number.
-    fn hex_primary(input: Fragment) -> IResult<Fragment, u128> {
+    fn hex_primary(input: I) -> IResult<I, u128> {
         map_res(
             preceded(
                 tag("0x"),
@@ -58,7 +68,7 @@ impl<'s> NumLit<'s> {
     }
 
     /// Parse a properly formatted binary number.
-    fn bin_primary(input: Fragment) -> IResult<Fragment, u128> {
+    fn bin_primary(input: I) -> IResult<I, u128> {
         map_res(
             preceded(
                 tag("0b"),
@@ -67,8 +77,8 @@ impl<'s> NumLit<'s> {
                     is_a("10_"),
                 ),
             ),
-            |frag: Fragment| -> Result<u128, ParseIntError> {
-                let mut s = String::from(frag.source());
+            |source| -> Result<u128, ParseIntError> {
+                let mut s = String::from(source);
                 s = Self::clear_underscores(&s);
                 Self::from_bin(&s)
             },
@@ -76,15 +86,14 @@ impl<'s> NumLit<'s> {
     }
 
     /// Parse a properly formatted positive decimal integer.
-    pub(super) fn dec_primary(input: Fragment) -> IResult<Fragment, u128> {
+    pub(super) fn dec_primary(input: I) -> IResult<I, u128> {
         map_res(
             preceded(
                 peek(take_while_m_n(1, 1, |c: char| c.is_ascii_digit())),
                 take_while1(|c: char| c.is_ascii_digit() || c == '_'),
             ),
-            |frag: Fragment| -> Result<u128, ParseIntError> {
-                //dbg!(frag);
-                let mut s = String::from(frag.source());
+            |source| -> Result<u128, ParseIntError> {
+                let mut s = String::from(source);
                 s = Self::clear_underscores(&s);
                 Self::from_dec(&s)
             },
@@ -92,29 +101,30 @@ impl<'s> NumLit<'s> {
     }
 
     /// Parse a numerical literal to a value.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        let constructor = |(frag, val)| Self::new(frag, val);
-        alt((
+    pub fn parse(input: I) -> IResult<I, Self> {
+        let constructor = |(source, num)| Self::new(source, num);
+        let res = alt((
             map(with_input(Self::bin_primary), constructor),
             map(with_input(Self::hex_primary), constructor),
             map(with_input(Self::dec_primary), constructor),
-        ))(input)
+        ))(input.trace_start_clone(Self::TRACE_NAME));
+        trace_result(Self::TRACE_NAME, res)
     }
 }
 
-impl<'s> HasFragment<'s> for NumLit<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
-        &self.frag
+impl<I> HasSourceReference<I> for NumLit<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> Into<Expression<'s>> for NumLit<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I> Into<Expression<I>> for NumLit<I> {
+    fn into(self) -> Expression<I> {
         Expression::NumLit(self)
     }
 }
 
-impl<'s> AstEq for NumLit<'s> {
+impl<I> AstEq for NumLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }

@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, StringLit};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
@@ -91,8 +91,8 @@ impl<'s> StringLit<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for StringLit<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for StringLit<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

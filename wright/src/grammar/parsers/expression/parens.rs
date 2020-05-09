@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Parens};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
@@ -30,8 +30,8 @@ impl<'s> Parens<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for Parens<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for Parens<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

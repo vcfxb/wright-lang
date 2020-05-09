@@ -8,7 +8,7 @@ use crate::grammar::ast::NumLitPattern;
 use crate::grammar::ast::Pattern;
 use crate::grammar::ast::StringLit;
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 
 use std::mem::discriminant;
 
@@ -56,17 +56,17 @@ impl<'s> Pattern<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for Pattern<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for Pattern<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         use Pattern::*;
         match self {
-            NumLit(p) => p.get_fragment_reference(),
-            CharLit(p) => p.get_fragment_reference(),
-            StringLit(p) => p.get_fragment_reference(),
-            BooleanLit(p) => p.get_fragment_reference(),
-            Identifier(p) => p.get_fragment_reference(),
-            Underscore(p) => p.get_fragment_reference(),
-            ScopedName(p) => p.get_fragment_reference(),
+            NumLit(p) => p.get_source_ref(),
+            CharLit(p) => p.get_source_ref(),
+            StringLit(p) => p.get_source_ref(),
+            BooleanLit(p) => p.get_source_ref(),
+            Identifier(p) => p.get_source_ref(),
+            Underscore(p) => p.get_source_ref(),
+            ScopedName(p) => p.get_source_ref(),
         }
     }
 }

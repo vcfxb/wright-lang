@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, UnaryExpression, UnaryOp};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use nom::IResult;
 
 impl UnaryOp {}
@@ -17,8 +17,8 @@ impl<'s> Into<Expression<'s>> for UnaryExpression<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for UnaryExpression<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for UnaryExpression<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

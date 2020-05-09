@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, CharLit, Expression};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
@@ -9,21 +9,27 @@ use nom::combinator::{map, map_opt, map_res, not, value};
 use nom::error::context;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::trace_result;
 
-impl<'s> CharLit<'s> {
-    fn new(frag: Fragment<'s>, inner: char) -> Self {
-        CharLit { frag, inner }
+impl<I: OptionallyTraceable> CharLit<I> {
+
+    /// The name of this parser in traces.
+    pub const TRACE_NAME: &'static str = "CharLit";
+
+    fn new(source: I, inner: char) -> Self {
+        Self { source, inner }
     }
 
     /// Parse an unescaped unicode character.
-    pub(super) fn unicode_char(frag: Fragment<'s>) -> IResult<Fragment<'s>, char> {
-        preceded(not(one_of("\\\t\n\r'")), anychar)(frag)
+    pub(super) fn unicode_char(source: I) -> IResult<I, char> {
+        preceded(not(one_of("\\\t\n\r'")), anychar)(source)
     }
 
     /// Parse any escaped or unescaped character.
-    pub(super) fn character_body(frag: Fragment<'s>) -> IResult<Fragment, char> {
-        let vch = move |c: char, v: char| move |fragment: Fragment<'s>| value(v, ch(c))(fragment);
-        let from_str_radix = |f: Fragment<'s>| u32::from_str_radix(f.source(), 16);
+    pub(super) fn character_body(source: I) -> IResult<I, char> {
+        let vch = move |c: char, v: char| move |s: I| value(v, ch(c))(s);
+        let from_str_radix = |i: I| u32::from_str_radix(i.source(), 16);
 
         context(
             "expected character literal",
@@ -75,23 +81,25 @@ impl<'s> CharLit<'s> {
                     ),
                 ),
             )),
-        )(frag)
+        )(source)
     }
 
-    pub(super) fn character_wrapper(frag: Fragment<'s>) -> IResult<Fragment, char> {
-        delimited(tag("'"), Self::character_body, tag("'"))(frag)
+    pub(super) fn character_wrapper(source: I) -> IResult<I, char> {
+        delimited(tag("'"), Self::character_body, tag("'"))(source)
     }
 
     /// Parse a character literal.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment, Self> {
-        map(with_input(Self::character_wrapper), |(frag, ch)| {
-            Self::new(frag, ch)
-        })(input)
+    pub fn parse(input: I) -> IResult<I, Self> {
+        let res = map(
+            with_input(Self::character_wrapper),
+            |(input, ch)| Self::new(input, ch)
+        )(input.trace_start_clone(Self::TRACE_NAME));
+        trace_result(res);
     }
 }
 
-impl<'s> HasFragment<'s> for CharLit<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for CharLit<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

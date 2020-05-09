@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, BooleanLit, Expression};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -30,8 +30,8 @@ impl<'s> BooleanLit<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for BooleanLit<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for BooleanLit<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

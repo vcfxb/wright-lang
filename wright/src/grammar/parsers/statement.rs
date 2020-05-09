@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use nom::combinator::map;
 use nom::IResult;
 use std::mem::discriminant;
@@ -39,11 +39,11 @@ impl<'s> AstEq for Statement<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for Statement<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for Statement<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         use Statement::*;
         match self {
-            ExpressionStatement(s) => s.get_fragment_reference(),
+            ExpressionStatement(s) => s.get_source_ref(),
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::bytes::complete::tag;
 use nom::multi::{many0};
@@ -46,8 +46,8 @@ impl<'s> ScopedName<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for ScopedName<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for ScopedName<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

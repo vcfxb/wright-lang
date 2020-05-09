@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Block, Conditional, Expression};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
@@ -68,8 +68,8 @@ impl<'s> Conditional<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for Conditional<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for Conditional<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

@@ -1,7 +1,7 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Statement;
 use crate::grammar::ast::{Expression, ExpressionStatement};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
@@ -18,17 +18,17 @@ impl<'s> ExpressionStatement<'s> {
                 pair(token_delimiter, ch(Statement::TERMINATOR)),
             )),
             move |(consumed, result)| Self {
-                frag: consumed,
+                source: consumed,
                 inner: Box::new(result),
             },
         )(input)
     }
 }
 
-impl<'s> HasFragment<'s> for ExpressionStatement<'s> {
+impl<'s> HasSourceReference<'s> for ExpressionStatement<'s> {
     #[inline]
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
-        &self.frag
+    fn get_source_ref(&self) -> &Fragment<'s> {
+        &self.source
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::IResult;
@@ -15,9 +15,9 @@ impl<'s> Underscore<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for Underscore<'s> {
+impl<'s> HasSourceReference<'s> for Underscore<'s> {
     #[inline]
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

@@ -1,5 +1,5 @@
 use crate::grammar::ast::Identifier;
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::testing::TestingContext;
 
 fn test_ident(s: &'static str, should_err: bool) {

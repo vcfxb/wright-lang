@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::IResult;
@@ -24,8 +24,8 @@ impl<'s> Into<Expression<'s>> for SelfLit<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for SelfLit<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for SelfLit<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

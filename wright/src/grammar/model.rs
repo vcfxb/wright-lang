@@ -10,6 +10,7 @@ use nom::{
 };
 use crate::grammar::tracing::TraceInfo;
 use crate::grammar::tracing::input::{OptionallyTraceable};
+use std::fmt::Debug;
 
 /// A piece of source code. Generally used to replace strings in the nom parser,
 /// this structure stores extra information about the location of a fragment of
@@ -399,12 +400,16 @@ impl<'s> PartialEq for Fragment<'s> {
 }
 
 /// Trait for all types that have associated fragments in source code.
-pub trait HasFragment<'s> {
+pub trait HasSourceReference<SourceCodeReference: Clone + Debug> {
     /// Get reference to the associated fragment of source code.
-    fn get_fragment_reference(&self) -> &Fragment<'s>;
+    fn get_source_ref(&self) -> &SourceCodeReference;
 
     /// Get a clone of the associated fragment of source code.
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.get_fragment_reference().clone()
+    fn get_source_clone(&self) -> SourceCodeReference {
+        self.get_source_ref().clone()
     }
+}
+
+impl<'s> Into<String> for Fragment<'s> {
+    fn into(self) -> String {self.source().to_owned()}
 }

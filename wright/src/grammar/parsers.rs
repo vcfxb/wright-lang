@@ -1,6 +1,7 @@
 use nom::{IResult, Offset, Slice};
 use std::ops::RangeTo;
 use crate::grammar::model::Fragment;
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 /// Wright literal value parsers.
 pub(self) mod literal;
@@ -32,17 +33,21 @@ mod whitespace_tests;
 /// `(I, (I, O))`, or `(remaining input, (input consumed, output))`
 pub fn with_input<F, I, O>(parser: F) -> impl Fn(I) -> IResult<I, (I, O)>
 where
-    I: Clone + Offset + Slice<RangeTo<usize>>,
+    I: Clone + Offset + Slice<RangeTo<usize>> + OptionallyTraceable,
     F: Fn(I) -> IResult<I, O>,
 {
     move |input: I| -> IResult<I, (I, O)> {
-        let i = input.clone();
+        let i = input.trace_start_clone("with_input");
         match parser(i) {
             Ok((remaining, result)) => {
                 let index = input.offset(&remaining);
-                Ok((remaining, (input.slice(..index), result)))
-            }
-            Err(e) => Err(e),
+                Ok((
+                    remaining.trace_end_clone("with_input", true),
+                    (input.slice(..index), result)))
+            },
+            Err(e) => Err(
+                e.map_input(|i: I| i.trace_end_clone("with_input", false))
+            ),
         }
     }
 }

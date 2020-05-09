@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
 use nom::IResult;
 
@@ -43,8 +43,8 @@ impl<'s> BinaryExpression<'s> {
         // currently use unwrap here. fragment merging should not fail
         // internally.
         let frag = Fragment::merge(
-            e1.get_fragment_reference(),
-            e2.get_fragment_reference())
+            e1.get_source_ref(),
+            e2.get_source_ref())
             .unwrap();
         Self::new(frag, e1, op, e2)
     }
@@ -63,8 +63,8 @@ impl<'s> BinaryExpression<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for BinaryExpression<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for BinaryExpression<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }

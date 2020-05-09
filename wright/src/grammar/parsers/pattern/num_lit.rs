@@ -2,7 +2,7 @@ use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::NumLit;
 use crate::grammar::ast::NumLitPattern;
 use crate::grammar::model::Fragment;
-use crate::grammar::model::HasFragment;
+use crate::grammar::model::HasSourceReference;
 
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char;
@@ -31,8 +31,8 @@ impl<'s> AstEq for NumLitPattern<'s> {
     }
 }
 
-impl<'s> HasFragment<'s> for NumLitPattern<'s> {
-    fn get_fragment_reference(&self) -> &Fragment<'s> {
+impl<'s> HasSourceReference<'s> for NumLitPattern<'s> {
+    fn get_source_ref(&self) -> &Fragment<'s> {
         &self.frag
     }
 }
