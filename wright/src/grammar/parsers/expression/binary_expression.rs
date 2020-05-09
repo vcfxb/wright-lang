@@ -2,6 +2,10 @@ use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{Fragment, HasSourceReference};
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
 use nom::IResult;
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    trace_result
+};
 
 /// Operator parsing functions.
 pub(self) mod operator;
@@ -10,43 +14,26 @@ pub(self) mod operator;
 pub(self) mod primary;
 
 /// Re-export the base-primary for use in the general expression parser.
-pub(crate) use primary::base_primary;
+pub(super) use primary::base_primary;
 
-impl<'s> BinaryExpression<'s> {
+impl<T> BinaryExpression<T> {
+    /// The name of this expression when it appears in traces.
+    pub const TRACE_NAME: &'static str = "BinaryExpression";
+}
+
+impl<I: OptionallyTraceable> BinaryExpression<I> {
     fn new(
-        frag: Fragment<'s>,
-        left: impl Into<Expression<'s>>,
+        source: I,
+        left: impl Into<Expression<I>>,
         op: BinaryOp,
-        right: impl Into<Expression<'s>>,
+        right: impl Into<Expression<I>>,
     ) -> Self {
         Self {
-            frag,
+            source,
             left: Box::new(left.into()),
             op,
             right: Box::new(right.into()),
         }
-    }
-
-    /// Create a new Binary Expression by merging two subexpressions, and adding
-    /// a given operator between them. This assumes that the fragment merging of
-    /// the sub expressions will not fail.
-    ///
-    /// ## Panics:
-    /// Panics when the Fragment::merge fails on the children.
-    pub(self) fn new_merge(
-        left: impl Into<Expression<'s>>,
-        op: BinaryOp,
-        right: impl Into<Expression<'s>>,
-    ) -> Self {
-        let e1 = left.into();
-        let e2 = right.into();
-        // currently use unwrap here. fragment merging should not fail
-        // internally.
-        let frag = Fragment::merge(
-            e1.get_source_ref(),
-            e2.get_source_ref())
-            .unwrap();
-        Self::new(frag, e1, op, e2)
     }
 
     /// Parse a binary expression in source code.
@@ -58,24 +45,29 @@ impl<'s> BinaryExpression<'s> {
     /// Wright binary operators are parsed internally using a precedence
     /// climbing algorithm. The operator precedences are documented
     /// [here](https://github.com/Wright-Language-Developers/docs/blob/master/syntax/operator-precedence.md).
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-        parse_binary_expr(input)
+    pub fn parse(input: I) -> IResult<I, I> {
+        trace_result(
+            Self::TRACE_NAME,
+            parse_binary_expr(
+                input.trace_start_clone(Self::TRACE_NAME)
+            )
+        )
     }
 }
 
-impl<'s> HasSourceReference<'s> for BinaryExpression<'s> {
-    fn get_source_ref(&self) -> &Fragment<'s> {
-        &self.frag
+impl<I> HasSourceReference<I> for BinaryExpression<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> Into<Expression<'s>> for BinaryExpression<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I> Into<Expression<I>> for BinaryExpression<I> {
+    fn into(self) -> Expression<I> {
         Expression::BinaryExpression(self)
     }
 }
 
-impl<'s> AstEq for BinaryExpression<'s> {
+impl<T> AstEq for BinaryExpression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.op == snd.op
             && AstEq::ast_eq(&*fst.left, &*snd.left)

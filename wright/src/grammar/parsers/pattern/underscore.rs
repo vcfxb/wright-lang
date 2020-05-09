@@ -2,27 +2,39 @@ use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Underscore;
 use crate::grammar::model::{Fragment, HasSourceReference};
 use nom::bytes::complete::tag;
-use nom::combinator::map;
 use nom::IResult;
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    parsers::map::map,
+    trace_result
+};
 
-impl<'s> Underscore<'s> {
+impl<T> Underscore<T> {
+    /// The name of this parser as it appears in parse traces.
+    pub const TRACE_NAME: &'static str = "Underscore";
+
     /// The constant for an underscore literal in source code. Unlikely to change.
     pub const UNDERSCORE: &'static str = "_";
+}
 
+impl<I: OptionallyTraceable> Underscore<I> {
     /// Parse an underscore from source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(tag(Self::UNDERSCORE), |f| Self { frag: f })(input)
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(Self::TRACE_NAME, map(
+            tag(Self::UNDERSCORE),
+            |source| Self { source }
+        )(input.trace_start_clone(Self::TRACE_NAME)))
     }
 }
 
-impl<'s> HasSourceReference<'s> for Underscore<'s> {
+impl<I> HasSourceReference<I> for Underscore<I> {
     #[inline]
-    fn get_source_ref(&self) -> &Fragment<'s> {
-        &self.frag
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> AstEq for Underscore<'s> {
+impl<I> AstEq for Underscore<I> {
     fn ast_eq(_: &Self, _: &Self) -> bool {
         true
     }

@@ -1,4 +1,11 @@
 use std::mem::discriminant;
+use crate::grammar::ast::eq::ast_eq;
+use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
+use crate::grammar::model::{HasSourceReference};
+use nom::branch::alt;
+use nom::IResult;
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::trace_result;
 
 /// Binary expression parser and utilities.
 pub(self) mod binary_expression;
@@ -30,23 +37,26 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::eq::ast_eq;
-use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
-use crate::grammar::model::{Fragment, HasSourceReference};
-use nom::branch::alt;
-use nom::IResult;
+impl<T> Expression<T> {
+    /// The name of this parser when appearing in traces.
+    pub const TRACE_NAME: &'static str = "Expression";
+}
 
-impl<'s> Expression<'s> {
+impl<I: OptionallyTraceable> Expression<I> {
     /// Parse an expression
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        println!("Expr::parse");
-        assert!(false);
-        alt((BinaryExpression::parse, binary_expression::base_primary))(input)
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(
+            Self::TRACE_NAME,
+            alt((
+                BinaryExpression::parse,
+                binary_expression::base_primary
+            ))(input.trace_start_clone(Self::TRACE_NAME))
+        )
     }
 }
 
-impl<'s> HasSourceReference<'s> for Expression<'s> {
-    fn get_source_ref(&self) -> &Fragment<'s> {
+impl<I> HasSourceReference<I> for Expression<I> {
+    fn get_source_ref(&self) -> &I {
         use Expression::*;
         match self {
             NumLit(i) => i.get_source_ref(),
@@ -66,7 +76,7 @@ impl<'s> HasSourceReference<'s> for Expression<'s> {
     }
 }
 
-impl<'s> AstEq for Expression<'s> {
+impl<T> AstEq for Expression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
 

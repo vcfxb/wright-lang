@@ -8,11 +8,12 @@ use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{
 };
 use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, to_expr};
 use nom::branch::alt;
-use nom::combinator::map;
 use nom::IResult;
+use crate::grammar::tracing::input::OptionallyTraceable;
+
 
 /// Parse possible children of a logical OR expression.
-pub fn logical_or_primary(input: Fragment) -> IResult<Fragment, Expression> {
+pub fn logical_or_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
     alt((map(logical_and, to_expr), logical_and_primary))(input)
 }
 

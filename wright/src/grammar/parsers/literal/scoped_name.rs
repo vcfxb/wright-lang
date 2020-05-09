@@ -5,24 +5,26 @@ use nom::bytes::complete::tag;
 use nom::multi::{many0};
 use nom::sequence::{delimited, pair, terminated};
 use nom::{IResult, Err};
-use crate::grammar::tracing::{input::OptionallyTraceable, parsers::{
-    with_input::WithInputConsumed,
-    map::map
-}, trace_result};
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    parsers::map::map,
+    trace_result
+};
+use crate::grammar::parsers::with_input;
 
-impl<'s> ScopedName<'s> {
+impl<T> ScopedName<T> {
     /// The scope separator string.
     pub const SEPARATOR: &'static str = "::";
 
     /// The name this will appear under when tracing a parse.
     pub const TRACE_NAME: &'static str = "ScopedName";
+}
 
+impl<I: OptionallyTraceable> ScopedName<I> {
     /// Parses a ScopedName from the given input fragment.
-    pub fn parse<I: OptionallyTraceable>(input: I) -> IResult<I, Self> {
-        let mut i: I = input.clone();
-        i.trace_start(Self::TRACE_NAME);
+    pub fn parse(input: I) -> IResult<I, Self> {
         let res: IResult<I, Self> = map(
-            WithInputConsumed::with_input(pair(
+            with_input(pair(
                 many0(terminated(
                     Identifier::parse,
                     delimited(token_delimiter,
@@ -32,23 +34,22 @@ impl<'s> ScopedName<'s> {
                 )),
                 Identifier::parse,
             )),
-            |wi| {
-                let (consumed, (path, name)) = wi.into();
+            |(consumed, (path, name))| {
                 Self {
-                    frag: consumed,
+                    source: consumed,
                     path,
                     name,
                 }
             },
-        )(i);
+        )(input.trace_start_clone(Self::TRACE_NAME));
 
         trace_result(Self::TRACE_NAME, res)
     }
 }
 
-impl<'s> HasSourceReference<'s> for ScopedName<'s> {
-    fn get_source_ref(&self) -> &Fragment<'s> {
-        &self.frag
+impl<I> HasSourceReference<I> for ScopedName<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 

@@ -19,7 +19,7 @@ pub enum Pattern<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct Underscore<SourceCodeReference: Clone + Debug> {
     /// Associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
 }
 
 /// Number literal pattern

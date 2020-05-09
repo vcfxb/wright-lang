@@ -64,6 +64,11 @@ impl TraceInfo {
         Self::default()
     }
 
+    /// Get the length of the trace history.
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+
     /// Get the next available id.
     fn get_next_id(&mut self) -> usize {
         self.next_id += 1;

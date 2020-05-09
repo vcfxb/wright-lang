@@ -1,6 +1,5 @@
 use nom::{IResult, Offset, Slice};
 use std::ops::RangeTo;
-use crate::grammar::model::Fragment;
 use crate::grammar::tracing::input::OptionallyTraceable;
 
 /// Wright literal value parsers.

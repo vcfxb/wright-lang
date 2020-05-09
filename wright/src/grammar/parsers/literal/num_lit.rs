@@ -10,10 +10,7 @@ use crate::grammar::{ast::NumLit, model::Fragment};
 
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::HasSourceReference;
-use crate::grammar::tracing::parsers::{
-    map::map,
-    with_input::WithInputConsumed
-};
+use crate::grammar::tracing::parsers::{map::map};
 use std::num::ParseIntError;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;

@@ -15,10 +15,12 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
 };
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
-use nom::combinator::map;
 use nom::multi::many1;
 use nom::sequence::{delimited, pair};
 use nom::IResult;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::trace_result;
 
 /// Module for parsing range expressions.
 /// This includes Range and RangeTo operators.
@@ -48,8 +50,9 @@ pub(self) mod arithmetic;
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
-pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {
-    alt((
+pub fn base_primary<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::base_primary";
+    let res = alt((
         map(Parens::parse, to_expr),
         map(Block::parse, to_expr),
         map(NumLit::parse, to_expr),
@@ -59,25 +62,31 @@ pub fn base_primary(input: Fragment) -> IResult<Fragment, Expression> {
         map(Conditional::parse, to_expr),
         //map(FuncCallExpression::parse, to_expr), // make sure we aren't causing recursion
         map(ScopedName::parse, to_expr),
-    ))(input)
+    ))(input.trace_start_clone(trace));
+    trace_result(trace, res)
 }
 
 /// Convert the result of a parser into an expression
-pub(self) fn to_expr<'s, E: Into<Expression<'s>>>(e: E) -> Expression<'s> {
+pub(self) fn to_expr<I, E: Into<Expression<I>>>(e: E) -> Expression<I> {
     e.into()
 }
 
 /// Return a parser for a precedence level of left associative operator.
-pub(self) fn parser_left<'s>(
-    child: fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>>,
-    operator: fn(Fragment<'s>) -> IResult<Fragment<'s>, BinaryOp>,
-) -> impl Fn(Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
-    move |input: Fragment<'s>| {
-        map(
+pub(self) fn parser_left<I: OptionallyTraceable>(
+    child: impl Fn(I) -> IResult<I, Expression<I>>,
+    operator: impl Fn(I) -> IResult<I, BinaryOp>,
+) -> impl Fn(I) -> IResult<I, Expression<I>> {
+    let trace= "BinaryExpr::parser_left";
+    move |input| {
+        let res = map(
             pair(
                 child,
                 many1(pair(
-                    delimited(token_delimiter, operator.clone(), token_delimiter),
+                    delimited(
+                        token_delimiter,
+                        operator.clone(),
+                        token_delimiter
+                    ),
                     child,
                 )),
             ),
@@ -91,13 +100,15 @@ pub(self) fn parser_left<'s>(
                 }
                 acc
             },
-        )(input)
+        )(input.trace_start_clone(trace));
+        trace_result(trace, res)
     }
 }
 
 /// Parse a binary expression.
-pub fn parse_binary_expr(input: Fragment) -> IResult<Fragment, Expression> {
-    alt((
+pub fn parse_binary_expr<I: OptionallyTraceable>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::parse_binary_expr";
+    trace_result(trace, alt((
         range_expr,
         logical_or,
         logical_and,
@@ -109,5 +120,5 @@ pub fn parse_binary_expr(input: Fragment) -> IResult<Fragment, Expression> {
         bitshift,
         arithmetic1,
         arithmetic2,
-    ))(input)
+    ))(input.trace_start_clone(trace)))
 }

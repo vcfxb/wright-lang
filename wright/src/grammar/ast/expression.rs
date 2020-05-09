@@ -42,7 +42,7 @@ pub enum BinaryOp {
 #[derive(Clone, Debug)]
 pub struct BinaryExpression<SourceCodeReference: Debug + Clone> {
     /// Associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// Operation being done.
     pub op: BinaryOp,
     /// Left side of the expression.

@@ -114,40 +114,6 @@ impl<'s> Fragment<'s> {
             && std::ptr::eq(fst.files(), snd.files())
             && !fst.get_span().disjoint(snd.get_span())
     }
-
-    // FIXME: links
-    /// Merge two fragments into one.
-    ///
-    /// With regards to tracing info, merging fragments
-    /// will default to the second argument.
-    ///
-    /// ## Errors:
-    /// - [`Fragment::FilesRefMismatch`]() when there is a mismatch between the
-    ///     `Files<String>` objects referred to by the fragments.
-    /// - [`Fragment::HandleMismatch`]() when there is a mismatch between the
-    ///     source handles within the fragments.
-    /// ## Panics:
-    /// Panics when either fragment is internally corrupted such that a new
-    /// source string is not able to be read from the `File<String>` object.
-    pub fn merge(fst: &Self, snd: &Self) -> Result<Self, FragmentError> {
-        if !std::ptr::eq(fst.files, snd.files) {
-            return Err(FragmentError::FilesRefMismatch);
-        } else if fst.handle != snd.handle {
-            return Err(FragmentError::HandleMismatch);
-        } else {
-            let span = fst.span.merge(snd.span);
-            let files = fst.files;
-            let handle = fst.handle;
-            let source = files.source_slice(handle, span).unwrap();
-            Ok(Fragment {
-                span,
-                files,
-                handle,
-                source,
-                tracer: snd.tracer.clone().or(fst.tracer.clone())
-            })
-        }
-    }
 }
 
 impl<'s> OptionallyTraceable for Fragment<'s> {
@@ -413,3 +379,4 @@ pub trait HasSourceReference<SourceCodeReference: Clone + Debug> {
 impl<'s> Into<String> for Fragment<'s> {
     fn into(self) -> String {self.source().to_owned()}
 }
+

@@ -15,7 +15,7 @@ pub struct Identifier<SourceCodeReference: Copy + Debug> {
 #[derive(Clone, Debug)]
 pub struct ScopedName<SourceCodeReference: Clone + Debug> {
     /// The source code fragment.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// The sequence of simple identifiers.
     /// Example: foo::bar::baz -> [ foo, bar ]
     pub path: Vec<SourceCodeReference>,
@@ -55,7 +55,7 @@ pub struct CharLit<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct StringLit<SourceCodeReference: Clone + Debug> {
     /// Associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// Represented string value. (not a reference into source code because
     /// source code may contain escaped characters.)
     pub inner: String,
@@ -66,7 +66,7 @@ pub struct StringLit<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct BooleanLit<SourceCodeReference: Clone + Debug> {
     /// Associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// Represented value.
     pub inner: bool,
 }
@@ -75,5 +75,5 @@ pub struct BooleanLit<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct SelfLit<SourceCodeReference: Clone + Debug> {
     /// Associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
 }

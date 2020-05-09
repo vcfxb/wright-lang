@@ -1,22 +1,26 @@
 use crate::grammar::ast::{eq::AstEq, CharLit, Expression};
-use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::model::HasSourceReference;
 
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, one_of};
-use nom::combinator::{map, map_opt, map_res, not, value};
+use nom::combinator::{map_opt, map_res, not, value};
 use nom::error::context;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
-use crate::grammar::tracing::trace_result;
+use crate::grammar::tracing::{
+    input::OptionallyTraceable,
+    trace_result,
+    parsers::map::map,
+};
 
-impl<I: OptionallyTraceable> CharLit<I> {
-
+impl<T> CharLit<T> {
     /// The name of this parser in traces.
     pub const TRACE_NAME: &'static str = "CharLit";
+}
 
+impl<I: OptionallyTraceable> CharLit<I> {
     fn new(source: I, inner: char) -> Self {
         Self { source, inner }
     }
@@ -94,23 +98,23 @@ impl<I: OptionallyTraceable> CharLit<I> {
             with_input(Self::character_wrapper),
             |(input, ch)| Self::new(input, ch)
         )(input.trace_start_clone(Self::TRACE_NAME));
-        trace_result(res);
+        trace_result(res)
     }
 }
 
-impl<'s> HasSourceReference<'s> for CharLit<'s> {
-    fn get_source_ref(&self) -> &Fragment<'s> {
-        &self.frag
+impl<I> HasSourceReference<I> for CharLit<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> Into<Expression<'s>> for CharLit<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I> Into<Expression<I>> for CharLit<I> {
+    fn into(self) -> Expression<I> {
         Expression::CharLit(self)
     }
 }
 
-impl<'s> AstEq for CharLit<'s> {
+impl<I> AstEq for CharLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }
