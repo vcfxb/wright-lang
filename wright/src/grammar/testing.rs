@@ -145,6 +145,7 @@ impl TestingContext {
         index: usize,
         validation: impl FnOnce((Fragment<'a>, N)),
     ) {
+        dbg!(self.get_fragment(index).source());
         validation(
             self.run_parser_on(index, parser)
                 .map_err(|e| {

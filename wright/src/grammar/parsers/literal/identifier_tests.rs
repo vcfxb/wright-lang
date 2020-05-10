@@ -50,7 +50,6 @@ fn test_idents() {
 fn test_trailing() {
     TestingContext::with(&["variable "])
         .test_output(Identifier::parse, 0, |(rem, node)| {
-            rem.get_trace().unwrap().print();
             assert_eq!(rem.source(), " ");
             assert_eq!(node.get_source_ref(), "variable");
         })

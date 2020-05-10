@@ -22,10 +22,12 @@ impl<I: WrightInput> ScopedName<I> {
         let res: IResult<I, Self> = map(
             with_input(pair(
                 Identifier::parse,
-                many0(preceded(
-                    delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
-                    Identifier::parse,
-                )),
+                many0(|i: I| {
+                    preceded(
+                        delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
+                        Identifier::parse,
+                    )(i)
+                }),
             )),
             |(consumed, (fst, following))| {
                 let mut list = following.clone();

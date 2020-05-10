@@ -44,17 +44,17 @@ fn test_trailing() {
         assert_eq!(node.name.source.source(), "foo");
     });
 
+    ctx.test_output(ScopedName::parse, 1, |(remaining, node)| {
+        assert_eq!(node.name.source.source(), "foo");
+        assert_eq!(remaining.source(), " ::");
+        assert_eq!(node.path.len(), 0);
+    });
+
     ctx.test_output(ScopedName::parse, 2, |(rem, node)| {
         assert_eq!(rem.source(), "::1");
         assert!(node.path.is_empty());
         assert_eq!(node.name.get_source_ref().source(), "foo");
     });
-
-    ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
-        assert_eq!(node.name.source.source(), "foo");
-        assert_eq!(remaining.source(), " ::");
-        assert_eq!(node.path.len(), 0);
-    })
 }
 
 #[test]
