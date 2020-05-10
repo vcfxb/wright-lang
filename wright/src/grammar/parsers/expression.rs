@@ -1,3 +1,9 @@
+use crate::grammar::ast::eq::ast_eq;
+use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
+use crate::grammar::model::{HasSourceReference, WrightInput};
+use crate::grammar::tracing::trace_result;
+use nom::branch::alt;
+use nom::IResult;
 use std::mem::discriminant;
 
 /// Binary expression parser and utilities.
@@ -30,43 +36,45 @@ pub(crate) mod block;
 #[cfg(test)]
 mod expression_tests;
 
-use crate::grammar::ast::eq::ast_eq;
-use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
-use crate::grammar::model::{Fragment, HasFragment};
-use nom::branch::alt;
-use nom::IResult;
+impl<T: Clone + std::fmt::Debug> Expression<T> {
+    /// The name of this parser when appearing in traces.
+    pub const TRACE_NAME: &'static str = "Expression";
+}
 
-impl<'s> Expression<'s> {
+impl<I: WrightInput> Expression<I> {
     /// Parse an expression
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        println!("Expr::parse");
-        assert!(false);
-        alt((BinaryExpression::parse, binary_expression::base_primary))(input)
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(
+            Self::TRACE_NAME,
+            alt((BinaryExpression::parse, binary_expression::base_primary))(
+                input.trace_start_clone(Self::TRACE_NAME),
+            ),
+        )
     }
 }
 
-impl<'s> HasFragment<'s> for Expression<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Expression<I> {
+    fn get_source_ref(&self) -> &I {
         use Expression::*;
         match self {
-            NumLit(i) => i.get_fragment(),
-            CharLit(i) => i.get_fragment(),
-            StringLit(i) => i.get_fragment(),
-            BooleanLit(i) => i.get_fragment(),
-            ScopedName(i) => i.get_fragment(),
-            Parens(i) => i.get_fragment(),
-            BinaryExpression(i) => i.get_fragment(),
-            SelfLit(i) => i.get_fragment(),
-            Block(i) => i.get_fragment(),
-            UnaryExpression(i) => i.get_fragment(),
-            Conditional(i) => i.get_fragment(),
-            IndexExpression(i) => i.get_fragment(),
-            FuncCall(i) => i.get_fragment(),
+            NumLit(i) => i.get_source_ref(),
+            CharLit(i) => i.get_source_ref(),
+            StringLit(i) => i.get_source_ref(),
+            BooleanLit(i) => i.get_source_ref(),
+            ScopedName(i) => i.get_source_ref(),
+            Parens(i) => i.get_source_ref(),
+            BinaryExpression(i) => i.get_source_ref(),
+            SelfLit(i) => i.get_source_ref(),
+            Block(i) => i.get_source_ref(),
+            UnaryExpression(i) => i.get_source_ref(),
+            Conditional(i) => i.get_source_ref(),
+            IndexExpression(i) => i.get_source_ref(),
+            FuncCall(i) => i.get_source_ref(),
         }
     }
 }
 
-impl<'s> AstEq for Expression<'s> {
+impl<T: Clone + std::fmt::Debug + PartialEq> AstEq for Expression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
 

@@ -1,5 +1,5 @@
 use crate::grammar::ast::BooleanLit;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 
 #[test]
 fn test_bool_lit() {

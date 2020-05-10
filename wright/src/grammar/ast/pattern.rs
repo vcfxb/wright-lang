@@ -1,33 +1,33 @@
 use crate::grammar::ast::{BooleanLit, CharLit, Identifier, NumLit, ScopedName, StringLit};
-use crate::grammar::model::Fragment;
+use std::fmt::Debug;
 
 /// A Pattern used in pattern matching.
 #[allow(missing_docs)]
 #[derive(Clone, Debug)]
-pub enum Pattern<'s> {
-    NumLit(NumLitPattern<'s>),
-    CharLit(CharLit<'s>),
-    StringLit(StringLit<'s>),
-    BooleanLit(BooleanLit<'s>),
-    Identifier(Identifier<'s>),
-    ScopedName(ScopedName<'s>),
-    Underscore(Underscore<'s>),
+pub enum Pattern<SourceCodeReference: Clone + Debug> {
+    NumLit(NumLitPattern<SourceCodeReference>),
+    CharLit(CharLit<SourceCodeReference>),
+    StringLit(StringLit<SourceCodeReference>),
+    BooleanLit(BooleanLit<SourceCodeReference>),
+    Identifier(Identifier<SourceCodeReference>),
+    ScopedName(ScopedName<SourceCodeReference>),
+    Underscore(Underscore<SourceCodeReference>),
 }
 
 /// An underscore pattern in source code.
-#[derive(Copy, Clone, Debug)]
-pub struct Underscore<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct Underscore<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
 }
 
 /// Number literal pattern
 #[derive(Clone, Debug)]
-pub struct NumLitPattern<'s> {
-    /// Associated Fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct NumLitPattern<SourceCodeReference: Clone + Debug> {
+    /// Associated source code reference.
+    pub source: SourceCodeReference,
     /// Whether the number literal pattern has '-' in front
     pub negative: bool,
     /// Inner number literal value
-    pub inner: NumLit<'s>,
+    pub inner: NumLit<SourceCodeReference>,
 }

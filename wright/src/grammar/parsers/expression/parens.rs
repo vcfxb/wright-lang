@@ -1,14 +1,20 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Parens};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map;
+use crate::grammar::tracing::trace_result;
 use nom::character::complete::char as ch;
-use nom::combinator::map;
 use nom::sequence::{delimited, terminated};
 use nom::IResult;
 
-impl<'s> Parens<'s> {
-    fn inner(frag: Fragment<'s>) -> IResult<Fragment<'s>, Expression<'s>> {
+impl<T: Clone + std::fmt::Debug> Parens<T> {
+    /// Name that appears in parse traces.
+    pub const TRACE_NAME: &'static str = "";
+}
+
+impl<I: WrightInput> Parens<I> {
+    fn inner(input: I) -> IResult<I, Expression<I>> {
         delimited(
             token_delimiter,
             delimited(
@@ -17,32 +23,35 @@ impl<'s> Parens<'s> {
                 terminated(ch(')'), token_delimiter),
             ),
             token_delimiter,
-        )(frag)
+        )(input)
     }
 
     /// Parse parentheses and the expression between them in source code. Will
     /// ignore any whitespace before and after.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(with_input(Self::inner), |(consumed, expr)| Parens {
-            frag: consumed,
-            inner: Box::new(expr),
-        })(input)
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(
+            Self::TRACE_NAME,
+            map(with_input(Self::inner), |(consumed, expr)| Parens {
+                source: consumed,
+                inner: Box::new(expr),
+            })(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 
-impl<'s> HasFragment<'s> for Parens<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Parens<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> Into<Expression<'s>> for Parens<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Parens<I> {
+    fn into(self) -> Expression<I> {
         Expression::Parens(self)
     }
 }
 
-impl<'s> AstEq for Parens<'s> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for Parens<I> {
     #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&*fst.inner, &*snd.inner)

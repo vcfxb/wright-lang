@@ -1,9 +1,9 @@
 use crate::grammar::ast::NumLit;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 
 #[test]
 fn from_dec() {
-    assert_eq!(NumLit::from_dec("1000").unwrap(), 1000);
+    assert_eq!(NumLit::<&str>::from_dec("1000").unwrap(), 1000);
 }
 
 #[test]

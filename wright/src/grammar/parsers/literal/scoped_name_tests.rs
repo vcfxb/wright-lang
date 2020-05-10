@@ -1,6 +1,7 @@
 use crate::grammar::ast::ScopedName;
-use crate::grammar::parsers::testing::TestingContext;
-use crate::grammar::model::HasFragment;
+use crate::grammar::model::HasSourceReference;
+use crate::grammar::testing::TestingContext;
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 #[test]
 fn test_empty() {
@@ -11,7 +12,7 @@ fn test_empty() {
 fn test_single() {
     TestingContext::with(&["foo"]).test_output_node(ScopedName::parse, 0, |sn| {
         assert_eq!(sn.path.len(), 0);
-        assert_eq!(sn.name.frag.source(), "foo");
+        assert_eq!(sn.name.source.source(), "foo");
     })
 }
 
@@ -19,9 +20,9 @@ fn test_single() {
 fn test_multiple() {
     TestingContext::with(&["foo::bar :: baz"]).test_output_node(ScopedName::parse, 0, |sn| {
         assert_eq!(sn.path.len(), 2);
-        assert_eq!(sn.path[0].frag.source(), "foo");
-        assert_eq!(sn.path[1].frag.source(), "bar");
-        assert_eq!(sn.name.frag.source(), "baz");
+        assert_eq!(sn.path[0].source, "foo");
+        assert_eq!(sn.path[1].source, "bar");
+        assert_eq!(sn.name.source, "baz");
     });
 }
 
@@ -32,22 +33,25 @@ fn test_delimiter() {
 
 #[test]
 fn test_trailing() {
-    let ctx = TestingContext::with(&["foo::", "foo ::", "foo::1"]);
+    let ctx = TestingContext::with(&[
+        "foo::", "foo ::", "foo::1"
+    ]);
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
+        remaining.get_trace().unwrap().print();
         assert_eq!(remaining.source(), "::");
         assert!(node.path.is_empty());
-        assert_eq!(node.name.frag.source(), "foo");
+        assert_eq!(node.name.source.source(), "foo");
     });
 
     ctx.test_output(ScopedName::parse, 2, |(rem, node)| {
         assert_eq!(rem.source(), "::1");
         assert!(node.path.is_empty());
-        assert_eq!(node.name.get_fragment().source(), "foo");
+        assert_eq!(node.name.get_source_ref().source(), "foo");
     });
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
-        assert_eq!(node.name.frag.source(), "foo");
+        assert_eq!(node.name.source.source(), "foo");
         assert_eq!(remaining.source(), " ::");
         assert_eq!(node.path.len(), 0);
     })

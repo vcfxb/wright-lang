@@ -1,5 +1,5 @@
 use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::testing::TestingContext;
 use nom::bytes::complete::take_while1;
 use nom::error::ErrorKind;
 use nom::IResult;
@@ -13,7 +13,7 @@ where
 {
     let tcx = TestingContext::with(&[s]);
     let frag = tcx.get_fragment(0);
-    let p1 = f1(frag);
+    let p1 = f1(frag.clone());
     let p2 = f2(s);
     match (p1, p2) {
         (Ok((rem1, out1)), Ok((rem2, out2))) => {

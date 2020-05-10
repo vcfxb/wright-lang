@@ -1,18 +1,20 @@
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::TraceInfo;
 use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
-
 use nom::error::{ErrorKind, ParseError};
-use nom::lib::std::ops::{Range, RangeFrom, RangeFull, RangeTo};
-use nom::lib::std::str::FromStr;
 use nom::Err;
 use nom::{
     AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, IResult, InputIter,
     InputLength, InputTake, InputTakeAtPosition, Needed, Offset, ParseTo, Slice,
 };
+use std::fmt::Debug;
+use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
+use std::str::FromStr;
 
 /// A piece of source code. Generally used to replace strings in the nom parser,
 /// this structure stores extra information about the location of a fragment of
 /// source code.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Fragment<'source> {
     /// A reference to the parent Files object, which stores all source code
     /// being processed.
@@ -21,6 +23,8 @@ pub struct Fragment<'source> {
     span: Span,
     /// The fragment of source code represented by this object.
     source: &'source str,
+    /// An optional additional field that traces the parsing of
+    tracer: Option<TraceInfo>,
 }
 
 /// An error when attempting to merge two fragments.
@@ -43,8 +47,14 @@ impl<'s> Fragment<'s> {
             files,
             handle,
             span,
-            source
+            source,
+            tracer: None,
         }
+    }
+
+    /// Enable parse tracing for this fragment.
+    pub fn enable_trace(&mut self) {
+        self.tracer = Some(TraceInfo::new());
     }
 
     /// Get the span associated with this fragment of source code.
@@ -103,36 +113,29 @@ impl<'s> Fragment<'s> {
             && std::ptr::eq(fst.files(), snd.files())
             && !fst.get_span().disjoint(snd.get_span())
     }
-
-    /// Merge two fragments into one.
-    /// ## Errors:
-    /// - [`Fragment::FilesRefMismatch`]() when there is a mismatch between the
-    ///     `Files<String>` objects referred to by the fragments.
-    /// - [`Fragment::HandleMismatch`]() when there is a mismatch between the
-    ///     source handles within the fragments.
-    /// ## Panics:
-    /// Panics when either fragment is internally corrupted such that a new
-    /// source string is not able to be read from the `File<String>` object.
-    pub fn merge(fst: Self, snd: Self) -> Result<Self, FragmentError> {
-        if !std::ptr::eq(fst.files, snd.files) {
-            return Err(FragmentError::FilesRefMismatch);
-        } else if fst.handle != snd.handle {
-            return Err(FragmentError::HandleMismatch);
-        } else {
-            let span = fst.span.merge(snd.span);
-            let files = fst.files;
-            let handle = fst.handle;
-            let source = files.source_slice(handle, span).unwrap();
-            Ok(Fragment {
-                span,
-                files,
-                handle,
-                source,
-            })
-        }
-    }
 }
 
+impl<'s> OptionallyTraceable for Fragment<'s> {
+    fn trace_start(&mut self, tag: &'static str) {
+        if self.tracer.is_some() {
+            let mut t = self.tracer.clone().unwrap();
+            t.start(tag);
+            self.tracer = Some(t);
+        }
+    }
+
+    fn trace_end(&mut self, tag: &'static str, success: bool) {
+        if self.tracer.is_some() {
+            let mut t = self.tracer.clone().unwrap();
+            t.end(tag, success);
+            self.tracer = Some(t);
+        }
+    }
+
+    fn get_trace(&self) -> Option<TraceInfo> {
+        self.tracer.clone()
+    }
+}
 
 impl<'s> AsBytes for Fragment<'s> {
     #[inline]
@@ -235,8 +238,8 @@ impl<'s> InputTake for Fragment<'s> {
     }
 
     fn take_split(&self, count: usize) -> (Self, Self) {
-        let mut frag2 = *self;
-        let mut frag3 = *self;
+        let mut frag2 = self.clone();
+        let mut frag3 = self.clone();
         frag2.source = &self.source()[..count];
         frag3.source = &self.source()[count..];
         frag2.span = Span::new(self.start(), self.start() + ByteOffset(count as i64));
@@ -267,7 +270,7 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
         P: Fn(Self::Item) -> bool,
     {
         match self.source().find(predicate) {
-            Some(0) => Err(Err::Error(E::from_error_kind(*self, e))),
+            Some(0) => Err(Err::Error(E::from_error_kind(self.clone(), e))),
             Some(i) => Ok(self.take_split(i)),
             None => Err(Err::Incomplete(Needed::Size(1))),
         }
@@ -295,11 +298,11 @@ impl<'s> InputTakeAtPosition for Fragment<'s> {
         P: Fn(Self::Item) -> bool,
     {
         match self.source().find(predicate) {
-            Some(0) => Err(Err::Error(E::from_error_kind(*self, e))),
+            Some(0) => Err(Err::Error(E::from_error_kind(self.clone(), e))),
             Some(i) => Ok(self.take_split(i)),
             None => {
                 if self.len() == 0 {
-                    Err(Err::Error(E::from_error_kind(*self, e)))
+                    Err(Err::Error(E::from_error_kind(self.clone(), e)))
                 } else {
                     Ok(self.take_split(self.input_len()))
                 }
@@ -352,15 +355,65 @@ impl<'s> Slice<RangeFull> for Fragment<'s> {
 }
 
 impl<'s> PartialEq for Fragment<'s> {
-    // This will fail if it is used to compare across two separate Files
-    // objects.
     fn eq(&self, other: &Self) -> bool {
-        other.handle == self.handle && other.span == self.span
+        std::ptr::eq(self.files, other.files)
+            && other.handle == self.handle
+            && other.span == self.span
+            && self.tracer == other.tracer
+    }
+}
+
+impl<'s, 'a> PartialEq<&'a str> for Fragment<'s> {
+    fn eq(&self, other: &&'a str) -> bool {
+        self.source() == *other
+    }
+}
+
+impl<'a, 's> PartialEq<&'a str> for &'a Fragment<'s> {
+    fn eq(self: &&'a Fragment<'s>, other: &&'a str) -> bool {
+        self.source() == *other
     }
 }
 
 /// Trait for all types that have associated fragments in source code.
-pub trait HasFragment<'s> {
-    /// Get the associated fragment of source code.
-    fn get_fragment(&self) -> Fragment<'s>;
+pub trait HasSourceReference<SourceCodeReference: Clone + Debug> {
+    /// Get reference to the associated fragment of source code.
+    fn get_source_ref(&self) -> &SourceCodeReference;
+
+    /// Get a clone of the associated fragment of source code.
+    fn get_source_clone(&self) -> SourceCodeReference {
+        self.get_source_ref().clone()
+    }
 }
+
+impl<'s> Into<String> for Fragment<'s> {
+    fn into(self) -> String {
+        self.source().to_owned()
+    }
+}
+
+/// Trait alias for all wright parser inputs.
+/// All inputs are required to implement Debug,
+/// Clone, and a number of nom traits.
+pub trait WrightInput:
+    OptionallyTraceable
+    + Debug
+    + Clone
+    + InputTake
+    + for<'a> Compare<&'a str>
+    + InputIter<Item = char>
+    + InputLength
+    + Slice<RangeFrom<usize>>
+    + Slice<RangeTo<usize>>
+    + Slice<Range<usize>>
+    + InputTakeAtPosition<Item = char>
+    + Into<String>
+    + Offset
+    + PartialEq
+    + for<'a> PartialEq<&'a str>
+    + for<'a> FindSubstring<&'a str>
+{
+}
+
+impl<'s> WrightInput for Fragment<'s> {}
+impl<'s> WrightInput for &'s str {}

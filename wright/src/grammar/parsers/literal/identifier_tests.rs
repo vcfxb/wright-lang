@@ -1,6 +1,6 @@
 use crate::grammar::ast::Identifier;
-use crate::grammar::model::{Fragment, HasFragment};
-use crate::grammar::parsers::testing::TestingContext;
+use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::testing::TestingContext;
 
 fn test_ident(s: &'static str, should_err: bool) {
     let tcx = TestingContext::with(&[s]);
@@ -19,7 +19,7 @@ fn test_ident(s: &'static str, should_err: bool) {
         assert!(r.is_ok());
         let o = r.unwrap();
         assert_eq!(o.0.len(), 0);
-        assert_eq!(o.1.frag.source(), s);
+        assert_eq!(o.1.source.source(), s);
     }
 }
 
@@ -47,9 +47,8 @@ fn test_idents() {
 
 #[test]
 fn test_trailing() {
-    TestingContext::with(&["variable "])
-        .test_output(Identifier::parse, 0, |(rem, node)| {
-            assert_eq!(rem.source(), " ");
-            assert_eq!(node.get_fragment().source(), "variable");
-        })
+    TestingContext::with(&["variable "]).test_output(Identifier::parse, 0, |(rem, node)| {
+        assert_eq!(rem.source(), " ");
+        assert_eq!(node.get_source_ref(), "variable");
+    })
 }

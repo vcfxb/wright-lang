@@ -1,5 +1,3 @@
-use crate::grammar::model::Fragment;
-
 /// A wright primitive type.
 /// Wright has almost the same set of primitive types as rust.
 /// The ones here all correspond almost equivalently to their rust
@@ -24,18 +22,18 @@ pub enum PrimitiveTypeVariant {
 }
 
 /// A primitive type in source code.
-#[derive(Copy, Clone, Debug)]
-pub struct PrimitiveType<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct PrimitiveType<I> {
+    /// Associated source code.
+    pub source: I,
     /// Represented variant.
     pub variant: PrimitiveTypeVariant,
 }
 
 /// A user defined type.
-pub struct UserType<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct UserType<I> {
+    /// Associated source code.
+    pub source: I,
 }
 
 /// A type in source code.
