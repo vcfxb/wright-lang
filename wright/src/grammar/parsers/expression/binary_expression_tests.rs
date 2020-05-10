@@ -27,7 +27,9 @@ fn benchmark_trace_disabled_complex() {
     let frag = tcx.get_fragment_trace_disabled(0);
     let start = Instant::now();
     let res = BinaryExpression::parse(frag.clone()).unwrap();
-    println!("{} microseconds to parse {}.", (Instant::now() - start).as_micros(), frag.source());
+    println!("{} microseconds to parse {} without tracing.",
+             (Instant::now() - start).as_micros(), frag.source()
+    );
 }
 
 #[test]
@@ -53,6 +55,19 @@ fn test_complicated_parse() {
     ]);
 
     ctx.test_output(BinaryExpression::parse, 0, |(rem, _)| {
+        rem.get_trace().unwrap().print();
+    });
+}
+
+// This one currently takes multiple minutes, and is disabled for now.
+#[test]
+#[ignore]
+fn test_all_operators() {
+    let ctx = TestingContext::with(&[
+        r#"a or b || a * n&&b&&d-(5 mod "string") & 2 * 6"#
+    ]);
+
+    ctx.test_output(BinaryExpression::parse, 0, |(rem, node)| {
         rem.get_trace().unwrap().print();
     });
 }

@@ -58,7 +58,7 @@ pub fn base_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
         map(StringLit::parse, to_expr),
         map(BooleanLit::parse, to_expr),
         map(SelfLit::parse, to_expr),
-        map(Conditional::parse, |a| todo!("recursion")),
+        map(Conditional::parse, to_expr),
         //map(FuncCallExpression::parse, to_expr), // make sure we aren't causing recursion
         map(ScopedName::parse, to_expr),
     ))(input.trace_start_clone(trace));
