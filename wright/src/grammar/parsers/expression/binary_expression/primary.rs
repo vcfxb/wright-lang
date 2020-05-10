@@ -76,7 +76,7 @@ where
 }
 
 /// Return a parser for a precedence level of left associative operator.
-/// Requires that the child parser succeed at least once.
+/// Requires that the child parser succeed at least twice.
 pub(self) fn parser_left<I: WrightInput>(
     child: fn(I) -> IResult<I, Expression<I>>,
     operator: fn(I) -> IResult<I, BinaryOp>,
