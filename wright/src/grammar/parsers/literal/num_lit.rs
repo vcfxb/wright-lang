@@ -3,18 +3,18 @@ use nom::{
     bytes::complete::{is_a, tag, take_while1, take_while_m_n},
     combinator::{map_res, peek},
     sequence::preceded,
-    IResult
+    IResult,
 };
 
-use crate::grammar::{ast::NumLit};
+use crate::grammar::ast::NumLit;
 
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::parsers::map::map;
-use std::num::ParseIntError;
-use crate::grammar::tracing::trace_result;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use std::fmt::Debug;
+use std::num::ParseIntError;
 
 impl<T: Debug + Clone> NumLit<T> {
     /// Name used to refer to this parser in traces.

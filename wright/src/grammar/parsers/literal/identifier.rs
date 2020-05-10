@@ -1,18 +1,13 @@
-use crate::grammar::ast::{
-    eq::AstEq, BinaryOp, Conditional, SelfLit, Underscore,
-};
+use crate::grammar::ast::{eq::AstEq, BinaryOp, Conditional, SelfLit, Underscore};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{HasSourceReference, WrightInput};
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::bytes::complete::take_while;
 use nom::character::complete::anychar;
 use nom::combinator::{recognize, verify};
 use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
 
 impl<T: std::fmt::Debug + Clone> Identifier<T> {
     /// Name used in function tracing.
@@ -42,11 +37,7 @@ impl<I: WrightInput> Identifier<I> {
                 verify(anychar, |c| c.is_ascii_alphabetic() || *c == '_'),
                 take_while(|c: char| c.is_ascii_alphanumeric() || c == '_'),
             )),
-            |i: &I| {
-                Self::RESERVED_WORDS
-                    .iter()
-                    .all(|s: &&str| i != s)
-            },
+            |i: &I| Self::RESERVED_WORDS.iter().all(|s: &&str| i != s),
         )(input)
     }
 
@@ -55,8 +46,7 @@ impl<I: WrightInput> Identifier<I> {
     /// An Identifier also must not be a reserved word.
     pub fn parse(input: I) -> IResult<I, Self> {
         let i = input.trace_start_clone(Self::TRACE_NAME);
-        let res =
-            context("expected identifier", map(Self::raw_ident, Self::new))(i);
+        let res = context("expected identifier", map(Self::raw_ident, Self::new))(i);
         trace_result(Self::TRACE_NAME, res)
     }
 }

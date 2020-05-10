@@ -1,4 +1,3 @@
-
 /// A wright primitive type.
 /// Wright has almost the same set of primitive types as rust.
 /// The ones here all correspond almost equivalently to their rust

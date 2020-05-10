@@ -1,6 +1,6 @@
 use crate::grammar::ast::ScopedName;
-use crate::grammar::testing::TestingContext;
 use crate::grammar::model::HasSourceReference;
+use crate::grammar::testing::TestingContext;
 
 #[test]
 fn test_empty() {
@@ -19,9 +19,9 @@ fn test_single() {
 fn test_multiple() {
     TestingContext::with(&["foo::bar :: baz"]).test_output_node(ScopedName::parse, 0, |sn| {
         assert_eq!(sn.path.len(), 2);
-        assert_eq!(sn.path[0].frag.source(), "foo");
-        assert_eq!(sn.path[1].frag.source(), "bar");
-        assert_eq!(sn.name.source.source(), "baz");
+        assert_eq!(sn.path[0].source, "foo");
+        assert_eq!(sn.path[1].source, "bar");
+        assert_eq!(sn.name.source, "baz");
     });
 }
 

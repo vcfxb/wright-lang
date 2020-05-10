@@ -1,8 +1,8 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
-use nom::IResult;
 use crate::grammar::tracing::trace_result;
+use nom::IResult;
 
 /// Operator parsing implementation.
 mod operator;
@@ -45,9 +45,7 @@ impl<I: WrightInput> BinaryExpression<I> {
     pub fn parse(input: I) -> IResult<I, Expression<I>> {
         trace_result(
             Self::TRACE_NAME,
-            parse_binary_expr(
-                input.trace_start_clone(Self::TRACE_NAME)
-            )
+            parse_binary_expr(input.trace_start_clone(Self::TRACE_NAME)),
         )
     }
 }

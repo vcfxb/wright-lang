@@ -1,10 +1,10 @@
 use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use nom::IResult;
-use std::mem::discriminant;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
+use nom::IResult;
+use std::mem::discriminant;
 
 /// Expression statement parser.
 pub(crate) mod expression_statement;
@@ -22,10 +22,9 @@ impl<I: WrightInput> Statement<I> {
     pub fn parse(input: I) -> IResult<I, Statement<I>> {
         trace_result(
             Self::TRACE_NAME,
-            map(
-                ExpressionStatement::parse,
-                Statement::ExpressionStatement
-            )(input.trace_start_clone(Self::TRACE_NAME))
+            map(ExpressionStatement::parse, Statement::ExpressionStatement)(
+                input.trace_start_clone(Self::TRACE_NAME),
+            ),
         )
     }
 }

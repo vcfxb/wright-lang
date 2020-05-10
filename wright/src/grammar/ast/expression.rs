@@ -1,4 +1,4 @@
-use crate::grammar::ast::{BooleanLit, CharLit, NumLit, SelfLit, Statement, StringLit, ScopedName};
+use crate::grammar::ast::{BooleanLit, CharLit, NumLit, ScopedName, SelfLit, Statement, StringLit};
 use std::fmt::Debug;
 
 /// An expression in parentheses in wright source code.
@@ -116,7 +116,10 @@ pub struct Conditional<SourceCodeReference: Clone + Debug> {
     /// The associated source code.
     pub source: SourceCodeReference,
     /// The primary condition.
-    pub primary: (Box<Expression<SourceCodeReference>>, Block<SourceCodeReference>),
+    pub primary: (
+        Box<Expression<SourceCodeReference>>,
+        Block<SourceCodeReference>,
+    ),
     /// All of the secondary conditions (note that the field is called `elifs`
     /// but in wright code they should use `else if`).
     pub elifs: Vec<(Expression<SourceCodeReference>, Block<SourceCodeReference>)>,

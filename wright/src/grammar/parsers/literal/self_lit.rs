@@ -1,11 +1,8 @@
 use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
 use crate::grammar::model::{HasSourceReference, WrightInput};
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::bytes::complete::tag;
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
 
 impl<T: std::fmt::Debug + Clone> SelfLit<T> {
     /// The trace name used in parser tracing.
@@ -24,10 +21,7 @@ impl<I: WrightInput> SelfLit<I> {
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(
             Self::TRACE_NAME,
-            map(
-                tag(Self::SELF),
-                Self::new
-            )(input.trace_start_clone(Self::TRACE_NAME))
+            map(tag(Self::SELF), Self::new)(input.trace_start_clone(Self::TRACE_NAME)),
         )
     }
 }

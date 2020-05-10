@@ -2,11 +2,11 @@ use crate::grammar::ast::{eq::AstEq, Expression, Parens};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use nom::character::complete::char as ch;
 use nom::sequence::{delimited, terminated};
 use nom::IResult;
-use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::trace_result;
 
 impl<T: Clone + std::fmt::Debug> Parens<T> {
     /// Name that appears in parse traces.
@@ -34,7 +34,7 @@ impl<I: WrightInput> Parens<I> {
             map(with_input(Self::inner), |(consumed, expr)| Parens {
                 source: consumed,
                 inner: Box::new(expr),
-            })(input.trace_start_clone(Self::TRACE_NAME))
+            })(input.trace_start_clone(Self::TRACE_NAME)),
         )
     }
 }

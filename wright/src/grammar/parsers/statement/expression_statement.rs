@@ -4,11 +4,11 @@ use crate::grammar::ast::{Expression, ExpressionStatement};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use nom::character::complete::char as ch;
 use nom::sequence::{pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::trace_result;
 
 impl<T: Clone + std::fmt::Debug> ExpressionStatement<T> {
     /// Name that appears in parse traces.
@@ -18,16 +18,19 @@ impl<T: Clone + std::fmt::Debug> ExpressionStatement<T> {
 impl<I: WrightInput> ExpressionStatement<I> {
     /// Parse an expression followed by a semicolon in source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            with_input(terminated(
-                Expression::parse,
-                pair(token_delimiter, ch(Statement::<I>::TERMINATOR)),
-            )),
-            move |(consumed, result)| Self {
-                source: consumed,
-                inner: Box::new(result),
-            },
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(terminated(
+                    Expression::parse,
+                    pair(token_delimiter, ch(Statement::<I>::TERMINATOR)),
+                )),
+                move |(consumed, result)| Self {
+                    source: consumed,
+                    inner: Box::new(result),
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 

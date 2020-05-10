@@ -7,10 +7,7 @@ use crate::grammar::ast::Pattern;
 use crate::grammar::ast::StringLit;
 use crate::grammar::ast::Underscore;
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::{
-    trace_result,
-    parsers::map::map,
-};
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 
 use std::mem::discriminant;
 
@@ -56,14 +53,17 @@ impl<I: WrightInput> Pattern<I> {
 
     /// Parse a pattern
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, alt((
-            Self::parse_num_lit,
-            Self::parse_char_lit,
-            Self::parse_string_lit,
-            Self::parse_boolean_lit,
-            Self::parse_identifier,
-            Self::parse_underscore,
-        ))(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            alt((
+                Self::parse_num_lit,
+                Self::parse_char_lit,
+                Self::parse_string_lit,
+                Self::parse_boolean_lit,
+                Self::parse_identifier,
+                Self::parse_underscore,
+            ))(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 

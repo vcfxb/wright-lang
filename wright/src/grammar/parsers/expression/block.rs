@@ -2,13 +2,13 @@ use crate::grammar::ast::{eq::AstEq, Block, Expression, Statement};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use nom::bytes::complete::tag;
 use nom::combinator::opt;
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::trace_result;
 
 impl<T: Clone + std::fmt::Debug> Block<T> {
     /// Name that appears in traces.
@@ -34,18 +34,21 @@ impl<I: WrightInput> Block<I> {
     /// the end. There may be no statements, in which case it is considered to
     /// be a series of length 0.
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            with_input(delimited(
-                pair(tag(Self::START_DELIMITER), token_delimiter),
-                Self::inner,
-                pair(token_delimiter, tag(Self::END_DELIMITER)),
-            )),
-            |(consumed, (statements, terminal))| Self {
-                frag: consumed,
-                statements,
-                result: terminal,
-            },
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(delimited(
+                    pair(tag(Self::START_DELIMITER), token_delimiter),
+                    Self::inner,
+                    pair(token_delimiter, tag(Self::END_DELIMITER)),
+                )),
+                |(consumed, (statements, terminal))| Self {
+                    frag: consumed,
+                    statements,
+                    result: terminal,
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 
@@ -63,7 +66,6 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Block<I> {
 
 impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for Block<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        AstEq::ast_eq(&fst.result, &snd.result) &&
-            AstEq::ast_eq(&fst.statements, &snd.statements)
+        AstEq::ast_eq(&fst.result, &snd.result) && AstEq::ast_eq(&fst.statements, &snd.statements)
     }
 }

@@ -1,6 +1,6 @@
+use crate::grammar::tracing::input::OptionallyTraceable;
 use nom::{IResult, Offset, Slice};
 use std::ops::RangeTo;
-use crate::grammar::tracing::input::OptionallyTraceable;
 
 /// Wright literal value parsers.
 pub(self) mod literal;
@@ -42,11 +42,10 @@ where
                 let index = input.offset(&remaining);
                 Ok((
                     remaining.trace_end_clone("with_input", true),
-                    (input.slice(..index), result)))
-            },
-            Err(e) => Err(
-                e.map_input(|i: I| i.trace_end_clone("with_input", false))
-            ),
+                    (input.slice(..index), result),
+                ))
+            }
+            Err(e) => Err(e.map_input(|i: I| i.trace_end_clone("with_input", false))),
         }
     }
 }
@@ -54,9 +53,9 @@ where
 // FIXME: test link
 /// Call [`with_input`](fn.with_input.html) on a given input fragmen
 pub fn with_input_call<F, I, O>(parser: F, input: I) -> IResult<I, (I, O)>
-    where
-        I: Clone + Offset + Slice<RangeTo<usize>> + OptionallyTraceable,
-        F: Fn(I) -> IResult<I, O>,
+where
+    I: Clone + Offset + Slice<RangeTo<usize>> + OptionallyTraceable,
+    F: Fn(I) -> IResult<I, O>,
 {
     with_input(parser)(input)
 }

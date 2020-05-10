@@ -1,15 +1,15 @@
+use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::tracing::TraceInfo;
 use codespan::{ByteIndex, ByteOffset, FileId, Files, Span};
 use nom::error::{ErrorKind, ParseError};
-use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
-use std::str::FromStr;
 use nom::Err;
 use nom::{
     AsBytes, Compare, CompareResult, ExtendInto, FindSubstring, FindToken, IResult, InputIter,
     InputLength, InputTake, InputTakeAtPosition, Needed, Offset, ParseTo, Slice,
 };
-use crate::grammar::tracing::TraceInfo;
-use crate::grammar::tracing::input::{OptionallyTraceable};
 use std::fmt::Debug;
+use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
+use std::str::FromStr;
 
 /// A piece of source code. Generally used to replace strings in the nom parser,
 /// this structure stores extra information about the location of a fragment of
@@ -24,7 +24,7 @@ pub struct Fragment<'source> {
     /// The fragment of source code represented by this object.
     source: &'source str,
     /// An optional additional field that traces the parsing of
-    tracer: Option<TraceInfo>
+    tracer: Option<TraceInfo>,
 }
 
 /// An error when attempting to merge two fragments.
@@ -48,7 +48,7 @@ impl<'s> Fragment<'s> {
             handle,
             span,
             source,
-            tracer: None
+            tracer: None,
         }
     }
 
@@ -136,7 +136,6 @@ impl<'s> OptionallyTraceable for Fragment<'s> {
         self.tracer.clone()
     }
 }
-
 
 impl<'s> AsBytes for Fragment<'s> {
     #[inline]
@@ -357,15 +356,21 @@ impl<'s> Slice<RangeFull> for Fragment<'s> {
 
 impl<'s> PartialEq for Fragment<'s> {
     fn eq(&self, other: &Self) -> bool {
-        std::ptr::eq(self.files, other.files) &&
-            other.handle == self.handle &&
-            other.span == self.span &&
-            self.tracer == other.tracer
+        std::ptr::eq(self.files, other.files)
+            && other.handle == self.handle
+            && other.span == self.span
+            && self.tracer == other.tracer
     }
 }
 
 impl<'s, 'a> PartialEq<&'a str> for Fragment<'s> {
     fn eq(&self, other: &&'a str) -> bool {
+        self.source() == *other
+    }
+}
+
+impl<'a, 's> PartialEq<&'a str> for &'a Fragment<'s> {
+    fn eq(self: &&'a Fragment<'s>, other: &&'a str) -> bool {
         self.source() == *other
     }
 }
@@ -382,27 +387,33 @@ pub trait HasSourceReference<SourceCodeReference: Clone + Debug> {
 }
 
 impl<'s> Into<String> for Fragment<'s> {
-    fn into(self) -> String {self.source().to_owned()}
+    fn into(self) -> String {
+        self.source().to_owned()
+    }
 }
 
 /// Trait alias for all wright parser inputs.
 /// All inputs are required to implement Debug,
 /// Clone, and a number of nom traits.
 pub trait WrightInput:
-    OptionallyTraceable +
-    Debug +
-    Clone +
-    InputTake +
-    for<'a> Compare<&'a str> +
-    InputIter<Item=char> +
-    InputLength +
-    Slice<RangeFrom<usize>> +
-    Slice<RangeTo<usize>> +
-    Slice<Range<usize>> +
-    InputTakeAtPosition<Item=char> +
-    Into<String> +
-    Offset +
-    PartialEq +
-    for<'a> PartialEq<&'a str> +
-    for<'a> FindSubstring<&'a str>
-{}
+    OptionallyTraceable
+    + Debug
+    + Clone
+    + InputTake
+    + for<'a> Compare<&'a str>
+    + InputIter<Item = char>
+    + InputLength
+    + Slice<RangeFrom<usize>>
+    + Slice<RangeTo<usize>>
+    + Slice<Range<usize>>
+    + InputTakeAtPosition<Item = char>
+    + Into<String>
+    + Offset
+    + PartialEq
+    + for<'a> PartialEq<&'a str>
+    + for<'a> FindSubstring<&'a str>
+{
+}
+
+impl<'s> WrightInput for Fragment<'s> {}
+impl<'s> WrightInput for &'s str {}

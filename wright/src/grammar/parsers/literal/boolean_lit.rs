@@ -1,14 +1,11 @@
 use crate::grammar::ast::{eq::AstEq, BooleanLit, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
-use nom::combinator::{value};
+use nom::combinator::value;
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
 
 impl<T: std::fmt::Debug + Clone> BooleanLit<T> {
     /// Literal representing a true value.
@@ -23,10 +20,7 @@ impl<T: std::fmt::Debug + Clone> BooleanLit<T> {
 
 impl<I: WrightInput> BooleanLit<I> {
     fn new(source: I, val: bool) -> Self {
-        Self {
-            source,
-            inner: val,
-        }
+        Self { source, inner: val }
     }
 
     fn parser_inner(inp: I) -> IResult<I, bool> {
@@ -35,10 +29,9 @@ impl<I: WrightInput> BooleanLit<I> {
 
     /// Parses a boolean literal from wright source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        let res = map(
-            with_input(Self::parser_inner),
-            |(consumed, v)| Self::new(consumed, v)
-        )(input.trace_start_clone(Self::TRACE_NAME));
+        let res = map(with_input(Self::parser_inner), |(consumed, v)| {
+            Self::new(consumed, v)
+        })(input.trace_start_clone(Self::TRACE_NAME));
         trace_result(Self::TRACE_NAME, res)
     }
 }

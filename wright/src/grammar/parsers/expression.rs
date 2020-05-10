@@ -1,10 +1,10 @@
-use std::mem::discriminant;
 use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
+use crate::grammar::tracing::trace_result;
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::tracing::trace_result;
+use std::mem::discriminant;
 
 /// Binary expression parser and utilities.
 pub(self) mod binary_expression;
@@ -46,10 +46,9 @@ impl<I: WrightInput> Expression<I> {
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(
             Self::TRACE_NAME,
-            alt((
-                BinaryExpression::parse,
-                binary_expression::base_primary
-            ))(input.trace_start_clone(Self::TRACE_NAME))
+            alt((BinaryExpression::parse, binary_expression::base_primary))(
+                input.trace_start_clone(Self::TRACE_NAME),
+            ),
         )
     }
 }

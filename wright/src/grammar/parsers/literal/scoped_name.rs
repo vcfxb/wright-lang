@@ -1,15 +1,12 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
+use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::bytes::complete::tag;
-use nom::multi::{many0};
+use nom::multi::many0;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
-use crate::grammar::parsers::with_input;
 
 impl<T: std::fmt::Debug + Clone> ScopedName<T> {
     /// The scope separator string.
@@ -26,19 +23,14 @@ impl<I: WrightInput> ScopedName<I> {
             with_input(pair(
                 many0(terminated(
                     Identifier::parse,
-                    delimited(token_delimiter,
-                        tag(Self::SEPARATOR),
-                        token_delimiter
-                    )
+                    delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
                 )),
                 Identifier::parse,
             )),
-            |(consumed, (path, name))| {
-                Self {
-                    source: consumed,
-                    path,
-                    name,
-                }
+            |(consumed, (path, name))| Self {
+                source: consumed,
+                path,
+                name,
             },
         )(input.trace_start_clone(Self::TRACE_NAME));
 

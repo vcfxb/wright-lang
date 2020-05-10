@@ -2,6 +2,7 @@ use crate::grammar::ast::{eq::AstEq, CharLit, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, one_of};
@@ -9,10 +10,6 @@ use nom::combinator::{map_opt, map_res, not, value};
 use nom::error::context;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use crate::grammar::tracing::{
-    trace_result,
-    parsers::map::map,
-};
 use std::fmt::Debug;
 
 impl<T: Debug + Clone> CharLit<T> {
@@ -94,10 +91,9 @@ impl<I: WrightInput> CharLit<I> {
 
     /// Parse a character literal.
     pub fn parse(input: I) -> IResult<I, Self> {
-        let res = map(
-            with_input(Self::character_wrapper),
-            |(input, ch)| Self::new(input, ch)
-        )(input.trace_start_clone(Self::TRACE_NAME));
+        let res = map(with_input(Self::character_wrapper), |(input, ch)| {
+            Self::new(input, ch)
+        })(input.trace_start_clone(Self::TRACE_NAME));
         trace_result(Self::TRACE_NAME, res)
     }
 }

@@ -1,8 +1,9 @@
 use crate::grammar::ast::Block;
 use crate::grammar::ast::{
-    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, ScopedName, NumLit, Parens, SelfLit,
-    StringLit,
+    BinaryExpression, BinaryOp, BooleanLit, Conditional, Expression, NumLit, Parens, ScopedName,
+    SelfLit, StringLit,
 };
+use crate::grammar::model::WrightInput;
 use crate::grammar::parsers::expression::binary_expression::primary::{
     arithmetic::{arithmetic1, arithmetic2},
     bitshift::bitshift,
@@ -13,13 +14,12 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
     relational::relational,
 };
 use crate::grammar::parsers::whitespace::token_delimiter;
+use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use nom::branch::alt;
 use nom::sequence::{delimited, pair, tuple};
 use nom::IResult;
-use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::trace_result;
-use crate::grammar::parsers::with_input;
-use crate::grammar::model::WrightInput;
 
 /// Module for parsing range expressions.
 /// This includes Range and RangeTo operators.
@@ -70,7 +70,7 @@ pub fn base_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
 pub(self) fn to_expr<I, E>(e: E) -> Expression<I>
 where
     I: std::fmt::Debug + Clone,
-    E: Into<Expression<I>>
+    E: Into<Expression<I>>,
 {
     e.into()
 }
@@ -80,34 +80,25 @@ pub(self) fn parser_left<I: WrightInput>(
     child: fn(I) -> IResult<I, Expression<I>>,
     operator: fn(I) -> IResult<I, BinaryOp>,
 ) -> impl Fn(I) -> IResult<I, Expression<I>> {
-    let trace= "BinaryExpr::parser_left";
+    let trace = "BinaryExpr::parser_left";
     move |input| -> IResult<I, Expression<I>> {
         let source = input.trace_start_clone(trace);
 
         let first: (I, Expression<I>) = map(
-            with_input(
-                tuple((
-                    child,
-                    delimited(
-                        token_delimiter,
-                        operator,
-                        token_delimiter
-                    ),
-                    child
-                ))
-            ),
-            |(consumed, (left, op, right))| {
-                BinaryExpression::new(consumed, left, op, right).into()
-            }
+            with_input(tuple((
+                child,
+                delimited(token_delimiter, operator, token_delimiter),
+                child,
+            ))),
+            |(consumed, (left, op, right))| BinaryExpression::new(consumed, left, op, right).into(),
         )(source)?;
 
         let mut rem = first.0;
         let mut acc = first.1;
 
-        while let
-            Ok((new_rem, (op, right)))
-        = pair(delimited(token_delimiter,operator, token_delimiter),
-               child)(rem.clone()) {
+        while let Ok((new_rem, (op, right))) =
+            pair(delimited(token_delimiter, operator, token_delimiter), child)(rem.clone())
+        {
             rem = new_rem;
             let index = input.offset(&rem);
             let consumed = input.slice(..index);
@@ -121,17 +112,20 @@ pub(self) fn parser_left<I: WrightInput>(
 /// Parse a binary expression.
 pub fn parse_binary_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::parse_binary_expr";
-    trace_result(trace, alt((
-        range_expr,
-        logical_or,
-        logical_and,
-        bitwise_or,
-        bitwise_xor,
-        bitwise_and,
-        equality,
-        relational,
-        bitshift,
-        arithmetic1,
-        arithmetic2,
-    ))(input.trace_start_clone(trace)))
+    trace_result(
+        trace,
+        alt((
+            range_expr,
+            logical_or,
+            logical_and,
+            bitwise_or,
+            bitwise_xor,
+            bitwise_and,
+            equality,
+            relational,
+            bitshift,
+            arithmetic1,
+            arithmetic2,
+        ))(input.trace_start_clone(trace)),
+    )
 }

@@ -2,13 +2,13 @@ use crate::grammar::ast::{eq::AstEq, Block, Conditional, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use nom::bytes::complete::tag;
 use nom::combinator::opt;
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, preceded, separated_pair, tuple};
 use nom::IResult;
-use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::trace_result;
 
 impl<T: Clone + std::fmt::Debug> Conditional<T> {
     /// Name that appears in parse traces.
@@ -59,19 +59,22 @@ impl<I: WrightInput> Conditional<I> {
 
     /// Parse a conditional expression in source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            with_input(tuple((
-                Self::parse_if,
-                Self::parse_elifs,
-                preceded(token_delimiter, opt(Self::parse_else)),
-            ))),
-            |(consumed, ((pa, pb), elifs, terminal))| Self {
-                source: consumed,
-                primary: (Box::new(pa), pb),
-                elifs,
-                default: terminal,
-            },
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(tuple((
+                    Self::parse_if,
+                    Self::parse_elifs,
+                    preceded(token_delimiter, opt(Self::parse_else)),
+                ))),
+                |(consumed, ((pa, pb), elifs, terminal))| Self {
+                    source: consumed,
+                    primary: (Box::new(pa), pb),
+                    elifs,
+                    default: terminal,
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 

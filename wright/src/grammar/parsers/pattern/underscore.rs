@@ -1,12 +1,9 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Underscore;
 use crate::grammar::model::{HasSourceReference, WrightInput};
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::bytes::complete::tag;
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
 
 impl<T: Clone + std::fmt::Debug> Underscore<T> {
     /// The name of this parser as it appears in parse traces.
@@ -19,10 +16,12 @@ impl<T: Clone + std::fmt::Debug> Underscore<T> {
 impl<I: WrightInput> Underscore<I> {
     /// Parse an underscore from source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            tag(Self::UNDERSCORE),
-            |source| Self { source }
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            map(tag(Self::UNDERSCORE), |source| Self { source })(
+                input.trace_start_clone(Self::TRACE_NAME),
+            ),
+        )
     }
 }
 

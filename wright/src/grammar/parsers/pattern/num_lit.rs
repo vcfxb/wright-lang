@@ -3,15 +3,11 @@ use crate::grammar::ast::NumLit;
 use crate::grammar::ast::NumLitPattern;
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::character::complete::char;
 use nom::combinator::opt;
 use nom::sequence::pair;
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
-
 
 impl<T: Clone + std::fmt::Debug> NumLitPattern<T> {
     /// Name of this parser when appearing in traces.
@@ -21,14 +17,17 @@ impl<T: Clone + std::fmt::Debug> NumLitPattern<T> {
 impl<I: WrightInput> NumLitPattern<I> {
     /// Parse a numerical literal pattern. (e.g. "-12", "4")
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            with_input(pair(opt(char('-')), NumLit::parse)),
-            |(consumed, (neg, inner))| NumLitPattern {
-                source: consumed,
-                negative: neg.is_some(),
-                inner,
-            },
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(pair(opt(char('-')), NumLit::parse)),
+                |(consumed, (neg, inner))| NumLitPattern {
+                    source: consumed,
+                    negative: neg.is_some(),
+                    inner,
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 

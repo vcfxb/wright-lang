@@ -1,6 +1,7 @@
 use crate::grammar::ast::{eq::AstEq, Expression, StringLit};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, multispace0, newline, one_of};
@@ -9,10 +10,6 @@ use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
 use std::fmt::Debug;
 
 impl<T: Debug + Clone> StringLit<T> {
@@ -30,8 +27,7 @@ impl<I: WrightInput> StringLit<I> {
     }
 
     fn body(input: I) -> IResult<I, String> {
-        let vch =
-            move |c: char, v: char| move |source: I| value(Some(v), ch(c))(source);
+        let vch = move |c: char, v: char| move |source: I| value(Some(v), ch(c))(source);
         let from_str_radix = |str: I| u32::from_str_radix(&str.into(), 16);
         map(
             many0(alt((
@@ -95,12 +91,9 @@ impl<I: WrightInput> StringLit<I> {
 
     /// Parse a string literal in source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        let res = map(
-            with_input(Self::wrapper),
-            |(consumed, result)| {
-                Self::new(consumed, result)
-            }
-        )(input.trace_start_clone(Self::TRACE_NAME));
+        let res = map(with_input(Self::wrapper), |(consumed, result)| {
+            Self::new(consumed, result)
+        })(input.trace_start_clone(Self::TRACE_NAME));
         trace_result(Self::TRACE_NAME, res)
     }
 }

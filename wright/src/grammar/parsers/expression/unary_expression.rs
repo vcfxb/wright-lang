@@ -1,7 +1,7 @@
 use crate::grammar::ast::{eq::AstEq, Expression, UnaryExpression, UnaryOp};
 use crate::grammar::model::HasSourceReference;
-use nom::IResult;
 use crate::grammar::tracing::input::OptionallyTraceable;
+use nom::IResult;
 
 impl UnaryOp {}
 

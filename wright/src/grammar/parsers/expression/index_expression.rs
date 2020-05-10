@@ -3,13 +3,10 @@ use crate::grammar::ast::{Expression, IndexExpression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::{parsers::map::map, trace_result};
 use nom::character::complete::char as ch;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::{
-    parsers::map::map,
-    trace_result
-};
 
 impl<T: Clone + std::fmt::Debug> IndexExpression<T> {
     /// Name used in parse traces.
@@ -22,23 +19,26 @@ impl<T: Clone + std::fmt::Debug> IndexExpression<T> {
 impl<I: WrightInput> IndexExpression<I> {
     /// Parse an index expression in wright source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            with_input(pair(
-                terminated(
-                    Expression::parse,
-                    pair(token_delimiter, ch(Self::DELIMITERS.0)),
-                ),
-                terminated(
-                    Expression::parse,
-                    delimited(token_delimiter, ch(Self::DELIMITERS.1), token_delimiter),
-                ),
-            )),
-            move |(consumed, (subject, object))| Self {
-                source: consumed,
-                subject: Box::new(subject),
-                object: Box::new(object),
-            },
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(pair(
+                    terminated(
+                        Expression::parse,
+                        pair(token_delimiter, ch(Self::DELIMITERS.0)),
+                    ),
+                    terminated(
+                        Expression::parse,
+                        delimited(token_delimiter, ch(Self::DELIMITERS.1), token_delimiter),
+                    ),
+                )),
+                move |(consumed, (subject, object))| Self {
+                    source: consumed,
+                    subject: Box::new(subject),
+                    object: Box::new(object),
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 

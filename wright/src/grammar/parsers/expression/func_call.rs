@@ -1,15 +1,15 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{Block, Expression, FuncCall, ScopedName, Parens};
+use crate::grammar::ast::{Block, Expression, FuncCall, Parens, ScopedName};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::trace_result;
 use nom::branch::alt;
 use nom::character::complete::char as ch;
 use nom::multi::separated_list;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::trace_result;
 
 impl<T: Clone + std::fmt::Debug> FuncCall<T> {
     /// Name of this parser in parse traces.
@@ -26,7 +26,6 @@ impl<T: Clone + std::fmt::Debug> FuncCall<T> {
 }
 
 impl<I: WrightInput> FuncCall<I> {
-
     fn func_call_primary(input: I) -> IResult<I, Expression<I>> {
         alt((
             // map(IndexExpression::parse, Expression::IndexExpression),
@@ -39,24 +38,27 @@ impl<I: WrightInput> FuncCall<I> {
 
     /// Parse an index expression in wright source code.
     pub fn parse(input: I) -> IResult<I, Self> {
-        trace_result(Self::TRACE_NAME, map(
-            with_input(pair(
-                terminated(Self::func_call_primary, token_delimiter),
-                delimited(
-                    ch(Self::DELIMITER_LEFT),
-                    separated_list(
-                        delimited(token_delimiter, ch(Self::ARG_SEPARATOR), token_delimiter),
-                        Expression::parse,
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(pair(
+                    terminated(Self::func_call_primary, token_delimiter),
+                    delimited(
+                        ch(Self::DELIMITER_LEFT),
+                        separated_list(
+                            delimited(token_delimiter, ch(Self::ARG_SEPARATOR), token_delimiter),
+                            Expression::parse,
+                        ),
+                        ch(Self::DELIMITER_RIGHT),
                     ),
-                    ch(Self::DELIMITER_RIGHT),
-                ),
-            )),
-            move |(consumed, (func, args))| Self {
-                source: consumed,
-                func: Box::new(func),
-                args,
-            },
-        )(input.trace_start_clone(Self::TRACE_NAME)))
+                )),
+                move |(consumed, (func, args))| Self {
+                    source: consumed,
+                    func: Box::new(func),
+                    args,
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 
