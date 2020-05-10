@@ -9,14 +9,14 @@ use crate::grammar::parsers::expression::binary_expression::primary::{parser_lef
 use nom::branch::alt;
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
+use crate::grammar::model::WrightInput;
 
 
 /// Parse possible children of a logical OR expression.
-pub fn logical_or_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn logical_or_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::logical_or_primary";
     trace_result(
         trace,
@@ -28,7 +28,7 @@ pub fn logical_or_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(inpu
 }
 
 /// 'boolean or' or 'logical or' is the lowest precedence binary operator.
-pub fn logical_or<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn logical_or<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::logical_or";
     trace_result(
         trace,
@@ -40,7 +40,7 @@ pub fn logical_or<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) ->
 }
 
 /// Parsers that can be the children of a 'logical and' expression.
-fn logical_and_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+fn logical_and_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::logical_and_primary";
     trace_result(
         trace,
@@ -49,7 +49,7 @@ fn logical_and_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: 
 }
 
 /// Parse a 'logical and' expression.
-pub fn logical_and<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn logical_and<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::logical_and";
     trace_result(
         trace,

@@ -10,7 +10,6 @@ use nom::error::context;
 use nom::sequence::pair;
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
@@ -32,7 +31,7 @@ impl<T: std::fmt::Debug + Clone> Identifier<T> {
     ];
 }
 
-impl<'a, I: WrightInput<'a>> Identifier<I> {
+impl<I: WrightInput> Identifier<I> {
     fn new(source: I) -> Self {
         Self { source }
     }
@@ -68,8 +67,8 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Identifier<I> {
     }
 }
 
-impl<I: std::fmt::Debug + Clone + Into<String>> AstEq for Identifier<I> {
+impl<I: std::fmt::Debug + Clone + PartialEq> AstEq for Identifier<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        fst.source.into() == snd.source.into()
+        fst.source == snd.source
     }
 }

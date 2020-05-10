@@ -12,7 +12,7 @@ use crate::grammar::model::WrightInput;
 /// Parses a Wright single line comment.
 /// Wright single line comments start with `//` and will parse until a newline
 /// character is reached. The returned value is the content of the comment.
-pub fn line_comment<I: OptionallyTraceable>(input: I) -> IResult<I, I> {
+pub fn line_comment<I: WrightInput>(input: I) -> IResult<I, I> {
     let trace = "line_comment";
     trace_result(
         trace,
@@ -26,7 +26,7 @@ pub fn line_comment<I: OptionallyTraceable>(input: I) -> IResult<I, I> {
 /// Parses a Wright multiline comment. Wright multiline comments are delimited
 /// by `/*` and `*/`. They are not recursive. Wright has no concept of nested
 /// comments, or any of the content within a comment for that matter.
-pub fn multiline_comment<I: OptionallyTraceable>(input: I) -> IResult<I, I> {
+pub fn multiline_comment<I: WrightInput>(input: I) -> IResult<I, I> {
     let trace = "multiline_comment";
     trace_result(
         trace,
@@ -40,7 +40,7 @@ pub fn multiline_comment<I: OptionallyTraceable>(input: I) -> IResult<I, I> {
 
 /// Parses a sequence of adjacent whitespace and comments,
 /// and discards the result.
-pub fn token_delimiter<'a, I: WrightInput<'a>>(input: I) -> IResult<I, ()> {
+pub fn token_delimiter<I: WrightInput>(input: I) -> IResult<I, ()> {
     let trace = "token_delimiter";
     trace_result(trace,preceded(
         multispace0,

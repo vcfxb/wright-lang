@@ -8,11 +8,11 @@ use crate::grammar::parsers::expression::binary_expression::primary::arithmetic:
 use crate::grammar::parsers::expression::binary_expression::primary::parser_left;
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
+use crate::grammar::model::WrightInput;
 
 /// Subexpressions of a bitshift expression.
-pub fn bitshift_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitshift_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitshift_primary";
     trace_result(
         trace,
@@ -24,7 +24,7 @@ pub fn bitshift_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input:
 }
 
 /// Bitshift expression.
-pub fn bitshift<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitshift<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitshift";
     trace_result(
         trace,

@@ -8,11 +8,11 @@ use crate::grammar::parsers::expression::binary_expression::primary::equality::{
 use crate::grammar::parsers::expression::binary_expression::primary::parser_left;
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
+use crate::grammar::model::WrightInput;
 
 /// A child expression under a 'bitwise or' expression.
-pub fn bitwise_or_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitwise_or_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitwise_or_primary";
     trace_result(
         trace,
@@ -24,7 +24,7 @@ pub fn bitwise_or_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(inpu
 }
 
 /// A child expression under a 'bitwise xor' expression.
-fn bitwise_xor_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+fn bitwise_xor_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitwise_xor_primary";
     trace_result(
         trace,
@@ -36,7 +36,7 @@ fn bitwise_xor_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: 
 }
 
 /// A child expression under a 'bitwise or' expression.
-fn bitwise_and_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+fn bitwise_and_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitwise_and_primary";
     trace_result(
         trace,
@@ -48,7 +48,7 @@ fn bitwise_and_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: 
 }
 
 /// Parse a 'bitwise or' binary expression.
-pub fn bitwise_or<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitwise_or<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitwise_or";
     trace_result(
         trace,
@@ -60,7 +60,7 @@ pub fn bitwise_or<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) ->
 }
 
 /// Parse a 'bitwise xor' binary expression.
-pub fn bitwise_xor<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I , Expression<I>> {
+pub fn bitwise_xor<I: WrightInput>(input: I) -> IResult<I , Expression<I>> {
     let trace = "BinaryExpr::bitwise_xor";
     trace_result(
         trace,
@@ -72,7 +72,7 @@ pub fn bitwise_xor<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -
 }
 
 /// Parse a 'bitwise and' binary expression.
-pub fn bitwise_and<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn bitwise_and<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::bitwise_and";
     trace_result(
         trace,

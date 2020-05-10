@@ -4,7 +4,6 @@ use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 
 /// Binary expression parser and utilities.
@@ -42,7 +41,7 @@ impl<T: Clone + std::fmt::Debug> Expression<T> {
     pub const TRACE_NAME: &'static str = "Expression";
 }
 
-impl<'a, I: WrightInput<'a>> Expression<I> {
+impl<I: WrightInput> Expression<I> {
     /// Parse an expression
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(
@@ -76,7 +75,7 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Expression<I> {
     }
 }
 
-impl<T: Clone + std::fmt::Debug + Into<String>> AstEq for Expression<T> {
+impl<T: Clone + std::fmt::Debug + PartialEq> AstEq for Expression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Expression::*;
 

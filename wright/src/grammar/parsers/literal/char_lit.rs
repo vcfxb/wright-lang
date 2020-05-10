@@ -10,7 +10,6 @@ use nom::error::context;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     trace_result,
     parsers::map::map,
 };
@@ -21,7 +20,7 @@ impl<T: Debug + Clone> CharLit<T> {
     pub const TRACE_NAME: &'static str = "CharLit";
 }
 
-impl<'a, I: WrightInput<'a>> CharLit<I> {
+impl<I: WrightInput> CharLit<I> {
     fn new(source: I, inner: char) -> Self {
         Self { source, inner }
     }

@@ -9,14 +9,14 @@ use nom::combinator::value;
 use nom::sequence::{delimited, tuple};
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
 use crate::grammar::parsers::with_input;
+use crate::grammar::model::WrightInput;
 
 /// Parse a child node in a range expression.
-pub fn range_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn range_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::range_primary";
     trace_result(
         trace,
@@ -25,7 +25,7 @@ pub fn range_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I)
 }
 
 /// Parse a complete range expression in source code.
-pub fn range_expr<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn range_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::range_expr";
     trace_result(trace, map(
         with_input(tuple((

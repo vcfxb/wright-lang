@@ -119,7 +119,7 @@ impl TraceInfo {
         // use termsize to try to determine width of terminal so that we avoid
         // ugly text wrapping.
         let term_width = term_size::dimensions()
-            .map(|(w,h)| w);
+            .map(|(w, _)| w);
 
         let mut stdout = StandardStream::stdout(color_config);
 

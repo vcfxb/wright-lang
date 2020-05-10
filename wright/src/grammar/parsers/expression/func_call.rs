@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::{Block, Expression, FuncCall, ScopedName, Parens};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::branch::alt;
@@ -8,7 +8,6 @@ use nom::character::complete::char as ch;
 use nom::multi::separated_list;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
@@ -26,7 +25,7 @@ impl<T: Clone + std::fmt::Debug> FuncCall<T> {
     pub const ARG_SEPARATOR: char = ',';
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> FuncCall<I> {
+impl<I: WrightInput> FuncCall<I> {
 
     fn func_call_primary(input: I) -> IResult<I, Expression<I>> {
         alt((
@@ -67,7 +66,7 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for FuncCall<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for FuncCall<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for FuncCall<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.func, &snd.func) && AstEq::ast_eq(&fst.args, &snd.args)
     }

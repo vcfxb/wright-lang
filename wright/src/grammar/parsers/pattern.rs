@@ -6,7 +6,7 @@ use crate::grammar::ast::NumLitPattern;
 use crate::grammar::ast::Pattern;
 use crate::grammar::ast::StringLit;
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::tracing::{
     trace_result,
     parsers::map::map,
@@ -16,7 +16,6 @@ use std::mem::discriminant;
 
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use std::fmt::Debug;
 
 /// Underscore Pattern.
@@ -30,7 +29,7 @@ impl<T: Debug + Clone> Pattern<T> {
     pub const TRACE_NAME: &'static str = "Pattern";
 }
 
-impl<I: Debug + Clone + OptionallyTraceable> Pattern<I> {
+impl<I: WrightInput> Pattern<I> {
     fn parse_num_lit(input: I) -> IResult<I, Self> {
         map(NumLitPattern::parse, Pattern::NumLit)(input)
     }
@@ -83,7 +82,7 @@ impl<I: Debug + Clone> HasSourceReference<I> for Pattern<I> {
     }
 }
 
-impl<I: Debug + Clone> AstEq for Pattern<I> {
+impl<I: Debug + Clone + PartialEq> AstEq for Pattern<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         if discriminant(fst) != discriminant(snd) {
             return false;

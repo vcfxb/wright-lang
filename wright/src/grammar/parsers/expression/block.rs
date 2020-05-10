@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Block, Expression, Statement};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
@@ -7,7 +7,6 @@ use nom::combinator::opt;
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
@@ -22,7 +21,7 @@ impl<T: Clone + std::fmt::Debug> Block<T> {
     pub const END_DELIMITER: &'static str = "}";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Block<I> {
+impl<I: WrightInput> Block<I> {
     fn inner(input: I) -> IResult<I, (Vec<Statement<I>>, Option<Box<Expression<I>>>)> {
         pair(
             many0(terminated(Statement::parse, token_delimiter)),
@@ -62,7 +61,7 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Block<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for Block<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for Block<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.result, &snd.result) &&
             AstEq::ast_eq(&fst.statements, &snd.statements)

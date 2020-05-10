@@ -29,7 +29,7 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for UnaryExpression<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for UnaryExpression<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for UnaryExpression<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.op == snd.op && AstEq::ast_eq(&*fst.inner, &*snd.inner)
     }

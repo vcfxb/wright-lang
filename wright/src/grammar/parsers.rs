@@ -35,9 +35,9 @@ where
     I: Clone + Offset + Slice<RangeTo<usize>> + OptionallyTraceable,
     F: Fn(I) -> IResult<I, O>,
 {
-    move |input: I| -> IResult<I, (I, O)> {
-        let i = input.trace_start_clone("with_input");
-        match parser(i) {
+    move |i: I| -> IResult<I, (I, O)> {
+        let input: I = i.trace_start_clone("with_input");
+        match parser(input.clone()) {
             Ok((remaining, result)) => {
                 let index = input.offset(&remaining);
                 Ok((

@@ -388,19 +388,21 @@ impl<'s> Into<String> for Fragment<'s> {
 /// Trait alias for all wright parser inputs.
 /// All inputs are required to implement Debug,
 /// Clone, and a number of nom traits.
-pub trait WrightInput<'a>:
+pub trait WrightInput:
     OptionallyTraceable +
     Debug +
     Clone +
     InputTake +
-    Compare<&'a str> +
+    for<'a> Compare<&'a str> +
     InputIter<Item=char> +
     InputLength +
     Slice<RangeFrom<usize>> +
     Slice<RangeTo<usize>> +
+    Slice<Range<usize>> +
     InputTakeAtPosition<Item=char> +
     Into<String> +
     Offset +
     PartialEq +
-    PartialEq<&'a str>
+    for<'a> PartialEq<&'a str> +
+    for<'a> FindSubstring<&'a str>
 {}

@@ -1,9 +1,8 @@
 use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::IResult;
 use std::mem::discriminant;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
@@ -18,7 +17,7 @@ impl<T: Clone + std::fmt::Debug> Statement<T> {
     pub const TERMINATOR: char = ';';
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Statement<I> {
+impl<I: WrightInput> Statement<I> {
     /// Parses any statement.
     pub fn parse(input: I) -> IResult<I, Statement<I>> {
         trace_result(
@@ -31,7 +30,7 @@ impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Statement<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for Statement<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for Statement<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         use Statement::*;
         // discriminant is a function from std::mem

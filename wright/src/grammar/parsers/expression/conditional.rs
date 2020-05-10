@@ -1,5 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Block, Conditional, Expression};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::bytes::complete::tag;
@@ -7,7 +7,6 @@ use nom::combinator::opt;
 use nom::multi::many0;
 use nom::sequence::{delimited, pair, preceded, separated_pair, tuple};
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
@@ -22,7 +21,7 @@ impl<T: Clone + std::fmt::Debug> Conditional<T> {
     pub const ELSE: &'static str = "else";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Conditional<I> {
+impl<I: WrightInput> Conditional<I> {
     // parse an expression followed by a block.
     fn parse_branch(input: I) -> IResult<I, (Expression<I>, Block<I>)> {
         separated_pair(Expression::parse, token_delimiter, Block::parse)(input)
@@ -82,7 +81,7 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Conditional<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for Conditional<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for Conditional<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.default, &snd.default)
             && AstEq::ast_eq(&fst.elifs, &snd.elifs)

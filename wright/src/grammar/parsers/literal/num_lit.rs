@@ -12,7 +12,6 @@ use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::tracing::parsers::map::map;
 use std::num::ParseIntError;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 use crate::grammar::parsers::with_input;
 use std::fmt::Debug;
@@ -22,7 +21,7 @@ impl<T: Debug + Clone> NumLit<T> {
     pub const TRACE_NAME: &'static str = "NumLit";
 }
 
-impl<'a, I: WrightInput<'a>> NumLit<I> {
+impl<I: WrightInput> NumLit<I> {
     fn new(source: I, num: u128) -> Self {
         Self { source, inner: num }
     }

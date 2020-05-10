@@ -22,7 +22,7 @@ pub trait OptionallyTraceable: Clone {
     // FIXME link
     /// Similar to [`trace_start`](#method.trace_start) except it clones
     /// the input and returns it, instead of modifying it.
-    fn trace_start_clone(self, tag: &'static str) -> Self {
+    fn trace_start_clone(&self, tag: &'static str) -> Self {
         let mut clone = self.clone();
         clone.trace_start(tag);
         clone
@@ -41,9 +41,9 @@ pub trait OptionallyTraceable: Clone {
 /// Strings (`&str`) do not trace input. As such all of these functions are no
 /// operation on strings.
 impl<'a> OptionallyTraceable for &'a str {
-    fn trace_start(&mut self, tag: &'static str) {}
+    fn trace_start(&mut self, _: &'static str) {}
 
-    fn trace_end(&mut self, tag: &'static str, success: bool) {}
+    fn trace_end(&mut self, _: &'static str, _: bool) {}
 
     /// Always returns `None`.
     fn get_trace(&self) -> Option<TraceInfo> { None }
@@ -52,9 +52,9 @@ impl<'a> OptionallyTraceable for &'a str {
 /// Byte arrays (`&[u8]`) do not trace input. As such all of these
 /// functions are no operation.
 impl<'a> OptionallyTraceable for &'a[u8] {
-    fn trace_start(&mut self, tag: &'static str) {}
+    fn trace_start(&mut self, _: &'static str) {}
 
-    fn trace_end(&mut self, tag: &'static str, success: bool) {}
+    fn trace_end(&mut self, _: &'static str, _: bool) {}
 
     /// Always returns `None`.
     fn get_trace(&self) -> Option<TraceInfo> { None }

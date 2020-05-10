@@ -1,11 +1,8 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
 use nom::IResult;
-use crate::grammar::tracing::{
-    input::OptionallyTraceable,
-    trace_result
-};
+use crate::grammar::tracing::trace_result;
 
 /// Operator parsing implementation.
 mod operator;
@@ -21,7 +18,7 @@ impl<T: Clone + std::fmt::Debug> BinaryExpression<T> {
     pub const TRACE_NAME: &'static str = "BinaryExpression";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> BinaryExpression<I> {
+impl<I: WrightInput> BinaryExpression<I> {
     fn new(
         source: I,
         left: impl Into<Expression<I>>,
@@ -67,7 +64,7 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for BinaryExpression<I> {
     }
 }
 
-impl<T: Clone + std::fmt::Debug + Into<String>> AstEq for BinaryExpression<T> {
+impl<T: Clone + std::fmt::Debug + PartialEq> AstEq for BinaryExpression<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.op == snd.op
             && AstEq::ast_eq(&*fst.left, &*snd.left)

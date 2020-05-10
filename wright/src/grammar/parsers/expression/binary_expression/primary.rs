@@ -15,9 +15,8 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
 use crate::grammar::parsers::whitespace::token_delimiter;
 use nom::branch::alt;
 use nom::sequence::{delimited, pair, tuple};
-use nom::{IResult, Offset, Slice};
+use nom::IResult;
 use crate::grammar::tracing::parsers::map::map;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 use crate::grammar::parsers::with_input;
 use crate::grammar::model::WrightInput;
@@ -50,7 +49,7 @@ pub(self) mod arithmetic;
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
-pub fn base_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn base_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::base_primary";
     let res = alt((
         map(Parens::parse, to_expr),
@@ -77,7 +76,7 @@ where
 }
 
 /// Return a parser for a precedence level of left associative operator.
-pub(self) fn parser_left<'a, I: WrightInput<'a>>(
+pub(self) fn parser_left<I: WrightInput>(
     child: fn(I) -> IResult<I, Expression<I>>,
     operator: fn(I) -> IResult<I, BinaryOp>,
 ) -> impl Fn(I) -> IResult<I, Expression<I>> {
@@ -108,10 +107,10 @@ pub(self) fn parser_left<'a, I: WrightInput<'a>>(
         while let
             Ok((new_rem, (op, right)))
         = pair(delimited(token_delimiter,operator, token_delimiter),
-               child)(rem) {
+               child)(rem.clone()) {
             rem = new_rem;
-            let index = source.offset(&rem);
-            let consumed = source.slice(..index);
+            let index = input.offset(&rem);
+            let consumed = input.slice(..index);
             acc = BinaryExpression::new(consumed, acc, op, right).into();
         }
 
@@ -120,7 +119,7 @@ pub(self) fn parser_left<'a, I: WrightInput<'a>>(
 }
 
 /// Parse a binary expression.
-pub fn parse_binary_expr<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn parse_binary_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::parse_binary_expr";
     trace_result(trace, alt((
         range_expr,

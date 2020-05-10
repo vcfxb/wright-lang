@@ -3,7 +3,6 @@ use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::bytes::complete::tag;
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
@@ -16,7 +15,7 @@ impl<T: std::fmt::Debug + Clone> SelfLit<T> {
     pub const SELF: &'static str = "self";
 }
 
-impl<'a, I: WrightInput<'a>> SelfLit<I> {
+impl<I: WrightInput> SelfLit<I> {
     fn new(source: I) -> Self {
         Self { source }
     }

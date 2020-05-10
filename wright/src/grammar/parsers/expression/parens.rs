@@ -1,11 +1,10 @@
 use crate::grammar::ast::{eq::AstEq, Expression, Parens};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
 use nom::sequence::{delimited, terminated};
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::map::map;
 use crate::grammar::tracing::trace_result;
 
@@ -14,7 +13,7 @@ impl<T: Clone + std::fmt::Debug> Parens<T> {
     pub const TRACE_NAME: &'static str = "";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Parens<I> {
+impl<I: WrightInput> Parens<I> {
     fn inner(input: I) -> IResult<I, Expression<I>> {
         delimited(
             token_delimiter,
@@ -52,7 +51,7 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for Parens<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for Parens<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for Parens<I> {
     #[inline]
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&*fst.inner, &*snd.inner)

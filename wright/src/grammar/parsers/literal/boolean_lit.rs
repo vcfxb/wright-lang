@@ -6,7 +6,6 @@ use nom::bytes::complete::tag;
 use nom::combinator::{value};
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
@@ -22,7 +21,7 @@ impl<T: std::fmt::Debug + Clone> BooleanLit<T> {
     pub const TRACE_NAME: &'static str = "BooleanLit";
 }
 
-impl<'a, I: WrightInput<'a>> BooleanLit<I> {
+impl<I: WrightInput> BooleanLit<I> {
     fn new(source: I, val: bool) -> Self {
         Self {
             source,

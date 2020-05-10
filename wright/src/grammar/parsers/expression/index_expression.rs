@@ -1,13 +1,12 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::{Expression, IndexExpression};
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char as ch;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
@@ -20,7 +19,7 @@ impl<T: Clone + std::fmt::Debug> IndexExpression<T> {
     pub const DELIMITERS: (char, char) = ('[', ']');
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> IndexExpression<I> {
+impl<I: WrightInput> IndexExpression<I> {
     /// Parse an index expression in wright source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(
@@ -49,7 +48,7 @@ impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for IndexExpression<I> {
     }
 }
 
-impl<I: Clone + std::fmt::Debug> AstEq for IndexExpression<I> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for IndexExpression<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&*fst.subject, &*snd.subject) && AstEq::ast_eq(&*fst.object, &*snd.object)
     }

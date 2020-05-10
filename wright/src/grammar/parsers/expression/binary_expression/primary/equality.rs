@@ -8,10 +8,10 @@ use crate::grammar::parsers::expression::binary_expression::primary::relational:
 };
 use nom::branch::alt;
 use nom::IResult;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
+use crate::grammar::model::WrightInput;
 
-pub fn equality_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn equality_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::equality_primary";
     trace_result(
         trace,
@@ -23,7 +23,7 @@ pub fn equality_primary<I: OptionallyTraceable + std::fmt::Debug + Clone>(input:
 }
 
 /// Parse equality expression.
-pub fn equality<I: OptionallyTraceable + std::fmt::Debug + Clone>(input: I) -> IResult<I, Expression<I>> {
+pub fn equality<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::equality";
     trace_result(
         trace,

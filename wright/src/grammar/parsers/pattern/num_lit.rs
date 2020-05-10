@@ -1,7 +1,7 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::NumLit;
 use crate::grammar::ast::NumLitPattern;
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
 use nom::character::complete::char;
 use nom::combinator::opt;
@@ -19,7 +19,7 @@ impl<T: Clone + std::fmt::Debug> NumLitPattern<T> {
     pub const TRACE_NAME: &'static str = "NumLitPattern";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> NumLitPattern<I> {
+impl<I: WrightInput> NumLitPattern<I> {
     /// Parse a numerical literal pattern. (e.g. "-12", "4")
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(

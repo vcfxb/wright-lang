@@ -19,7 +19,7 @@ impl<T: std::fmt::Debug + Clone> ScopedName<T> {
     pub const TRACE_NAME: &'static str = "ScopedName";
 }
 
-impl<'a, I: WrightInput<'a>> ScopedName<I> {
+impl<I: WrightInput> ScopedName<I> {
     /// Parses a ScopedName from the given input fragment.
     pub fn parse(input: I) -> IResult<I, Self> {
         let res: IResult<I, Self> = map(
@@ -58,7 +58,7 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for ScopedName<I> {
     }
 }
 
-impl<T: std::fmt::Debug + Clone + Into<String>> AstEq for ScopedName<T> {
+impl<T: std::fmt::Debug + Clone + PartialEq> AstEq for ScopedName<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
     }

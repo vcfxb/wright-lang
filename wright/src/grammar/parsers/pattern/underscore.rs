@@ -1,6 +1,6 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Underscore;
-use crate::grammar::model::HasSourceReference;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::bytes::complete::tag;
 use nom::IResult;
 use crate::grammar::tracing::{
@@ -17,7 +17,7 @@ impl<T: Clone + std::fmt::Debug> Underscore<T> {
     pub const UNDERSCORE: &'static str = "_";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> Underscore<I> {
+impl<I: WrightInput> Underscore<I> {
     /// Parse an underscore from source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(Self::TRACE_NAME, map(
