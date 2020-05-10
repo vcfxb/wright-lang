@@ -1,7 +1,7 @@
 use crate::grammar::ast::eq::{ast_eq, AstEq};
 use crate::grammar::ast::{ExpressionStatement, Statement};
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use nom::IResult;
 use std::mem::discriminant;

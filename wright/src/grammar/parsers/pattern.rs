@@ -7,7 +7,7 @@ use crate::grammar::ast::Pattern;
 use crate::grammar::ast::StringLit;
 use crate::grammar::ast::Underscore;
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::{parsers::map::map, trace_result};
+use crate::grammar::tracing::{parsers::map, trace_result};
 
 use std::mem::discriminant;
 

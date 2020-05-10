@@ -93,6 +93,12 @@ impl TraceInfo {
     pub fn end(&mut self, tag: &'static str, success: bool) {
         assert_ne!(self.depth, 0);
 
+        if self.active_ids.get(&(tag, self.depth)).is_none() {
+            dbg!(&tag);
+            self.print().unwrap();
+            dbg!(&self);
+        }
+
         let (id, index) = self
             .active_ids
             .remove(&(tag, self.depth))

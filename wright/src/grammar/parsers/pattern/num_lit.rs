@@ -3,7 +3,7 @@ use crate::grammar::ast::NumLit;
 use crate::grammar::ast::NumLitPattern;
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::{parsers::map::map, trace_result};
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::character::complete::char;
 use nom::combinator::opt;
 use nom::sequence::pair;

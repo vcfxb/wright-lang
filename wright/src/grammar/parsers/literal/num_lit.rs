@@ -11,7 +11,7 @@ use crate::grammar::ast::NumLit;
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use std::fmt::Debug;
 use std::num::ParseIntError;

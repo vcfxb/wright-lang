@@ -2,7 +2,7 @@ use crate::grammar::ast::{eq::AstEq, Expression, Parens};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use nom::character::complete::char as ch;
 use nom::sequence::{delimited, terminated};

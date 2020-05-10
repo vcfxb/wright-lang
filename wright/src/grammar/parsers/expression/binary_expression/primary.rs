@@ -15,7 +15,7 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
 };
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use nom::branch::alt;
 use nom::sequence::{delimited, pair, tuple};

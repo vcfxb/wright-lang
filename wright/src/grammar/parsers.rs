@@ -63,7 +63,7 @@ where
 #[cfg(test)]
 mod with_input_test {
     use crate::grammar::parsers::with_input;
-    use nom::bytes::complete::tag;
+    use crate::grammar::tracing::parsers::tag;
 
     #[test]
     fn test_with_input() {

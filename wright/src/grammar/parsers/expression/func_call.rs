@@ -3,7 +3,7 @@ use crate::grammar::ast::{Block, Expression, FuncCall, Parens, ScopedName};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::parsers::map::map;
+use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use nom::branch::alt;
 use nom::character::complete::char as ch;

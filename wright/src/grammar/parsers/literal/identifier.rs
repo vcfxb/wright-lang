@@ -1,7 +1,7 @@
 use crate::grammar::ast::{eq::AstEq, BinaryOp, Conditional, SelfLit, Underscore};
 use crate::grammar::ast::{BooleanLit, Identifier};
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::{parsers::map::map, trace_result};
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::bytes::complete::take_while;
 use nom::character::complete::anychar;
 use nom::combinator::{recognize, verify};

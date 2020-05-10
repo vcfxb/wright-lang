@@ -3,7 +3,7 @@ use crate::grammar::ast::{Expression, IndexExpression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::{parsers::map::map, trace_result};
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::character::complete::char as ch;
 use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;

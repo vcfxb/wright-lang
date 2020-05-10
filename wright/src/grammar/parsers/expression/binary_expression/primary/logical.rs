@@ -4,7 +4,7 @@ use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{
     bitwise_or, bitwise_or_primary,
 };
 use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, to_expr};
-use crate::grammar::tracing::{parsers::map::map, trace_result};
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::branch::alt;
 use nom::IResult;
 
