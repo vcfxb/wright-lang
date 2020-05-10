@@ -2,7 +2,7 @@ use crate::grammar::ast::{BinaryOp, Expression};
 use crate::grammar::model::WrightInput;
 use crate::grammar::parsers::expression::binary_expression::primary::{base_primary, parser_left};
 use crate::grammar::tracing::trace_result;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
 
 /// Parse child of a lower precedence arithmetic operator.

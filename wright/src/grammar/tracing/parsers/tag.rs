@@ -4,7 +4,7 @@ use nom::bytes::complete::tag as nom_tag;
 use nom::{Compare, IResult, InputLength, InputTake};
 
 /// Traced version of nom's
-/// [tag](https://docs.rs/nom/5.1.1/nom/bytes/complete/fn.tag.html)
+/// [`tag`](https://docs.rs/nom/5.1.1/nom/bytes/complete/fn.tag.html)
 /// parser.
 pub fn tag<T, Input>(tag: T) -> impl Fn(Input) -> IResult<Input, Input>
 where

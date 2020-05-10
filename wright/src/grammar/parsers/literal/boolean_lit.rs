@@ -3,7 +3,7 @@ use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::parsers::tag;
 use crate::grammar::tracing::{parsers::map, trace_result};
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::combinator::value;
 use nom::IResult;
 

@@ -1,10 +1,12 @@
 use crate::grammar::tracing::input::OptionallyTraceable;
 #[cfg(not(test))]
 use io::Write;
-use nom::IResult;
+use nom::{IResult, Err};
 use std::collections::HashMap;
 use std::io;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use std::time::Instant;
+use nom::error::{ParseError, ErrorKind};
 
 /// Traced versions of nom and wright parsers. These
 /// are currently implemented on an as used / as needed basis,
@@ -19,6 +21,7 @@ pub mod input;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct TraceRecord {
+    time: Instant,
     forwards: bool,
     id: usize,
     depth: usize,
@@ -30,6 +33,7 @@ impl TraceRecord {
     /// Construct a new trace record.
     fn new(depth: usize, tag: &'static str, forwards: bool, id: usize) -> Self {
         Self {
+            time: Instant::now(),
             forwards,
             id,
             depth,
@@ -94,15 +98,15 @@ impl TraceInfo {
         assert_ne!(self.depth, 0);
 
         if self.active_ids.get(&(tag, self.depth)).is_none() {
-            dbg!(&tag);
             self.print().unwrap();
-            dbg!(&self);
         }
 
         let (id, index) = self
             .active_ids
             .remove(&(tag, self.depth))
-            .expect("no matching function start found.");
+            .unwrap_or_else(|| {
+                panic!("No matching tag for \"{}\" at depth {}.", tag, self.depth)
+            });
 
         self.inner
             .push(TraceRecord::new(self.depth, tag, false, id).success(success));
@@ -134,24 +138,20 @@ impl TraceInfo {
 
         let mut stdout = StandardStream::stdout(color_config);
 
+        let header = format!(
+            "| {4:>10} |{0:>7} |{1:>7} | {2}\n\
+            :{3:->12}:{3:->8}:{3:->8}:{3:->8}",
+            "->",
+            "<-",
+            "parser",
+            "-",
+            "clock (µs)");
+
         // write header
         #[cfg(not(test))]
-        writeln!(
-            &mut stdout,
-            "|{0:>7} |{1:>7} | {2}\n:{3}:{3}:{3}",
-            "->",
-            "<-",
-            "parser",
-            "-".repeat(8)
-        )?;
+        writeln!(&mut stdout, "{}", header)?;
         #[cfg(test)]
-        println!(
-            "|{0:>7} |{1:>7} | {2}\n:{3}:{3}:{3}",
-            "->",
-            "<-",
-            "parser",
-            "-".repeat(8)
-        );
+        println!("{}", header);
 
         // color specification.
         let mut success_spec = ColorSpec::new();
@@ -160,6 +160,11 @@ impl TraceInfo {
         failure_spec.set_fg(Some(Color::Red));
         success_spec.set_intense(true);
         failure_spec.set_intense(true);
+
+        let initial_time = self.inner
+            .first()
+            .map(|rec| rec.time)
+            .unwrap_or(Instant::now());
 
         for record in self.inner.iter() {
             let labels = (
@@ -175,11 +180,18 @@ impl TraceInfo {
                 },
             );
 
+            let info = format!(
+                "| {:>10} |{:>7} |{:>7} |",
+                (record.time - initial_time).as_micros(),
+                labels.0,
+                labels.1
+            );
+
             #[cfg(not(test))]
-            write!(&mut stdout, "|{:>7} |{:>7} |", labels.0, labels.1)?;
+            write!(&mut stdout, "{}", info)?;
 
             #[cfg(test)]
-            print!("|{:>7} |{:>7} |", labels.0, labels.1);
+            print!("{}", info);
 
             // get the appropriate color spec.
             let spec = record
@@ -190,15 +202,16 @@ impl TraceInfo {
                 stdout.set_color(spec.unwrap())?;
             }
 
-            // 19 should be the amount of space used to write call level info.
-            let text_width = record.tag.len() + 4; // add for for a (✓) or (x)
-                                                   // filters terminal width to only be `Some` if it limits the
-                                                   // natural output display. Whenever it is some, it will be the required
-                                                   // width of the whitespace and arrow.
+            let text_width = record.tag.len() + 4;
+            // add 4 for a (✓) or (x)
+            // filters terminal width to only be `Some` if it limits the
+            // natural output display. Whenever it is some, it will be the required
+            // width of the whitespace and arrow.
+
             let limiting_term_width = term_width
-                .filter(|w| *w < 19 + record.depth - 1 + "-> ".len() + text_width)
-                .filter(|w| *w >= 22 + text_width)
-                .map(|w| w - 19 - text_width - 1);
+                .filter(|w| *w < info.len() + record.depth - 1 + "-> ".len() + text_width)
+                .filter(|w| *w >= info.len() + text_width)
+                .map(|w| w - info.len() - text_width - 1);
 
             let spaces = limiting_term_width.unwrap_or(record.depth - 1);
 
@@ -237,8 +250,10 @@ impl TraceInfo {
 /// remainder and error branches of a nom parser result, or [`IResult`]()
 pub fn trace_result<I: OptionallyTraceable, O>(
     tag: &'static str,
-    res: IResult<I, O>,
-) -> IResult<I, O> {
+    res: IResult<I, O, (I, ErrorKind)>,
+) -> IResult<I, O, (I, ErrorKind)> {
     res.map(|(r, p)| (r.trace_end_clone(tag, true), p))
-        .map_err(|err| err.map_input(|i: I| i.trace_end_clone(tag, false)))
+        .map_err(|err: Err<(I, ErrorKind)>| {
+            err.map_input(|i: I| i.trace_end_clone(tag, false))
+        })
 }

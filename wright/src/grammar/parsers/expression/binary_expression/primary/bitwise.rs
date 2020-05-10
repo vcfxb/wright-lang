@@ -5,7 +5,7 @@ use crate::grammar::parsers::expression::binary_expression::primary::equality::{
 };
 use crate::grammar::parsers::expression::binary_expression::primary::parser_left;
 use crate::grammar::tracing::trace_result;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
 
 /// A child expression under a 'bitwise or' expression.

@@ -17,7 +17,7 @@ use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::sequence::{delimited, pair, tuple};
 use nom::IResult;
 
@@ -58,7 +58,7 @@ pub fn base_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
         map(StringLit::parse, to_expr),
         map(BooleanLit::parse, to_expr),
         map(SelfLit::parse, to_expr),
-        map(Conditional::parse, to_expr),
+        map(Conditional::parse, |a| todo!("recursion")),
         //map(FuncCallExpression::parse, to_expr), // make sure we aren't causing recursion
         map(ScopedName::parse, to_expr),
     ))(input.trace_start_clone(trace));
@@ -84,14 +84,20 @@ pub(self) fn parser_left<I: WrightInput>(
     move |input| -> IResult<I, Expression<I>> {
         let source = input.trace_start_clone(trace);
 
-        let first: (I, Expression<I>) = map(
+        let first_res = map(
             with_input(tuple((
                 child,
                 delimited(token_delimiter, operator, token_delimiter),
                 child,
             ))),
             |(consumed, (left, op, right))| BinaryExpression::new(consumed, left, op, right).into(),
-        )(source)?;
+        )(source);
+
+        if first_res.is_err() {
+            return trace_result(trace, first_res);
+        }
+
+        let first = first_res.unwrap();
 
         let mut rem = first.0;
         let mut acc = first.1;
@@ -115,17 +121,17 @@ pub fn parse_binary_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> 
     trace_result(
         trace,
         alt((
-            range_expr,
-            logical_or,
-            logical_and,
-            bitwise_or,
-            bitwise_xor,
-            bitwise_and,
-            equality,
-            relational,
-            bitshift,
-            arithmetic1,
-            arithmetic2,
+                range_expr,
+                logical_or,
+                logical_and,
+                bitwise_or,
+                bitwise_xor,
+                bitwise_and,
+                equality,
+                relational,
+                bitshift,
+                arithmetic1,
+                arithmetic2,
         ))(input.trace_start_clone(trace)),
     )
 }

@@ -5,7 +5,7 @@ use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::character::complete::char as ch;
 use nom::multi::separated_list;
 use nom::sequence::{delimited, pair, terminated};
@@ -27,6 +27,7 @@ impl<T: Clone + std::fmt::Debug> FuncCall<T> {
 
 impl<I: WrightInput> FuncCall<I> {
     fn func_call_primary(input: I) -> IResult<I, Expression<I>> {
+        todo!("recursion");
         alt((
             // map(IndexExpression::parse, Expression::IndexExpression),
             // commented out to avoid possible recursion.

@@ -1,6 +1,6 @@
 use crate::grammar::model::WrightInput;
 use crate::grammar::tracing::trace_result;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{char, multispace0, not_line_ending};
 use nom::combinator::value;

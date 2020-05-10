@@ -11,7 +11,7 @@ use crate::grammar::tracing::{parsers::map, trace_result};
 
 use std::mem::discriminant;
 
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
 use std::fmt::Debug;
 

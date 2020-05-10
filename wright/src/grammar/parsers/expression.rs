@@ -2,7 +2,7 @@ use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::tracing::trace_result;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
 use std::mem::discriminant;
 

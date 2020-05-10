@@ -2,7 +2,7 @@ use crate::grammar::ast::{eq::AstEq, Expression, StringLit};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::{parsers::map, trace_result};
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, multispace0, newline, one_of};
 use nom::combinator::{map_res, not, value};

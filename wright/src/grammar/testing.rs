@@ -3,6 +3,7 @@ use crate::grammar::model::Fragment;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use codespan::{FileId, Files};
 use nom::IResult;
+use std::time::Instant;
 
 /// A testing context that holds test cases for wright parsers and
 /// runs those tests via the exposed methods.
@@ -44,6 +45,12 @@ impl TestingContext {
         let mut f = Fragment::new(&self.files, self.handles[index]);
         f.enable_trace();
         f
+    }
+
+    /// Get the fragment of a given file bu index.
+    /// Do not enable call tracing on that fragment.
+    pub fn get_fragment_trace_disabled<'a>(&'a self, index: usize) -> Fragment<'a> {
+        Fragment::new(&self.files, self.handles[index])
     }
 
     /// Run a parser on a source in this object. return the output in the
@@ -145,7 +152,6 @@ impl TestingContext {
         index: usize,
         validation: impl FnOnce((Fragment<'a>, N)),
     ) {
-        dbg!(self.get_fragment(index).source());
         validation(
             self.run_parser_on(index, parser)
                 .map_err(|e| {

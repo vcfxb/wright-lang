@@ -5,7 +5,7 @@ use crate::grammar::parsers::expression::binary_expression::primary::bitwise::{
 };
 use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, to_expr};
 use crate::grammar::tracing::{parsers::map, trace_result};
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
 
 /// Parse possible children of a logical OR expression.
