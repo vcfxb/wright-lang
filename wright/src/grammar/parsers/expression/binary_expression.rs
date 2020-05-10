@@ -11,7 +11,7 @@ mod operator;
 pub(self) mod primary;
 
 /// Re-export the base-primary for use in the general expression parser.
-pub(super) use primary::base_primary;
+pub(super) use primary::atom;
 
 impl<T: Clone + std::fmt::Debug> BinaryExpression<T> {
     /// The name of this expression when it appears in traces.

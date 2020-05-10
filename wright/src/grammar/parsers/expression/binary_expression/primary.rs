@@ -49,8 +49,8 @@ pub(self) mod arithmetic;
 
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
-pub fn base_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
-    let trace = "BinaryExpr::base_primary";
+pub fn atom<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::atom";
     let res = alt((
         map(Parens::parse, to_expr),
         map(Block::parse, to_expr),

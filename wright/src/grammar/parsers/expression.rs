@@ -46,7 +46,7 @@ impl<I: WrightInput> Expression<I> {
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(
             Self::TRACE_NAME,
-            alt((BinaryExpression::parse, binary_expression::base_primary))(
+            alt((BinaryExpression::parse, binary_expression::atom))(
                 input.trace_start_clone(Self::TRACE_NAME),
             ),
         )

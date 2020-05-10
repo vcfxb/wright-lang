@@ -71,3 +71,15 @@ fn test_all_operators() {
         rem.get_trace().unwrap().print();
     });
 }
+
+#[test]
+fn test_single_expr() {
+    let ctx = TestingContext::with(&[
+        "2",
+        "(a)"
+    ]);
+
+    ctx.test_output(BinaryExpression::parse, 0, |(rem, expr)| {
+        rem.get_trace().unwrap().print();
+    })
+}
