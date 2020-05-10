@@ -47,10 +47,20 @@ pub(self) mod bitshift;
 /// Module for parsing arithmetic operators.
 pub(self) mod arithmetic;
 
+/// Since the Binary expression parser is actually a general expression
+/// parser internally, which is verified to be a binary expression before
+/// being returned, we can use the lowest precedence binary expression
+/// parser as a general expression parser. This function is always just
+/// a call to the lowest precedence binary expression parser.
+pub fn parse_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "Expr::parse_expr";
+    trace_result(trace, range_expr(input.trace_start_clone(trace)))
+}
+
 /// Parser for the base expressions that can appear as a child in any binary
 /// expression, down to the lowest node.
-pub fn base_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
-    let trace = "BinaryExpr::base_primary";
+pub fn atom<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::atom";
     let res = alt((
         map(Parens::parse, to_expr),
         map(Block::parse, to_expr),
@@ -77,6 +87,7 @@ where
 
 /// Return a parser for a precedence level of left associative operator.
 /// Requires that the child parser succeed at least once.
+/// Does not require that the produced output is a binary expression.
 pub(self) fn parser_left<I: WrightInput>(
     child: fn(I) -> IResult<I, Expression<I>>,
     operator: fn(I) -> IResult<I, BinaryOp>,
@@ -85,14 +96,7 @@ pub(self) fn parser_left<I: WrightInput>(
     move |input| -> IResult<I, Expression<I>> {
         let source = input.trace_start_clone(trace);
 
-        let first_res = map(
-            with_input(tuple((
-                child,
-                delimited(token_delimiter, operator, token_delimiter),
-                child,
-            ))),
-            |(consumed, (left, op, right))| BinaryExpression::new(consumed, left, op, right).into(),
-        )(source);
+        let first_res = child(source);
 
         if first_res.is_err() {
             return trace_result(trace, first_res);

@@ -1,6 +1,6 @@
 use crate::grammar::ast::{BinaryOp, Expression};
 use crate::grammar::model::WrightInput;
-use crate::grammar::parsers::expression::binary_expression::primary::{base_primary, parser_left};
+use crate::grammar::parsers::expression::binary_expression::primary::{atom, parser_left};
 use crate::grammar::tracing::trace_result;
 use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
@@ -10,7 +10,7 @@ pub fn arithmetic1_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>
     let trace = "BinaryExpr::arithmetic1_primary";
     trace_result(
         trace,
-        alt((arithmetic2, base_primary))(input.trace_start_clone(trace)),
+        alt((arithmetic2, atom))(input.trace_start_clone(trace)),
     )
 }
 
@@ -30,7 +30,7 @@ pub fn arithmetic2<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::arithmetic2";
     trace_result(
         trace,
-        parser_left(base_primary, BinaryOp::parse_arithmetic_operator2)(
+        parser_left(atom, BinaryOp::parse_arithmetic_operator2)(
             input.trace_start_clone(trace),
         ),
     )
