@@ -29,7 +29,7 @@ pub(crate) mod conditional;
 /// Parentheses parser.
 pub(crate) mod parens;
 #[cfg(test)]
-mod parens;
+mod parens_tests;
 
 /// Block parser.
 pub(crate) mod block;

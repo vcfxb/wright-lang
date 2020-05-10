@@ -43,7 +43,7 @@ impl<I: WrightInput> Block<I> {
                     pair(token_delimiter, tag(Self::END_DELIMITER)),
                 )),
                 |(consumed, (statements, terminal))| Self {
-                    frag: consumed,
+                    source: consumed,
                     statements,
                     result: terminal,
                 },
@@ -54,7 +54,7 @@ impl<I: WrightInput> Block<I> {
 
 impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for Block<I> {
     fn get_source_ref(&self) -> &I {
-        &self.frag
+        &self.source
     }
 }
 

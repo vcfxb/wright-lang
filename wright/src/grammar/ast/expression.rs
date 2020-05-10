@@ -103,7 +103,7 @@ pub struct UnaryExpression<SourceCodeReference: Clone + Debug> {
 #[derive(Clone, Debug)]
 pub struct Block<SourceCodeReference: Clone + Debug> {
     /// The associated source code.
-    pub frag: SourceCodeReference,
+    pub source: SourceCodeReference,
     /// The statements in this block.
     pub statements: Vec<Statement<SourceCodeReference>>,
     /// The optional return/result expression.
