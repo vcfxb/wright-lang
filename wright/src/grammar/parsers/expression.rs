@@ -5,9 +5,10 @@ use crate::grammar::tracing::trace_result;
 use crate::grammar::tracing::parsers::alt;
 use nom::IResult;
 use std::mem::discriminant;
+use crate::grammar::parsers::expression::binary_expression::primary::parse_expr;
 
 /// Binary expression parser and utilities.
-pub(self) mod binary_expression;
+pub mod binary_expression;
 #[cfg(test)]
 mod binary_expression_tests;
 
@@ -27,11 +28,13 @@ pub(crate) mod conditional;
 
 /// Parentheses parser.
 pub(crate) mod parens;
+#[cfg(test)]
+mod parens;
 
 /// Block parser.
 pub(crate) mod block;
-//#[cfg(test)]
-//mod block_tests;
+#[cfg(test)]
+mod block_tests;
 
 #[cfg(test)]
 mod expression_tests;
@@ -42,13 +45,11 @@ impl<T: Clone + std::fmt::Debug> Expression<T> {
 }
 
 impl<I: WrightInput> Expression<I> {
-    /// Parse an expression
+    /// Parse an expression in source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         trace_result(
             Self::TRACE_NAME,
-            alt((BinaryExpression::parse, binary_expression::atom))(
-                input.trace_start_clone(Self::TRACE_NAME),
-            ),
+            parse_expr(input.trace_start_clone(Self::TRACE_NAME)),
         )
     }
 }

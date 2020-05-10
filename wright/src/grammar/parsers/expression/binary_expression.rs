@@ -1,17 +1,22 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
-use crate::grammar::tracing::trace_result;
+use crate::grammar::tracing::{
+    trace_result,
+    parsers::map,
+};
 use nom::IResult;
 
 /// Operator parsing implementation.
 mod operator;
 
-/// Primary parsing functions used in manual recursive descent parsing.
-pub(self) mod primary;
+/// Primary parsing functions used in manual
+/// precedence climbing parsing.
+pub mod primary;
 
 /// Re-export the base-primary for use in the general expression parser.
 pub(super) use primary::atom;
+use nom::combinator::verify;
 
 impl<T: Clone + std::fmt::Debug> BinaryExpression<T> {
     /// The name of this expression when it appears in traces.
@@ -35,17 +40,28 @@ impl<I: WrightInput> BinaryExpression<I> {
 
     /// Parse a binary expression in source code.
     ///
-    /// Despite the return type being `Expression`, this function should
-    /// always return a binary expression.
-    ///
     /// ## Operator precedence:
     /// Wright binary operators are parsed internally using a precedence
     /// climbing algorithm. The operator precedences are documented
     /// [here](https://github.com/Wright-Language-Developers/docs/blob/master/syntax/operator-precedence.md).
-    pub fn parse(input: I) -> IResult<I, Expression<I>> {
+    pub fn parse(input: I) -> IResult<I, BinaryExpression<I>> {
         trace_result(
             Self::TRACE_NAME,
-            parse_binary_expr(input.trace_start_clone(Self::TRACE_NAME)),
+            map(
+                verify(
+                    parse_binary_expr,
+                    |node| {
+                        if let Expression::BinaryExpression(e) = node {
+                            true
+                        } else {false}
+                    }
+                ),
+                |expr| {
+                    if let Expression::BinaryExpression(e) = expr {
+                        e
+                    } else {unreachable!()}
+                }
+            )(input.trace_start_clone(Self::TRACE_NAME))
         )
     }
 }

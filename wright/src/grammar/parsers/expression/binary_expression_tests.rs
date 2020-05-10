@@ -39,12 +39,10 @@ fn test_simple() {
     ]);
     ctx.test_output(BinaryExpression::parse, 0, |(rem, node)| {
         rem.get_trace().unwrap().print();
-        if let Expression::BinaryExpression(e) = node {
-            assert_eq!(e.op, BinaryOp::Add);
-            assert_eq!(e.left.get_source_ref(), "2");
-            assert_eq!(e.right.get_source_ref(), "6");
-            assert_eq!(e.get_source_ref(), "2+6");
-        } else {panic!("did not produce a binary expression.");}
+        assert_eq!(node.op, BinaryOp::Add);
+        assert_eq!(node.left.get_source_ref(), "2");
+        assert_eq!(node.right.get_source_ref(), "6");
+        assert_eq!(node.get_source_ref(), "2+6");
     })
 }
 
@@ -59,10 +57,8 @@ fn test_complicated_parse() {
     });
 }
 
-// This one currently takes multiple minutes, and is disabled for now.
 #[test]
-#[ignore]
-fn test_all_operators() {
+fn test_expensive_parse() {
     let ctx = TestingContext::with(&[
         r#"a or b || a * n&&b&&d-(5 mod "string") & 2 * 6"#
     ]);
@@ -76,10 +72,11 @@ fn test_all_operators() {
 fn test_single_expr() {
     let ctx = TestingContext::with(&[
         "2",
-        "(a)"
+        "(a)",
+        r#""string literal""#
     ]);
 
-    ctx.test_output(BinaryExpression::parse, 0, |(rem, expr)| {
-        rem.get_trace().unwrap().print();
-    })
+    // ctx.test_output(BinaryExpression::parse, 1, |(rem, _)|
+    //     rem.get_trace().unwrap().print().unwrap()
+    // );
 }
