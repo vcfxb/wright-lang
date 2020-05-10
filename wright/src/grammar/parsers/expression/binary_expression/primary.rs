@@ -76,6 +76,7 @@ where
 }
 
 /// Return a parser for a precedence level of left associative operator.
+/// Requires that the child parser succeed at least once.
 pub(self) fn parser_left<I: WrightInput>(
     child: fn(I) -> IResult<I, Expression<I>>,
     operator: fn(I) -> IResult<I, BinaryOp>,
@@ -121,17 +122,17 @@ pub fn parse_binary_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> 
     trace_result(
         trace,
         alt((
-                range_expr,
-                logical_or,
-                logical_and,
-                bitwise_or,
-                bitwise_xor,
-                bitwise_and,
-                equality,
-                relational,
-                bitshift,
-                arithmetic1,
-                arithmetic2,
+            range_expr,
+            logical_or,
+            logical_and,
+            bitwise_or,
+            bitwise_xor,
+            bitwise_and,
+            equality,
+            relational,
+            bitshift,
+            arithmetic1,
+            arithmetic2,
         ))(input.trace_start_clone(trace)),
     )
 }
