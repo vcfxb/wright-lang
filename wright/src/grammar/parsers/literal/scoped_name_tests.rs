@@ -64,8 +64,7 @@ fn test_leading() {
 
 #[test]
 fn test_with_whitespace() {
-    assert!(
-        TestingContext::with(&["foo::bar::baz::biz", "foo \n::bar :: baz\t\t::biz"])
-            .ast_eq(ScopedName::parse, (0, 1))
-    )
+    let aeq = TestingContext::with(&["foo::bar::baz::biz", "foo \n::bar :: baz\t\t::biz"])
+            .ast_eq(ScopedName::parse, (0, 1));
+    assert!(aeq);
 }

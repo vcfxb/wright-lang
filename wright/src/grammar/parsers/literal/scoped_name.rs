@@ -5,7 +5,7 @@ use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::parsers::tag;
 use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::multi::many0;
-use nom::sequence::{delimited, pair, terminated, preceded};
+use nom::sequence::{delimited, pair, preceded};
 use nom::IResult;
 
 impl<T: std::fmt::Debug + Clone> ScopedName<T> {
@@ -57,6 +57,8 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for ScopedName<I> {
 
 impl<T: std::fmt::Debug + Clone + PartialEq> AstEq for ScopedName<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
+        AstEq::ast_eq(&fst.path, &snd.path)
+            &&
+            AstEq::ast_eq(&fst.name, &snd.name)
     }
 }

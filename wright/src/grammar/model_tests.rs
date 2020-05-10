@@ -58,3 +58,12 @@ fn test_split_at_position1_complete_empty() {
         fr.split_at_position1_complete(char::is_alphabetic, ErrorKind::TakeWhile1);
     assert!(res.is_err());
 }
+
+#[test]
+fn test_eq() {
+    let ctx = TestingContext::with(&[
+        "abc",
+        "abc",
+    ]);
+    assert_eq!(ctx.get_fragment(0), ctx.get_fragment(1));
+}

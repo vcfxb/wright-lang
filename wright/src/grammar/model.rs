@@ -113,6 +113,20 @@ impl<'s> Fragment<'s> {
             && std::ptr::eq(fst.files(), snd.files())
             && !fst.get_span().disjoint(snd.get_span())
     }
+
+    // FIXME link
+    /// Check if two Fragments are entirely identical to one
+    /// another. This is significantly stronger than the
+    /// [partial equality]() implementation, which only checks if
+    /// the fragments represent equal strings, but not if they
+    /// come from the same file.
+    pub fn identical(&self, other: &Self) -> bool {
+        std::ptr::eq(self.files, other.files)
+            && other.handle == self.handle
+            && other.span == self.span
+            && self.tracer == other.tracer
+            && self.source == other.source
+    }
 }
 
 impl<'s> OptionallyTraceable for Fragment<'s> {
@@ -355,11 +369,15 @@ impl<'s> Slice<RangeFull> for Fragment<'s> {
 }
 
 impl<'s> PartialEq for Fragment<'s> {
+    // FIXME: links
+    /// This equality implementation notably only
+    /// checks if the represented strings
+    /// are equivalent. It does not check that
+    /// both fragments are from the same file
+    /// and [`Files` object](). For a stronger
+    /// equality check, see the [identical]() method.
     fn eq(&self, other: &Self) -> bool {
-        std::ptr::eq(self.files, other.files)
-            && other.handle == self.handle
-            && other.span == self.span
-            && self.tracer == other.tracer
+        self.source() == other.source()
     }
 }
 
@@ -412,8 +430,7 @@ pub trait WrightInput:
     + PartialEq
     + for<'a> PartialEq<&'a str>
     + for<'a> FindSubstring<&'a str>
-{
-}
+{}
 
 impl<'s> WrightInput for Fragment<'s> {}
 impl<'s> WrightInput for &'s str {}
