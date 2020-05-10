@@ -1,6 +1,6 @@
 use crate::grammar::tracing::input::OptionallyTraceable;
-use nom::IResult;
 use crate::grammar::tracing::trace_result;
+use nom::IResult;
 
 /// A traced version of nom's
 /// [`map`](https://docs.rs/nom/5.1.1/nom/combinator/fn.map.html)
@@ -14,8 +14,6 @@ where
     move |input: I| {
         let trace = "map";
         let i = input.trace_start_clone(trace);
-        trace_result(
-            trace,
-            parser(i).map(|(rem, o)| (rem, f(o))))
+        trace_result(trace, parser(i).map(|(rem, o)| (rem, f(o))))
     }
 }

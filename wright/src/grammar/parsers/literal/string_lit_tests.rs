@@ -23,6 +23,5 @@ fn test_null_escape() {
 
 #[test]
 fn test_unterminated() {
-    TestingContext::with(&[r#""simple"#, r#""escaped ending \""#])
-        .test_all_fail(StringLit::parse)
+    TestingContext::with(&[r#""simple"#, r#""escaped ending \""#]).test_all_fail(StringLit::parse)
 }

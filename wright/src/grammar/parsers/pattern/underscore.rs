@@ -1,8 +1,8 @@
 use crate::grammar::ast::eq::AstEq;
 use crate::grammar::ast::Underscore;
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::{parsers::map, trace_result};
 use crate::grammar::tracing::parsers::tag;
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::IResult;
 
 impl<T: Clone + std::fmt::Debug> Underscore<T> {

@@ -1,4 +1,3 @@
-
 /// Traced version of nom's
 /// [map](https://docs.rs/nom/5.1.1/nom/combinator/fn.map.html)
 /// combinator.

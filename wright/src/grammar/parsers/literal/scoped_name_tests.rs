@@ -1,6 +1,7 @@
 use crate::grammar::ast::ScopedName;
 use crate::grammar::model::HasSourceReference;
 use crate::grammar::testing::TestingContext;
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 #[test]
 fn test_empty() {
@@ -32,9 +33,12 @@ fn test_delimiter() {
 
 #[test]
 fn test_trailing() {
-    let ctx = TestingContext::with(&["foo::", "foo ::", "foo::1"]);
+    let ctx = TestingContext::with(&[
+        "foo::", "foo ::", "foo::1"
+    ]);
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
+        remaining.get_trace().unwrap().print();
         assert_eq!(remaining.source(), "::");
         assert!(node.path.is_empty());
         assert_eq!(node.name.source.source(), "foo");

@@ -1,7 +1,7 @@
 use crate::grammar::ast::{eq::AstEq, Expression, SelfLit};
 use crate::grammar::model::{HasSourceReference, WrightInput};
-use crate::grammar::tracing::{parsers::map, trace_result};
 use crate::grammar::tracing::parsers::tag;
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::IResult;
 
 impl<T: std::fmt::Debug + Clone> SelfLit<T> {

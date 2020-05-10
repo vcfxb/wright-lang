@@ -2,10 +2,10 @@ use crate::grammar::ast::{eq::AstEq, Expression, Identifier, ScopedName};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::{parsers::map, trace_result};
 use crate::grammar::tracing::parsers::tag;
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::multi::many0;
-use nom::sequence::{delimited, pair, terminated};
+use nom::sequence::{delimited, pair, terminated, preceded};
 use nom::IResult;
 
 impl<T: std::fmt::Debug + Clone> ScopedName<T> {
@@ -21,16 +21,21 @@ impl<I: WrightInput> ScopedName<I> {
     pub fn parse(input: I) -> IResult<I, Self> {
         let res: IResult<I, Self> = map(
             with_input(pair(
-                many0(terminated(
-                    Identifier::parse,
-                    delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
-                )),
                 Identifier::parse,
+                many0(preceded(
+                    delimited(token_delimiter, tag(Self::SEPARATOR), token_delimiter),
+                    Identifier::parse,
+                )),
             )),
-            |(consumed, (path, name))| Self {
-                source: consumed,
-                path,
-                name,
+            |(consumed, (fst, following))| {
+                let mut list = following.clone();
+                list.insert(0, fst);
+                let index = list.len() -1;
+                Self {
+                    source: consumed,
+                    path: (&list[..index]).into(),
+                    name: list[index].clone(),
+                }
             },
         )(input.trace_start_clone(Self::TRACE_NAME));
 
