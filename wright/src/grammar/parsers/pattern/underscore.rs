@@ -4,7 +4,6 @@ use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::bytes::complete::tag;
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };

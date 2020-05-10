@@ -5,7 +5,6 @@ use nom::combinator::value;
 use nom::multi::{count, many0};
 use nom::sequence::{delimited, preceded, terminated};
 use nom::{IResult};
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
 use crate::grammar::model::WrightInput;
 

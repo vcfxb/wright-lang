@@ -8,7 +8,6 @@ use nom::combinator::opt;
 use nom::sequence::pair;
 use nom::IResult;
 use crate::grammar::tracing::{
-    input::OptionallyTraceable,
     parsers::map::map,
     trace_result
 };
