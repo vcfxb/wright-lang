@@ -2,8 +2,8 @@ use crate::grammar::ast::{eq::AstEq, CharLit, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 
 use crate::grammar::parsers::with_input;
-use crate::grammar::tracing::{parsers::map, trace_result};
 use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, one_of};
 use nom::combinator::{map_opt, map_res, not, value};

@@ -33,9 +33,7 @@ fn test_delimiter() {
 
 #[test]
 fn test_trailing() {
-    let ctx = TestingContext::with(&[
-        "foo::", "foo ::", "foo::1"
-    ]);
+    let ctx = TestingContext::with(&["foo::", "foo ::", "foo::1"]);
 
     ctx.test_output(ScopedName::parse, 0, |(remaining, node)| {
         remaining.get_trace().unwrap().print();
@@ -65,6 +63,6 @@ fn test_leading() {
 #[test]
 fn test_with_whitespace() {
     let aeq = TestingContext::with(&["foo::bar::baz::biz", "foo \n::bar :: baz\t\t::biz"])
-            .ast_eq(ScopedName::parse, (0, 1));
+        .ast_eq(ScopedName::parse, (0, 1));
     assert!(aeq);
 }

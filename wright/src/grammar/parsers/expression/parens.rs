@@ -19,11 +19,14 @@ impl<T: Clone + std::fmt::Debug> Parens<T> {
 impl<I: WrightInput> Parens<I> {
     fn inner(input: I) -> IResult<I, Expression<I>> {
         let trace = "Parens::inner";
-        trace_result(trace, delimited(
-            pair(ch(Self::DELIMITERS.0), token_delimiter),
-            Expression::parse,
-            pair( token_delimiter, ch(Self::DELIMITERS.1)),
-        )(input.trace_start_clone(trace)))
+        trace_result(
+            trace,
+            delimited(
+                pair(ch(Self::DELIMITERS.0), token_delimiter),
+                Expression::parse,
+                pair(token_delimiter, ch(Self::DELIMITERS.1)),
+            )(input.trace_start_clone(trace)),
+        )
     }
 
     /// Parse parentheses and the expression between them in source code. Will

@@ -430,7 +430,8 @@ pub trait WrightInput:
     + PartialEq
     + for<'a> PartialEq<&'a str>
     + for<'a> FindSubstring<&'a str>
-{}
+{
+}
 
 impl<'s> WrightInput for Fragment<'s> {}
 impl<'s> WrightInput for &'s str {}

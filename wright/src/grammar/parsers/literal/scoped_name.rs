@@ -32,7 +32,7 @@ impl<I: WrightInput> ScopedName<I> {
             |(consumed, (fst, following))| {
                 let mut list = following.clone();
                 list.insert(0, fst);
-                let index = list.len() -1;
+                let index = list.len() - 1;
                 Self {
                     source: consumed,
                     path: (&list[..index]).into(),
@@ -59,8 +59,6 @@ impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for ScopedName<I> {
 
 impl<T: std::fmt::Debug + Clone + PartialEq> AstEq for ScopedName<T> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
-        AstEq::ast_eq(&fst.path, &snd.path)
-            &&
-            AstEq::ast_eq(&fst.name, &snd.name)
+        AstEq::ast_eq(&fst.path, &snd.path) && AstEq::ast_eq(&fst.name, &snd.name)
     }
 }

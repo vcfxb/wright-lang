@@ -4,6 +4,7 @@ use crate::grammar::ast::{
     SelfLit, StringLit,
 };
 use crate::grammar::model::WrightInput;
+use crate::grammar::parsers::expression::binary_expression::primary::range::range_primary;
 use crate::grammar::parsers::expression::binary_expression::primary::{
     arithmetic::{arithmetic1, arithmetic2},
     bitshift::bitshift,
@@ -14,12 +15,11 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
     relational::relational,
 };
 use crate::grammar::parsers::whitespace::token_delimiter;
+use crate::grammar::tracing::parsers::alt;
 use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
-use crate::grammar::tracing::parsers::alt;
 use nom::sequence::{delimited, pair};
 use nom::IResult;
-use crate::grammar::parsers::expression::binary_expression::primary::range::range_primary;
 
 /// Module for parsing range expressions.
 /// This includes Range and RangeTo operators.
@@ -56,10 +56,7 @@ pub fn parse_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "Expr::parse_expr";
     trace_result(
         trace,
-        alt((
-            range_expr,
-            range_primary
-        ))(input.trace_start_clone(trace))
+        alt((range_expr, range_primary))(input.trace_start_clone(trace)),
     )
 }
 

@@ -1,13 +1,11 @@
-use crate::grammar::testing::TestingContext;
 use crate::grammar::ast::Parens;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::model::HasSourceReference;
+use crate::grammar::testing::TestingContext;
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 #[test]
 fn test_basic() {
-    let ctx = TestingContext::with(&[
-        "(ident)"
-    ]);
+    let ctx = TestingContext::with(&["(ident)"]);
 
     ctx.test_output(Parens::parse, 0, |(rem, node)| {
         rem.get_trace().unwrap().print().unwrap();

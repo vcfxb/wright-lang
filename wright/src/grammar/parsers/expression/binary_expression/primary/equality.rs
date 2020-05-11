@@ -4,8 +4,8 @@ use crate::grammar::parsers::expression::binary_expression::primary::parser_left
 use crate::grammar::parsers::expression::binary_expression::primary::relational::{
     relational, relational_primary,
 };
-use crate::grammar::tracing::trace_result;
 use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::trace_result;
 use nom::IResult;
 
 pub fn equality_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {

@@ -1,9 +1,9 @@
 use crate::grammar::ast::{eq::AstEq, BooleanLit, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
+use crate::grammar::tracing::parsers::alt;
 use crate::grammar::tracing::parsers::tag;
 use crate::grammar::tracing::{parsers::map, trace_result};
-use crate::grammar::tracing::parsers::alt;
 use nom::combinator::value;
 use nom::IResult;
 

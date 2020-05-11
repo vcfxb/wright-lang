@@ -61,9 +61,6 @@ fn test_split_at_position1_complete_empty() {
 
 #[test]
 fn test_eq() {
-    let ctx = TestingContext::with(&[
-        "abc",
-        "abc",
-    ]);
+    let ctx = TestingContext::with(&["abc", "abc"]);
     assert_eq!(ctx.get_fragment(0), ctx.get_fragment(1));
 }

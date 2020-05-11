@@ -1,12 +1,12 @@
 use crate::grammar::tracing::input::OptionallyTraceable;
 #[cfg(not(test))]
 use io::Write;
-use nom::{IResult, Err};
+use nom::error::ErrorKind;
+use nom::{Err, IResult};
 use std::collections::HashMap;
 use std::io;
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::time::Instant;
-use nom::error::{ErrorKind};
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 /// Traced versions of nom and wright parsers. These
 /// are currently implemented on an as used / as needed basis,
@@ -104,9 +104,7 @@ impl TraceInfo {
         let (id, index) = self
             .active_ids
             .remove(&(tag, self.depth))
-            .unwrap_or_else(|| {
-                panic!("No matching tag for \"{}\" at depth {}.", tag, self.depth)
-            });
+            .unwrap_or_else(|| panic!("No matching tag for \"{}\" at depth {}.", tag, self.depth));
 
         self.inner
             .push(TraceRecord::new(self.depth, tag, false, id).success(success));
@@ -141,11 +139,8 @@ impl TraceInfo {
         let header = format!(
             "| {4:>10} |{0:>7} |{1:>7} | {2}\n\
             :{3:->12}:{3:->8}:{3:->8}:{3:->8}",
-            "->",
-            "<-",
-            "parser",
-            "-",
-            "clock (µs)");
+            "->", "<-", "parser", "-", "clock (µs)"
+        );
 
         // write header
         #[cfg(not(test))]
@@ -161,7 +156,8 @@ impl TraceInfo {
         success_spec.set_intense(true);
         failure_spec.set_intense(true);
 
-        let initial_time = self.inner
+        let initial_time = self
+            .inner
             .first()
             .map(|rec| rec.time)
             .unwrap_or(Instant::now());
@@ -253,7 +249,5 @@ pub fn trace_result<I: OptionallyTraceable, O>(
     res: IResult<I, O, (I, ErrorKind)>,
 ) -> IResult<I, O, (I, ErrorKind)> {
     res.map(|(r, p)| (r.trace_end_clone(tag, true), p))
-        .map_err(|err: Err<(I, ErrorKind)>| {
-            err.map_input(|i: I| i.trace_end_clone(tag, false))
-        })
+        .map_err(|err: Err<(I, ErrorKind)>| err.map_input(|i: I| i.trace_end_clone(tag, false)))
 }

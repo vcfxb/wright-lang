@@ -1,8 +1,8 @@
 use crate::grammar::ast::{BinaryOp, Expression};
 use crate::grammar::model::WrightInput;
 use crate::grammar::parsers::expression::binary_expression::primary::{atom, parser_left};
-use crate::grammar::tracing::trace_result;
 use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::trace_result;
 use nom::IResult;
 
 /// Parse child of a lower precedence arithmetic operator.
@@ -30,8 +30,6 @@ pub fn arithmetic2<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "BinaryExpr::arithmetic2";
     trace_result(
         trace,
-        parser_left(atom, BinaryOp::parse_arithmetic_operator2)(
-            input.trace_start_clone(trace),
-        ),
+        parser_left(atom, BinaryOp::parse_arithmetic_operator2)(input.trace_start_clone(trace)),
     )
 }

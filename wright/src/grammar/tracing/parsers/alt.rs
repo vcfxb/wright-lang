@@ -1,15 +1,13 @@
-use nom::error::{ErrorKind};
-use nom::IResult;
+use crate::grammar::model::WrightInput;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::trace_result;
-use crate::grammar::model::WrightInput;
+use nom::error::ErrorKind;
 use nom::Err;
-
+use nom::IResult;
 
 /// A trait used to replace
 /// [nom's trait of the same name](https://docs.rs/nom/5.1.1/nom/branch/trait.Alt.html).
 pub trait Alt<I, O, E> {
-
     /// Choose the appropriate parser, in this case
     /// the first one that succeeds.
     fn choice(&self, input: I) -> IResult<I, O, E>;
@@ -53,19 +51,18 @@ macro_rules! impl_alt_inner {
 
 impl_alt!(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);
 
-
 /// A traced version of nom's
 /// [`alt`](https://docs.rs/nom/5.1.1/nom/branch/fn.alt.html)
 /// combinator.
 pub fn alt<I, O, List>(l: List) -> impl Fn(I) -> IResult<I, O, (I, ErrorKind)>
 where
     I: Clone + OptionallyTraceable,
-    List: Alt<I, O, (I, ErrorKind)>
+    List: Alt<I, O, (I, ErrorKind)>,
 {
     let trace = "alt";
     move |input: I| {
-        let input= input.trace_start_clone(trace);
-        let res= l.choice(input);
+        let input = input.trace_start_clone(trace);
+        let res = l.choice(input);
         trace_result(trace, res)
     }
 }

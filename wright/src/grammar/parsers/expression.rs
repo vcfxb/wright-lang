@@ -1,10 +1,10 @@
 use crate::grammar::ast::eq::ast_eq;
 use crate::grammar::ast::{eq::AstEq, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
+use crate::grammar::parsers::expression::binary_expression::primary::parse_expr;
 use crate::grammar::tracing::trace_result;
 use nom::IResult;
 use std::mem::discriminant;
-use crate::grammar::parsers::expression::binary_expression::primary::parse_expr;
 
 /// Binary expression parser and utilities.
 pub mod binary_expression;

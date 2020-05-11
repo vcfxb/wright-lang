@@ -1,12 +1,9 @@
 use crate::grammar::ast::{eq::AstEq, BinaryExpression, BinaryOp, Expression};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::expression::binary_expression::primary::parse_binary_expr;
-use crate::grammar::tracing::{
-    trace_result,
-    parsers::map,
-};
-use nom::IResult;
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::combinator::verify;
+use nom::IResult;
 
 /// Operator parsing implementation.
 mod operator;
@@ -14,7 +11,6 @@ mod operator;
 /// Primary parsing functions used in manual
 /// precedence climbing parsing.
 pub mod primary;
-
 
 impl<T: Clone + std::fmt::Debug> BinaryExpression<T> {
     /// The name of this expression when it appears in traces.
@@ -46,20 +42,21 @@ impl<I: WrightInput> BinaryExpression<I> {
         trace_result(
             Self::TRACE_NAME,
             map(
-                verify(
-                    parse_binary_expr,
-                    |node| {
-                        if let Expression::BinaryExpression(_) = node {
-                            true
-                        } else {false}
+                verify(parse_binary_expr, |node| {
+                    if let Expression::BinaryExpression(_) = node {
+                        true
+                    } else {
+                        false
                     }
-                ),
+                }),
                 |expr| {
                     if let Expression::BinaryExpression(e) = expr {
                         e
-                    } else {unreachable!()}
-                }
-            )(input.trace_start_clone(Self::TRACE_NAME))
+                    } else {
+                        unreachable!()
+                    }
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
         )
     }
 }

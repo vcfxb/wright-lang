@@ -1,11 +1,11 @@
 use crate::grammar::ast::BinaryOp;
 use crate::grammar::model::WrightInput;
+use crate::grammar::tracing::parsers::alt;
 use crate::grammar::tracing::parsers::tag;
 use crate::grammar::tracing::trace_result;
-use crate::grammar::tracing::parsers::alt;
 use nom::character::complete::char as ch;
 use nom::combinator::value;
-use nom::{IResult};
+use nom::IResult;
 
 impl BinaryOp {
     /// Logical AND operator in long form.
