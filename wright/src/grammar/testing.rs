@@ -3,7 +3,6 @@ use crate::grammar::model::Fragment;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use codespan::{FileId, Files};
 use nom::IResult;
-use std::time::Instant;
 
 /// A testing context that holds test cases for wright parsers and
 /// runs those tests via the exposed methods.

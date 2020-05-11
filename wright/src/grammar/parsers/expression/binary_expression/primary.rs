@@ -14,12 +14,12 @@ use crate::grammar::parsers::expression::binary_expression::primary::{
     relational::relational,
 };
 use crate::grammar::parsers::whitespace::token_delimiter;
-use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use crate::grammar::tracing::parsers::alt;
-use nom::sequence::{delimited, pair, tuple};
+use nom::sequence::{delimited, pair};
 use nom::IResult;
+use crate::grammar::parsers::expression::binary_expression::primary::range::range_primary;
 
 /// Module for parsing range expressions.
 /// This includes Range and RangeTo operators.
@@ -54,7 +54,13 @@ pub(self) mod arithmetic;
 /// a call to the lowest precedence binary expression parser.
 pub fn parse_expr<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
     let trace = "Expr::parse_expr";
-    trace_result(trace, range_expr(input.trace_start_clone(trace)))
+    trace_result(
+        trace,
+        alt((
+            range_expr,
+            range_primary
+        ))(input.trace_start_clone(trace))
+    )
 }
 
 /// Parser for the base expressions that can appear as a child in any binary

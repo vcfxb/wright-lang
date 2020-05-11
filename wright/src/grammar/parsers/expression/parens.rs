@@ -5,25 +5,25 @@ use crate::grammar::parsers::with_input;
 use crate::grammar::tracing::parsers::map;
 use crate::grammar::tracing::trace_result;
 use nom::character::complete::char as ch;
-use nom::sequence::{delimited, terminated};
+use nom::sequence::{delimited, pair};
 use nom::IResult;
 
 impl<T: Clone + std::fmt::Debug> Parens<T> {
     /// Name that appears in parse traces.
-    pub const TRACE_NAME: &'static str = "";
+    pub const TRACE_NAME: &'static str = "Parens";
+
+    /// Delimiters for parens.
+    pub const DELIMITERS: (char, char) = ('(', ')');
 }
 
 impl<I: WrightInput> Parens<I> {
     fn inner(input: I) -> IResult<I, Expression<I>> {
-        delimited(
-            token_delimiter,
-            delimited(
-                terminated(ch('('), token_delimiter),
-                Expression::parse,
-                terminated(ch(')'), token_delimiter),
-            ),
-            token_delimiter,
-        )(input)
+        let trace = "Parens::inner";
+        trace_result(trace, delimited(
+            pair(ch(Self::DELIMITERS.0), token_delimiter),
+            Expression::parse,
+            pair( token_delimiter, ch(Self::DELIMITERS.1)),
+        )(input.trace_start_clone(trace)))
     }
 
     /// Parse parentheses and the expression between them in source code. Will

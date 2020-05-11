@@ -1,6 +1,5 @@
 use crate::grammar::ast::{eq::AstEq, Expression, UnaryExpression, UnaryOp};
-use crate::grammar::model::HasSourceReference;
-use crate::grammar::tracing::input::OptionallyTraceable;
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use nom::IResult;
 
 impl UnaryOp {}
@@ -10,7 +9,7 @@ impl<T: Clone + std::fmt::Debug> UnaryExpression<T> {
     pub const TRACE_NAME: &'static str = "UnaryExpr";
 }
 
-impl<I: OptionallyTraceable + std::fmt::Debug + Clone> UnaryExpression<I> {
+impl<I: WrightInput> UnaryExpression<I> {
     /// Parse a unary expression in source code.
     pub fn parse(input: I) -> IResult<I, Self> {
         unimplemented!()

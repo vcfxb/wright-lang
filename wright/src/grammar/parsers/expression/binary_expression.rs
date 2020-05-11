@@ -6,6 +6,7 @@ use crate::grammar::tracing::{
     parsers::map,
 };
 use nom::IResult;
+use nom::combinator::verify;
 
 /// Operator parsing implementation.
 mod operator;
@@ -14,9 +15,6 @@ mod operator;
 /// precedence climbing parsing.
 pub mod primary;
 
-/// Re-export the base-primary for use in the general expression parser.
-pub(super) use primary::atom;
-use nom::combinator::verify;
 
 impl<T: Clone + std::fmt::Debug> BinaryExpression<T> {
     /// The name of this expression when it appears in traces.
@@ -51,7 +49,7 @@ impl<I: WrightInput> BinaryExpression<I> {
                 verify(
                     parse_binary_expr,
                     |node| {
-                        if let Expression::BinaryExpression(e) = node {
+                        if let Expression::BinaryExpression(_) = node {
                             true
                         } else {false}
                     }

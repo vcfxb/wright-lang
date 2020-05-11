@@ -1,12 +1,11 @@
 use crate::grammar::ast::BinaryOp;
 use crate::grammar::model::WrightInput;
-use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::tag;
 use crate::grammar::tracing::trace_result;
 use crate::grammar::tracing::parsers::alt;
 use nom::character::complete::char as ch;
 use nom::combinator::value;
-use nom::{Compare, IResult, InputTake};
+use nom::{IResult};
 
 impl BinaryOp {
     /// Logical AND operator in long form.
@@ -21,13 +20,13 @@ impl BinaryOp {
 
 impl BinaryOp {
     /// Parse the short or long version of a binary operator.
-    fn short_or_long<'a, I>(
+    fn short_or_long<I>(
         short: &'static str,
         long: &'static str,
         result: BinaryOp,
     ) -> impl Fn(I) -> IResult<I, BinaryOp>
     where
-        I: OptionallyTraceable + std::fmt::Debug + Clone + InputTake + Compare<&'a str>,
+        I: WrightInput,
     {
         let trace = "BinaryOp::short_or_long";
         move |input| {

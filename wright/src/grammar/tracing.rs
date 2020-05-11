@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::io;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use std::time::Instant;
-use nom::error::{ParseError, ErrorKind};
+use nom::error::{ErrorKind};
 
 /// Traced versions of nom and wright parsers. These
 /// are currently implemented on an as used / as needed basis,
