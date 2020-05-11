@@ -15,23 +15,6 @@ pub trait Alt<I, O, E> {
     fn choice(&self, input: I) -> IResult<I, O, E>;
 }
 
-// impl<Input: WrightInput,
-//     Output,
-//     A: Fn(Input) -> IResult<Input, Output>,
-//     B: Fn(Input) -> IResult<Input, Output>
-// > Alt<Input, Output, (Input, ErrorKind)> for (A, B) {
-//     fn choice(&self, input: Input) -> IResult<Input, Output> {
-//         let (A, B) = self;
-//         let mut source = input;
-//         let res0 = (self.0)(source);
-//         match res0 {
-//             Result::Err(Err::Error((s, _))) => source = s,
-//             other => return other,
-//         }
-//         IResult::Err(Err::Error((source, ErrorKind::Alt)))
-//     }
-// }
-
 macro_rules! impl_alt {
     ($first:ident $second:ident $($rest:ident)*) => {
         impl_alt!(inner1 $first $second; $($rest)*);

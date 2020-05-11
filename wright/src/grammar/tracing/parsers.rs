@@ -1,6 +1,9 @@
 mod map;
 mod tag;
+
 mod alt;
+#[cfg(test)]
+mod alt_tests;
 
 pub use map::map;
 
