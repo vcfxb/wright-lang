@@ -1,6 +1,7 @@
 use crate::grammar::testing::TestingContext;
 use crate::grammar::tracing::input::OptionallyTraceable;
 use crate::grammar::tracing::parsers::{alt, tag};
+use nom::multi::many1;
 
 #[test]
 fn test_alt_simple() {
@@ -17,4 +18,22 @@ fn test_alt_simple() {
     p(fr1).unwrap().0.get_trace().unwrap().print().unwrap();
     print!("\n");
     p(fr2).unwrap().0.get_trace().unwrap().print().unwrap();
+}
+
+#[test]
+fn test_alt_multi() {
+    let p = |i| many1(alt((tag("abc"), tag("123"))))(i);
+    let ctx = TestingContext::with(&[
+        "abc",
+        "abc123",
+        "abcabc123abc",
+        "abca23d",
+    ]);
+
+    for i in 0..=2 {
+        ctx.test_output(p, i, |(rem, v)| {
+            rem.get_trace().unwrap().print().unwrap();
+            assert_eq!(rem.len(), 0);
+        });
+    }
 }

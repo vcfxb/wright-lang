@@ -149,6 +149,10 @@ impl<'s> OptionallyTraceable for Fragment<'s> {
     fn get_trace(&self) -> Option<TraceInfo> {
         self.tracer.clone()
     }
+
+    fn set_trace(&mut self, trace: Option<TraceInfo>) {
+        self.tracer = trace;
+    }
 }
 
 impl<'s> AsBytes for Fragment<'s> {

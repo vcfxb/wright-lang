@@ -18,6 +18,10 @@ pub trait OptionallyTraceable: Clone {
     /// be entirely unavailable for some types (such as `&str`).
     fn get_trace(&self) -> Option<TraceInfo>;
 
+    /// Override the internally stored trace history with a new history.
+    /// Use carefully, since this deletes the previous history.
+    fn set_trace(&mut self, trace: Option<TraceInfo>);
+
     // FIXME link
     /// Similar to [`trace_start`](#method.trace_start) except it clones
     /// the input and returns it, instead of modifying it.
@@ -48,6 +52,9 @@ impl<'a> OptionallyTraceable for &'a str {
     fn get_trace(&self) -> Option<TraceInfo> {
         None
     }
+
+    /// No operation.
+    fn set_trace(&mut self, trace: Option<TraceInfo>) {}
 }
 
 /// Byte arrays (`&[u8]`) do not trace input. As such all of these
@@ -61,4 +68,7 @@ impl<'a> OptionallyTraceable for &'a [u8] {
     fn get_trace(&self) -> Option<TraceInfo> {
         None
     }
+
+    /// No operation.
+    fn set_trace(&mut self, trace: Option<TraceInfo>) {}
 }

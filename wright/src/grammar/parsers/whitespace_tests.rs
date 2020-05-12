@@ -1,6 +1,9 @@
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::whitespace;
 use codespan::{FileId, Files};
+use crate::grammar::testing::TestingContext;
+use crate::grammar::parsers::whitespace::{token_delimiter, multiline_comment};
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 fn setup(src: &str) -> (Files<String>, FileId) {
     let mut f: Files<String> = Files::new();
@@ -66,16 +69,12 @@ fn multi_comment_single() {
 
 #[test]
 fn multi_comment_multi() {
-    let (f, h) = setup("/* mutli line\n * multi comment */");
-    let frag = Fragment::new(&f, h);
-    let res = whitespace::multiline_comment(frag);
-    if let Ok((rem, val)) = res {
-        assert_eq!(rem.len(), 0);
-        assert_eq!(val.source(), " mutli line\n * multi comment ");
-    } else {
-        eprintln!("{:#?}", res);
-        assert!(false);
-    }
+    TestingContext::with(&["/* mutli line\n * multi comment */"])
+        .test_output(multiline_comment, 0, |(rem, prod)| {
+            rem.get_trace().unwrap().print().unwrap();
+            assert_eq!(rem.len(), 0);
+            assert_eq!(prod.source(), " mutli line\n * multi comment ");
+        });
 }
 
 #[test]
@@ -172,15 +171,12 @@ fn multiline_comments_and_whitespace() {
 
 #[test]
 fn everything() {
-    let (f, h) = setup(" // single\n /* these are many */\n  /* multiline comments */ // another");
-    let frag = Fragment::new(&f, h);
-    let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, _)) = res {
+    TestingContext::with(&[
+        " // single\n /* these are many */\n  /* multiline comments */ // another"
+    ]).test_output(token_delimiter, 0, |(rem, _)| {
+        rem.get_trace().unwrap().print().unwrap();
         assert_eq!(rem.len(), 0);
-    } else {
-        eprintln!("{:#?}", res);
-        assert!(false);
-    }
+    });
 }
 
 #[test]
@@ -198,13 +194,10 @@ fn multi_in_single() {
 
 #[test]
 fn single_in_multi() {
-    let (f, h) = setup("/* comment // not nested */");
-    let frag = Fragment::new(&f, h);
-    let res = whitespace::token_delimiter(frag);
-    if let Ok((rem, _)) = res {
+    TestingContext::with(&[
+        "/* comment // not nested */"
+    ]).test_output(token_delimiter, 0, |(rem, _)| {
+        rem.get_trace().unwrap().print().unwrap();
         assert_eq!(rem.len(), 0);
-    } else {
-        eprintln!("{:#?}", res);
-        assert!(false);
-    }
+    });
 }

@@ -1,11 +1,14 @@
 use crate::grammar::model::WrightInput;
-use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::parsers::{
+    alt,
+    tag
+};
 use crate::grammar::tracing::trace_result;
-use nom::bytes::complete::{tag, take_until};
+use nom::bytes::complete::{take_until};
 use nom::character::complete::{char, multispace0, not_line_ending};
 use nom::combinator::value;
 use nom::multi::{count, many0};
-use nom::sequence::{delimited, preceded, terminated};
+use nom::sequence::{delimited, preceded, terminated, pair};
 use nom::IResult;
 
 /// Parses a Wright single line comment.
@@ -40,7 +43,8 @@ pub fn token_delimiter<I: WrightInput>(input: I) -> IResult<I, ()> {
             multispace0,
             value(
                 (),
-                many0(terminated(
+                many0(pair(
+                    // FIXME: regression of alt
                     alt((line_comment, multiline_comment)),
                     multispace0,
                 )),

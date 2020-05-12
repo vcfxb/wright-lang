@@ -38,8 +38,8 @@ macro_rules! impl_alt_inner {
                 let mut source = input;
                 let ( $($id),+ ) = self;
                 $(
-                    match ($id)(source) {
-                        Result::Err(Err::Error((s, _))) => source = s,
+                    match ($id)(source.clone()) {
+                        Result::Err(Err::Error((s, _))) => source.set_trace(s.get_trace()),
                         other => return other,
                     }
                 )+
@@ -56,7 +56,7 @@ impl_alt!(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);
 /// combinator.
 pub fn alt<I, O, List>(l: List) -> impl Fn(I) -> IResult<I, O, (I, ErrorKind)>
 where
-    I: Clone + OptionallyTraceable,
+    I: OptionallyTraceable,
     List: Alt<I, O, (I, ErrorKind)>,
 {
     let trace = "alt";
