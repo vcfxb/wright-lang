@@ -23,12 +23,7 @@ fn test_alt_simple() {
 #[test]
 fn test_alt_multi() {
     let p = |i| many1(alt((tag("abc"), tag("123"))))(i);
-    let ctx = TestingContext::with(&[
-        "abc",
-        "abc123",
-        "abcabc123abc",
-        "abca23d",
-    ]);
+    let ctx = TestingContext::with(&["abc", "abc123", "abcabc123abc", "abca23d"]);
 
     for i in 0..=2 {
         ctx.test_output(p, i, |(rem, v)| {

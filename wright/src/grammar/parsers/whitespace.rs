@@ -1,14 +1,11 @@
 use crate::grammar::model::WrightInput;
-use crate::grammar::tracing::parsers::{
-    alt,
-    tag
-};
+use crate::grammar::tracing::parsers::{alt, tag};
 use crate::grammar::tracing::trace_result;
-use nom::bytes::complete::{take_until};
+use nom::bytes::complete::take_until;
 use nom::character::complete::{char, multispace0, not_line_ending};
 use nom::combinator::value;
 use nom::multi::{count, many0};
-use nom::sequence::{delimited, preceded, terminated, pair};
+use nom::sequence::{delimited, pair, preceded, terminated};
 use nom::IResult;
 
 /// Parses a Wright single line comment.

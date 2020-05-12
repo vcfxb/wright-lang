@@ -1,9 +1,9 @@
 use crate::grammar::model::Fragment;
 use crate::grammar::parsers::whitespace;
-use codespan::{FileId, Files};
+use crate::grammar::parsers::whitespace::{multiline_comment, token_delimiter};
 use crate::grammar::testing::TestingContext;
-use crate::grammar::parsers::whitespace::{token_delimiter, multiline_comment};
 use crate::grammar::tracing::input::OptionallyTraceable;
+use codespan::{FileId, Files};
 
 fn setup(src: &str) -> (Files<String>, FileId) {
     let mut f: Files<String> = Files::new();
@@ -69,12 +69,15 @@ fn multi_comment_single() {
 
 #[test]
 fn multi_comment_multi() {
-    TestingContext::with(&["/* mutli line\n * multi comment */"])
-        .test_output(multiline_comment, 0, |(rem, prod)| {
+    TestingContext::with(&["/* mutli line\n * multi comment */"]).test_output(
+        multiline_comment,
+        0,
+        |(rem, prod)| {
             rem.get_trace().unwrap().print().unwrap();
             assert_eq!(rem.len(), 0);
             assert_eq!(prod.source(), " mutli line\n * multi comment ");
-        });
+        },
+    );
 }
 
 #[test]
@@ -172,8 +175,9 @@ fn multiline_comments_and_whitespace() {
 #[test]
 fn everything() {
     TestingContext::with(&[
-        " // single\n /* these are many */\n  /* multiline comments */ // another"
-    ]).test_output(token_delimiter, 0, |(rem, _)| {
+        " // single\n /* these are many */\n  /* multiline comments */ // another",
+    ])
+    .test_output(token_delimiter, 0, |(rem, _)| {
         rem.get_trace().unwrap().print().unwrap();
         assert_eq!(rem.len(), 0);
     });
@@ -194,10 +198,12 @@ fn multi_in_single() {
 
 #[test]
 fn single_in_multi() {
-    TestingContext::with(&[
-        "/* comment // not nested */"
-    ]).test_output(token_delimiter, 0, |(rem, _)| {
-        rem.get_trace().unwrap().print().unwrap();
-        assert_eq!(rem.len(), 0);
-    });
+    TestingContext::with(&["/* comment // not nested */"]).test_output(
+        token_delimiter,
+        0,
+        |(rem, _)| {
+            rem.get_trace().unwrap().print().unwrap();
+            assert_eq!(rem.len(), 0);
+        },
+    );
 }
