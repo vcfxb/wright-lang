@@ -1,5 +1,5 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{Block, Expression, FuncCall, Parens, ScopedName};
+use crate::grammar::ast::{Expression, FuncCall, Parens, ScopedName};
 use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
@@ -27,11 +27,10 @@ impl<T: Clone + std::fmt::Debug> FuncCall<T> {
 
 impl<I: WrightInput> FuncCall<I> {
     fn func_call_primary(input: I) -> IResult<I, Expression<I>> {
-        todo!("recursion");
         alt((
+            // FIXME: commented out to avoid possible recursion/unimplemented hit.
             // map(IndexExpression::parse, Expression::IndexExpression),
-            // commented out to avoid possible recursion.
-            map(Block::parse, Block::into),
+            // map(Block::parse, Block::into),
             map(Parens::parse, Parens::into),
             map(ScopedName::parse, ScopedName::into),
         ))(input)

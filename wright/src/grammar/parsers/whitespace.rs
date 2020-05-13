@@ -5,7 +5,7 @@ use nom::bytes::complete::take_until;
 use nom::character::complete::{char, multispace0, not_line_ending};
 use nom::combinator::value;
 use nom::multi::{count, many0};
-use nom::sequence::{delimited, pair, preceded, terminated};
+use nom::sequence::{delimited, pair, preceded};
 use nom::IResult;
 
 /// Parses a Wright single line comment.

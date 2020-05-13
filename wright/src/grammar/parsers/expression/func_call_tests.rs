@@ -16,7 +16,9 @@ fn test_reserved() {
     TestingContext::with(&["true()", "if()", "else()"]).test_all_fail(FuncCall::parse)
 }
 
+// FIXME: Takes too long -- ignored.
 #[test]
+#[ignore]
 fn test_calls() {
     TestingContext::with(&[
         "abc()",

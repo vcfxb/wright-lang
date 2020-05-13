@@ -54,7 +54,7 @@ impl<'a> OptionallyTraceable for &'a str {
     }
 
     /// No operation.
-    fn set_trace(&mut self, trace: Option<TraceInfo>) {}
+    fn set_trace(&mut self, _: Option<TraceInfo>) {}
 }
 
 /// Byte arrays (`&[u8]`) do not trace input. As such all of these
@@ -70,5 +70,5 @@ impl<'a> OptionallyTraceable for &'a [u8] {
     }
 
     /// No operation.
-    fn set_trace(&mut self, trace: Option<TraceInfo>) {}
+    fn set_trace(&mut self, _: Option<TraceInfo>) {}
 }
