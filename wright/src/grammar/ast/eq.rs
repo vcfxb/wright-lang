@@ -6,6 +6,13 @@ pub trait AstEq {
     fn ast_eq(fst: &Self, snd: &Self) -> bool;
 }
 
+/// Call to ast_eq for types that implement it.
+/// See [AstEq](trait.AstEq.html) for more information.
+#[inline]
+pub fn ast_eq<T: AstEq>(a: &T, b: &T) -> bool {
+    AstEq::ast_eq(a, b)
+}
+
 impl<T> AstEq for Option<T>
 where
     T: AstEq,

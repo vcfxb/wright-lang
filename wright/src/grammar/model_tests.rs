@@ -1,6 +1,5 @@
 use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::setup;
-use codespan::Files;
+use crate::grammar::testing::TestingContext;
 use nom::bytes::complete::take_while1;
 use nom::error::ErrorKind;
 use nom::IResult;
@@ -12,10 +11,9 @@ where
     F1: for<'b> Fn(Fragment<'b>) -> IResult<Fragment<'b>, Fragment<'b>>,
     F2: Fn(&'a str) -> IResult<&'a str, &'a str>,
 {
-    let mut f: Files<String> = Files::new();
-    let h = f.add("test", s.to_owned());
-    let frag: Fragment = Fragment::new(&f, h);
-    let p1 = f1(frag);
+    let tcx = TestingContext::with(&[s]);
+    let frag = tcx.get_fragment(0);
+    let p1 = f1(frag.clone());
     let p2 = f2(s);
     match (p1, p2) {
         (Ok((rem1, out1)), Ok((rem2, out2))) => {
@@ -54,9 +52,15 @@ fn test_take_while1() {
 
 #[test]
 fn test_split_at_position1_complete_empty() {
-    let (f, h) = setup("");
-    let fr = Fragment::new(&f, h);
+    let tcx = TestingContext::with(&[""]);
+    let fr = tcx.get_fragment(0);
     let res: IResult<Fragment, Fragment> =
         fr.split_at_position1_complete(char::is_alphabetic, ErrorKind::TakeWhile1);
     assert!(res.is_err());
+}
+
+#[test]
+fn test_eq() {
+    let ctx = TestingContext::with(&["abc", "abc"]);
+    assert_eq!(ctx.get_fragment(0), ctx.get_fragment(1));
 }

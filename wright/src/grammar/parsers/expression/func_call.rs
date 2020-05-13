@@ -1,16 +1,20 @@
 use crate::grammar::ast::eq::AstEq;
-use crate::grammar::ast::{Block, Expression, FuncCallExpression, IndexExpression, Name, Parens};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::ast::{Expression, FuncCall, Parens, ScopedName};
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::whitespace::token_delimiter;
 use crate::grammar::parsers::with_input;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::parsers::map;
+use crate::grammar::tracing::trace_result;
 use nom::character::complete::char as ch;
-use nom::combinator::map;
 use nom::multi::separated_list;
-use nom::sequence::{delimited, pair, tuple};
+use nom::sequence::{delimited, pair, terminated};
 use nom::IResult;
 
-impl<'s> FuncCallExpression<'s> {
+impl<T: Clone + std::fmt::Debug> FuncCall<T> {
+    /// Name of this parser in parse traces.
+    pub const TRACE_NAME: &'static str = "FuncCall";
+
     /// Left parenthesis delimiting argument list. Probably should never change.
     pub const DELIMITER_LEFT: char = '(';
 
@@ -19,50 +23,59 @@ impl<'s> FuncCallExpression<'s> {
 
     /// Comma separating arguments. Probably should never change.
     pub const ARG_SEPARATOR: char = ',';
+}
 
-    fn func_call_primary(input: Fragment<'s>) -> IResult<Fragment<'s>, Expression> {
+impl<I: WrightInput> FuncCall<I> {
+    fn func_call_primary(input: I) -> IResult<I, Expression<I>> {
         alt((
-            map(IndexExpression::parse, Expression::IndexExpression),
-            map(Block::parse, Expression::Block),
-            map(Parens::parse, Expression::Parens),
-            map(Name::parse, Expression::Name),
+            // FIXME: commented out to avoid possible recursion/unimplemented hit.
+            // map(IndexExpression::parse, Expression::IndexExpression),
+            // map(Block::parse, Block::into),
+            map(Parens::parse, Parens::into),
+            map(ScopedName::parse, ScopedName::into),
         ))(input)
     }
 
     /// Parse an index expression in wright source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(
-            with_input(pair(
-                Self::func_call_primary,
-                delimited(
-                    tuple((token_delimiter, ch(Self::DELIMITER_LEFT), token_delimiter)),
-                    separated_list(ch(Self::ARG_SEPARATOR), Expression::parse),
-                    tuple((token_delimiter, ch(Self::DELIMITER_RIGHT), token_delimiter)),
-                ),
-            )),
-            move |(consumed, (func, args))| Self {
-                frag: consumed,
-                func: Box::new(func),
-                args,
-            },
-        )(input)
+    pub fn parse(input: I) -> IResult<I, Self> {
+        trace_result(
+            Self::TRACE_NAME,
+            map(
+                with_input(pair(
+                    terminated(Self::func_call_primary, token_delimiter),
+                    delimited(
+                        ch(Self::DELIMITER_LEFT),
+                        separated_list(
+                            delimited(token_delimiter, ch(Self::ARG_SEPARATOR), token_delimiter),
+                            Expression::parse,
+                        ),
+                        ch(Self::DELIMITER_RIGHT),
+                    ),
+                )),
+                move |(consumed, (func, args))| Self {
+                    source: consumed,
+                    func: Box::new(func),
+                    args,
+                },
+            )(input.trace_start_clone(Self::TRACE_NAME)),
+        )
     }
 }
 
-impl<'s> HasFragment<'s> for FuncCallExpression<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+impl<I: std::fmt::Debug + Clone> HasSourceReference<I> for FuncCall<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> AstEq for FuncCallExpression<'s> {
+impl<I: Clone + std::fmt::Debug + PartialEq> AstEq for FuncCall<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         AstEq::ast_eq(&fst.func, &snd.func) && AstEq::ast_eq(&fst.args, &snd.args)
     }
 }
 
-impl<'s> Into<Expression<'s>> for FuncCallExpression<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I: std::fmt::Debug + Clone> Into<Expression<I>> for FuncCall<I> {
+    fn into(self) -> Expression<I> {
         Expression::FuncCall(self)
     }
 }

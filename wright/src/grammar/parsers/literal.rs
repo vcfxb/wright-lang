@@ -24,7 +24,7 @@ pub(crate) mod self_lit;
 mod self_lit_tests;
 
 /// Wright identifier parser.
-pub(crate) mod identifier;
+pub(self) mod identifier;
 #[cfg(test)]
 mod identifier_tests;
 
@@ -32,8 +32,3 @@ mod identifier_tests;
 pub(crate) mod scoped_name;
 #[cfg(test)]
 mod scoped_name_tests;
-
-/// Wright name parser.
-pub(crate) mod name;
-#[cfg(test)]
-mod name_tests;

@@ -1,5 +1,5 @@
 use crate::vm::machine::VirtualMachine;
-use nom::lib::std::fmt::Debug;
+use std::fmt::Debug;
 
 /// An operation on a virtual machine.
 pub trait Operation<M: VirtualMachine>: Debug + Clone {

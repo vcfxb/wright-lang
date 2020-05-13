@@ -1,21 +1,35 @@
-use crate::grammar::model::Fragment;
+use crate::grammar::ast::{BinaryOp, Expression};
+use crate::grammar::model::WrightInput;
+use crate::grammar::parsers::expression::binary_expression::primary::{atom, parser_left};
+use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::trace_result;
 use nom::IResult;
-use crate::grammar::ast::Expression;
-use crate::grammar::parsers::expression::binary_expression::primary::{parser_left, base_primary};
-use crate::grammar::parsers::expression::binary_expression::operator::{parse_arithmetic_operator1, parse_arithmetic_operator2};
-use nom::branch::alt;
 
 /// Parse child of a lower precedence arithmetic operator.
-pub fn arithmetic1_primary(input: Fragment) -> IResult<Fragment, Expression> {
-    alt((arithmetic2, base_primary))(input)
+pub fn arithmetic1_primary<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::arithmetic1_primary";
+    trace_result(
+        trace,
+        alt((arithmetic2, atom))(input.trace_start_clone(trace)),
+    )
 }
 
 /// Parse lower precedence arithmetic expression.
-pub fn arithmetic1(input: Fragment) -> IResult<Fragment, Expression> {
-    parser_left(arithmetic1_primary, parse_arithmetic_operator1)(input)
+pub fn arithmetic1<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::arithmetic1";
+    trace_result(
+        trace,
+        parser_left(arithmetic1_primary, BinaryOp::parse_arithmetic_operator1)(
+            input.trace_start_clone(trace),
+        ),
+    )
 }
 
 /// Parse higher precedence arithmetic expression.
-pub fn arithmetic2(input: Fragment) -> IResult<Fragment, Expression> {
-    parser_left(base_primary, parse_arithmetic_operator2)(input)
+pub fn arithmetic2<I: WrightInput>(input: I) -> IResult<I, Expression<I>> {
+    let trace = "BinaryExpr::arithmetic2";
+    trace_result(
+        trace,
+        parser_left(atom, BinaryOp::parse_arithmetic_operator2)(input.trace_start_clone(trace)),
+    )
 }

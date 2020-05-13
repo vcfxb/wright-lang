@@ -1,28 +1,34 @@
 use crate::grammar::ast::{eq::AstEq, Expression, StringLit};
-use crate::grammar::model::{Fragment, HasFragment};
+use crate::grammar::model::{HasSourceReference, WrightInput};
 use crate::grammar::parsers::with_input;
-use nom::branch::alt;
+use crate::grammar::tracing::parsers::alt;
+use crate::grammar::tracing::{parsers::map, trace_result};
 use nom::bytes::complete::{tag, take_while_m_n};
 use nom::character::complete::{anychar, char as ch, multispace0, newline, one_of};
-use nom::combinator::{map, map_res, not, value};
+use nom::combinator::{map_res, not, value};
 use nom::error::context;
 use nom::multi::many0;
 use nom::sequence::{delimited, preceded};
 use nom::IResult;
+use std::fmt::Debug;
 
-impl<'s> StringLit<'s> {
-    fn new(frag: Fragment<'s>, inner: String) -> Self {
-        Self { frag, inner }
+impl<T: Debug + Clone> StringLit<T> {
+    /// Name of this parser in parser tracing.
+    pub const TRACE_NAME: &'static str = "StringLit";
+}
+
+impl<I: WrightInput> StringLit<I> {
+    fn new(source: I, inner: String) -> Self {
+        Self { source, inner }
     }
 
-    fn anych(input: Fragment<'s>) -> IResult<Fragment<'s>, Option<char>> {
+    fn anych(input: I) -> IResult<I, Option<char>> {
         map(preceded(not(one_of("\\\"")), anychar), |c| Some(c))(input)
     }
 
-    fn body(input: Fragment<'s>) -> IResult<Fragment<'s>, String> {
-        let vch =
-            move |c: char, v: char| move |fragment: Fragment<'s>| value(Some(v), ch(c))(fragment);
-        let from_str_radix = |f: Fragment<'s>| u32::from_str_radix(f.source(), 16);
+    fn body(input: I) -> IResult<I, String> {
+        let vch = move |c: char, v: char| move |source: I| value(Some(v), ch(c))(source);
+        let from_str_radix = |str: I| u32::from_str_radix(&str.into(), 16);
         map(
             many0(alt((
                 Self::anych,
@@ -79,31 +85,32 @@ impl<'s> StringLit<'s> {
         )(input)
     }
 
-    fn wrapper(i: Fragment<'s>) -> IResult<Fragment<'s>, String> {
+    fn wrapper(i: I) -> IResult<I, String> {
         delimited(ch('\"'), Self::body, ch('\"'))(i)
     }
 
     /// Parse a string literal in source code.
-    pub fn parse(input: Fragment<'s>) -> IResult<Fragment<'s>, Self> {
-        map(with_input(Self::wrapper), |(consumed, result)| {
+    pub fn parse(input: I) -> IResult<I, Self> {
+        let res = map(with_input(Self::wrapper), |(consumed, result)| {
             Self::new(consumed, result)
-        })(input)
+        })(input.trace_start_clone(Self::TRACE_NAME));
+        trace_result(Self::TRACE_NAME, res)
     }
 }
 
-impl<'s> HasFragment<'s> for StringLit<'s> {
-    fn get_fragment(&self) -> Fragment<'s> {
-        self.frag
+impl<I: Debug + Clone> HasSourceReference<I> for StringLit<I> {
+    fn get_source_ref(&self) -> &I {
+        &self.source
     }
 }
 
-impl<'s> Into<Expression<'s>> for StringLit<'s> {
-    fn into(self) -> Expression<'s> {
+impl<I: Debug + Clone> Into<Expression<I>> for StringLit<I> {
+    fn into(self) -> Expression<I> {
         Expression::StringLit(self)
     }
 }
 
-impl<'s> AstEq for StringLit<'s> {
+impl<I: Debug + Clone> AstEq for StringLit<I> {
     fn ast_eq(fst: &Self, snd: &Self) -> bool {
         fst.inner == snd.inner
     }

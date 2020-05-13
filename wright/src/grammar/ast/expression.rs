@@ -1,13 +1,13 @@
-use crate::grammar::ast::{BooleanLit, CharLit, Name, NumLit, SelfLit, Statement, StringLit};
-use crate::grammar::model::Fragment;
+use crate::grammar::ast::{BooleanLit, CharLit, NumLit, ScopedName, SelfLit, Statement, StringLit};
+use std::fmt::Debug;
 
 /// An expression in parentheses in wright source code.
 #[derive(Clone, Debug)]
-pub struct Parens<'s> {
-    /// Fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct Parens<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// The expression between these parentheses.
-    pub inner: Box<Expression<'s>>,
+    pub inner: Box<Expression<SourceCodeReference>>,
 }
 
 /// The type of binary operation being done.
@@ -39,15 +39,15 @@ pub enum BinaryOp {
 
 /// A binary expression in source code.
 #[derive(Clone, Debug)]
-pub struct BinaryExpression<'s> {
-    /// Fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct BinaryExpression<SourceCodeReference: Debug + Clone> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Operation being done.
     pub op: BinaryOp,
     /// Left side of the expression.
-    pub left: Box<Expression<'s>>,
+    pub left: Box<Expression<SourceCodeReference>>,
     /// Right side of the expression.
-    pub right: Box<Expression<'s>>,
+    pub right: Box<Expression<SourceCodeReference>>,
 }
 
 /// Type of range expression.
@@ -58,9 +58,10 @@ pub enum RangeOperator {
     /// A RangeFrom Expression of the form `n..`.
     RangeFrom,
     /// A RangeFromInclusive Expression of the form `..=n`.
-    RangeToInclusive
+    RangeToInclusive,
 }
 
+// FIXME: link
 /// A RangeTo, RangeFrom, or RangeToInclusive expression.
 /// RangeTo: `..100`.
 /// RangeFrom: `100..`.
@@ -69,13 +70,13 @@ pub enum RangeOperator {
 /// Full range expressions are handled by the
 /// [binary expression parser](struct.BinaryExpression.html).
 #[derive(Debug, Clone)]
-pub struct RangeExpression<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct RangeExpression<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub frag: SourceCodeReference,
     /// The range operator in use.
     pub op: RangeOperator,
     /// The expression being operated on.
-    pub expr: Box<Expression<'s>>,
+    pub expr: Box<Expression<SourceCodeReference>>,
 }
 
 /// Unary expression operators.
@@ -89,77 +90,80 @@ pub enum UnaryOp {
 
 /// A unary expression in source code.
 #[derive(Clone, Debug)]
-pub struct UnaryExpression<'s> {
-    /// Fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct UnaryExpression<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub frag: SourceCodeReference,
     /// The operation being done.
     pub op: UnaryOp,
     /// The expression being operated on.
-    pub inner: Box<Expression<'s>>,
+    pub inner: Box<Expression<SourceCodeReference>>,
 }
 
 /// A block in source code.
 #[derive(Clone, Debug)]
-pub struct Block<'s> {
-    /// The fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct Block<SourceCodeReference: Clone + Debug> {
+    /// The associated source code.
+    pub source: SourceCodeReference,
     /// The statements in this block.
-    pub statements: Vec<Statement<'s>>,
+    pub statements: Vec<Statement<SourceCodeReference>>,
     /// The optional return/result expression.
-    pub result: Option<Box<Expression<'s>>>,
+    pub result: Option<Box<Expression<SourceCodeReference>>>,
 }
 
 /// A conditional expression in wright source code.
 #[derive(Clone, Debug)]
-pub struct Conditional<'s> {
-    /// The associated fragment of source code.
-    pub frag: Fragment<'s>,
+pub struct Conditional<SourceCodeReference: Clone + Debug> {
+    /// The associated source code.
+    pub source: SourceCodeReference,
     /// The primary condition.
-    pub primary: (Box<Expression<'s>>, Block<'s>),
+    pub primary: (
+        Box<Expression<SourceCodeReference>>,
+        Block<SourceCodeReference>,
+    ),
     /// All of the secondary conditions (note that the field is called `elifs`
     /// but in wright code they should use `else if`).
-    pub elifs: Vec<(Expression<'s>, Block<'s>)>,
+    pub elifs: Vec<(Expression<SourceCodeReference>, Block<SourceCodeReference>)>,
     /// The optional else block at the end of the conditional.
-    pub default: Option<Block<'s>>,
+    pub default: Option<Block<SourceCodeReference>>,
 }
 
 /// Indexing expressions such as `array[1]` in wright source code.
 #[derive(Clone, Debug)]
-pub struct IndexExpression<'s> {
-    /// The fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct IndexExpression<SourceCodeReference: Clone + Debug> {
+    /// The associated source code.
+    pub source: SourceCodeReference,
     /// The thing being indexed into. Usually a list, string, or map.
-    pub subject: Box<Expression<'s>>,
+    pub subject: Box<Expression<SourceCodeReference>>,
     /// The indexing key. The thing that goes in the brackets.
-    pub object: Box<Expression<'s>>,
+    pub object: Box<Expression<SourceCodeReference>>,
 }
 
 /// Function call expressions such as `foo(bar, baz)` in wright source code.
 #[derive(Clone, Debug)]
-pub struct FuncCallExpression<'s> {
-    /// The fragment in source code.
-    pub frag: Fragment<'s>,
+pub struct FuncCall<SourceCodeReference: Clone + Debug> {
+    /// The associated source code.
+    pub source: SourceCodeReference,
     /// The function being called
-    pub func: Box<Expression<'s>>,
+    pub func: Box<Expression<SourceCodeReference>>,
     /// The arguments passed to the function
-    pub args: Vec<Expression<'s>>,
+    pub args: Vec<Expression<SourceCodeReference>>,
 }
 
 /// An expression in wright source code.
 #[derive(Clone, Debug)]
 #[allow(missing_docs)]
-pub enum Expression<'s> {
-    NumLit(NumLit<'s>),
-    CharLit(CharLit<'s>),
-    StringLit(StringLit<'s>),
-    BooleanLit(BooleanLit<'s>),
-    Name(Name<'s>),
-    Parens(Parens<'s>),
-    BinaryExpression(BinaryExpression<'s>),
-    UnaryExpression(UnaryExpression<'s>),
-    SelfLit(SelfLit<'s>),
-    Block(Block<'s>),
-    Conditional(Conditional<'s>),
-    IndexExpression(IndexExpression<'s>),
-    FuncCall(FuncCallExpression<'s>),
+pub enum Expression<SourceCodeReference: Clone + Debug> {
+    NumLit(NumLit<SourceCodeReference>),
+    CharLit(CharLit<SourceCodeReference>),
+    StringLit(StringLit<SourceCodeReference>),
+    BooleanLit(BooleanLit<SourceCodeReference>),
+    ScopedName(ScopedName<SourceCodeReference>),
+    Parens(Parens<SourceCodeReference>),
+    BinaryExpression(BinaryExpression<SourceCodeReference>),
+    UnaryExpression(UnaryExpression<SourceCodeReference>),
+    SelfLit(SelfLit<SourceCodeReference>),
+    Block(Block<SourceCodeReference>),
+    Conditional(Conditional<SourceCodeReference>),
+    IndexExpression(IndexExpression<SourceCodeReference>),
+    FuncCall(FuncCall<SourceCodeReference>),
 }

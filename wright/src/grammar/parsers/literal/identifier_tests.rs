@@ -1,10 +1,11 @@
 use crate::grammar::ast::Identifier;
-use crate::grammar::model::Fragment;
-use crate::grammar::parsers::testing::setup;
+use crate::grammar::model::{Fragment, HasSourceReference};
+use crate::grammar::testing::TestingContext;
+use crate::grammar::tracing::input::OptionallyTraceable;
 
 fn test_ident(s: &'static str, should_err: bool) {
-    let (f, h) = setup(s);
-    let fr = Fragment::new(&f, h);
+    let tcx = TestingContext::with(&[s]);
+    let fr = tcx.get_fragment(0);
     let r = Identifier::parse(fr);
     if should_err {
         assert!(r.is_err());
@@ -19,7 +20,7 @@ fn test_ident(s: &'static str, should_err: bool) {
         assert!(r.is_ok());
         let o = r.unwrap();
         assert_eq!(o.0.len(), 0);
-        assert_eq!(o.1.frag.source(), s);
+        assert_eq!(o.1.source.source(), s);
     }
 }
 
@@ -43,4 +44,19 @@ fn test_idents() {
     ["abc", "a_bc", "n0", "xd"]
         .iter()
         .for_each(|s| test_ident(s, false))
+}
+
+#[test]
+fn test_trailing() {
+    TestingContext::with(&["variable "]).test_output(Identifier::parse, 0, |(rem, node)| {
+        assert_eq!(rem.source(), " ");
+        assert_eq!(node.get_source_ref(), "variable");
+    })
+}
+
+#[test]
+fn test_ast_eq() {
+    let ctx = TestingContext::with(&["foo", "foo ", "foo \t\n"]);
+
+    assert!(ctx.ast_eq(Identifier::parse, (0, 1)));
 }

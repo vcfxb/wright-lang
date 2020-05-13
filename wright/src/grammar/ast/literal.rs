@@ -1,42 +1,34 @@
-use crate::grammar::model::Fragment;
+use std::fmt::Debug;
 
 /// An identifier in Wright source code.
-/// There is only one field here, the fragment of source code being referenced.
-/// This is because the identifier itself will be the same as the fragment's
+/// There is only one field here, the source code of the identifier.
+/// This is because the identifier itself will be the same as the
 /// source.
-#[derive(Copy, Clone, Debug)]
-pub struct Identifier<'s> {
-    /// Fragment in wright source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct Identifier<SourceCodeReference: Clone + Debug> {
+    /// Reference to associated source code.
+    pub source: SourceCodeReference,
 }
 
 /// A scoped, or qualified, name.
 #[derive(Clone, Debug)]
-pub struct ScopedName<'s> {
+pub struct ScopedName<SourceCodeReference: Clone + Debug> {
     /// The source code fragment.
-    pub frag: Fragment<'s>,
+    pub source: SourceCodeReference,
     /// The sequence of simple identifiers.
     /// Example: foo::bar::baz -> [ foo, bar ]
-    pub path: Vec<Identifier<'s>>,
+    pub path: Vec<Identifier<SourceCodeReference>>,
     /// The final simple identifier
     /// Example: foo::bar::baz -> baz
-    pub name: Identifier<'s>,
-}
-
-/// Either an identifier or a scoped name.
-#[derive(Clone, Debug)]
-#[allow(missing_docs)]
-pub enum Name<'s> {
-    Identifier(Identifier<'s>),
-    ScopedName(ScopedName<'s>),
+    pub name: Identifier<SourceCodeReference>,
 }
 
 /// Numerical literal in wright source code.
 /// i.e. `10`, `0xCa1a0`, `0b0101_0101`, `100_000`
-#[derive(Copy, Clone, Debug)]
-pub struct NumLit<'s> {
-    /// Associated fragment of source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct NumLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Represented value.
     pub inner: u128,
 }
@@ -45,10 +37,10 @@ pub struct NumLit<'s> {
 /// i.e `'a', '\n', '\u{01f441}', '\x00', '♦'`
 /// see [this page](https://doc.rust-lang.org/reference/tokens.html#ascii-escapes) for escape
 /// information.
-#[derive(Copy, Clone, Debug)]
-pub struct CharLit<'s> {
-    /// Associated fragment of source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct CharLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Represented Value.
     pub inner: char,
 }
@@ -60,9 +52,9 @@ pub struct CharLit<'s> {
 /// Raw-strings and Byte-strings (like those in rust) are not currently
 /// supported but may be added in the future.
 #[derive(Clone, Debug)]
-pub struct StringLit<'s> {
-    /// Associated fragment of source code.
-    pub frag: Fragment<'s>,
+pub struct StringLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Represented string value. (not a reference into source code because
     /// source code may contain escaped characters.)
     pub inner: String,
@@ -70,17 +62,17 @@ pub struct StringLit<'s> {
 
 /// Boolean literal in wright source code.
 /// i.e. `true`, `false`.
-#[derive(Copy, Clone, Debug)]
-pub struct BooleanLit<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct BooleanLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
     /// Represented value.
     pub inner: bool,
 }
 
 /// `self` literal in wright source code.
-#[derive(Copy, Clone, Debug)]
-pub struct SelfLit<'s> {
-    /// Associated fragment in source code.
-    pub frag: Fragment<'s>,
+#[derive(Clone, Debug)]
+pub struct SelfLit<SourceCodeReference: Clone + Debug> {
+    /// Associated source code.
+    pub source: SourceCodeReference,
 }
