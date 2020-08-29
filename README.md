@@ -4,7 +4,7 @@
 | Service | Badge |
 |:---:|:---:|
 | Travic CI | [![Build Status](https://travis-ci.org/Wright-Language-Developers/Wright-lang.svg?branch=master)](https://travis-ci.org/Wright-Language-Developers/Wright-lang) |
-| GitHub Action CI | ![Rust](https://github.com/Wright-Language-Developers/Wright-lang/workflows/Rust/badge.svg?branch=master) |
+| GitHub Action CI | [![Rust](https://github.com/Wright-Language-Developers/Wright-lang/workflows/Rust/badge.svg?branch=master)](https://github.com/Wright-Language-Developers/Wright-lang/actions?query=workflow%3ARust) |
 | Appveyor CI | [![Build status](https://ci.appveyor.com/api/projects/status/yr6o2fx7an0dhyog?svg=true)](https://ci.appveyor.com/project/Alfriadox/wright-lang) |
 | Code Coverage | [![Coverage Status](https://coveralls.io/repos/github/Wright-Language-Developers/Wright-lang/badge.svg?branch=master)](https://coveralls.io/github/Wright-Language-Developers/Wright-lang?branch=master) |
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
