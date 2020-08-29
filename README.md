@@ -5,7 +5,7 @@
 |:---:|:---:|
 | Travic CI | [![Build Status](https://travis-ci.org/Wright-Language-Developers/Wright-lang.svg?branch=master)](https://travis-ci.org/Wright-Language-Developers/Wright-lang) |
 | GitHub Action CI | ![Rust](https://github.com/Wright-Language-Developers/Wright-lang/workflows/Rust/badge.svg?branch=master) |
-| Appveyor CI | [![Build status](https://ci.appveyor.com/api/projects/status/kh76mn7ly95kish3?svg=true)](https://ci.appveyor.com/project/WrightLanguage/wright-lang) |
+| Appveyor CI | [![Build status](https://ci.appveyor.com/api/projects/status/kh76mn7ly95kish3?svg=true)](https://ci.appveyor.com/project/Alfriadox/wright-lang) |
 | Code Coverage | [![Coverage Status](https://coveralls.io/repos/github/Wright-Language-Developers/Wright-lang/badge.svg?branch=master)](https://coveralls.io/github/Wright-Language-Developers/Wright-lang?branch=master) |
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
 | Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |
