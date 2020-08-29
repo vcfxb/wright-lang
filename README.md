@@ -8,7 +8,7 @@
 | Appveyor CI | [![Build status](https://ci.appveyor.com/api/projects/status/yr6o2fx7an0dhyog?svg=true)](https://ci.appveyor.com/project/Alfriadox/wright-lang) |
 | Code Coverage | [![Coverage Status](https://coveralls.io/repos/github/Wright-Language-Developers/Wright-lang/badge.svg?branch=master)](https://coveralls.io/github/Wright-Language-Developers/Wright-lang?branch=master) |
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
-| Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |
+| Crates.io | [[![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright)](https://crates.io/crates/wright) |
 | GitHub release | [![GitHub release](https://img.shields.io/github/release/Wright-Language-Developers/Wright-lang.svg)](https://github.com/Wright-Language-Developers/Wright-lang/releases) |
 | GitHub (pre-)release | [![GitHub (pre-)release](https://img.shields.io/github/release/Wright-Language-Developers/Wright-lang/all.svg)](https://github.com/Wright-Language-Developers/Wright-lang/releases) |
 | Average Issue resolution | [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Wright-Language-Developers/Wright-lang.svg)](https://isitmaintained.com/project/Wright-Language-Developers/Wright-lang "Average time to resolve an issue") |
@@ -20,8 +20,8 @@
 | Total |![Github All Releases](https://img.shields.io/github/downloads/Wright-Language-Developers/Wright-lang/total.svg) |
 | Releases | ![Github Releases](https://img.shields.io/github/downloads/Wright-Language-Developers/Wright-lang/latest/total.svg) |
 | Pre-Releases| ![Github Pre-Releases](https://img.shields.io/github/downloads-pre/Wright-Language-Developers/Wright-lang/latest/total.svg) |
-| Crates.io | ![Crates.io](https://img.shields.io/crates/d/wright.svg) |
-| Crates.io (Latest) | ![Crates.io](https://img.shields.io/crates/dv/wright.svg) |
+| Crates.io | [![Crates.io](https://img.shields.io/crates/d/wright.svg)](https://crates.io/crates/wright) |
+| Crates.io (Latest) | [![Crates.io](https://img.shields.io/crates/dv/wright.svg)](https://crates.io/crates/wright/0.8.0) |
 
 
 Wright is a lightweight programming language heavily inspired by Rust. Wright aims to take advantage of some of 
