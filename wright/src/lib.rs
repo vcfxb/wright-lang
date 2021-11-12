@@ -12,12 +12,6 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::Read;
 
-/// Wright grammar module.
-pub mod grammar;
-
-/// Wright virtual machine module.
-pub mod vm;
-
 /// Enum of possible intermediate representations which can be emitted.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Emit {
