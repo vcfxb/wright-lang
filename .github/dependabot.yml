@@ -1,0 +1,7 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/wright"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
