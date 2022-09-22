@@ -1,0 +1,11 @@
+
+func fizzbuzz(i: integer) {
+    if i % 15 == 0 { println("FizzBuzz"); }
+    else if i % 5 == 0 { println("Buzz"); }
+    else if i % 3 == 0 { println("Fizz"); }
+    else { println(i); }
+}
+
+func main() {
+    (1..=100).for_each(fizzbuzz);
+}
