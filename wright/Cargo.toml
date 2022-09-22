@@ -17,6 +17,7 @@ doctest = true
 doc = true
 
 [dependencies]
+nom = "7.1.1"
 
 [[bin]]
 name = "wright"

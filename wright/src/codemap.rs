@@ -1,8 +1,18 @@
 //! Module to track a map of the source code. 
 
+use std::{collections::HashMap, path::PathBuf};
+
 /// Map of full source code, including perhaps multiple files
 pub struct CodeMap {
+    /// The files inclduded in this code map.
+    files: HashMap<PathBuf, FileMap>,
+}
 
+impl CodeMap {
+    /// Constrcut a new empty code map.
+    pub fn new() -> Self {
+        Self { files: HashMap::new() }
+    }
 }
 
 /// Map of source code contained in a single file. 

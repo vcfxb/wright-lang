@@ -5,4 +5,6 @@
 
 pub mod error;
 pub mod codemap;
-pub mod lexer;
+pub mod util;
+pub mod parsers;
+pub mod ast;

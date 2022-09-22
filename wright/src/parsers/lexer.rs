@@ -1,14 +1,16 @@
 //! The wright lexer. This module is responsible for lexical analysis and initial processing of source code. 
 
+// This may change to `usize` or something later. 
+/// Type used to represent the length of a given token. 
+pub type TokenLength = u32;
+
 /// Token of Wright source code. 
 #[derive(Clone, Copy)]
 pub struct Token {
     /// What type of token is it?
     variant: TokenTy,
-    /// Where is it? (byte index into source file useful via a [crate::codemap::FileMap])
-    index: usize,
     /// How many bytes of source code long is it? Note this doesn't necessarily mean how many characters long it is.
-    length: usize,
+    length: TokenLength,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -59,32 +61,13 @@ pub enum TokenTy {
     /// A character literal in source code.
     CharLit,
 
-    /// A non-keyword identifier in source code (such as a variable name). 
+    /// A identifier in source code (such as a variable name). At this stage keywords (such as 'struct') are 
+    /// also considered identifiers. 
     Identifier, 
-
-    /// A keyword (such as 'class' 'struct' or 'enum')
-    Keyword(Keyword)
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum Keyword {
-    Let,
-    Mut,
-    Fn,
-    Class,
-    Struct,
-    Impl,
-    If,
-    Else,
-}
 
-pub enum LexerError {
-    /// Unfinished string literal. 
-    UnfinishedStringLit { 
-        /// Byte location in source file of the first quote. 
-        start: usize 
-    }
-}
+
 
 /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation into 
 /// an AST. Ignore comments (lines starting with #, anythign between #* and *#). Return error instead of series of tokens
@@ -103,7 +86,7 @@ pub fn lex(source: &str) -> Vec<Token> {
     while let Some((byte_index, character)) = iterator.next() {
         // Single character tokens are so common that I simplify the function to add them to the output vector here. 
         let mut emit_single_char_token = |variant: TokenTy| { 
-            output.push(Token { variant, index: byte_index, length: 1}); 
+            output.push(Token { variant, length: 1}); 
         };
 
         // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
