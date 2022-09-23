@@ -42,10 +42,10 @@ pub struct TraitImplementation {
 
 }
 
-pub struct ComponentDeclaration {
+pub struct ConstraintDeclaration {
 
 }
 
-pub struct ComponentImplementation {
+pub struct ConstraintImplementation {
     
 }
