@@ -46,6 +46,8 @@ pub enum TokenTy {
     Colon,          // :
     Question,       // ?
     Dot,            // .
+    Range,          // ..
+    RangeInclusive, // ..=
     Comma,          // ,
     LeftSquare,     // [
     RightSquare,    // ]
@@ -67,8 +69,6 @@ pub enum TokenTy {
 }
 
 
-
-
 /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation into 
 /// an AST. Ignore comments (lines starting with #, anythign between #* and *#). Return error instead of series of tokens
 /// if there is an unfinished sting or character literal. 
@@ -86,7 +86,7 @@ pub fn lex(source: &str) -> Vec<Token> {
     while let Some((byte_index, character)) = iterator.next() {
         // Single character tokens are so common that I simplify the function to add them to the output vector here. 
         let mut emit_single_char_token = |variant: TokenTy| { 
-            output.push(Token { variant, length: 1}); 
+            output.push(Token { variant, length: 1 }); 
         };
 
         // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
@@ -97,6 +97,12 @@ pub fn lex(source: &str) -> Vec<Token> {
             ']' => emit_single_char_token(TokenTy::RightSquare),
             '{' => emit_single_char_token(TokenTy::LeftBracket),
             '}' => emit_single_char_token(TokenTy::RightBracket),
+            '@' => emit_single_char_token(TokenTy::At),
+            ':' => emit_single_char_token(TokenTy::Colon),
+            ';' => emit_single_char_token(TokenTy::Semi),
+            '?' => emit_single_char_token(TokenTy::Question),
+            ',' => emit_single_char_token(TokenTy::Comma),
+            '~' => emit_single_char_token(TokenTy::Tilde),
             _ => unimplemented!()
         }
     }
