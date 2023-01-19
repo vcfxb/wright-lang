@@ -15,6 +15,7 @@ pub struct Token {
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum TokenTy {
+    // Operators and parentheses
     LeftParen,      // (
     RightParen,     // )
     Bang,           // !
@@ -54,7 +55,17 @@ pub enum TokenTy {
     LeftBracket,    // {
     RightBracket,   // }
 
-    /// Integer literal. This is a literal integer in source code.
+    /// Whitespace of any kind and length.
+    Whitespace,
+
+    /// Single line comment started with `#`. Optionally `## ` for documentation.
+    SingleLineComment,
+
+    /// Multiline comment between `#*` and `*#`. Starts with `##*` for documentation. 
+    MultilineComment,
+
+    /// Integer literal. This is a literal integer in source code. May include underscores after the leading digit 
+    /// as visual seperators. May also include a prefix such as `0x` or `0o` for hex or octal. 
     IntegerLit,
 
     /// A string literal in source code. 
@@ -66,6 +77,12 @@ pub enum TokenTy {
     /// A identifier in source code (such as a variable name). At this stage keywords (such as 'struct') are 
     /// also considered identifiers. 
     Identifier, 
+
+    /// Unknown character for the lexer. 
+    Unknown,
+
+    /// End of input/file.
+    End,
 }
 
 
@@ -107,5 +124,6 @@ pub fn lex(source: &str) -> Vec<Token> {
         }
     }
 
-    unimplemented!()
+    output.push(Token { variant: TokenTy::End, length: 0});
+    return output;
 }
