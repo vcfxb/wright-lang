@@ -224,7 +224,26 @@ impl<'a> Lexer<'a> {
                     } else {
                         lexer.emit_single_byte_token(TokenTy::Dot);
                     }
-                },
+                }
+
+                // Whitespace gets consumed and combined into a single token.
+                whitespace if whitespace.is_whitespace() => {
+                    // Save the starting byte index of the whitespace.
+                    let mut size = whitespace.len_utf8();
+                    // Consume all the whitespace characters available.
+                    while lexer
+                        .iterator
+                        .peek()
+                        .filter(|(_, next)| next.is_whitespace())
+                        .is_some()
+                    {
+                        // Add the byte length of the consumed character to the consumed size.
+                        let (_, next) = lexer.next().unwrap();
+                        size += next.len_utf8();
+                    }
+                    // Emit the whitespace token.
+                    lexer.emit_token(TokenTy::Whitespace, size);
+                }
 
                 _ => unimplemented!(),
             }
