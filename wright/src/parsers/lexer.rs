@@ -27,6 +27,9 @@ pub enum TokenTy {
     And,            // &
     AndEq,          // &=
     AndAnd,         // &&
+    Or,             // |
+    OrEq,           // |=
+    OrOr,           // ||
     Star,           // *
     StarEq,         // *=
     Plus,           // +
@@ -137,6 +140,27 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    /// The & and | operators can be combined with a '=' for an assignment operator or can be doubled to be
+    /// short-circuiting. This function checks for assumes that a single byte character has already been consumed from
+    /// the iterator and checks to see if it's followed by either the supplied character `c` or the character '='. If it's followed
+    /// by the supplied character then this function emits the `doubled` token. If it's followed by an equals sign, the `with_eq` token is emitted.
+    /// Otherwise the `without` token is emitted.
+    fn possible_eq_or_double(
+        &mut self,
+        c: char,
+        without: TokenTy,
+        with_eq: TokenTy,
+        doubled: TokenTy,
+    ) {
+        if self.consume_if_eq(c) > 0 {
+            self.emit_token(doubled, c.len_utf8() + 1)
+        } else if self.consume_if_eq('=') > 0 {
+            self.emit_token(with_eq, 2)
+        } else {
+            self.emit_single_byte_token(without)
+        }
+    }
+
     /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation
     /// into an AST. Return error instead of series of tokens if there is an unfinished sting or character literal.
     pub fn lex(source: &str) -> Vec<Token> {
@@ -153,7 +177,7 @@ impl<'a> Lexer<'a> {
 
         // Work our way through the iterator using a `while let` loop to destructructure the items as we work through and
         // make it slightly clearer that we mutate the iterator during the loop if we find the start of a string.
-        while let Some((_, character)) = lexer.next() {
+        while let Some((byte_index, character)) = lexer.next() {
             // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
             match character {
                 // Single character tokens.
@@ -182,6 +206,12 @@ impl<'a> Lexer<'a> {
                 '=' => lexer.possible_eq_upgrade(TokenTy::Eq, TokenTy::EqEq),
                 '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
 
+                // Tokens that can be followed by themselves or an equal sign.
+                '&' => {
+                    lexer.possible_eq_or_double('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd)
+                }
+                '|' => lexer.possible_eq_or_double('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
+
                 // One or more character tokens that do not follow the _= form.
                 '.' => {
                     // Check for `..` or `..=`.
@@ -194,7 +224,7 @@ impl<'a> Lexer<'a> {
                     } else {
                         lexer.emit_single_byte_token(TokenTy::Dot);
                     }
-                }
+                },
 
                 _ => unimplemented!(),
             }
