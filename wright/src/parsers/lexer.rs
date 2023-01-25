@@ -1,6 +1,11 @@
 //! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
 
-use std::{iter::Peekable, str::CharIndices};
+use std::{
+    iter::Peekable,
+    str::{CharIndices, Chars},
+};
+
+use nom::character;
 
 /// Token of Wright source code.
 #[derive(Clone, Copy, Debug)]
@@ -94,7 +99,7 @@ pub enum TokenTy {
 #[derive(Debug)]
 pub struct Lexer<'a> {
     /// Iterator over the indexed input characters tied to the lifetime of the source code.
-    iterator: Peekable<CharIndices<'a>>,
+    iterator: Peekable<Chars<'a>>,
 
     /// Lexer output.
     output: Vec<Token>,
@@ -102,14 +107,14 @@ pub struct Lexer<'a> {
 
 impl<'a> Lexer<'a> {
     /// Consume and return the next item from this object's iterator.
-    fn next(&mut self) -> Option<(usize, char)> {
+    fn next(&mut self) -> Option<char> {
         self.iterator.next()
     }
 
     /// Consume a character from the iterator if it is equal to the one passed to this function. Return the number of
     /// bytes consumed from the iterator.
     fn consume_if_eq(&mut self, c: char) -> usize {
-        if let Some(_) = self.iterator.next_if(|tuple| tuple.1 == c) {
+        if let Some(_) = self.iterator.next_if(|next| *next == c) {
             c.len_utf8()
         } else {
             0
@@ -172,12 +177,12 @@ impl<'a> Lexer<'a> {
         // Create lexer object to operate on.
         let mut lexer = Lexer {
             output: Vec::new(),
-            iterator: source.char_indices().peekable(),
+            iterator: source.chars().peekable(),
         };
 
         // Work our way through the iterator using a `while let` loop to destructructure the items as we work through and
         // make it slightly clearer that we mutate the iterator during the loop if we find the start of a string.
-        while let Some((byte_index, character)) = lexer.next() {
+        while let Some(character) = lexer.next() {
             // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
             match character {
                 // Single character tokens.
@@ -212,7 +217,7 @@ impl<'a> Lexer<'a> {
                 }
                 '|' => lexer.possible_eq_or_double('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
 
-                // One or more character tokens that do not follow the _= form.
+                // Dot and range tokens which do not follow any other patern.
                 '.' => {
                     // Check for `..` or `..=`.
                     if lexer.consume_if_eq('.') == 1 {
@@ -234,12 +239,11 @@ impl<'a> Lexer<'a> {
                     while lexer
                         .iterator
                         .peek()
-                        .filter(|(_, next)| next.is_whitespace())
+                        .filter(|c| c.is_whitespace())
                         .is_some()
                     {
                         // Add the byte length of the consumed character to the consumed size.
-                        let (_, next) = lexer.next().unwrap();
-                        size += next.len_utf8();
+                        size += lexer.next().unwrap().len_utf8();
                     }
                     // Emit the whitespace token.
                     lexer.emit_token(TokenTy::Whitespace, size);
