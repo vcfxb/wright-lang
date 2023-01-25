@@ -1,10 +1,10 @@
 #![warn(missing_copy_implementations)]
 
-//! The wright programming language crate. This is being re-written from the ground up as of September 2022. 
-//! 
+//! The wright programming language crate. This is being re-written from the ground up as of September 2022.
+//!
 
-pub mod error;
-pub mod codemap;
-pub mod util;
-pub mod parsers;
 pub mod ast;
+pub mod codemap;
+pub mod error;
+pub mod parsers;
+pub mod util;

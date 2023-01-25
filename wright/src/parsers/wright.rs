@@ -1,5 +1,5 @@
-//! Top-level wright syntax parser. 
-//! 
+//! Top-level wright syntax parser.
+//!
 
 pub fn parse() {
     unimplemented!()

@@ -1,19 +1,17 @@
-//! The wright lexer. This module is responsible for lexical analysis and initial processing of source code. 
+//! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
 
-// This may change to `usize` or something later. 
-/// Type used to represent the length of a given token. 
-pub type TokenLength = u32;
+use std::{iter::Peekable, str::CharIndices};
 
-/// Token of Wright source code. 
-#[derive(Clone, Copy)]
+/// Token of Wright source code.
+#[derive(Clone, Copy, Debug)]
 pub struct Token {
     /// What type of token is it?
-    variant: TokenTy,
+    pub variant: TokenTy,
     /// How many bytes of source code long is it? Note this doesn't necessarily mean how many characters long it is.
-    length: TokenLength,
+    pub length: usize,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum TokenTy {
     // Operators and parentheses
     LeftParen,      // (
@@ -59,71 +57,151 @@ pub enum TokenTy {
     Whitespace,
 
     /// Single line comment started with `#`. Optionally `## ` for documentation.
-    SingleLineComment,
+    SingleLineComment {
+        is_doc: bool,
+    },
 
-    /// Multiline comment between `#*` and `*#`. Starts with `##*` for documentation. 
-    MultilineComment,
+    /// Multiline comment between `#*` and `*#`. Starts with `##*` for documentation.
+    MultilineComment {
+        is_doc: bool,
+    },
 
-    /// Integer literal. This is a literal integer in source code. May include underscores after the leading digit 
-    /// as visual seperators. May also include a prefix such as `0x` or `0o` for hex or octal. 
+    /// Integer literal. This is a literal integer in source code. May include underscores after the leading digit
+    /// as visual seperators. May also include a prefix such as `0x` or `0o` for hex or octal.
     IntegerLit,
 
-    /// A string literal in source code. 
+    /// A string literal in source code.
     StringLit,
 
     /// A character literal in source code.
     CharLit,
 
-    /// A identifier in source code (such as a variable name). At this stage keywords (such as 'struct') are 
-    /// also considered identifiers. 
-    Identifier, 
+    /// A identifier in source code (such as a variable name). At this stage keywords (such as 'struct') are
+    /// also considered identifiers.
+    Identifier,
 
-    /// Unknown character for the lexer. 
+    /// Unknown character for the lexer.
     Unknown,
 
     /// End of input/file.
     End,
 }
 
+/// Lexical analyzer for wright code. This struct host functions that produce tokens from wright source.
+#[derive(Debug)]
+pub struct Lexer<'a> {
+    /// Iterator over the indexed input characters tied to the lifetime of the source code.
+    iterator: Peekable<CharIndices<'a>>,
 
-/// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation into 
-/// an AST. Ignore comments (lines starting with #, anythign between #* and *#). Return error instead of series of tokens
-/// if there is an unfinished sting or character literal. 
-pub fn lex(source: &str) -> Vec<Token> {
-    // Return no tokens if there is no source.
-    if source.is_empty() { return Vec::new(); }
-    // Create output vec.
-    let mut output: Vec<Token> = Vec::new();
-    // For now (until I care enough to go back and optimize this, we'll just iterate through the characters of the string).
-    // We used char_indices here though because I want to know my byte offset into the string.
-    let mut iterator = source.char_indices();
+    /// Lexer output.
+    output: Vec<Token>,
+}
 
-    // Work our way through the iterator using a `while let` loop to destructructure the items as we work through and 
-    // make it slightly clearer that we mutate the iterator during the loop if we find the start of a string.  
-    while let Some((byte_index, character)) = iterator.next() {
-        // Single character tokens are so common that I simplify the function to add them to the output vector here. 
-        let mut emit_single_char_token = |variant: TokenTy| { 
-            output.push(Token { variant, length: 1 }); 
-        };
+impl<'a> Lexer<'a> {
+    /// Consume and return the next item from this object's iterator.
+    fn next(&mut self) -> Option<(usize, char)> {
+        self.iterator.next()
+    }
 
-        // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
-        match character {
-            '(' => emit_single_char_token(TokenTy::LeftParen),
-            ')' => emit_single_char_token(TokenTy::RightParen),
-            '[' => emit_single_char_token(TokenTy::LeftSquare),
-            ']' => emit_single_char_token(TokenTy::RightSquare),
-            '{' => emit_single_char_token(TokenTy::LeftBracket),
-            '}' => emit_single_char_token(TokenTy::RightBracket),
-            '@' => emit_single_char_token(TokenTy::At),
-            ':' => emit_single_char_token(TokenTy::Colon),
-            ';' => emit_single_char_token(TokenTy::Semi),
-            '?' => emit_single_char_token(TokenTy::Question),
-            ',' => emit_single_char_token(TokenTy::Comma),
-            '~' => emit_single_char_token(TokenTy::Tilde),
-            _ => unimplemented!()
+    /// Consume a character from the iterator if it is equal to the one passed to this function. Return the number of
+    /// bytes consumed from the iterator.
+    fn consume_if_eq(&mut self, c: char) -> usize {
+        if let Some(_) = self.iterator.next_if(|tuple| tuple.1 == c) {
+            c.len_utf8()
+        } else {
+            0
         }
     }
 
-    output.push(Token { variant: TokenTy::End, length: 0});
-    return output;
+    /// Add a token on to the output vector.
+    fn emit_token(&mut self, variant: TokenTy, bytes: usize) {
+        self.output.push(Token {
+            variant,
+            length: bytes,
+        });
+    }
+
+    /// Add a token to the output vector with a length of 1.
+    fn emit_single_byte_token(&mut self, variant: TokenTy) {
+        self.emit_token(variant, 1);
+    }
+
+    // Assignment versions of operators are very common (e.g. + and +=, - and -=).
+    // This function will check for the equals sign and emit the correct token as necessary.
+    // This assumes the first character has already been consumed from the iterator and is 1 byte.
+    fn possible_eq_upgrade(&mut self, without: TokenTy, with: TokenTy) {
+        if self.consume_if_eq('=') == 1 {
+            self.emit_token(with, 2);
+        } else {
+            self.emit_single_byte_token(without);
+        }
+    }
+
+    /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation
+    /// into an AST. Return error instead of series of tokens if there is an unfinished sting or character literal.
+    pub fn lex(source: &str) -> Vec<Token> {
+        // Return no tokens if there is no source.
+        if source.is_empty() {
+            return Vec::new();
+        }
+
+        // Create lexer object to operate on.
+        let mut lexer = Lexer {
+            output: Vec::new(),
+            iterator: source.char_indices().peekable(),
+        };
+
+        // Work our way through the iterator using a `while let` loop to destructructure the items as we work through and
+        // make it slightly clearer that we mutate the iterator during the loop if we find the start of a string.
+        while let Some((_, character)) = lexer.next() {
+            // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
+            match character {
+                // Single character tokens.
+                '(' => lexer.emit_single_byte_token(TokenTy::LeftParen),
+                ')' => lexer.emit_single_byte_token(TokenTy::RightParen),
+                '[' => lexer.emit_single_byte_token(TokenTy::LeftSquare),
+                ']' => lexer.emit_single_byte_token(TokenTy::RightSquare),
+                '{' => lexer.emit_single_byte_token(TokenTy::LeftBracket),
+                '}' => lexer.emit_single_byte_token(TokenTy::RightBracket),
+                '@' => lexer.emit_single_byte_token(TokenTy::At),
+                ':' => lexer.emit_single_byte_token(TokenTy::Colon),
+                ';' => lexer.emit_single_byte_token(TokenTy::Semi),
+                '?' => lexer.emit_single_byte_token(TokenTy::Question),
+                ',' => lexer.emit_single_byte_token(TokenTy::Comma),
+                '~' => lexer.emit_single_byte_token(TokenTy::Tilde),
+
+                // Tokens that can possibly be followed by an equal sign.
+                '!' => lexer.possible_eq_upgrade(TokenTy::Bang, TokenTy::BangEq),
+                '%' => lexer.possible_eq_upgrade(TokenTy::Mod, TokenTy::ModEq),
+                '^' => lexer.possible_eq_upgrade(TokenTy::Xor, TokenTy::XorEq),
+                '*' => lexer.possible_eq_upgrade(TokenTy::Star, TokenTy::StarEq),
+                '+' => lexer.possible_eq_upgrade(TokenTy::Plus, TokenTy::PlusEq),
+                '-' => lexer.possible_eq_upgrade(TokenTy::Minus, TokenTy::MinusEq),
+                '<' => lexer.possible_eq_upgrade(TokenTy::Lt, TokenTy::LtEq),
+                '>' => lexer.possible_eq_upgrade(TokenTy::Gt, TokenTy::GtEq),
+                '=' => lexer.possible_eq_upgrade(TokenTy::Eq, TokenTy::EqEq),
+                '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
+
+                // One or more character tokens that do not follow the _= form.
+                '.' => {
+                    // Check for `..` or `..=`.
+                    if lexer.consume_if_eq('.') == 1 {
+                        if lexer.consume_if_eq('=') == 1 {
+                            lexer.emit_token(TokenTy::RangeInclusive, 3);
+                        } else {
+                            lexer.emit_token(TokenTy::Range, 2);
+                        }
+                    } else {
+                        lexer.emit_single_byte_token(TokenTy::Dot);
+                    }
+                }
+
+                _ => unimplemented!(),
+            }
+        }
+
+        // Push end token,
+        lexer.emit_token(TokenTy::End, 0);
+        return lexer.output;
+    }
 }
