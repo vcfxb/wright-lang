@@ -59,14 +59,16 @@ pub enum TokenTy {
     /// Whitespace of any kind and length.
     Whitespace,
 
-    /// Single line comment started with `#`. Optionally `## ` for documentation.
+    /// Single line comment started with `#`. Optionally `## ` or `##! ` for documentation.
     SingleLineComment {
-        is_doc: bool,
+        comment_type: CommentTy,
     },
 
-    /// Multiline comment between `#*` and `*#`. Starts with `##*` for documentation.
+    /// Multiline comment between `#*` and `*#`. Starts with `#**` or `#*!` for documentation.
     MultilineComment {
-        is_doc: bool,
+        comment_type: CommentTy,
+        /// Is this comment terminated? If not raise an error before parsing the tokens.
+        terminated: bool,
     },
 
     /// Integer literal. This is a literal integer in source code. May include underscores after the leading digit
@@ -88,6 +90,17 @@ pub enum TokenTy {
 
     /// End of input/file.
     End,
+}
+
+/// Different types of comments.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CommentTy {
+    /// Normal comment that does not get used in documentation.
+    Normal,
+    /// Documentation for a declaration in the file.
+    InnerDoc,
+    /// Documentation for the file itself.
+    OuterDoc,
 }
 
 /// Lexical analyzer for wright code. This struct host functions that produce tokens from wright source.
@@ -159,6 +172,44 @@ impl<'a> Lexer<'a> {
         } else {
             self.emit_single_byte_token(without)
         }
+    }
+
+    /// Read through the next occurrence of `c`. Return the total number of bytes consumed from the iterator. If `c` is
+    /// not found, read to the end of the iterator.
+    fn read_through(&mut self, c: char) -> usize {
+        let mut acc = 0;
+        while let Some(next) = self.next() {
+            acc += next.len_utf8();
+            if next == c {
+                break;
+            }
+        }
+        return acc;
+    }
+
+    /// Make the lexer read through the next `*#` or to the end of the file. If a closing pattern (`*#`) is not found,
+    /// the boolean is set to false in the return.  
+    fn read_through_end_of_multiline_comment(&mut self) -> (usize, bool) {
+        let mut acc = 0;
+        let mut seen_star = false;
+        while let Some(c) = self.next() {
+            // Add consumed character to accumulator.
+            acc += c.len_utf8();
+
+            // If we see a pound just after a star, return Ok.
+            if c == '#' && seen_star {
+                return (acc, true);
+            }
+
+            // If we see a star, set the flag, otherwise, unset it.
+            if c == '*' {
+                seen_star = true;
+            } else {
+                seen_star = false;
+            }
+        }
+        // If we finish the loop with no return, we have hit the end of the file.
+        return (acc, false);
     }
 
     /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation
@@ -242,6 +293,90 @@ impl<'a> Lexer<'a> {
                     }
                     // Emit the whitespace token.
                     lexer.emit_token(TokenTy::Whitespace, size);
+                }
+
+                // Comments. There are a few variants as follows.
+                // `#...` - single line comment
+                // `#*...*#` - multiline comment
+                // `##...` - sinlge line inner doc comment
+                // `##!...` - single line outer doc comment
+                // `#**...*#` - multiline inner doc comment
+                // `#*!...*#` - multiline outer doc comment
+                // If a multiline comment is not terminated by the end of the file then just mark it as such in the
+                // produced token. A seperate token error handling layer will raise that outside of this function.
+                '#' => {
+                    // If the second character is a star, this is a multiline comment.
+                    if lexer.consume_if_eq('*') > 0 {
+                        if lexer.consume_if_eq('*') > 0 {
+                            // Inner doc comment
+                            let (consumed, terminated) =
+                                lexer.read_through_end_of_multiline_comment();
+                            // Add 3 for consumed `#**`.
+                            lexer.emit_token(
+                                TokenTy::MultilineComment {
+                                    comment_type: CommentTy::InnerDoc,
+                                    terminated,
+                                },
+                                consumed + 3,
+                            );
+                        } else if lexer.consume_if_eq('!') > 0 {
+                            // Outer doc comment
+                            let (consumed, terminated) =
+                                lexer.read_through_end_of_multiline_comment();
+                            // Add 3 for consumed `#*!`.
+                            lexer.emit_token(
+                                TokenTy::MultilineComment {
+                                    comment_type: CommentTy::OuterDoc,
+                                    terminated,
+                                },
+                                consumed + 3,
+                            );
+                        } else {
+                            // Normal multiline comment.
+                            let (consumed, terminated) =
+                                lexer.read_through_end_of_multiline_comment();
+                            // Add two to the bytes for the prefix `#*`.
+                            lexer.emit_token(
+                                TokenTy::MultilineComment {
+                                    comment_type: CommentTy::Normal,
+                                    terminated,
+                                },
+                                consumed + 2,
+                            );
+                        }
+                    } else if lexer.consume_if_eq('#') > 0 {
+                        // If the second character is a `#` then this is a single line doc comment.
+                        if lexer.consume_if_eq('!') > 0 {
+                            // This is an outer doc comment. Add the three bytes already read to the number before the
+                            // end of the line.
+                            let consumed = 3 + lexer.read_through('\n');
+                            lexer.emit_token(
+                                TokenTy::SingleLineComment {
+                                    comment_type: CommentTy::OuterDoc,
+                                },
+                                consumed,
+                            );
+                        } else {
+                            // Read to the end of the line and emit the inner doc comment.
+                            let consumed = 2 + lexer.read_through('\n');
+                            lexer.emit_token(
+                                TokenTy::SingleLineComment {
+                                    comment_type: CommentTy::InnerDoc,
+                                },
+                                consumed,
+                            );
+                        }
+                    } else {
+                        // Normal single line comment.
+                        // Read to end of line/file. Add one for the `#` already read.
+                        let consumed = 1 + lexer.read_through('\n');
+                        lexer.emit_token(
+                            TokenTy::SingleLineComment {
+                                comment_type: CommentTy::Normal,
+                            },
+                            consumed,
+                        );
+                    }
                 }
 
                 _ => unimplemented!(),
