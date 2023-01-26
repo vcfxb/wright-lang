@@ -379,7 +379,8 @@ impl<'a> Lexer<'a> {
                     }
                 }
 
-                _ => unimplemented!(),
+                // Emit an unknown token for all not caught above.
+                other => lexer.emit_token(TokenTy::Unknown, other.len_utf8()),
             }
         }
 
