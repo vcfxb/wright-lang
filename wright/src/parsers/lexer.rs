@@ -1,11 +1,6 @@
 //! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
 
-use std::{
-    iter::Peekable,
-    str::{CharIndices, Chars},
-};
-
-use nom::character;
+use std::{iter::Peekable, str::Chars};
 
 /// Token of Wright source code.
 #[derive(Clone, Copy, Debug)]

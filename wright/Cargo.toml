@@ -1,9 +1,9 @@
 [package]
 name = "wright"
-description = "The rust package and API for the wright programming language."
+description = "The wright programming language interpreter."
 license = "MIT"
 version = "0.10.0"
-authors = ["Antonia Calia-Bogan <acaliabogan@gmail.com>"]
+authors = ["Venus Xeon-Blonde <venusflameblonde@gmail.com>"]
 repository = "https://github.com/Alfriadox/wright-lang"
 documentation = "https://docs.rs/wright"
 readme = "../README.md"
@@ -17,7 +17,7 @@ doctest = true
 doc = true
 
 [dependencies]
-nom = "7.1.1"
+codespan-reporting = "0.11.1"
 
 [[bin]]
 name = "wright"
