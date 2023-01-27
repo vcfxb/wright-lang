@@ -38,8 +38,10 @@ pub enum TokenTy {
     MinusEq,        // -=
     Gt,             // >
     GtEq,           // >=
+    ShiftRight,     // >>
     Lt,             // <
     LtEq,           // <=
+    ShiftLeft,      // <<
     Eq,             // =
     EqEq,           // ==
     Div,            // /
@@ -252,8 +254,6 @@ impl<'a> Lexer<'a> {
                 '*' => lexer.possible_eq_upgrade(TokenTy::Star, TokenTy::StarEq),
                 '+' => lexer.possible_eq_upgrade(TokenTy::Plus, TokenTy::PlusEq),
                 '-' => lexer.possible_eq_upgrade(TokenTy::Minus, TokenTy::MinusEq),
-                '<' => lexer.possible_eq_upgrade(TokenTy::Lt, TokenTy::LtEq),
-                '>' => lexer.possible_eq_upgrade(TokenTy::Gt, TokenTy::GtEq),
                 '=' => lexer.possible_eq_upgrade(TokenTy::Eq, TokenTy::EqEq),
                 '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
 
@@ -262,6 +262,15 @@ impl<'a> Lexer<'a> {
                     lexer.possible_eq_or_double('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd)
                 }
                 '|' => lexer.possible_eq_or_double('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
+                '<' => {
+                    lexer.possible_eq_or_double('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft)
+                }
+                '>' => lexer.possible_eq_or_double(
+                    '>',
+                    TokenTy::Gt,
+                    TokenTy::GtEq,
+                    TokenTy::ShiftRight,
+                ),
 
                 // Dot and range tokens which do not follow any other patern.
                 '.' => {
