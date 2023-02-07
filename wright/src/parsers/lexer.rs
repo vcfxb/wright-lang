@@ -1,7 +1,7 @@
 //! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
 
-use std::{iter::Peekable, str::Chars, cmp};
 use derive_more::Display;
+use std::{cmp, iter::Peekable, str::Chars};
 
 /// Token of Wright source code.
 #[derive(Clone, Copy, Debug, Display)]
@@ -367,7 +367,7 @@ impl<'a> Lexer<'a> {
                             consumed,
                         );
                     }
-                },
+                }
 
                 // Identifiers must start with either a unicode XID start character or an underscore.
                 // the rest of them must be unicode XID continue characters.
@@ -375,8 +375,13 @@ impl<'a> Lexer<'a> {
                     // Save the size of this first character consumed.
                     let mut size = c.len_utf8();
                     // Consume all unicode identifier continue characters.
-                    while lexer.iterator.peek().filter(|c| unicode_ident::is_xid_continue(**c)).is_some() {
-                        // Add the length of the consumed char to the consumed size. 
+                    while lexer
+                        .iterator
+                        .peek()
+                        .filter(|c| unicode_ident::is_xid_continue(**c))
+                        .is_some()
+                    {
+                        // Add the length of the consumed char to the consumed size.
                         size += lexer.next().unwrap().len_utf8();
                     }
                     // Emit the identifier token.
@@ -393,12 +398,11 @@ impl<'a> Lexer<'a> {
         return lexer.output;
     }
 
-
-    /// Print in pretty format the source code and the tokens it matched to under it. 
+    /// Print in pretty format the source code and the tokens it matched to under it.
     pub fn debug_pretty_print(source: &str) {
         // This could eventually perhaps be upgraded with codespan but we'll do it manually for now.
 
-        // Get the tokens for the source code. 
+        // Get the tokens for the source code.
         let tokens = Lexer::lex(source);
         // Start the byte index of the cursor at 0.
         let mut byte_index: usize = 0;
@@ -407,10 +411,10 @@ impl<'a> Lexer<'a> {
         // Iterate through tokens and add them to the output.
         for token in tokens.iter() {
             // Get the matching source code for the token.
-            let mut matching_source = source[byte_index..(byte_index+token.length)].to_owned();
+            let mut matching_source = source[byte_index..(byte_index + token.length)].to_owned();
             // Count the newlines to add after processing this token.
             let newline_count = matching_source.chars().filter(|c| *c == '\n').count();
-            // Check if there's a newline in the source token. Also include the end of source code so that we get everything. 
+            // Check if there's a newline in the source token. Also include the end of source code so that we get everything.
             let contains_newline = newline_count > 0 || token.variant == TokenTy::End;
             // Get the display string of the token.
             let token_str = token.to_string();
@@ -418,7 +422,7 @@ impl<'a> Lexer<'a> {
             matching_source = matching_source
                 // Replace tabs with 4 spaces for consistency
                 .replace("\t", "    ")
-                // Replace newline characters with spaces to avoid printing extra lines. 
+                // Replace newline characters with spaces to avoid printing extra lines.
                 .replace("\n", " ")
                 .replace("\r", " ");
 
@@ -432,9 +436,9 @@ impl<'a> Lexer<'a> {
                 }
             }
 
-            // Add source to first line and token info to second line as appopriate. Add two to the source with for the 
+            // Add source to first line and token info to second line as appopriate. Add two to the source with for the
             // square brackets.
-            line_pair[0].push_str(format!("{matching_source:<0$}", width+2).as_str());
+            line_pair[0].push_str(format!("{matching_source:<0$}", width + 2).as_str());
             line_pair[1].push_str(format!("[{token_str:<width$}]").as_str());
 
             if contains_newline {
@@ -443,7 +447,7 @@ impl<'a> Lexer<'a> {
                 // Ensure we add all the newlines in a multiline comment.
                 line_index += newline_count;
             }
-            
+
             byte_index += token.length;
         }
     }
