@@ -1,9 +1,11 @@
 //! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
 
-use std::{iter::Peekable, str::Chars};
+use std::{iter::Peekable, str::Chars, cmp};
+use derive_more::Display;
 
 /// Token of Wright source code.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Display)]
+#[display(fmt = "{} ({}b)", variant, length)]
 pub struct Token {
     /// What type of token is it?
     pub variant: TokenTy,
@@ -11,7 +13,7 @@ pub struct Token {
     pub length: usize,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Display)]
 pub enum TokenTy {
     // Operators and parentheses
     LeftParen,      // (
@@ -59,14 +61,17 @@ pub enum TokenTy {
     RightBracket,   // }
 
     /// Whitespace of any kind and length.
+    #[display(fmt = "W")]
     Whitespace,
 
     /// Single line comment started with `#`. Optionally `## ` or `##! ` for documentation.
+    #[display(fmt = "Single line {} comment", comment_type)]
     SingleLineComment {
         comment_type: CommentTy,
     },
 
     /// Multiline comment between `#*` and `*#`. Starts with `#**` or `#*!` for documentation.
+    #[display(fmt = "Multiline {} comment (terminated = {})", comment_type, terminated)]
     MultilineComment {
         comment_type: CommentTy,
         /// Is this comment terminated? If not raise an error before parsing the tokens.
@@ -85,9 +90,11 @@ pub enum TokenTy {
 
     /// A identifier in source code (such as a variable name). At this stage keywords (such as 'struct') are
     /// also considered identifiers.
+    #[display(fmt = "ID")]
     Identifier,
 
     /// Unknown character for the lexer.
+    #[display(fmt = "?")]
     Unknown,
 
     /// End of input/file.
@@ -95,7 +102,7 @@ pub enum TokenTy {
 }
 
 /// Different types of comments.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Display)]
 pub enum CommentTy {
     /// Normal comment that does not get used in documentation.
     Normal,
@@ -360,6 +367,20 @@ impl<'a> Lexer<'a> {
                             consumed,
                         );
                     }
+                },
+
+                // Identifiers must start with either a unicode XID start character or an underscore.
+                // the rest of them must be unicode XID continue characters.
+                c if unicode_ident::is_xid_start(c) || c == '_' => {
+                    // Save the size of this first character consumed.
+                    let mut size = c.len_utf8();
+                    // Consume all unicode identifier continue characters.
+                    while lexer.iterator.peek().filter(|c| unicode_ident::is_xid_continue(**c)).is_some() {
+                        // Add the length of the consumed char to the consumed size. 
+                        size += lexer.next().unwrap().len_utf8();
+                    }
+                    // Emit the identifier token.
+                    lexer.emit_token(TokenTy::Identifier, size);
                 }
 
                 // Emit an unknown token for all not caught above.
@@ -370,5 +391,60 @@ impl<'a> Lexer<'a> {
         // Push end token,
         lexer.emit_token(TokenTy::End, 0);
         return lexer.output;
+    }
+
+
+    /// Print in pretty format the source code and the tokens it matched to under it. 
+    pub fn debug_pretty_print(source: &str) {
+        // This could eventually perhaps be upgraded with codespan but we'll do it manually for now.
+
+        // Get the tokens for the source code. 
+        let tokens = Lexer::lex(source);
+        // Start the byte index of the cursor at 0.
+        let mut byte_index: usize = 0;
+        let mut line_index: usize = 0;
+        let mut line_pair = [String::new(), String::new()];
+        // Iterate through tokens and add them to the output.
+        for token in tokens.iter() {
+            // Get the matching source code for the token.
+            let mut matching_source = source[byte_index..(byte_index+token.length)].to_owned();
+            // Count the newlines to add after processing this token.
+            let newline_count = matching_source.chars().filter(|c| *c == '\n').count();
+            // Check if there's a newline in the source token. Also include the end of source code so that we get everything. 
+            let contains_newline = newline_count > 0 || token.variant == TokenTy::End;
+            // Get the display string of the token.
+            let token_str = token.to_string();
+            // Replace certain characters in the matching source to avoid pretty printing issues.
+            matching_source = matching_source
+                // Replace tabs with 4 spaces for consistency
+                .replace("\t", "    ")
+                // Replace newline characters with spaces to avoid printing extra lines. 
+                .replace("\n", " ")
+                .replace("\r", " ");
+
+            // Get the width of the display as the max of the two string character (not byte) lengths.
+            let width: usize = cmp::max(token_str.chars().count(), matching_source.chars().count());
+
+            // Add line numbers if the strings are empty.
+            if line_pair[0].is_empty() {
+                for s in line_pair.iter_mut() {
+                    s.push_str(format!("{:03} ({:#010x}): ", line_index, byte_index).as_str());
+                }
+            }
+
+            // Add source to first line and token info to second line as appopriate. Add two to the source with for the 
+            // square brackets.
+            line_pair[0].push_str(format!("{matching_source:<0$}", width+2).as_str());
+            line_pair[1].push_str(format!("[{token_str:<width$}]").as_str());
+
+            if contains_newline {
+                println!("{}\n{}", line_pair[0], line_pair[1]);
+                line_pair = [String::new(), String::new()];
+                // Ensure we add all the newlines in a multiline comment.
+                line_index += newline_count;
+            }
+            
+            byte_index += token.length;
+        }
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "wright"
-description = "The wright programming language interpreter."
+description = "The wright programming language interpreter and tooling."
 license = "MIT"
 version = "0.10.0"
 authors = ["Venus Xeon-Blonde <venusflameblonde@gmail.com>"]
@@ -18,6 +18,10 @@ doc = true
 
 [dependencies]
 codespan-reporting = "0.11.1"
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+derive_more = "0.99.17"
+unicode-ident = "1.0"
 
 [[bin]]
 name = "wright"
