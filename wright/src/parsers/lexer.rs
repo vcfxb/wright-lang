@@ -386,7 +386,7 @@ impl<'a> Lexer<'a> {
                     }
                     // Emit the identifier token.
                     lexer.emit_token(TokenTy::Identifier, size);
-                },
+                }
 
                 // Numerical literals
                 c if c.is_digit(10) => {
@@ -402,19 +402,24 @@ impl<'a> Lexer<'a> {
                                 'X' | 'x' => 16,
                                 'B' | 'b' => 2,
                                 'o' => 8,
-                                _ => unreachable!()
+                                _ => unreachable!(),
                             }
                         }
                     }
 
                     // Consume available characters.
-                    while lexer.iterator.peek().filter(|n| n.is_digit(radix) || **n == '_').is_some() {
+                    while lexer
+                        .iterator
+                        .peek()
+                        .filter(|n| n.is_digit(radix) || **n == '_')
+                        .is_some()
+                    {
                         size += lexer.next().unwrap().len_utf8();
                     }
 
                     // Emit the integer literal token.
                     lexer.emit_token(TokenTy::IntegerLit, size);
-                },
+                }
 
                 // Emit an unknown token for all not caught above.
                 other => lexer.emit_token(TokenTy::Unknown, other.len_utf8()),
@@ -454,8 +459,8 @@ impl<'a> Lexer<'a> {
                 .replace("\n", " ")
                 .replace("\r", " ");
 
-            // Get the width of the display as the max of the two string character (not byte) lengths. Add two to the 
-            // token length to represent the square brackets added later. 
+            // Get the width of the display as the max of the two string character (not byte) lengths. Add two to the
+            // token length to represent the square brackets added later.
             let width: usize = cmp::max(token_str.chars().count() + 2, matching_source.chars().count());
 
             // Add line numbers if the strings are empty.
@@ -468,7 +473,7 @@ impl<'a> Lexer<'a> {
             // Add source to first line and token info to second line as appopriate. Add two to the source with for the
             // square brackets.
             line_pair[0].push_str(format!("{matching_source:<width$}").as_str());
-            line_pair[1].push_str(format!("[{token_str:<0$}]", width-2).as_str());
+            line_pair[1].push_str(format!("[{token_str:<0$}]", width - 2).as_str());
 
             if contains_newline {
                 println!("{}\n{}", line_pair[0], line_pair[1]);
