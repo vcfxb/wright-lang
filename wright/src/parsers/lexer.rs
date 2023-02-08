@@ -79,7 +79,7 @@ pub enum TokenTy {
     },
 
     /// Integer literal. This is a literal integer in source code. May include underscores after the leading digit
-    /// as visual seperators. May also include a prefix such as `0x` or `0o` for hex or octal.
+    /// as visual seperators. May also include a prefix such as `0x`, `0o`, or `0b` for hex, octal, or binary.
     IntegerLit,
 
     /// A string literal in source code.
@@ -386,7 +386,35 @@ impl<'a> Lexer<'a> {
                     }
                     // Emit the identifier token.
                     lexer.emit_token(TokenTy::Identifier, size);
-                }
+                },
+
+                // Numerical literals
+                c if c.is_digit(10) => {
+                    // Save the size of the consumed value.
+                    let mut size = c.len_utf8();
+                    let mut radix = 10;
+
+                    // Check if we need to change radix
+                    for r in ['x', 'o', 'b', 'X', 'B'] {
+                        if lexer.consume_if_eq(r) > 0 {
+                            size += 1;
+                            radix = match r {
+                                'X' | 'x' => 16,
+                                'B' | 'b' => 2,
+                                'o' => 8,
+                                _ => unreachable!()
+                            }
+                        }
+                    }
+
+                    // Consume available characters.
+                    while lexer.iterator.peek().filter(|n| n.is_digit(radix) || **n == '_').is_some() {
+                        size += lexer.next().unwrap().len_utf8();
+                    }
+
+                    // Emit the integer literal token.
+                    lexer.emit_token(TokenTy::IntegerLit, size);
+                },
 
                 // Emit an unknown token for all not caught above.
                 other => lexer.emit_token(TokenTy::Unknown, other.len_utf8()),
@@ -426,8 +454,9 @@ impl<'a> Lexer<'a> {
                 .replace("\n", " ")
                 .replace("\r", " ");
 
-            // Get the width of the display as the max of the two string character (not byte) lengths.
-            let width: usize = cmp::max(token_str.chars().count(), matching_source.chars().count());
+            // Get the width of the display as the max of the two string character (not byte) lengths. Add two to the 
+            // token length to represent the square brackets added later. 
+            let width: usize = cmp::max(token_str.chars().count() + 2, matching_source.chars().count());
 
             // Add line numbers if the strings are empty.
             if line_pair[0].is_empty() {
@@ -438,8 +467,8 @@ impl<'a> Lexer<'a> {
 
             // Add source to first line and token info to second line as appopriate. Add two to the source with for the
             // square brackets.
-            line_pair[0].push_str(format!("{matching_source:<0$}", width + 2).as_str());
-            line_pair[1].push_str(format!("[{token_str:<width$}]").as_str());
+            line_pair[0].push_str(format!("{matching_source:<width$}").as_str());
+            line_pair[1].push_str(format!("[{token_str:<0$}]", width-2).as_str());
 
             if contains_newline {
                 println!("{}\n{}", line_pair[0], line_pair[1]);
