@@ -38,7 +38,7 @@ pub enum TokenTy {
     PlusEq,         // +=
     Minus,          // -
     MinusEq,        // -=
-    SingleArrow,    // -> 
+    SingleArrow,    // ->
     Gt,             // >
     GtEq,           // >=
     ShiftRight,     // >>
@@ -253,7 +253,6 @@ impl<'a> Lexer<'a> {
                 '^' => lexer.possible_eq_upgrade(TokenTy::Xor, TokenTy::XorEq),
                 '*' => lexer.possible_eq_upgrade(TokenTy::Star, TokenTy::StarEq),
                 '+' => lexer.possible_eq_upgrade(TokenTy::Plus, TokenTy::PlusEq),
-                
                 '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
 
                 // Tokens that can be followed by themselves or an equal sign.
@@ -264,7 +263,8 @@ impl<'a> Lexer<'a> {
 
                 // Arrows
                 c if c == '=' || c == '-' => {
-                    let next_if_eq_or_arrow = lexer.iterator
+                    let next_if_eq_or_arrow = lexer
+                        .iterator
                         .peek()
                         .filter(|peeked| **peeked == '=' || **peeked == '>')
                         .is_some()
@@ -272,14 +272,14 @@ impl<'a> Lexer<'a> {
                     match (c, next_if_eq_or_arrow) {
                         ('=', Some('=')) => lexer.emit_token(TokenTy::EqEq, 2),
                         ('=', Some('>')) => lexer.emit_token(TokenTy::DoubleArrow, 2),
-                        ('=', None)      => lexer.emit_single_byte_token(TokenTy::Eq),
+                        ('=', None) => lexer.emit_single_byte_token(TokenTy::Eq),
                         ('-', Some('=')) => lexer.emit_token(TokenTy::MinusEq, 2),
                         ('-', Some('>')) => lexer.emit_token(TokenTy::SingleArrow, 2),
-                        ('-', None)      => lexer.emit_single_byte_token(TokenTy::Minus),
-                        // No other combination should be possible here. 
-                        _ => unreachable!()
+                        ('-', None) => lexer.emit_single_byte_token(TokenTy::Minus),
+                        // No other combination should be possible here.
+                        _ => unreachable!(),
                     }
-                },
+                }
 
                 // Dot and range tokens which do not follow any other patern.
                 '.' => {
