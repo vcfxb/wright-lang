@@ -38,6 +38,7 @@ pub enum TokenTy {
     PlusEq,         // +=
     Minus,          // -
     MinusEq,        // -=
+    SingleArrow,    // -> 
     Gt,             // >
     GtEq,           // >=
     ShiftRight,     // >>
@@ -46,6 +47,7 @@ pub enum TokenTy {
     ShiftLeft,      // <<
     Eq,             // =
     EqEq,           // ==
+    DoubleArrow,    // =>
     Div,            // /
     DivEq,          // /=
     Semi,           // ;
@@ -251,8 +253,7 @@ impl<'a> Lexer<'a> {
                 '^' => lexer.possible_eq_upgrade(TokenTy::Xor, TokenTy::XorEq),
                 '*' => lexer.possible_eq_upgrade(TokenTy::Star, TokenTy::StarEq),
                 '+' => lexer.possible_eq_upgrade(TokenTy::Plus, TokenTy::PlusEq),
-                '-' => lexer.possible_eq_upgrade(TokenTy::Minus, TokenTy::MinusEq),
-                '=' => lexer.possible_eq_upgrade(TokenTy::Eq, TokenTy::EqEq),
+                
                 '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
 
                 // Tokens that can be followed by themselves or an equal sign.
@@ -260,6 +261,25 @@ impl<'a> Lexer<'a> {
                 '|' => lexer.possible_eq_or_double('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
                 '<' => lexer.possible_eq_or_double('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft),
                 '>' => lexer.possible_eq_or_double('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
+
+                // Arrows
+                c if c == '=' || c == '-' => {
+                    let next_if_eq_or_arrow = lexer.iterator
+                        .peek()
+                        .filter(|peeked| **peeked == '=' || **peeked == '>')
+                        .is_some()
+                        .then(|| lexer.iterator.next().unwrap());
+                    match (c, next_if_eq_or_arrow) {
+                        ('=', Some('=')) => lexer.emit_token(TokenTy::EqEq, 2),
+                        ('=', Some('>')) => lexer.emit_token(TokenTy::DoubleArrow, 2),
+                        ('=', None)      => lexer.emit_single_byte_token(TokenTy::Eq),
+                        ('-', Some('=')) => lexer.emit_token(TokenTy::MinusEq, 2),
+                        ('-', Some('>')) => lexer.emit_token(TokenTy::SingleArrow, 2),
+                        ('-', None)      => lexer.emit_single_byte_token(TokenTy::Minus),
+                        // No other combination should be possible here. 
+                        _ => unreachable!()
+                    }
+                },
 
                 // Dot and range tokens which do not follow any other patern.
                 '.' => {
