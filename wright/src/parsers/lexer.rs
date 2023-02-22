@@ -21,6 +21,8 @@ pub enum TokenTy {
     Bang,           // !
     BangEq,         // !=
     Tilde,          // ~
+    TildeArrow,     // ~>
+    TildeEq,        // ~=
     At,             // @
     Mod,            // %
     ModEq,          // %=
@@ -245,7 +247,6 @@ impl<'a> Lexer<'a> {
                 ';' => lexer.emit_single_byte_token(TokenTy::Semi),
                 '?' => lexer.emit_single_byte_token(TokenTy::Question),
                 ',' => lexer.emit_single_byte_token(TokenTy::Comma),
-                '~' => lexer.emit_single_byte_token(TokenTy::Tilde),
 
                 // Tokens that can possibly be followed by an equal sign.
                 '!' => lexer.possible_eq_upgrade(TokenTy::Bang, TokenTy::BangEq),
@@ -262,7 +263,7 @@ impl<'a> Lexer<'a> {
                 '>' => lexer.possible_eq_or_double('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
 
                 // Arrows
-                c if c == '=' || c == '-' => {
+                c if c == '=' || c == '-' || c == '~' => {
                     let next_if_eq_or_arrow = lexer
                         .iterator
                         .peek()
@@ -276,6 +277,9 @@ impl<'a> Lexer<'a> {
                         ('-', Some('=')) => lexer.emit_token(TokenTy::MinusEq, 2),
                         ('-', Some('>')) => lexer.emit_token(TokenTy::SingleArrow, 2),
                         ('-', None) => lexer.emit_single_byte_token(TokenTy::Minus),
+                        ('~', Some('=')) => lexer.emit_token(TokenTy::TildeEq, 2),
+                        ('~', Some('>')) => lexer.emit_token(TokenTy::TildeArrow, 2),
+                        ('~', None) => lexer.emit_single_byte_token(TokenTy::Tilde),
                         // No other combination should be possible here.
                         _ => unreachable!(),
                     }
