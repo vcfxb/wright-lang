@@ -48,9 +48,9 @@ fn main() -> Result<()> {
             let source = io::read_to_string(reader)?;
 
             if pretty {
-                wright::parsers::lexer::Lexer::debug_pretty_print(&source);
+                wright::parser::lexer::Lexer::debug_pretty_print(&source);
             } else {
-                for token in wright::parsers::lexer::Lexer::lex(&source) {
+                for token in wright::parser::lexer::Lexer::lex(&source) {
                     println!("{}", token);
                 }
             }
