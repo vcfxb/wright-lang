@@ -145,7 +145,7 @@ impl<'a> Lexer<'a> {
     /// Consume a character from the iterator if it is equal to the one passed to this function. Return the number of
     /// bytes consumed from the iterator.
     fn consume_if_eq(&mut self, c: char) -> usize {
-        if let Some(_) = self.iterator.next_if(|next| *next == c) {
+        if self.iterator.next_if(|next| *next == c).is_some() {
             c.len_utf8()
         } else {
             0
@@ -198,7 +198,7 @@ impl<'a> Lexer<'a> {
                 break;
             }
         }
-        return acc;
+        acc
     }
 
     /// Make the lexer read through the next `*#` or to the end of the file. If a closing pattern (`*#`) is not found,
@@ -223,7 +223,7 @@ impl<'a> Lexer<'a> {
             }
         }
         // If we finish the loop with no return, we have hit the end of the file.
-        return (acc, false);
+        (acc, false)
     }
 
     /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation
@@ -423,7 +423,7 @@ impl<'a> Lexer<'a> {
                 }
 
                 // Numerical literals
-                c if c.is_digit(10) => {
+                c if c.is_ascii_digit() => {
                     // Save the size of the consumed value.
                     let mut size = c.len_utf8();
                     let mut radix = 10;
@@ -513,7 +513,7 @@ impl<'a> Lexer<'a> {
 
         // Push end token,
         lexer.emit_token(TokenTy::End, 0);
-        return lexer.output;
+        lexer.output
     }
 
     /// Print in pretty format the source code and the tokens it matched to under it.
@@ -539,10 +539,9 @@ impl<'a> Lexer<'a> {
             // Replace certain characters in the matching source to avoid pretty printing issues.
             matching_source = matching_source
                 // Replace tabs with 4 spaces for consistency
-                .replace("\t", "    ")
+                .replace('\t', "    ")
                 // Replace newline characters with spaces to avoid printing extra lines.
-                .replace("\n", " ")
-                .replace("\r", " ");
+                .replace(['\n', '\r'], " ");
 
             // Get the width of the display as the max of the two string character (not byte) lengths. Add two to the
             // token length to represent the square brackets added later.
