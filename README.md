@@ -9,8 +9,6 @@
 | Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |
 | GitHub release | [![GitHub release](https://img.shields.io/github/release/Alfriadox/wright-lang.svg)](https://github.com/Alfriadox/wright-lang/releases) |
 | GitHub (pre-)release | [![GitHub (pre-)release](https://img.shields.io/github/release/Alfriadox/wright-lang/all.svg)](https://github.com/Alfriadox/wright-lang/releases) |
-| Average Issue resolution | [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/Alfriadox/wright-lang.svg)](https://isitmaintained.com/project/Alfriadox/wright-lang "Average time to resolve an issue") |
-| Issues still open | [![Percentage of issues still open](http://isitmaintained.com/badge/open/Alfriadox/wright-lang.svg)](https://isitmaintained.com/project/Alfriadox/wright-lang "Percentage of issues still open") |
 | Development Status | ![Status](https://img.shields.io/badge/status-actively--developed-green.svg) |
 
 |  | Downloads|
