@@ -75,11 +75,11 @@ pub enum TokenTy {
     },
 
     /// Multiline comment between `#*` and `*#`. Starts with `#**` or `#*!` for documentation.
-    #[display(fmt = "Multiline {} comment (terminated = {})", comment_type, terminated)]
+    #[display(fmt = "Multiline {} comment (terminated = {})", comment_type, is_terminated)]
     MultilineComment {
         comment_type: CommentTy,
         /// Is this comment terminated? If not raise an error before parsing the tokens.
-        terminated: bool,
+        is_terminated: bool,
     },
 
     /// Integer literal. This is a literal integer in source code. May include underscores after the leading digit
@@ -87,10 +87,20 @@ pub enum TokenTy {
     IntegerLit,
 
     /// A string literal in source code.
-    StringLit,
+    #[display(fmt = "StringLit (fmt = {}, terminated = {})", is_format, is_terminated)]
+    StringLit {
+        /// For format strings (backticks instead of double quotes)
+        is_format: bool,
+        /// Is this string terminated?
+        is_terminated: bool,
+    },
 
     /// A character literal in source code.
-    CharLit,
+    #[display(fmt = "CharLit (terminated = {})", is_terminated)]
+    CharLit {
+        /// Is the char lit terminated?
+        is_terminated: bool,
+    },
 
     /// A identifier in source code (such as a variable name). At this stage keywords (such as 'struct') are
     /// also considered identifiers.
@@ -263,7 +273,7 @@ impl<'a> Lexer<'a> {
                 '>' => lexer.possible_eq_or_double('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
 
                 // Arrows
-                c if c == '=' || c == '-' || c == '~' => {
+                c @ ('-' | '~' | '=') => {
                     let next_if_eq_or_arrow = lexer
                         .iterator
                         .peek()
@@ -326,34 +336,34 @@ impl<'a> Lexer<'a> {
                     if lexer.consume_if_eq('*') > 0 {
                         if lexer.consume_if_eq('*') > 0 {
                             // Inner doc comment
-                            let (consumed, terminated) = lexer.read_through_end_of_multiline_comment();
+                            let (consumed, is_terminated) = lexer.read_through_end_of_multiline_comment();
                             // Add 3 for consumed `#**`.
                             lexer.emit_token(
                                 TokenTy::MultilineComment {
                                     comment_type: CommentTy::InnerDoc,
-                                    terminated,
+                                    is_terminated,
                                 },
                                 consumed + 3,
                             );
                         } else if lexer.consume_if_eq('!') > 0 {
                             // Outer doc comment
-                            let (consumed, terminated) = lexer.read_through_end_of_multiline_comment();
+                            let (consumed, is_terminated) = lexer.read_through_end_of_multiline_comment();
                             // Add 3 for consumed `#*!`.
                             lexer.emit_token(
                                 TokenTy::MultilineComment {
                                     comment_type: CommentTy::OuterDoc,
-                                    terminated,
+                                    is_terminated,
                                 },
                                 consumed + 3,
                             );
                         } else {
                             // Normal multiline comment.
-                            let (consumed, terminated) = lexer.read_through_end_of_multiline_comment();
+                            let (consumed, is_terminated) = lexer.read_through_end_of_multiline_comment();
                             // Add two to the bytes for the prefix `#*`.
                             lexer.emit_token(
                                 TokenTy::MultilineComment {
                                     comment_type: CommentTy::Normal,
-                                    terminated,
+                                    is_terminated,
                                 },
                                 consumed + 2,
                             );
@@ -443,7 +453,52 @@ impl<'a> Lexer<'a> {
 
                     // Emit the integer literal token.
                     lexer.emit_token(TokenTy::IntegerLit, size);
-                }
+                },
+
+                // Char and string literals.
+                // Char literals are parsed the same as string literals here and then 
+                // formatting issues can be handled later. 
+                c @ ('\'' | '"' | '`') => {
+                    // Accumulator to track number of bytes consumed. 
+                    let mut acc: usize = 1;
+                    let mut is_terminated = false;
+                    
+                    // Consume characters until end is reached
+                    while let Some(next) = lexer.next() {
+                        // Increase the accumulator
+                        acc += next.len_utf8();
+                        match next {
+                            // We run into the starting char. 
+                            // Escapes are handled elsewhere so this must be the end.
+                            end if end == c => {
+                                is_terminated = true;
+                                // Leave quoted literal consumption loop
+                                break;
+                            },
+
+                            // Escaped pattern.
+                            // Only worry about escaped terminators here, since all other escaped
+                            // patterns can be dealt with later. 
+                            '\\' => {
+                                // Consume the escaped character regardless of what it is. 
+                                // It will always be part of the quoted literal. 
+                                if let Some(escaped) = lexer.next() {
+                                    acc += escaped.len_utf8();
+                                }
+                            },
+
+                            // Do nothing for non-escaped chars since the quoted literal continues
+                            // and we have already recorded the consumed bytes.
+                            _ => {}
+                        }
+                    }
+
+                    if c == '\'' {
+                        lexer.emit_token(TokenTy::CharLit { is_terminated }, acc);
+                    } else {
+                        lexer.emit_token(TokenTy::StringLit { is_format: c == '`', is_terminated }, acc);
+                    }
+                },
 
                 // Emit an unknown token for all not caught above.
                 other => lexer.emit_token(TokenTy::Unknown, other.len_utf8()),
@@ -458,7 +513,7 @@ impl<'a> Lexer<'a> {
     /// Print in pretty format the source code and the tokens it matched to under it.
     pub fn debug_pretty_print(source: &str) {
         // This could eventually perhaps be upgraded with codespan but we'll do it manually for now.
-
+        println!("line ({:#10})", "byte");
         // Get the tokens for the source code.
         let tokens = Lexer::lex(source);
         // Start the byte index of the cursor at 0.
@@ -490,7 +545,7 @@ impl<'a> Lexer<'a> {
             // Add line numbers if the strings are empty.
             if line_pair[0].is_empty() {
                 for s in line_pair.iter_mut() {
-                    s.push_str(format!("{:03} ({:#010x}): ", line_index, byte_index).as_str());
+                    s.push_str(format!("{:04} ({:#010x}): ", line_index, byte_index).as_str());
                 }
             }
 
