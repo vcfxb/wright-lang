@@ -453,39 +453,39 @@ impl<'a> Lexer<'a> {
 
                     // Emit the integer literal token.
                     lexer.emit_token(TokenTy::IntegerLit, size);
-                },
+                }
 
                 // Char and string literals.
-                // Char literals are parsed the same as string literals here and then 
-                // formatting issues can be handled later. 
+                // Char literals are parsed the same as string literals here and then
+                // formatting issues can be handled later.
                 c @ ('\'' | '"' | '`') => {
-                    // Accumulator to track number of bytes consumed. 
+                    // Accumulator to track number of bytes consumed.
                     let mut acc: usize = 1;
                     let mut is_terminated = false;
-                    
+
                     // Consume characters until end is reached
                     while let Some(next) = lexer.next() {
                         // Increase the accumulator
                         acc += next.len_utf8();
                         match next {
-                            // We run into the starting char. 
+                            // We run into the starting char.
                             // Escapes are handled elsewhere so this must be the end.
                             end if end == c => {
                                 is_terminated = true;
                                 // Leave quoted literal consumption loop
                                 break;
-                            },
+                            }
 
                             // Escaped pattern.
                             // Only worry about escaped terminators here, since all other escaped
-                            // patterns can be dealt with later. 
+                            // patterns can be dealt with later.
                             '\\' => {
-                                // Consume the escaped character regardless of what it is. 
-                                // It will always be part of the quoted literal. 
+                                // Consume the escaped character regardless of what it is.
+                                // It will always be part of the quoted literal.
                                 if let Some(escaped) = lexer.next() {
                                     acc += escaped.len_utf8();
                                 }
-                            },
+                            }
 
                             // Do nothing for non-escaped chars since the quoted literal continues
                             // and we have already recorded the consumed bytes.
@@ -496,9 +496,15 @@ impl<'a> Lexer<'a> {
                     if c == '\'' {
                         lexer.emit_token(TokenTy::CharLit { is_terminated }, acc);
                     } else {
-                        lexer.emit_token(TokenTy::StringLit { is_format: c == '`', is_terminated }, acc);
+                        lexer.emit_token(
+                            TokenTy::StringLit {
+                                is_format: c == '`',
+                                is_terminated,
+                            },
+                            acc,
+                        );
                     }
-                },
+                }
 
                 // Emit an unknown token for all not caught above.
                 other => lexer.emit_token(TokenTy::Unknown, other.len_utf8()),

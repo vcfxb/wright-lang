@@ -5,7 +5,13 @@ use wright::parser::lexer::{Lexer, TokenTy};
 fn unterminated_string_literal() {
     let tokens = Lexer::lex(r#""this string is not closed"#);
     assert_eq!(tokens.len(), 2);
-    assert_eq!(tokens[0].variant, TokenTy::StringLit { is_format: false, is_terminated: false });
+    assert_eq!(
+        tokens[0].variant,
+        TokenTy::StringLit {
+            is_format: false,
+            is_terminated: false
+        }
+    );
 }
 
 /// Test string literal with escaped terminal.
@@ -13,5 +19,11 @@ fn unterminated_string_literal() {
 fn string_with_escape() {
     let tokens = Lexer::lex(r#" "this string has an escaped terminator \" " "#);
     assert_eq!(tokens.len(), 4);
-    assert_eq!(tokens[1].variant, TokenTy::StringLit { is_format: false, is_terminated: true });
+    assert_eq!(
+        tokens[1].variant,
+        TokenTy::StringLit {
+            is_format: false,
+            is_terminated: true
+        }
+    );
 }
