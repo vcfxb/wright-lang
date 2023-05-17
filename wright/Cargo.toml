@@ -8,7 +8,8 @@ repository = "https://github.com/Alfriadox/wright-lang"
 documentation = "https://docs.rs/wright"
 readme = "../README.md"
 keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 
 [lib]
 name = "wright"
@@ -29,8 +30,4 @@ doc = false
 doctest = false
 
 [badges]
-travis-ci = {repository = "Alfriadox/wright-lang"}
-appveyor = {repository = "Alfriadox/wright-lang"}
-is-it-maintained-issue-resolution = { repository = "Alfriadox/wright-lang" }
-is-it-maintained-open-issues = { repository = "Alfriadox/wright-lang" }
 maintenance = { status = "actively-developed" }
