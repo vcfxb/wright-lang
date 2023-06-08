@@ -54,6 +54,8 @@ pub enum TokenTy {
     DivEq,          // /=
     Semi,           // ;
     Colon,          // :
+    ColonColon,     // ::
+    ColonEq,        // :=
     Question,       // ?
     Dot,            // .
     Range,          // ..
@@ -75,7 +77,11 @@ pub enum TokenTy {
     },
 
     /// Multiline comment between `#*` and `*#`. Starts with `#**` or `#*!` for documentation.
-    #[display(fmt = "Multiline {} comment (terminated = {})", comment_type, is_terminated)]
+    #[display(
+        fmt = "Multiline {} comment (terminated = {})",
+        comment_type,
+        is_terminated
+    )]
     MultilineComment {
         comment_type: CommentTy,
         /// Is this comment terminated? If not raise an error before parsing the tokens.
@@ -87,7 +93,11 @@ pub enum TokenTy {
     IntegerLit,
 
     /// A string literal in source code.
-    #[display(fmt = "StringLit (fmt = {}, terminated = {})", is_format, is_terminated)]
+    #[display(
+        fmt = "StringLit (fmt = {}, terminated = {})",
+        is_format,
+        is_terminated
+    )]
     StringLit {
         /// For format strings (backticks instead of double quotes)
         is_format: bool,
@@ -154,7 +164,10 @@ impl<'a> Lexer<'a> {
 
     /// Add a token on to the output vector.
     fn emit_token(&mut self, variant: TokenTy, bytes: usize) {
-        self.output.push(Token { variant, length: bytes });
+        self.output.push(Token {
+            variant,
+            length: bytes,
+        });
     }
 
     /// Add a token to the output vector with a length of 1.
@@ -178,7 +191,13 @@ impl<'a> Lexer<'a> {
     /// the iterator and checks to see if it's followed by either the supplied character `c` or the character '='. If it's followed
     /// by the supplied character then this function emits the `doubled` token. If it's followed by an equals sign, the `with_eq` token is emitted.
     /// Otherwise the `without` token is emitted.
-    fn possible_eq_or_double(&mut self, c: char, without: TokenTy, with_eq: TokenTy, doubled: TokenTy) {
+    fn possible_eq_or_double(
+        &mut self,
+        c: char,
+        without: TokenTy,
+        with_eq: TokenTy,
+        doubled: TokenTy,
+    ) {
         if self.consume_if_eq(c) > 0 {
             self.emit_token(doubled, c.len_utf8() + 1)
         } else if self.consume_if_eq('=') > 0 {
@@ -253,7 +272,6 @@ impl<'a> Lexer<'a> {
                 '{' => lexer.emit_single_byte_token(TokenTy::LeftBracket),
                 '}' => lexer.emit_single_byte_token(TokenTy::RightBracket),
                 '@' => lexer.emit_single_byte_token(TokenTy::At),
-                ':' => lexer.emit_single_byte_token(TokenTy::Colon),
                 ';' => lexer.emit_single_byte_token(TokenTy::Semi),
                 '?' => lexer.emit_single_byte_token(TokenTy::Question),
                 ',' => lexer.emit_single_byte_token(TokenTy::Comma),
@@ -267,10 +285,25 @@ impl<'a> Lexer<'a> {
                 '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
 
                 // Tokens that can be followed by themselves or an equal sign.
-                '&' => lexer.possible_eq_or_double('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd),
+                '&' => {
+                    lexer.possible_eq_or_double('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd)
+                }
                 '|' => lexer.possible_eq_or_double('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
-                '<' => lexer.possible_eq_or_double('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft),
-                '>' => lexer.possible_eq_or_double('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
+                '<' => {
+                    lexer.possible_eq_or_double('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft)
+                }
+                '>' => lexer.possible_eq_or_double(
+                    '>',
+                    TokenTy::Gt,
+                    TokenTy::GtEq,
+                    TokenTy::ShiftRight,
+                ),
+                ':' => lexer.possible_eq_or_double(
+                    ':',
+                    TokenTy::Colon,
+                    TokenTy::ColonEq,
+                    TokenTy::ColonColon,
+                ),
 
                 // Arrows
                 c @ ('-' | '~' | '=') => {
@@ -314,7 +347,12 @@ impl<'a> Lexer<'a> {
                     // Save the starting byte index of the whitespace.
                     let mut size = whitespace.len_utf8();
                     // Consume all the whitespace characters available.
-                    while lexer.iterator.peek().filter(|c| c.is_whitespace()).is_some() {
+                    while lexer
+                        .iterator
+                        .peek()
+                        .filter(|c| c.is_whitespace())
+                        .is_some()
+                    {
                         // Add the byte length of the consumed character to the consumed size.
                         size += lexer.next().unwrap().len_utf8();
                     }
@@ -336,7 +374,8 @@ impl<'a> Lexer<'a> {
                     if lexer.consume_if_eq('*') > 0 {
                         if lexer.consume_if_eq('*') > 0 {
                             // Inner doc comment
-                            let (consumed, is_terminated) = lexer.read_through_end_of_multiline_comment();
+                            let (consumed, is_terminated) =
+                                lexer.read_through_end_of_multiline_comment();
                             // Add 3 for consumed `#**`.
                             lexer.emit_token(
                                 TokenTy::MultilineComment {
@@ -347,7 +386,8 @@ impl<'a> Lexer<'a> {
                             );
                         } else if lexer.consume_if_eq('!') > 0 {
                             // Outer doc comment
-                            let (consumed, is_terminated) = lexer.read_through_end_of_multiline_comment();
+                            let (consumed, is_terminated) =
+                                lexer.read_through_end_of_multiline_comment();
                             // Add 3 for consumed `#*!`.
                             lexer.emit_token(
                                 TokenTy::MultilineComment {
@@ -358,7 +398,8 @@ impl<'a> Lexer<'a> {
                             );
                         } else {
                             // Normal multiline comment.
-                            let (consumed, is_terminated) = lexer.read_through_end_of_multiline_comment();
+                            let (consumed, is_terminated) =
+                                lexer.read_through_end_of_multiline_comment();
                             // Add two to the bytes for the prefix `#*`.
                             lexer.emit_token(
                                 TokenTy::MultilineComment {
@@ -545,7 +586,8 @@ impl<'a> Lexer<'a> {
 
             // Get the width of the display as the max of the two string character (not byte) lengths. Add two to the
             // token length to represent the square brackets added later.
-            let width: usize = cmp::max(token_str.chars().count() + 2, matching_source.chars().count());
+            let width: usize =
+                cmp::max(token_str.chars().count() + 2, matching_source.chars().count());
 
             // Add line numbers if the strings are empty.
             if line_pair[0].is_empty() {
