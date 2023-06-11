@@ -2,7 +2,9 @@
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use std::{fs, io, path::PathBuf};
+use codespan_reporting::files::SimpleFile;
+use std::{fs, path::PathBuf};
+use wright::parser::lexer::Lexer;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -42,14 +44,13 @@ fn main() -> Result<()> {
         Some(Commands::Debug {
             command: DebugCommands::Tokens { file, pretty },
         }) => {
-            let file = fs::File::open(file)?;
-            let reader = io::BufReader::new(file);
-            let source = io::read_to_string(reader)?;
+            let source_str = fs::read_to_string(&file)?;
+            let source = SimpleFile::new(file.to_string_lossy(), &source_str);
 
             if pretty {
-                wright::parser::lexer::Lexer::debug_pretty_print(&source);
+                Lexer::debug_pretty_print(&source)?;
             } else {
-                for token in wright::parser::lexer::Lexer::lex(&source) {
+                for token in Lexer::new(&source_str) {
                     println!("{}", token);
                 }
             }

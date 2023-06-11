@@ -1,7 +1,12 @@
 //! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
 
+mod pretty_print;
+
 use derive_more::Display;
-use std::{cmp, iter::Peekable, str::Chars};
+use std::{
+    iter::{FusedIterator, Peekable},
+    str::Chars,
+};
 
 /// Token of Wright source code.
 #[derive(Clone, Copy, Debug, Display)]
@@ -120,9 +125,6 @@ pub enum TokenTy {
     /// Unknown character for the lexer.
     #[display(fmt = "?")]
     Unknown,
-
-    /// End of input/file.
-    End,
 }
 
 /// Different types of comments.
@@ -141,474 +143,367 @@ pub enum CommentTy {
 pub struct Lexer<'a> {
     /// Iterator over the indexed input characters tied to the lifetime of the source code.
     iterator: Peekable<Chars<'a>>,
-
-    /// Lexer output.
-    output: Vec<Token>,
 }
 
-impl<'a> Lexer<'a> {
-    /// Consume and return the next item from this object's iterator.
-    fn next(&mut self) -> Option<char> {
-        self.iterator.next()
-    }
+impl<'a> Iterator for Lexer<'a> {
+    type Item = Token;
 
-    /// Consume a character from the iterator if it is equal to the one passed to this function. Return the number of
-    /// bytes consumed from the iterator.
-    fn consume_if_eq(&mut self, c: char) -> usize {
-        if self.iterator.next_if(|next| *next == c).is_some() {
-            c.len_utf8()
-        } else {
-            0
-        }
-    }
+    fn next(&mut self) -> Option<Token> {
+        // Get the next character out of the iterator.
+        let next = self.iterator.next()?;
 
-    /// Add a token on to the output vector.
-    fn emit_token(&mut self, variant: TokenTy, bytes: usize) {
-        self.output.push(Token {
-            variant,
-            length: bytes,
-        });
-    }
+        // Handle single character tokens first.
+        let single_char_tokens = [
+            ('(', TokenTy::LeftParen),
+            (')', TokenTy::RightParen),
+            ('[', TokenTy::LeftSquare),
+            (']', TokenTy::RightSquare),
+            ('{', TokenTy::LeftBracket),
+            ('}', TokenTy::RightBracket),
+            ('@', TokenTy::At),
+            (';', TokenTy::Semi),
+            ('?', TokenTy::Question),
+            (',', TokenTy::Comma),
+        ];
 
-    /// Add a token to the output vector with a length of 1.
-    fn emit_single_byte_token(&mut self, variant: TokenTy) {
-        self.emit_token(variant, 1);
-    }
-
-    // Assignment versions of operators are very common (e.g. + and +=, - and -=).
-    // This function will check for the equals sign and emit the correct token as necessary.
-    // This assumes the first character has already been consumed from the iterator and is 1 byte.
-    fn possible_eq_upgrade(&mut self, without: TokenTy, with: TokenTy) {
-        if self.consume_if_eq('=') == 1 {
-            self.emit_token(with, 2);
-        } else {
-            self.emit_single_byte_token(without);
-        }
-    }
-
-    /// The & and | operators can be combined with a '=' for an assignment operator or can be doubled to be
-    /// short-circuiting. This function checks for assumes that a single byte character has already been consumed from
-    /// the iterator and checks to see if it's followed by either the supplied character `c` or the character '='. If it's followed
-    /// by the supplied character then this function emits the `doubled` token. If it's followed by an equals sign, the `with_eq` token is emitted.
-    /// Otherwise the `without` token is emitted.
-    fn possible_eq_or_double(
-        &mut self,
-        c: char,
-        without: TokenTy,
-        with_eq: TokenTy,
-        doubled: TokenTy,
-    ) {
-        if self.consume_if_eq(c) > 0 {
-            self.emit_token(doubled, c.len_utf8() + 1)
-        } else if self.consume_if_eq('=') > 0 {
-            self.emit_token(with_eq, 2)
-        } else {
-            self.emit_single_byte_token(without)
-        }
-    }
-
-    /// Read through the next occurrence of `c`. Return the total number of bytes consumed from the iterator. If `c` is
-    /// not found, read to the end of the iterator.
-    fn read_through(&mut self, c: char) -> usize {
-        let mut acc = 0;
-        while let Some(next) = self.next() {
-            acc += next.len_utf8();
+        for (c, variant) in single_char_tokens {
             if next == c {
-                break;
+                return Some(Token { variant, length: 1 });
             }
         }
-        acc
-    }
 
-    /// Make the lexer read through the next `*#` or to the end of the file. If a closing pattern (`*#`) is not found,
-    /// the boolean is set to false in the return.  
-    fn read_through_end_of_multiline_comment(&mut self) -> (usize, bool) {
-        let mut acc = 0;
-        let mut seen_star = false;
-        while let Some(c) = self.next() {
-            // Add consumed character to accumulator.
-            acc += c.len_utf8();
+        // Next handle tokens that can possibly be followed by an equal sign.
+        let possible_eq_upgrades = [
+            ('!', TokenTy::Bang, TokenTy::BangEq),
+            ('%', TokenTy::Mod, TokenTy::ModEq),
+            ('^', TokenTy::Xor, TokenTy::XorEq),
+            ('*', TokenTy::Star, TokenTy::StarEq),
+            ('+', TokenTy::Plus, TokenTy::PlusEq),
+            ('/', TokenTy::Div, TokenTy::DivEq),
+        ];
 
-            // If we see a pound just after a star, return Ok.
-            if c == '#' && seen_star {
-                return (acc, true);
-            }
-
-            // If we see a star, set the flag, otherwise, unset it.
-            if c == '*' {
-                seen_star = true;
-            } else {
-                seen_star = false;
+        for (c, no_eq, with_eq) in possible_eq_upgrades {
+            if next == c {
+                return match self.iterator.next_if_eq(&'=') {
+                    Some(_) => Some(Token {
+                        variant: with_eq,
+                        length: 2,
+                    }),
+                    None => Some(Token {
+                        variant: no_eq,
+                        length: 1,
+                    }),
+                };
             }
         }
-        // If we finish the loop with no return, we have hit the end of the file.
-        (acc, false)
-    }
 
-    /// Read a source file and produce a series of tokens (aka lexemes) representing the source code for transformation
-    /// into an AST. Return error instead of series of tokens if there is an unfinished sting or character literal.
-    pub fn lex(source: &str) -> Vec<Token> {
-        // Return no tokens if there is no source.
-        if source.is_empty() {
-            return Vec::new();
+        // Next handle tokens that can be doubled or have an equals sign.
+        let possible_eq_or_double = [
+            ('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd),
+            ('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
+            ('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft),
+            ('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
+            (':', TokenTy::Colon, TokenTy::ColonEq, TokenTy::ColonColon),
+        ];
+
+        for (c, alone, with_eq, doubled) in possible_eq_or_double {
+            if next == c {
+                return match self.iterator.next_if(|&x| x == '=' || x == c) {
+                    Some('=') => Some(Token {
+                        variant: with_eq,
+                        length: 2,
+                    }),
+                    Some(x) if x == c => Some(Token {
+                        variant: doubled,
+                        length: 2,
+                    }),
+                    None => Some(Token {
+                        variant: alone,
+                        length: 1,
+                    }),
+                    _ => unreachable!(),
+                };
+            }
         }
 
-        // Create lexer object to operate on.
-        let mut lexer = Lexer {
-            output: Vec::new(),
-            iterator: source.chars().peekable(),
-        };
+        // Next deal with arrows
+        let arrows = [
+            ('-', TokenTy::Minus, TokenTy::MinusEq, TokenTy::SingleArrow),
+            ('=', TokenTy::Eq, TokenTy::EqEq, TokenTy::DoubleArrow),
+            ('~', TokenTy::Tilde, TokenTy::TildeEq, TokenTy::TildeArrow),
+        ];
 
-        // Work our way through the iterator using a `while let` loop to destructructure the items as we work through and
-        // make it slightly clearer that we mutate the iterator during the loop if we find the start of a string.
-        while let Some(character) = lexer.next() {
-            // Figure out what type of token to generate here. This may consume an aditional item from the iterator if possible.
-            match character {
-                // Single character tokens.
-                '(' => lexer.emit_single_byte_token(TokenTy::LeftParen),
-                ')' => lexer.emit_single_byte_token(TokenTy::RightParen),
-                '[' => lexer.emit_single_byte_token(TokenTy::LeftSquare),
-                ']' => lexer.emit_single_byte_token(TokenTy::RightSquare),
-                '{' => lexer.emit_single_byte_token(TokenTy::LeftBracket),
-                '}' => lexer.emit_single_byte_token(TokenTy::RightBracket),
-                '@' => lexer.emit_single_byte_token(TokenTy::At),
-                ';' => lexer.emit_single_byte_token(TokenTy::Semi),
-                '?' => lexer.emit_single_byte_token(TokenTy::Question),
-                ',' => lexer.emit_single_byte_token(TokenTy::Comma),
+        for (c, alone, with_eq, as_arrow) in arrows {
+            if next == c {
+                return match self.iterator.next_if(|&x| x == '=' || x == '>') {
+                    Some('=') => Some(Token {
+                        variant: with_eq,
+                        length: 2,
+                    }),
+                    Some('>') => Some(Token {
+                        variant: as_arrow,
+                        length: 2,
+                    }),
+                    None => Some(Token {
+                        variant: alone,
+                        length: 1,
+                    }),
+                    _ => unreachable!(),
+                };
+            }
+        }
 
-                // Tokens that can possibly be followed by an equal sign.
-                '!' => lexer.possible_eq_upgrade(TokenTy::Bang, TokenTy::BangEq),
-                '%' => lexer.possible_eq_upgrade(TokenTy::Mod, TokenTy::ModEq),
-                '^' => lexer.possible_eq_upgrade(TokenTy::Xor, TokenTy::XorEq),
-                '*' => lexer.possible_eq_upgrade(TokenTy::Star, TokenTy::StarEq),
-                '+' => lexer.possible_eq_upgrade(TokenTy::Plus, TokenTy::PlusEq),
-                '/' => lexer.possible_eq_upgrade(TokenTy::Div, TokenTy::DivEq),
+        // Dot and range operators.
+        if next == '.' {
+            return match self.iterator.next_if_eq(&'.') {
+                None => Some(Token {
+                    variant: TokenTy::Dot,
+                    length: 1,
+                }),
+                Some(_) => match self.iterator.next_if_eq(&'=') {
+                    None => Some(Token {
+                        variant: TokenTy::Range,
+                        length: 2,
+                    }),
+                    Some(_) => Some(Token {
+                        variant: TokenTy::RangeInclusive,
+                        length: 3,
+                    }),
+                },
+            };
+        }
 
-                // Tokens that can be followed by themselves or an equal sign.
-                '&' => {
-                    lexer.possible_eq_or_double('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd)
-                }
-                '|' => lexer.possible_eq_or_double('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
-                '<' => {
-                    lexer.possible_eq_or_double('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft)
-                }
-                '>' => lexer.possible_eq_or_double(
-                    '>',
-                    TokenTy::Gt,
-                    TokenTy::GtEq,
-                    TokenTy::ShiftRight,
-                ),
-                ':' => lexer.possible_eq_or_double(
-                    ':',
-                    TokenTy::Colon,
-                    TokenTy::ColonEq,
-                    TokenTy::ColonColon,
-                ),
+        // Whitespace.
+        if next.is_whitespace() {
+            // Accumulate the number of bytes of whitespace consumed.
+            let mut acc = next.len_utf8();
+            // Use while-let instead of take-while to avoid consuming the whole iterator.
+            while let Some(consumed) = self.iterator.next_if(|&x| x.is_whitespace()) {
+                acc += consumed.len_utf8();
+            }
 
-                // Arrows
-                c @ ('-' | '~' | '=') => {
-                    let next_if_eq_or_arrow = lexer
-                        .iterator
-                        .peek()
-                        .filter(|peeked| **peeked == '=' || **peeked == '>')
-                        .is_some()
-                        .then(|| lexer.iterator.next().unwrap());
-                    match (c, next_if_eq_or_arrow) {
-                        ('=', Some('=')) => lexer.emit_token(TokenTy::EqEq, 2),
-                        ('=', Some('>')) => lexer.emit_token(TokenTy::DoubleArrow, 2),
-                        ('=', None) => lexer.emit_single_byte_token(TokenTy::Eq),
-                        ('-', Some('=')) => lexer.emit_token(TokenTy::MinusEq, 2),
-                        ('-', Some('>')) => lexer.emit_token(TokenTy::SingleArrow, 2),
-                        ('-', None) => lexer.emit_single_byte_token(TokenTy::Minus),
-                        ('~', Some('=')) => lexer.emit_token(TokenTy::TildeEq, 2),
-                        ('~', Some('>')) => lexer.emit_token(TokenTy::TildeArrow, 2),
-                        ('~', None) => lexer.emit_single_byte_token(TokenTy::Tilde),
-                        // No other combination should be possible here.
+            return Some(Token {
+                variant: TokenTy::Whitespace,
+                length: acc,
+            });
+        }
+
+        // Identifiers
+        if unicode_ident::is_xid_start(next) || next == '_' {
+            // Accumulate the number of bytes consumed in the identifier.
+            let mut acc = next.len_utf8();
+            // Consume the rest of the identifier.
+            while let Some(consumed) = self
+                .iterator
+                .next_if(|&x| unicode_ident::is_xid_continue(x))
+            {
+                acc += consumed.len_utf8();
+            }
+
+            return Some(Token {
+                variant: TokenTy::Identifier,
+                length: acc,
+            });
+        }
+
+        // Numerical literals.
+        if next.is_ascii_digit() {
+            // Accumulate the number of bytes consumed in the numeric literal.
+            // All ascii is 1 byte wide so avoid the extra call to `.len_utf8()`.
+            let mut acc = 1;
+            // Track the radix
+            let mut radix = 10;
+
+            // Change the radix if necessary
+            if next == '0' {
+                if let Some(prefix) = self
+                    .iterator
+                    .next_if(|x| ['x', 'o', 'b', 'X', 'B'].contains(x))
+                {
+                    acc += 1;
+
+                    radix = match prefix {
+                        'x' | 'X' => 16,
+                        'b' | 'B' => 2,
+                        'o' => 8,
                         _ => unreachable!(),
-                    }
+                    };
                 }
-
-                // Dot and range tokens which do not follow any other patern.
-                '.' => {
-                    // Check for `..` or `..=`.
-                    if lexer.consume_if_eq('.') == 1 {
-                        if lexer.consume_if_eq('=') == 1 {
-                            lexer.emit_token(TokenTy::RangeInclusive, 3);
-                        } else {
-                            lexer.emit_token(TokenTy::Range, 2);
-                        }
-                    } else {
-                        lexer.emit_single_byte_token(TokenTy::Dot);
-                    }
-                }
-
-                // Whitespace gets consumed and combined into a single token.
-                whitespace if whitespace.is_whitespace() => {
-                    // Save the starting byte index of the whitespace.
-                    let mut size = whitespace.len_utf8();
-                    // Consume all the whitespace characters available.
-                    while lexer
-                        .iterator
-                        .peek()
-                        .filter(|c| c.is_whitespace())
-                        .is_some()
-                    {
-                        // Add the byte length of the consumed character to the consumed size.
-                        size += lexer.next().unwrap().len_utf8();
-                    }
-                    // Emit the whitespace token.
-                    lexer.emit_token(TokenTy::Whitespace, size);
-                }
-
-                // Comments. There are a few variants as follows.
-                // `#...` - single line comment
-                // `#*...*#` - multiline comment
-                // `##...` - sinlge line inner doc comment
-                // `##!...` - single line outer doc comment
-                // `#**...*#` - multiline inner doc comment
-                // `#*!...*#` - multiline outer doc comment
-                // If a multiline comment is not terminated by the end of the file then just mark it as such in the
-                // produced token. A seperate token error handling layer will raise that outside of this function.
-                '#' => {
-                    // If the second character is a star, this is a multiline comment.
-                    if lexer.consume_if_eq('*') > 0 {
-                        if lexer.consume_if_eq('*') > 0 {
-                            // Inner doc comment
-                            let (consumed, is_terminated) =
-                                lexer.read_through_end_of_multiline_comment();
-                            // Add 3 for consumed `#**`.
-                            lexer.emit_token(
-                                TokenTy::MultilineComment {
-                                    comment_type: CommentTy::InnerDoc,
-                                    is_terminated,
-                                },
-                                consumed + 3,
-                            );
-                        } else if lexer.consume_if_eq('!') > 0 {
-                            // Outer doc comment
-                            let (consumed, is_terminated) =
-                                lexer.read_through_end_of_multiline_comment();
-                            // Add 3 for consumed `#*!`.
-                            lexer.emit_token(
-                                TokenTy::MultilineComment {
-                                    comment_type: CommentTy::OuterDoc,
-                                    is_terminated,
-                                },
-                                consumed + 3,
-                            );
-                        } else {
-                            // Normal multiline comment.
-                            let (consumed, is_terminated) =
-                                lexer.read_through_end_of_multiline_comment();
-                            // Add two to the bytes for the prefix `#*`.
-                            lexer.emit_token(
-                                TokenTy::MultilineComment {
-                                    comment_type: CommentTy::Normal,
-                                    is_terminated,
-                                },
-                                consumed + 2,
-                            );
-                        }
-                    } else if lexer.consume_if_eq('#') > 0 {
-                        // If the second character is a `#` then this is a single line doc comment.
-                        if lexer.consume_if_eq('!') > 0 {
-                            // This is an outer doc comment. Add the three bytes already read to the number before the
-                            // end of the line.
-                            let consumed = 3 + lexer.read_through('\n');
-                            lexer.emit_token(
-                                TokenTy::SingleLineComment {
-                                    comment_type: CommentTy::OuterDoc,
-                                },
-                                consumed,
-                            );
-                        } else {
-                            // Read to the end of the line and emit the inner doc comment.
-                            let consumed = 2 + lexer.read_through('\n');
-                            lexer.emit_token(
-                                TokenTy::SingleLineComment {
-                                    comment_type: CommentTy::InnerDoc,
-                                },
-                                consumed,
-                            );
-                        }
-                    } else {
-                        // Normal single line comment.
-                        // Read to end of line/file. Add one for the `#` already read.
-                        let consumed = 1 + lexer.read_through('\n');
-                        lexer.emit_token(
-                            TokenTy::SingleLineComment {
-                                comment_type: CommentTy::Normal,
-                            },
-                            consumed,
-                        );
-                    }
-                }
-
-                // Identifiers must start with either a unicode XID start character or an underscore.
-                // the rest of them must be unicode XID continue characters.
-                c if unicode_ident::is_xid_start(c) || c == '_' => {
-                    // Save the size of this first character consumed.
-                    let mut size = c.len_utf8();
-                    // Consume all unicode identifier continue characters.
-                    while lexer
-                        .iterator
-                        .peek()
-                        .filter(|c| unicode_ident::is_xid_continue(**c))
-                        .is_some()
-                    {
-                        // Add the length of the consumed char to the consumed size.
-                        size += lexer.next().unwrap().len_utf8();
-                    }
-                    // Emit the identifier token.
-                    lexer.emit_token(TokenTy::Identifier, size);
-                }
-
-                // Numerical literals
-                c if c.is_ascii_digit() => {
-                    // Save the size of the consumed value.
-                    let mut size = c.len_utf8();
-                    let mut radix = 10;
-
-                    // Check if we need to change radix
-                    for r in ['x', 'o', 'b', 'X', 'B'] {
-                        if lexer.consume_if_eq(r) > 0 {
-                            size += 1;
-                            radix = match r {
-                                'X' | 'x' => 16,
-                                'B' | 'b' => 2,
-                                'o' => 8,
-                                _ => unreachable!(),
-                            }
-                        }
-                    }
-
-                    // Consume available characters.
-                    while lexer
-                        .iterator
-                        .peek()
-                        .filter(|n| n.is_digit(radix) || **n == '_')
-                        .is_some()
-                    {
-                        size += lexer.next().unwrap().len_utf8();
-                    }
-
-                    // Emit the integer literal token.
-                    lexer.emit_token(TokenTy::IntegerLit, size);
-                }
-
-                // Char and string literals.
-                // Char literals are parsed the same as string literals here and then
-                // formatting issues can be handled later.
-                c @ ('\'' | '"' | '`') => {
-                    // Accumulator to track number of bytes consumed.
-                    let mut acc: usize = 1;
-                    let mut is_terminated = false;
-
-                    // Consume characters until end is reached
-                    while let Some(next) = lexer.next() {
-                        // Increase the accumulator
-                        acc += next.len_utf8();
-                        match next {
-                            // We run into the starting char.
-                            // Escapes are handled elsewhere so this must be the end.
-                            end if end == c => {
-                                is_terminated = true;
-                                // Leave quoted literal consumption loop
-                                break;
-                            }
-
-                            // Escaped pattern.
-                            // Only worry about escaped terminators here, since all other escaped
-                            // patterns can be dealt with later.
-                            '\\' => {
-                                // Consume the escaped character regardless of what it is.
-                                // It will always be part of the quoted literal.
-                                if let Some(escaped) = lexer.next() {
-                                    acc += escaped.len_utf8();
-                                }
-                            }
-
-                            // Do nothing for non-escaped chars since the quoted literal continues
-                            // and we have already recorded the consumed bytes.
-                            _ => {}
-                        }
-                    }
-
-                    if c == '\'' {
-                        lexer.emit_token(TokenTy::CharLit { is_terminated }, acc);
-                    } else {
-                        lexer.emit_token(
-                            TokenTy::StringLit {
-                                is_format: c == '`',
-                                is_terminated,
-                            },
-                            acc,
-                        );
-                    }
-                }
-
-                // Emit an unknown token for all not caught above.
-                other => lexer.emit_token(TokenTy::Unknown, other.len_utf8()),
             }
+
+            // Consume the rest of the integer literal.
+            while self
+                .iterator
+                .next_if(|&x| x.is_digit(radix) || x == '_')
+                .is_some()
+            {
+                // All accepted characters should be ascii, so we can just simplify `.len_utf8()` to 1.
+                acc += 1;
+            }
+
+            return Some(Token {
+                variant: TokenTy::IntegerLit,
+                length: acc,
+            });
         }
 
-        // Push end token,
-        lexer.emit_token(TokenTy::End, 0);
-        lexer.output
-    }
+        // String and Character literals.
+        if ['\'', '"', '`'].contains(&next) {
+            // Accumulator to track number of bytes consumed.
+            let mut acc: usize = 1;
+            let mut is_terminated = false;
 
-    /// Print in pretty format the source code and the tokens it matched to under it.
-    pub fn debug_pretty_print(source: &str) {
-        // This could eventually perhaps be upgraded with codespan but we'll do it manually for now.
-        println!("line ({:#10})", "byte");
-        // Get the tokens for the source code.
-        let tokens = Lexer::lex(source);
-        // Start the byte index of the cursor at 0.
-        let mut byte_index: usize = 0;
-        let mut line_index: usize = 0;
-        let mut line_pair = [String::new(), String::new()];
-        // Iterate through tokens and add them to the output.
-        for token in tokens.iter() {
-            // Get the matching source code for the token.
-            let mut matching_source = source[byte_index..(byte_index + token.length)].to_owned();
-            // Count the newlines to add after processing this token.
-            let newline_count = matching_source.chars().filter(|c| *c == '\n').count();
-            // Check if there's a newline in the source token. Also include the end of source code so that we get everything.
-            let contains_newline = newline_count > 0 || token.variant == TokenTy::End;
-            // Get the display string of the token.
-            let token_str = token.to_string();
-            // Replace certain characters in the matching source to avoid pretty printing issues.
-            matching_source = matching_source
-                // Replace tabs with 4 spaces for consistency
-                .replace('\t', "    ")
-                // Replace newline characters with spaces to avoid printing extra lines.
-                .replace(['\n', '\r'], " ");
+            // Consume characters until the end of the literal
+            while let Some(consumed) = self.iterator.next() {
+                acc += consumed.len_utf8();
 
-            // Get the width of the display as the max of the two string character (not byte) lengths. Add two to the
-            // token length to represent the square brackets added later.
-            let width: usize =
-                cmp::max(token_str.chars().count() + 2, matching_source.chars().count());
+                match consumed {
+                    // Ending character is the same as starting character.
+                    // Escapes should all be handled, so don't worry about this being escaped.
+                    _ if consumed == next => {
+                        is_terminated = true;
+                        break;
+                    }
 
-            // Add line numbers if the strings are empty.
-            if line_pair[0].is_empty() {
-                for s in line_pair.iter_mut() {
-                    s.push_str(format!("{:04} ({:#010x}): ", line_index, byte_index).as_str());
+                    // Escaped pattern.
+                    // Only worry about escaped terminators here, since all other escaped
+                    // patterns can be dealt with later.
+                    '\\' => {
+                        // Consume the escaped character regardless of what it is.
+                        // It will always be part of the quoted literal.
+                        if let Some(escaped) = self.iterator.next() {
+                            acc += escaped.len_utf8();
+                        }
+                    }
+
+                    // Do nothing for non-escaped chars since the quoted literal continues
+                    // and we have already recorded the consumed bytes.
+                    _ => {}
                 }
             }
 
-            // Add source to first line and token info to second line as appopriate. Add two to the source with for the
-            // square brackets.
-            line_pair[0].push_str(format!("{matching_source:<width$}").as_str());
-            line_pair[1].push_str(format!("[{token_str:<0$}]", width - 2).as_str());
+            // We have finished consuming the literal -- make sure we produce the
+            // right variant
+            return match next {
+                '\'' => Some(Token {
+                    variant: TokenTy::CharLit { is_terminated },
+                    length: acc,
+                }),
+                _ => Some(Token {
+                    variant: TokenTy::StringLit {
+                        is_format: next == '`',
+                        is_terminated,
+                    },
+                    length: acc,
+                }),
+            };
+        }
 
-            if contains_newline {
-                println!("{}\n{}", line_pair[0], line_pair[1]);
-                line_pair = [String::new(), String::new()];
-                // Ensure we add all the newlines in a multiline comment.
-                line_index += newline_count;
+        // Comments.
+        if next == '#' {
+            // Use accumulator to track number of bytes consumed.
+            let mut acc = 1;
+
+            // There are a few variants as follows.
+            // `#...` - single line comment
+            // `#*...*#` - multiline comment
+            // `##...` - single line inner doc comment
+            // `##!...` - single line outer doc comment
+            // `#**...*#` - multiline inner doc comment
+            // `#*!...*#` - multiline outer doc comment
+            // If a multiline comment is not terminated by the end of the file then just mark it as such in the
+            // produced token. A seperate token error handling layer will raise that outside of this function.
+
+            // Handle multiline comments
+            if self.iterator.next_if_eq(&'*').is_some() {
+                acc += 1;
+
+                // Check if it's a doc comment.
+                let comment_type = match self.iterator.next_if(|&x| x == '*' || x == '!') {
+                    Some('*') => {
+                        acc += 1;
+                        CommentTy::InnerDoc
+                    }
+
+                    Some('!') => {
+                        acc += 1;
+                        CommentTy::OuterDoc
+                    }
+
+                    None => CommentTy::Normal,
+
+                    _ => unreachable!(),
+                };
+
+                // Read the rest of the multi-line comment
+                while let Some(consumed) = self.iterator.next() {
+                    acc += consumed.len_utf8();
+                    if consumed == '*' && self.iterator.next_if_eq(&'#').is_some() {
+                        acc += 1;
+                        return Some(Token {
+                            variant: TokenTy::MultilineComment {
+                                comment_type,
+                                is_terminated: true,
+                            },
+                            length: acc,
+                        });
+                    }
+                }
+
+                // If we hit the end, the comment is not terminated.
+                return Some(Token {
+                    variant: TokenTy::MultilineComment {
+                        comment_type,
+                        is_terminated: false,
+                    },
+                    length: acc,
+                });
             }
 
-            byte_index += token.length;
+            // Handle single line comment.
+            let mut comment_type = CommentTy::Normal;
+
+            // Check for inner doc comment
+            if self.iterator.next_if_eq(&'#').is_some() {
+                acc += 1;
+                comment_type = CommentTy::InnerDoc;
+
+                // Check for outer doc comment
+                if self.iterator.next_if_eq(&'!').is_some() {
+                    acc += 1;
+                    comment_type = CommentTy::OuterDoc;
+                }
+            }
+
+            // Read to end of line/file for rest of comment. Include line ending in consumed bytes.
+            for consumed in self.iterator.by_ref() {
+                acc += consumed.len_utf8();
+                if consumed == '\n' {
+                    break;
+                }
+            }
+
+            return Some(Token {
+                variant: TokenTy::SingleLineComment { comment_type },
+                length: acc,
+            });
+        }
+
+        // If we haven't matched by this point, return an unknown token.
+        Some(Token {
+            variant: TokenTy::Unknown,
+            length: next.len_utf8(),
+        })
+    }
+}
+
+impl<'a> FusedIterator for Lexer<'a> {}
+
+impl<'a> Lexer<'a> {
+    /// Create a new lexer that iterates on a given source string.
+    pub fn new(source: &'a str) -> Self {
+        Lexer {
+            iterator: source.chars().peekable(),
         }
     }
 }
