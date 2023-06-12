@@ -1,4 +1,4 @@
-use wright::parser::lexer::{Lexer, Token, TokenTy};
+use wright::parser::lexer::{Lexer, tokens::{Token, TokenTy}};
 
 /// Test unterminated string literal.
 #[test]
