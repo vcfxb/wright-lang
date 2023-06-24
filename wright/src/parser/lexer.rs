@@ -369,6 +369,13 @@ impl<'a> Iterator for Lexer<'a> {
             length: next.len_utf8(),
         })
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        // Get the size hint of the internal iterator.
+        let (inner_lower, upper) = self.iterator.size_hint();
+        // If there are any characters left, then there is at least one token remaining.
+        ((inner_lower > 0) as usize, upper)
+    }
 }
 
 impl<'a> FusedIterator for Lexer<'a> {}
