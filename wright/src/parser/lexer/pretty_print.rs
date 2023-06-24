@@ -42,13 +42,8 @@ impl<'a> Lexer<'a> {
         let source_str: &str = source.source().as_ref();
         // Get the token iterator for the source code.
         let mut token_iter = Lexer::new(source_str)
-            // Use `.scan()` to make an iterator that yeilds the byte index of the start of each token too.
-            .scan(0usize, |byte_index, token| {
-                let new_byte_index = *byte_index + token.length;
-                let ret = Some((*byte_index, token));
-                *byte_index = new_byte_index;
-                ret
-            })
+            // Add byte indices to the iterator.
+            .indexed()
             // Go from byte start indices to byte ranges in the source string
             .map(|(start_index, token)| (start_index..start_index + token.length, token))
             // Make it peekable so that we can consume the iterator conditionally

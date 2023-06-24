@@ -8,7 +8,7 @@ use std::{
     str::Chars,
 };
 
-use self::tokens::{Token, TokenTy, CommentTy};
+use self::tokens::{CommentTy, Token, TokenTy};
 
 /// Lexical analyzer for wright code. This struct host functions that produce tokens from wright source.
 #[derive(Debug)]
@@ -37,7 +37,7 @@ impl<'a> Iterator for Lexer<'a> {
             ('?', TokenTy::Question),
             (',', TokenTy::Comma),
             ('#', TokenTy::Pound),
-            ('$', TokenTy::Dollar)
+            ('$', TokenTy::Dollar),
         ];
 
         for (c, variant) in single_char_tokens {
@@ -379,5 +379,15 @@ impl<'a> Lexer<'a> {
         Lexer {
             iterator: source.chars().peekable(),
         }
+    }
+
+    /// Add byte indexes of every token to the iterator.
+    pub fn indexed(self) -> impl Iterator<Item = (usize, Token)> + 'a {
+        self.scan(0usize, |acc, token| {
+            let new_index = *acc + token.length;
+            let return_value = (*acc, token);
+            *acc = new_index;
+            Some(return_value)
+        })
     }
 }
