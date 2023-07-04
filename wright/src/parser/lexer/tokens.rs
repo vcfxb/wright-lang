@@ -10,6 +10,8 @@ pub struct Token {
     pub length: usize,
 }
 
+/// All of the reserved words are just upper-case versions of the
+/// matching source code unless otherwise stated.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display)]
 pub enum TokenTy {
     // Operators and parentheses
@@ -64,6 +66,35 @@ pub enum TokenTy {
     RightSquare,    // ]
     LeftBracket,    // {
     RightBracket,   // }
+
+    // Reserved words
+    Class,
+    Struct,
+    Trait,
+    Fn,
+    Pub,
+    Constraint,
+    Enum,
+    Union,
+    Unsafe,
+    Import,
+    Impl,
+    Type,
+    Const,
+    Var,
+    If,
+    Else,
+
+    /// `Self` in source code.
+    #[display(fmt = "Self")]
+    SelfUpper,
+
+    /// `self` in source code.
+    #[display(fmt = "self")]
+    SelfLower,
+
+    /// `mod` in source code.
+    Module,
 
     /// Whitespace of any kind and length.
     #[display(fmt = "W")]

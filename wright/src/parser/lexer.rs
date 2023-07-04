@@ -5,7 +5,7 @@ pub mod tokens;
 
 use std::{
     iter::{FusedIterator, Peekable},
-    str::Chars,
+    str::CharIndices,
 };
 
 use self::tokens::{CommentTy, Token, TokenTy};
@@ -14,7 +14,9 @@ use self::tokens::{CommentTy, Token, TokenTy};
 #[derive(Debug)]
 pub struct Lexer<'a> {
     /// Iterator over the indexed input characters tied to the lifetime of the source code.
-    iterator: Peekable<Chars<'a>>,
+    iterator: Peekable<CharIndices<'a>>,
+    /// The source code passed to the lexer. This is used to check for keywords.
+    source: &'a str,
 }
 
 impl<'a> Iterator for Lexer<'a> {
@@ -22,7 +24,7 @@ impl<'a> Iterator for Lexer<'a> {
 
     fn next(&mut self) -> Option<Token> {
         // Get the next character out of the iterator.
-        let next = self.iterator.next()?;
+        let (start_index, next) = self.iterator.next()?;
 
         // Handle single character tokens first.
         let single_char_tokens = [
@@ -58,7 +60,7 @@ impl<'a> Iterator for Lexer<'a> {
 
         for (c, no_eq, with_eq) in possible_eq_upgrades {
             if next == c {
-                return match self.iterator.next_if_eq(&'=') {
+                return match self.iterator.next_if(|&(_, x)| x == '=') {
                     Some(_) => Some(Token {
                         variant: with_eq,
                         length: 2,
@@ -82,20 +84,24 @@ impl<'a> Iterator for Lexer<'a> {
 
         for (c, alone, with_eq, doubled) in possible_eq_or_double {
             if next == c {
-                return match self.iterator.next_if(|&x| x == '=' || x == c) {
-                    Some('=') => Some(Token {
+                return match self.iterator.next_if(|&(_, x)| x == '=' || x == c) {
+                    // Followed by `=`
+                    Some((_, '=')) => Some(Token {
                         variant: with_eq,
                         length: 2,
                     }),
-                    Some(x) if x == c => Some(Token {
+
+                    // Followed by itself.
+                    Some(_) => Some(Token {
                         variant: doubled,
                         length: 2,
                     }),
+
+                    // Single char token
                     None => Some(Token {
                         variant: alone,
                         length: 1,
                     }),
-                    _ => unreachable!(),
                 };
             }
         }
@@ -109,12 +115,12 @@ impl<'a> Iterator for Lexer<'a> {
 
         for (c, alone, with_eq, as_arrow) in arrows {
             if next == c {
-                return match self.iterator.next_if(|&x| x == '=' || x == '>') {
-                    Some('=') => Some(Token {
+                return match self.iterator.next_if(|&(_, x)| x == '=' || x == '>') {
+                    Some((_, '=')) => Some(Token {
                         variant: with_eq,
                         length: 2,
                     }),
-                    Some('>') => Some(Token {
+                    Some((_, '>')) => Some(Token {
                         variant: as_arrow,
                         length: 2,
                     }),
@@ -129,12 +135,12 @@ impl<'a> Iterator for Lexer<'a> {
 
         // Dot and range operators.
         if next == '.' {
-            return match self.iterator.next_if_eq(&'.') {
+            return match self.iterator.next_if(|&(_, x)| x == '.') {
                 None => Some(Token {
                     variant: TokenTy::Dot,
                     length: 1,
                 }),
-                Some(_) => match self.iterator.next_if_eq(&'=') {
+                Some(_) => match self.iterator.next_if(|&(_, x)| x == '=') {
                     None => Some(Token {
                         variant: TokenTy::Range,
                         length: 2,
@@ -152,7 +158,7 @@ impl<'a> Iterator for Lexer<'a> {
             // Accumulate the number of bytes of whitespace consumed.
             let mut acc = next.len_utf8();
             // Use while-let instead of take-while to avoid consuming the whole iterator.
-            while let Some(consumed) = self.iterator.next_if(|&x| x.is_whitespace()) {
+            while let Some((_, consumed)) = self.iterator.next_if(|&(_, x)| x.is_whitespace()) {
                 acc += consumed.len_utf8();
             }
 
@@ -167,15 +173,44 @@ impl<'a> Iterator for Lexer<'a> {
             // Accumulate the number of bytes consumed in the identifier.
             let mut acc = next.len_utf8();
             // Consume the rest of the identifier.
-            while let Some(consumed) = self
+            while let Some((_, consumed)) = self
                 .iterator
-                .next_if(|&x| unicode_ident::is_xid_continue(x))
+                .next_if(|&(_, x)| unicode_ident::is_xid_continue(x))
             {
                 acc += consumed.len_utf8();
             }
 
+            // Get the matching source code to check for reserved words.
+            let range = start_index..start_index + acc;
+            let matching_source = &self.source[range];
+
+            // Match on reserved words.
+            let variant: TokenTy = match matching_source {
+                "class" => TokenTy::Class,
+                "struct" => TokenTy::Struct,
+                "trait" => TokenTy::Trait,
+                "fn" => TokenTy::Fn,
+                "pub" => TokenTy::Pub,
+                "constraint" => TokenTy::Constraint,
+                "enum" => TokenTy::Enum,
+                "union" => TokenTy::Union,
+                "unsafe" => TokenTy::Unsafe,
+                "import" => TokenTy::Import,
+                "impl" => TokenTy::Impl,
+                "Self" => TokenTy::SelfUpper,
+                "self" => TokenTy::SelfLower,
+                "mod" => TokenTy::Module,
+                "type" => TokenTy::Type,
+                "const" => TokenTy::Const,
+                "var" => TokenTy::Var,
+                "if" => TokenTy::If,
+                "else" => TokenTy::Else,
+
+                _ => TokenTy::Identifier,
+            };
+
             return Some(Token {
-                variant: TokenTy::Identifier,
+                variant,
                 length: acc,
             });
         }
@@ -190,9 +225,9 @@ impl<'a> Iterator for Lexer<'a> {
 
             // Change the radix if necessary
             if next == '0' {
-                if let Some(prefix) = self
+                if let Some((_, prefix)) = self
                     .iterator
-                    .next_if(|x| ['x', 'o', 'b', 'X', 'B'].contains(x))
+                    .next_if(|(_, x)| ['x', 'o', 'b', 'X', 'B'].contains(x))
                 {
                     acc += 1;
 
@@ -208,7 +243,7 @@ impl<'a> Iterator for Lexer<'a> {
             // Consume the rest of the integer literal.
             while self
                 .iterator
-                .next_if(|&x| x.is_digit(radix) || x == '_')
+                .next_if(|&(_, x)| x.is_digit(radix) || x == '_')
                 .is_some()
             {
                 // All accepted characters should be ascii, so we can just simplify `.len_utf8()` to 1.
@@ -228,7 +263,7 @@ impl<'a> Iterator for Lexer<'a> {
             let mut is_terminated = false;
 
             // Consume characters until the end of the literal
-            while let Some(consumed) = self.iterator.next() {
+            while let Some((_, consumed)) = self.iterator.next() {
                 acc += consumed.len_utf8();
 
                 match consumed {
@@ -245,7 +280,7 @@ impl<'a> Iterator for Lexer<'a> {
                     '\\' => {
                         // Consume the escaped character regardless of what it is.
                         // It will always be part of the quoted literal.
-                        if let Some(escaped) = self.iterator.next() {
+                        if let Some((_, escaped)) = self.iterator.next() {
                             acc += escaped.len_utf8();
                         }
                     }
@@ -289,17 +324,17 @@ impl<'a> Iterator for Lexer<'a> {
             // produced token. A seperate token error handling layer will raise that outside of this function.
 
             // Handle multiline comments
-            if self.iterator.next_if_eq(&'*').is_some() {
+            if self.iterator.next_if(|&(_, x)| x == '*').is_some() {
                 acc += 1;
 
                 // Check if it's a doc comment.
-                let comment_type = match self.iterator.next_if(|&x| x == '*' || x == '!') {
-                    Some('*') => {
+                let comment_type = match self.iterator.next_if(|&(_, x)| x == '*' || x == '!') {
+                    Some((_, '*')) => {
                         acc += 1;
                         CommentTy::InnerDoc
                     }
 
-                    Some('!') => {
+                    Some((_, '!')) => {
                         acc += 1;
                         CommentTy::OuterDoc
                     }
@@ -310,9 +345,9 @@ impl<'a> Iterator for Lexer<'a> {
                 };
 
                 // Read the rest of the multi-line comment
-                while let Some(consumed) = self.iterator.next() {
+                while let Some((_, consumed)) = self.iterator.next() {
                     acc += consumed.len_utf8();
-                    if consumed == '*' && self.iterator.next_if_eq(&'#').is_some() {
+                    if consumed == '*' && matches!(self.iterator.peek(), Some((_, '#'))) {
                         acc += 1;
                         return Some(Token {
                             variant: TokenTy::MultilineComment {
@@ -338,19 +373,19 @@ impl<'a> Iterator for Lexer<'a> {
             let mut comment_type = CommentTy::Normal;
 
             // Check for inner doc comment
-            if self.iterator.next_if_eq(&'#').is_some() {
+            if self.iterator.next_if(|&(_, x)| x == '#').is_some() {
                 acc += 1;
                 comment_type = CommentTy::InnerDoc;
 
                 // Check for outer doc comment
-                if self.iterator.next_if_eq(&'!').is_some() {
+                if self.iterator.next_if(|&(_, x)| x == '!').is_some() {
                     acc += 1;
                     comment_type = CommentTy::OuterDoc;
                 }
             }
 
             // Read to end of line/file for rest of comment. Include line ending in consumed bytes.
-            for consumed in self.iterator.by_ref() {
+            for (_, consumed) in self.iterator.by_ref() {
                 acc += consumed.len_utf8();
                 if consumed == '\n' {
                     break;
@@ -384,7 +419,8 @@ impl<'a> Lexer<'a> {
     /// Create a new lexer that iterates on a given source string.
     pub fn new(source: &'a str) -> Self {
         Lexer {
-            iterator: source.chars().peekable(),
+            iterator: source.char_indices().peekable(),
+            source,
         }
     }
 
