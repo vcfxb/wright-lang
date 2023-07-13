@@ -37,12 +37,15 @@ jobs:
       - name: Build rust docs
         run: |
           mkdir tmp
-          cargo doc --no-deps
+          cargo doc
           cp -rv target/doc tmp
       - name: Build mdBook
         run: | 
           mdbook build pages/book
           cp -rv pages/book/book tmp 
+      - name: Copy static files
+        run: |
+          cp -rv pages/static/* tmp
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
