@@ -72,7 +72,10 @@ pub enum TokenTy {
     Struct,
     Trait,
     Fn,
-    Pub,
+    /// Publicly visible.
+    Public,
+    /// Visible in the package only. 
+    Package,
     Constraint,
     Enum,
     Union,

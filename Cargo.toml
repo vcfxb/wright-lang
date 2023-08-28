@@ -1,5 +1,7 @@
 [workspace]
 members = ["wright"]
+# Use the Rust 2021 resolver. 
+resolver = "2"
 
 [workspace.package]
 edition = "2021"
