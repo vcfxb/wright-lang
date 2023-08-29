@@ -16,7 +16,9 @@ pub struct Parser<'a> {
     lexer: Lexer<'a>
 }
 
-
+impl<'a> Parser<'a> {
+    
+}
 
 
 
