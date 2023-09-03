@@ -19,6 +19,16 @@ pub struct Lexer<'a> {
     source: &'a str,
 }
 
+impl<'a> Lexer<'a> {
+    /// Create a new lexer that iterates on a given source string.
+    pub fn new(source: &'a str) -> Self {
+        Lexer {
+            iterator: source.char_indices().peekable(),
+            source,
+        }
+    }
+}
+
 impl<'a> Iterator for Lexer<'a> {
     type Item = Token;
 
@@ -416,22 +426,52 @@ impl<'a> Iterator for Lexer<'a> {
 
 impl<'a> FusedIterator for Lexer<'a> {}
 
-impl<'a> Lexer<'a> {
-    /// Create a new lexer that iterates on a given source string.
-    pub fn new(source: &'a str) -> Self {
-        Lexer {
-            iterator: source.char_indices().peekable(),
-            source,
+/// A token with an index in a piece of source code. 
+#[derive(Copy, Clone, Debug)]
+pub struct IndexedToken {
+    /// The byte index into the source code that this token starts on. 
+    index: usize,
+    /// The token itself. 
+    token: Token,
+}
+
+/// An iterator over the tokens in the source code with byte indices attached. 
+#[derive(Debug)]
+pub struct IndexedLexer<'src> {
+    /// The current index in source code -- the number of bytes currently consumed by the iterator.
+    index: usize,
+    /// The underlying lexer iterator.
+    lexer: Lexer<'src>
+}
+
+impl<'src> IndexedLexer<'src> {
+    /// Construct a new indexed lexer. 
+    pub fn new(source: &'src str) -> Self {
+        Self {
+            index: 0,
+            lexer: Lexer::new(source)
         }
     }
+}
 
-    /// Add byte indexes of every token to the iterator.
-    pub fn indexed(self) -> impl Iterator<Item = (usize, Token)> + 'a {
-        self.scan(0usize, |acc, token| {
-            let new_index = *acc + token.length;
-            let return_value = (*acc, token);
-            *acc = new_index;
-            Some(return_value)
-        })
+impl<'a> Iterator for IndexedLexer<'a> {
+    type Item = IndexedToken;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        // Pull a token from the iterator.
+        let token = self.lexer.next()?;
+
+        // If available, add the current index to it to return.
+        let indexed_token = IndexedToken {
+            index: self.index,
+            token
+        };
+
+        // Update the current index with the length of the token. 
+        self.index += token.length;
+                
+        return Some(indexed_token);
     }
 }
+
+impl<'a> FusedIterator for IndexedLexer<'a> {}

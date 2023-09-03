@@ -5,31 +5,31 @@
 
 use derive_more::From;
 
-macro_rules! unary_expr {
-    (
-        $(#[$meta:meta])*
-        $name:ident
-    ) => {
-        $(#[$meta])*
-        #[derive(Clone, Debug)]
-        pub struct $name {
-            pub expr: Box<Expression>,
-        }
+// macro_rules! unary_expr {
+//     (
+//         $(#[$meta:meta])*
+//         $name:ident
+//     ) => {
+//         $(#[$meta])*
+//         #[derive(Clone, Debug)]
+//         pub struct $name {
+//             pub expr: Box<Expression>,
+//         }
 
-        impl $name {
-            paste::paste! {
-                #[doc = "Construct a new [`" $name "`] around a given [`Expression`]."]
-                #[allow(unused)]
-                #[inline]
-                pub fn new(expr: Expression) -> Self {
-                    Self {
-                        expr: Box::new(expr)
-                    }
-                }
-            }
-        }
-    };
-}
+//         impl $name {
+//             paste::paste! {
+//                 #[doc = "Construct a new [`" $name "`] around a given [`Expression`]."]
+//                 #[allow(unused)]
+//                 #[inline]
+//                 pub fn new(expr: Expression) -> Self {
+//                     Self {
+//                         expr: Box::new(expr)
+//                     }
+//                 }
+//             }
+//         }
+//     };
+// }
 
 macro_rules! unary_exprs {
     (

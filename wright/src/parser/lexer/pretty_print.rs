@@ -1,5 +1,7 @@
 //! Lexer pretty printer.
 
+use crate::parser::lexer::{IndexedLexer, IndexedToken};
+
 use super::Lexer;
 use codespan_reporting::files::{Files, SimpleFile};
 use std::cmp;
@@ -41,11 +43,9 @@ impl<'a> Lexer<'a> {
         // Get the source code as a str ref.
         let source_str: &str = source.source().as_ref();
         // Get the token iterator for the source code.
-        let mut token_iter = Lexer::new(source_str)
-            // Add byte indices to the iterator.
-            .indexed()
+        let mut token_iter = IndexedLexer::new(source_str)
             // Go from byte start indices to byte ranges in the source string
-            .map(|(start_index, token)| (start_index..start_index + token.length, token))
+            .map(|IndexedToken {index, token}| (index..index + token.length, token))
             // Make it peekable so that we can consume the iterator conditionally
             .peekable();
 
