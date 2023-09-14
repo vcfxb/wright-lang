@@ -472,6 +472,10 @@ impl<'a> Iterator for IndexedLexer<'a> {
                 
         return Some(indexed_token);
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.lexer.size_hint()
+    }
 }
 
 impl<'a> FusedIterator for IndexedLexer<'a> {}
