@@ -216,6 +216,8 @@ impl<'a> Iterator for Lexer<'a> {
                 "var" => TokenTy::Var,
                 "if" => TokenTy::If,
                 "else" => TokenTy::Else,
+                "unchecked" => TokenTy::Unchecked,
+                "as" => TokenTy::As,
 
                 _ => TokenTy::Identifier,
             };

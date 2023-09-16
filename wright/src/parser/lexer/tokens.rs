@@ -82,11 +82,14 @@ pub enum TokenTy {
     Unsafe,
     Import,
     Impl,
+    /// May use similar to unsafe in rust -- call a function or cast without checking any of the constraints.
+    Unchecked,
     Type,
     Const,
     Var,
     If,
     Else,
+    As,
 
     /// `Self` in source code.
     #[display(fmt = "Self")]

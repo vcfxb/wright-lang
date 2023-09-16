@@ -15,8 +15,11 @@ pub struct Parser<'src> {
     lexer: IndexedLexer<'src>
 }
 
-pub enum ParserError {
-
+/// An error in the source code caught by the parser. 
+pub struct ParserError<'src> {
+    /// The source code that the error was in. 
+    source: &'src str,
+    
 }
 
 impl<'a> Parser<'a> {
