@@ -29,13 +29,31 @@ pub struct Path<'src> {
     pub tail: Option<Box<Path<'src>>>
 }
 
+/// A generic type argument in a type/class/etc declaration. 
+#[derive(Debug)]
+pub struct GenericTypeArg<'src> {
+    /// The identifier for the generic type. 
+    pub name: Identifier<'src>
+}
+
+/// A generic const argument in a type/class/etc declaration. 
+#[derive(Debug)]
+pub struct GenericConstArg<'src> {
+    /// The identifier for this generic constant.
+    pub name: Identifier<'src>,
+    /// The type expected in the generic instantiation. 
+    pub ty: TypeInstantiation<'src>
+}
+
 /// A reference to or use of a type in source code. 
 #[derive(Debug)]
 pub struct TypeInstantiation<'src> {
     /// The type's name, possibly at the end of a path to resolve it. 
     pub typename: Path<'src>,
     /// Any types used as generic arguments to make this a concrete type. 
-    pub generic_arguments: Vec<TypeInstantiation<'src>>
+    pub generic_type_arguments: Vec<TypeInstantiation<'src>>,
+    /// 
+    pub generic_const_arguments: Vec<()>,
 }
 
 /// A top-level declaration in source code.
@@ -82,6 +100,10 @@ pub struct TypeDeclaration<'src> {
     pub vis: Visibility,
     /// The name of the type. 
     pub name: Identifier<'src>,
+    /// The generic type arguments that need to be passed to this type.
+    pub generic_type_arguments: Vec<GenericTypeArg<'src>>,
+    /// The generic constant arguments that need to be passed to this type.
+    pub generic_const_arguments: Vec<GenericConstArg<'src>>,
     /// The type being aliased to. 
     pub dest: TypeInstantiation<'src>
 }

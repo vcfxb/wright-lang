@@ -70,6 +70,7 @@ pub enum TokenTy {
     // Reserved words
     Class,
     Struct,
+    Record,
     Trait,
     Fn,
     /// Publicly visible.
@@ -77,19 +78,25 @@ pub enum TokenTy {
     /// Visible in the package only. 
     Package,
     Constraint,
+    Constrain,
+    /// Used to constrain relations between variables. 
+    Relation,
     Enum,
     Union,
     Unsafe,
+    /// May use similar to unsafe in Rust -- call a function or cast without checking any of the constraints.
+    Unchecked,
     Import,
     Impl,
-    /// May use similar to unsafe in rust -- call a function or cast without checking any of the constraints.
-    Unchecked,
     Type,
     Const,
     Var,
     If,
     Else,
+    Is,
     As,
+    /// For try { } blocks.
+    Try,
 
     /// `Self` in source code.
     #[display(fmt = "Self")]

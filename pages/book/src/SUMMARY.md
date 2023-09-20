@@ -1,9 +1,9 @@
 
 # Summary
 
-[Introduction](INTRODUCTION.md)
+[Introduction](./INTRODUCTION.md)
 
 # Design Notes
 
-- [Language Constructs](design-notes/language-constructs.md)
-
+- [Language Constructs](./design-notes/language-constructs.md)
+- [User Defined Optimizations](./design-notes/user-defined-optimizations.md)
