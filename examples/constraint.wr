@@ -2,6 +2,10 @@
 import wright.cmp;
 
 
+
+type KnownMin<const MIN: integer> is integer constrain { self >= MIN };
+
+
 type KnownMax<type T, const MAX: T> 
 where T: cmp.Ord 
 is T constrain T <= MAX;
@@ -37,3 +41,4 @@ constraint<type T> KnownMax(a: T, b: T)
 
 
 ... not sure yet what I want syntax to look like here. 
+

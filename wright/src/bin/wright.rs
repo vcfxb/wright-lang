@@ -6,13 +6,16 @@ use codespan_reporting::files::SimpleFile;
 use std::{fs, path::PathBuf};
 use wright::parser::lexer::Lexer;
 
+/// The wright cli.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
+    /// The subcommand passed to the wright cli.
     #[command(subcommand)]
     command: Option<Commands>,
 }
 
+/// Different sub-commands that the wright cli supports.
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// Subcommand for debugging wright's source code and interpreter.
@@ -22,6 +25,7 @@ enum Commands {
     },
 }
 
+/// Different sub-commands that the debug sub-command supports.
 #[derive(Subcommand, Debug)]
 enum DebugCommands {
     /// Debug the tokens/lexemes for a source file.

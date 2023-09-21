@@ -45,7 +45,7 @@ impl<'a> Lexer<'a> {
         // Get the token iterator for the source code.
         let mut token_iter = IndexedLexer::new(source_str)
             // Go from byte start indices to byte ranges in the source string
-            .map(|IndexedToken {index, token}| (index..index + token.length, token))
+            .map(|IndexedToken { index, token }| (index..index + token.length, token))
             // Make it peekable so that we can consume the iterator conditionally
             .peekable();
 

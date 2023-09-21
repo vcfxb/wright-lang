@@ -1,7 +1,12 @@
-//! Expressions in wright source code.
-//!
-//! Expression structures are decently uniform and
-//! created using macros.
+//! Structures used for representing expressions in wright source code.
+
+pub mod block;
+
+/// Enumeration of all the different kinds of expression in wright.
+#[derive(Debug)]
+pub enum Expression<'src> {
+    Block(block::Block<'src>),
+}
 
 // macro_rules! unary_expr {
 //     (

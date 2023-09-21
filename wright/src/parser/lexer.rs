@@ -196,25 +196,31 @@ impl<'a> Iterator for Lexer<'a> {
 
             // Match on reserved words.
             let variant: TokenTy = match matching_source {
+                // Declaration keywords
                 "class" => TokenTy::Class,
                 "struct" => TokenTy::Struct,
                 "record" => TokenTy::Record,
                 "trait" => TokenTy::Trait,
                 "fn" => TokenTy::Fn,
+                "enum" => TokenTy::Enum,
+                "union" => TokenTy::Union,
+                "mod" => TokenTy::Module,
+                "import" => TokenTy::Import,
+
+                // Visibility keywords
                 "public" => TokenTy::Public,
                 "package" => TokenTy::Package,
+                "private" => TokenTy::Private,
+
+                // Other keywords.
                 "constraint" => TokenTy::Constraint,
                 "constrain" => TokenTy::Constrain,
                 "relation" => TokenTy::Relation,
-                "enum" => TokenTy::Enum,
-                "union" => TokenTy::Union,
                 "unsafe" => TokenTy::Unsafe,
                 "unchecked" => TokenTy::Unchecked,
-                "import" => TokenTy::Import,
                 "impl" => TokenTy::Impl,
                 "Self" => TokenTy::SelfUpper,
                 "self" => TokenTy::SelfLower,
-                "mod" => TokenTy::Module,
                 "type" => TokenTy::Type,
                 "const" => TokenTy::Const,
                 "var" => TokenTy::Var,
@@ -222,6 +228,9 @@ impl<'a> Iterator for Lexer<'a> {
                 "else" => TokenTy::Else,
                 "is" => TokenTy::Is,
                 "as" => TokenTy::As,
+                "on" => TokenTy::On,
+                "in" => TokenTy::In,
+                "dyn" => TokenTy::Dyn,
                 "try" => TokenTy::Try,
 
                 _ => TokenTy::Identifier,
@@ -433,30 +442,30 @@ impl<'a> Iterator for Lexer<'a> {
 
 impl<'a> FusedIterator for Lexer<'a> {}
 
-/// A token with an index in a piece of source code. 
+/// A token with an index in a piece of source code.
 #[derive(Copy, Clone, Debug)]
 pub struct IndexedToken {
-    /// The byte index into the source code that this token starts on. 
+    /// The byte index into the source code that this token starts on.
     index: usize,
-    /// The token itself. 
+    /// The token itself.
     token: Token,
 }
 
-/// An iterator over the tokens in the source code with byte indices attached. 
+/// An iterator over the tokens in the source code with byte indices attached.
 #[derive(Debug)]
 pub struct IndexedLexer<'src> {
     /// The current index in source code -- the number of bytes currently consumed by the iterator.
     index: usize,
     /// The underlying lexer iterator.
-    lexer: Lexer<'src>
+    lexer: Lexer<'src>,
 }
 
 impl<'src> IndexedLexer<'src> {
-    /// Construct a new indexed lexer. 
+    /// Construct a new indexed lexer.
     pub fn new(source: &'src str) -> Self {
         Self {
             index: 0,
-            lexer: Lexer::new(source)
+            lexer: Lexer::new(source),
         }
     }
 }
@@ -471,12 +480,12 @@ impl<'a> Iterator for IndexedLexer<'a> {
         // If available, add the current index to it to return.
         let indexed_token = IndexedToken {
             index: self.index,
-            token
+            token,
         };
 
-        // Update the current index with the length of the token. 
+        // Update the current index with the length of the token.
         self.index += token.length;
-                
+
         return Some(indexed_token);
     }
 

@@ -75,11 +75,13 @@ pub enum TokenTy {
     Fn,
     /// Publicly visible.
     Public,
-    /// Visible in the package only. 
+    /// Visible in the package only.
     Package,
+    /// Visible only in file/module.
+    Private,
     Constraint,
     Constrain,
-    /// Used to constrain relations between variables. 
+    /// Used to constrain relations between variables.
     Relation,
     Enum,
     Union,
@@ -95,6 +97,10 @@ pub enum TokenTy {
     Else,
     Is,
     As,
+    On,
+    In,
+    /// Marks functions as dynamic, and not to be executed at compile time.
+    Dyn,
     /// For try { } blocks.
     Try,
 
