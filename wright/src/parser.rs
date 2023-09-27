@@ -72,11 +72,11 @@ impl<'src> Iterator for Parser<'src> {
 impl<'src> Parser<'src> {
     /// Replace the internal lexer iterator with a different one that has been used to consume tokens. 
     fn update_lexer(&mut self, new: IndexedLexer<'src>) -> AstNodeMeta<'src> {
-        // Construct AST node metadata by subtracting one cursor from the other. 
+        // Construct AST node metadata by slicing from one cursor to the next.  
         let meta = AstNodeMeta { 
             file_id: self.file_id, 
             index: self.lexer.index, 
-            matching_source: &self.source[self.lexer.index..(new.index-self.lexer.index)]
+            matching_source: &self.source[self.lexer.index..new.index]
         };
 
         // Replace the internal lexer. 
