@@ -11,7 +11,7 @@ use std::{
 use self::tokens::{CommentTy, Token, TokenTy};
 
 /// Lexical analyzer for wright code. This struct host functions that produce tokens from wright source.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Lexer<'a> {
     /// Iterator over the indexed input characters tied to the lifetime of the source code.
     iterator: Peekable<CharIndices<'a>>,
@@ -65,7 +65,6 @@ impl<'a> Iterator for Lexer<'a> {
             ('^', TokenTy::Xor, TokenTy::XorEq),
             ('*', TokenTy::Star, TokenTy::StarEq),
             ('+', TokenTy::Plus, TokenTy::PlusEq),
-            ('/', TokenTy::Div, TokenTy::DivEq),
         ];
 
         for (c, no_eq, with_eq) in possible_eq_upgrades {
@@ -90,6 +89,7 @@ impl<'a> Iterator for Lexer<'a> {
             ('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft),
             ('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
             (':', TokenTy::Colon, TokenTy::ColonEq, TokenTy::ColonColon),
+            ('/', TokenTy::Div, TokenTy::DivEq, TokenTy::DivDiv),
         ];
 
         for (c, alone, with_eq, doubled) in possible_eq_or_double {
@@ -226,6 +226,7 @@ impl<'a> Iterator for Lexer<'a> {
                 "var" => TokenTy::Var,
                 "if" => TokenTy::If,
                 "else" => TokenTy::Else,
+                "match" => TokenTy::Match,
                 "is" => TokenTy::Is,
                 "as" => TokenTy::As,
                 "on" => TokenTy::On,
@@ -446,16 +447,16 @@ impl<'a> FusedIterator for Lexer<'a> {}
 #[derive(Copy, Clone, Debug)]
 pub struct IndexedToken {
     /// The byte index into the source code that this token starts on.
-    index: usize,
+    pub index: usize,
     /// The token itself.
-    token: Token,
+    pub token: Token,
 }
 
 /// An iterator over the tokens in the source code with byte indices attached.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IndexedLexer<'src> {
     /// The current index in source code -- the number of bytes currently consumed by the iterator.
-    index: usize,
+    pub index: usize,
     /// The underlying lexer iterator.
     lexer: Lexer<'src>,
 }

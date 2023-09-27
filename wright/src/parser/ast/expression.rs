@@ -1,6 +1,7 @@
 //! Structures used for representing expressions in wright source code.
 
 pub mod block;
+pub mod literal;
 
 /// Enumeration of all the different kinds of expression in wright.
 #[derive(Debug)]

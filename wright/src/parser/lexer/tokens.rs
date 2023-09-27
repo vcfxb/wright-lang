@@ -53,6 +53,7 @@ pub enum TokenTy {
     DoubleArrow,    // =>
     Div,            // /
     DivEq,          // /=
+    DivDiv,         // //
     Semi,           // ;
     Colon,          // :
     ColonColon,     // ::
@@ -95,6 +96,7 @@ pub enum TokenTy {
     Var,
     If,
     Else,
+    Match,
     Is,
     As,
     On,
