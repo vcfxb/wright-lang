@@ -41,12 +41,20 @@ enum ParserErrorVariant {
     Expected(&'static str)
 }
 
-impl<'a> Parser<'a> {
+impl<'src> Iterator for Parser<'src> {
+    type Item = Result<Declaration<'src>, ParserError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unimplemented!()
+    }
+}
+
+impl<'src> Parser<'src> {
     /// Construct a new parser for a given source file.
     ///
-    /// ## Panics:
-    /// Note that the file id is expected to be in the file map, and this will panic if not.
-    pub fn new(file_map: &'a FileMap, file_id: FileId) -> Self {
+    /// # Panics:
+    /// If the file ID is not in the file map. 
+    pub fn new(file_map: &'src FileMap, file_id: FileId) -> Self {
         // Get the source using the file map.
         let source = file_map
             .source(file_id)
@@ -59,18 +67,8 @@ impl<'a> Parser<'a> {
             lexer: IndexedLexer::new(source),
         }
     }
-}
 
-impl<'src> Iterator for Parser<'src> {
-    type Item = Result<Declaration<'src>, ParserError>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        unimplemented!()
-    }
-}
-
-impl<'src> Parser<'src> {
-    /// Replace the internal lexer iterator with a different one that has been used to consume tokens. 
+    /// Replace the internal lexer iterator with an updated one that has been used to consume tokens. 
     fn update_lexer(&mut self, new: IndexedLexer<'src>) -> AstNodeMeta<'src> {
         // Construct AST node metadata by slicing from one cursor to the next.  
         let meta = AstNodeMeta { 
