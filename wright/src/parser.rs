@@ -2,10 +2,8 @@
 
 use std::ops::Range;
 use codespan_reporting::files::Files;
-use num::{BigUint, Num};
 use crate::filemap::{FileId, FileMap};
-use self::{ast::{declaration::Declaration, expression::literal::IntegerLiteral, metadata::AstNodeMeta}, lexer::{IndexedLexer, IndexedToken, tokens::{Token, TokenTy}}};
-use std::cmp;
+use self::{ast::{declaration::Declaration, metadata::AstNodeMeta}, lexer::IndexedLexer};
 
 pub mod ast;
 pub mod lexer;
@@ -45,7 +43,7 @@ impl<'src> Iterator for Parser<'src> {
     type Item = Result<Declaration<'src>, ParserError>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        unimplemented!()
+        todo!()
     }
 }
 
@@ -69,12 +67,15 @@ impl<'src> Parser<'src> {
     }
 
     /// Replace the internal lexer iterator with an updated one that has been used to consume tokens. 
+    /// 
+    /// Return a node metadata representing the change in lexer state.
     fn update_lexer(&mut self, new: IndexedLexer<'src>) -> AstNodeMeta<'src> {
         // Construct AST node metadata by slicing from one cursor to the next.  
         let meta = AstNodeMeta { 
             file_id: self.file_id, 
             index: self.lexer.index, 
-            matching_source: &self.source[self.lexer.index..new.index]
+            matching_source: &self.source[self.lexer.index..new.index],
+            file_map: self.file_map,
         };
 
         // Replace the internal lexer. 
@@ -82,42 +83,5 @@ impl<'src> Parser<'src> {
         
         // Return constructed metadata.
         return meta;
-    }
-
-    /// Parse an integer literal or error. 
-    fn parse_integer(&mut self) -> Result<IntegerLiteral<'src>, ParserError> {
-        // Clone the current lexer (token cursor) to parse an integer. 
-        let mut lexer = self.lexer.clone();
-        
-        // Take an integer literal token from the lexer or error.
-        match lexer.next() {
-            Some(IndexedToken { index, token: Token { variant: TokenTy::IntegerLit, length } }) => {
-                // Get the matching source of this token. 
-                let matching_source = &self.source[index..index+length];
-                
-                // Check for a prefix
-                let prefix = &matching_source[..cmp::max(2, matching_source.len())];
-
-                // Get a radix off the prefix
-                let radix = match prefix {
-                    "0x" | "0X" => 16,
-                    "0b" | "0B" => 2,
-                    "0o" => 8,
-                    _ => 10,
-                };
-
-                // Strip the prefix from the string to get the body of it to parse. 
-                let body = if radix != 10 { &matching_source[2..] } else { matching_source }; 
-
-                // Parse it.
-                let value = BigUint::from_str_radix(body, radix)
-                    // Panic here as the lexer should check for this.
-                    .expect("lexer checks integer literal format");
-
-                Ok(IntegerLiteral { meta: self.update_lexer(lexer), value })
-            },
-
-            _ => Err(ParserError { byte_range: self.lexer.index..lexer.index, ty: ParserErrorVariant::Expected("integer literal") })
-        }
     }
 }

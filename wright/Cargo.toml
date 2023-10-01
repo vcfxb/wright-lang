@@ -25,6 +25,7 @@ unicode-ident = "1.0"
 codespan-reporting = "0.11.1"
 termcolor = "1.2.0"
 num = "0.4"
+ptree = "0.4"
 
 [[bin]]
 name = "wright"
