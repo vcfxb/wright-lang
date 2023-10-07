@@ -1,4 +1,4 @@
-//! 
+//! Integer literal representation and parsing in wright source. 
 
 use num::{BigUint, Num};
 use std::cmp;

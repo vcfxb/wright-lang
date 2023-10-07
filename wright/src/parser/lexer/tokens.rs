@@ -105,6 +105,8 @@ pub enum TokenTy {
     Dyn,
     /// For try { } blocks.
     Try,
+    True,
+    False,
 
     /// `Self` in source code.
     #[display(fmt = "Self")]

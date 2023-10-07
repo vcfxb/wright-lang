@@ -212,6 +212,10 @@ impl<'a> Iterator for Lexer<'a> {
                 "package" => TokenTy::Package,
                 "private" => TokenTy::Private,
 
+                // Boolean literals
+                "true" => TokenTy::True,
+                "false" => TokenTy::False,
+
                 // Other keywords.
                 "constraint" => TokenTy::Constraint,
                 "constrain" => TokenTy::Constrain,
