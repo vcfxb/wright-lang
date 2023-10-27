@@ -1,9 +1,10 @@
 //! A node in the AST representing the visibility of a declaration.
 
 use crate::parser::ast::metadata::AstNodeMeta;
+use derive_more::Display;
 
 /// The possible visibilities of a declaration in Wright.
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, Display)]
 pub enum VisibilityTy {
     /// Externally public.
     Public,

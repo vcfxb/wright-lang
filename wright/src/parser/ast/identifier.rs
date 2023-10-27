@@ -1,18 +1,45 @@
 //! Identifiers in wright source code.
 
-use crate::filemap::FileId;
+use crate::parser::{
+    lexer::{
+        tokens::{Token, TokenTy},
+        IndexedToken,
+    },
+    Parser, ParserError, ParserErrorVariant, ParserResult,
+};
+
+use super::metadata::AstNodeMeta;
 
 /// An identifier in the source code being parsed.
-///
-/// This does not use the traditional metadata struct, since there's no additional node data beyond that from the
-/// source code.
 #[derive(Debug, Clone, Copy)]
 pub struct Identifier<'src> {
-    /// The file handle for the file this token is in.
-    pub file_id: FileId,
-    /// The byte index of the matching string in the source file.
-    pub index: usize,
-    /// The identifier string itself. The byte length in source code
-    /// is carried in the metadata.
-    pub inner: &'src str,
+    /// An identifier is just a string in source code so we use a single metadata here
+    /// and pass on the indetifier from the matching source.
+    pub inner: AstNodeMeta<'src>,
+}
+
+impl<'src> Parser<'src> {
+    /// Parse an identifier in source code or error.
+    pub fn parse_identifier(&mut self) -> ParserResult<Identifier<'src>> {
+        // Clone the lexer to try to parse an identifier.
+        let mut lexer = self.lexer.clone();
+
+        match lexer.next() {
+            Some(IndexedToken {
+                token:
+                    Token {
+                        variant: TokenTy::Identifier,
+                        ..
+                    },
+                ..
+            }) => Ok(Identifier {
+                inner: self.update_lexer(lexer),
+            }),
+
+            _ => Err(ParserError {
+                byte_range: self.lexer.index..lexer.index,
+                ty: ParserErrorVariant::Expected("identifier"),
+            }),
+        }
+    }
 }

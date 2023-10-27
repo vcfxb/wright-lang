@@ -1,7 +1,7 @@
 //! Metadata used to track the source code that produces nodes in the AST.
 
 use crate::filemap::{FileId, FileMap};
-use codespan_reporting::files::{Location, Files};
+use codespan_reporting::files::{Files, Location};
 
 /// The metadata used for determining where in the source code the given node is and what source was parsed to produce
 /// it.

@@ -1,30 +1,45 @@
-//! Integer literal representation and parsing in wright source. 
+//! Integer literal representation and parsing in wright source.
 
 use num::{BigUint, Num};
 use std::cmp;
-use crate::parser::{ast::{metadata::AstNodeMeta, AstNode}, Parser, ParserError, lexer::{IndexedToken, tokens::{Token, TokenTy}}, ParserErrorVariant};
+
+use crate::parser::{
+    ast::metadata::AstNodeMeta,
+    lexer::{
+        tokens::{Token, TokenTy},
+        IndexedToken,
+    },
+    Parser, ParserError, ParserErrorVariant, ParserResult,
+};
 
 /// An integer in Wright source code.
 #[derive(Debug)]
 pub struct IntegerLiteral<'src> {
     /// Metadata about this literal in source code.
     pub meta: AstNodeMeta<'src>,
-    /// The value represented in source code. 
-    pub value: BigUint
+    /// The value represented in source code.
+    pub value: BigUint,
 }
 
 impl<'src> Parser<'src> {
-    /// Parse an integer literal or error. 
-    pub fn parse_integer(&mut self) -> Result<IntegerLiteral<'src>, ParserError> {
-        // Clone the current lexer (token cursor) to parse an integer. 
+    /// Parse an integer literal or error.
+    pub fn parse_integer(&mut self) -> ParserResult<IntegerLiteral<'src>> {
+        // Clone the current lexer (token cursor) to parse an integer.
         let mut lexer = self.lexer.clone();
-        
+
         // Take an integer literal token from the lexer or error.
         match lexer.next() {
-            Some(IndexedToken { index, token: Token { variant: TokenTy::IntegerLit, length } }) => {
-                // Get the matching source of this token. 
-                let matching_source = &self.source[index..index+length];
-                
+            Some(IndexedToken {
+                index,
+                token:
+                    Token {
+                        variant: TokenTy::IntegerLit,
+                        length,
+                    },
+            }) => {
+                // Get the matching source of this token.
+                let matching_source = &self.source[index..index + length];
+
                 // Check for a prefix
                 let prefix = &matching_source[..cmp::max(2, matching_source.len())];
 
@@ -36,29 +51,28 @@ impl<'src> Parser<'src> {
                     _ => 10,
                 };
 
-                // Strip the prefix from the string to get the body of it to parse. 
-                let body = if radix != 10 { &matching_source[2..] } else { matching_source }; 
+                // Strip the prefix from the string to get the body of it to parse.
+                let body = if radix != 10 {
+                    &matching_source[2..]
+                } else {
+                    matching_source
+                };
 
                 // Parse it.
                 let value = BigUint::from_str_radix(body, radix)
                     // Panic here as the lexer should check for this.
                     .expect("lexer checks integer literal format");
 
-                Ok(IntegerLiteral { meta: self.update_lexer(lexer), value })
-            },
+                Ok(IntegerLiteral {
+                    meta: self.update_lexer(lexer),
+                    value,
+                })
+            }
 
-            _ => Err(ParserError { byte_range: self.lexer.index..lexer.index, ty: ParserErrorVariant::Expected("integer literal") })
+            _ => Err(ParserError {
+                byte_range: self.lexer.index..lexer.index,
+                ty: ParserErrorVariant::Expected("integer literal"),
+            }),
         }
-    }
-}
-
-impl<'src> AstNode for IntegerLiteral<'src> {
-    fn write_self(&self, w: &mut dyn std::io::Write, style: &ptree::Style) -> std::io::Result<()> {
-        write!(w, "{}", style.paint(format!("IntegerLiteral ({})", self.value)))
-    }
-
-    fn children(&self) -> std::borrow::Cow<[&dyn AstNode]> {
-        // No childeren, empty list. 
-        Vec::new().into()
     }
 }

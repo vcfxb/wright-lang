@@ -1,9 +1,12 @@
 //! Parsers module, for all the parsers implemented by wright and necessary to parse wright source code.
 
-use std::ops::Range;
-use codespan_reporting::files::Files;
+use self::{
+    ast::{declaration::Declaration, metadata::AstNodeMeta},
+    lexer::IndexedLexer,
+};
 use crate::filemap::{FileId, FileMap};
-use self::{ast::{declaration::Declaration, metadata::AstNodeMeta}, lexer::IndexedLexer};
+use codespan_reporting::files::Files;
+use std::ops::Range;
 
 pub mod ast;
 pub mod lexer;
@@ -23,21 +26,24 @@ pub struct Parser<'src> {
     lexer: IndexedLexer<'src>,
 }
 
-/// An error that can occur during parsing. 
+/// An error that can occur during parsing.
 #[derive(Debug)]
 pub struct ParserError {
-    /// The byte index range of the offending line in the file being parsed. 
+    /// The byte index range of the offending line in the file being parsed.
     byte_range: Range<usize>,
-    /// The type of error. 
-    ty: ParserErrorVariant
+    /// The type of error.
+    ty: ParserErrorVariant,
 }
 
-/// Different types of errors that can be generated duruing parsing. 
+/// Different types of errors that can be generated duruing parsing.
 #[derive(Debug)]
 enum ParserErrorVariant {
-    /// Something was expected and wasn't there. 
-    Expected(&'static str)
+    /// Something was expected and wasn't there.
+    Expected(&'static str),
 }
+
+/// Parser version of [`Result`].
+pub type ParserResult<T> = Result<T, ParserError>;
 
 impl<'src> Iterator for Parser<'src> {
     type Item = Result<Declaration<'src>, ParserError>;
@@ -51,7 +57,7 @@ impl<'src> Parser<'src> {
     /// Construct a new parser for a given source file.
     ///
     /// # Panics:
-    /// If the file ID is not in the file map. 
+    /// If the file ID is not in the file map.
     pub fn new(file_map: &'src FileMap, file_id: FileId) -> Self {
         // Get the source using the file map.
         let source = file_map
@@ -66,21 +72,21 @@ impl<'src> Parser<'src> {
         }
     }
 
-    /// Replace the internal lexer iterator with an updated one that has been used to consume tokens. 
-    /// 
+    /// Replace the internal lexer iterator with an updated one that has been used to consume tokens.
+    ///
     /// Return a node metadata representing the change in lexer state.
     fn update_lexer(&mut self, new: IndexedLexer<'src>) -> AstNodeMeta<'src> {
-        // Construct AST node metadata by slicing from one cursor to the next.  
-        let meta = AstNodeMeta { 
-            file_id: self.file_id, 
-            index: self.lexer.index, 
+        // Construct AST node metadata by slicing from one cursor to the next.
+        let meta = AstNodeMeta {
+            file_id: self.file_id,
+            index: self.lexer.index,
             matching_source: &self.source[self.lexer.index..new.index],
             file_map: self.file_map,
         };
 
-        // Replace the internal lexer. 
+        // Replace the internal lexer.
         self.lexer = new;
-        
+
         // Return constructed metadata.
         return meta;
     }
