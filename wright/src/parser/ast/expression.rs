@@ -1,12 +1,39 @@
 //! Structures used for representing expressions in wright source code.
 
+use self::{literal::{integer::IntegerLiteral, boolean::BooleanLiteral}, parentheses::ParenthesesExpression};
+use super::{identifier::Identifier, path::Path};
+
 pub mod block;
 pub mod literal;
+pub mod parentheses;
 
 /// Enumeration of all the different kinds of expression in wright.
 #[derive(Debug)]
 pub enum Expression<'src> {
-    Block(block::Block<'src>),
+    /// A literal in source code. 
+    Literal(Literal<'src>),
+    // Block(block::Block<'src>),
+}
+
+/// A primary expression is a special type of low-level expression that can appear in places where other expressions 
+/// (such as blocks or conditionals) are not allowed. 
+pub enum Primary<'src> {
+    /// A literal in source code.
+    Literal(Literal<'src>),
+    /// An identifier refering to a variable/item/symbol in scope. 
+    Identifier(Identifier<'src>),
+    /// A path to an item/symbol/constant value. 
+    Path(Path<'src>),
+    /// An expression in parentheses. 
+    Parentheses(ParenthesesExpression<'src>)
+}
+
+#[derive(Debug)]
+pub enum Literal<'src> {
+    /// An integer literal in source code.
+    Integer(IntegerLiteral<'src>),
+    /// A boolean literal in source code. 
+    Boolean(BooleanLiteral<'src>),
 }
 
 // macro_rules! unary_expr {

@@ -2,8 +2,6 @@
 //!
 //! Path items are separated using `::` similar to rust.
 
-use std::borrow::Cow;
-
 use super::{identifier::Identifier, metadata::AstNodeMeta};
 
 /// A double-colon seperated path to a module, type, or function in Wright source code.

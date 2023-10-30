@@ -4,7 +4,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use codespan_reporting::files::SimpleFile;
 use std::{fs, path::PathBuf};
-use wright::parser::lexer::Lexer;
+use wright::{parser::lexer::Lexer, repl};
 
 /// The wright cli.
 #[derive(Parser, Debug)]
@@ -23,6 +23,9 @@ enum Commands {
         #[command(subcommand)]
         command: DebugCommands,
     },
+
+    /// Subcommand to start an interactive repl. 
+    Repl,
 }
 
 /// Different sub-commands that the debug sub-command supports.
@@ -61,6 +64,9 @@ fn main() -> Result<()> {
 
             Ok(())
         }
+
+        // Start an interactive repl. 
+        Some(Commands::Repl) => repl::start(),
 
         _ => unimplemented!(),
     }
