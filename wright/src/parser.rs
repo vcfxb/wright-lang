@@ -2,7 +2,7 @@
 
 use self::{
     ast::{declaration::Declaration, metadata::AstNodeMeta},
-    lexer::IndexedLexer,
+    lexer::{IndexedLexer, IndexedToken, tokens::{Token, TokenTy}},
 };
 use crate::filemap::{FileId, FileMap};
 use codespan_reporting::files::Files;
@@ -89,5 +89,37 @@ impl<'src> Parser<'src> {
 
         // Return constructed metadata.
         return meta;
+    }
+
+    /// Get the byte index range over the next token of the lexer iterator. 
+    /// 
+    /// If there are no tokens on the lexer iterator, return a zero length range 
+    /// from the current index to the current index. 
+    fn next_token_span(&self) -> Range<usize> {
+        // Clone the lexer to get the next token to measure its length. 
+        let mut cloned_lexer = self.lexer.clone();
+        
+        // Match on the next token from the lexer. 
+        match cloned_lexer.next() {
+            Some(IndexedToken { index, token: Token { length, .. } }) => index..index+length,
+            None => self.lexer.index..self.lexer.index
+        }
+    }
+
+    /// Make a parser error on the next token using the given error variant. 
+    fn next_token_err(&self, err_variant: ParserErrorVariant) -> ParserError {
+        ParserError { byte_range: self.next_token_span(), ty: err_variant }
+    }
+
+    /// Parse through and discard a whitespace token in the lexer iterator if there is one next. 
+    fn ignore_whitespace(&mut self) {
+        // Clone the internal lexer for parsing whitespace. 
+        let mut whitespace_lexer = self.lexer.clone();
+
+        // If there's a whitespace token next. 
+        if let Some(IndexedToken { token: Token { variant: TokenTy::Whitespace, .. }, .. }) = whitespace_lexer.next() {
+            // Update the lexer if the consumed token was whitespace. 
+            self.lexer = whitespace_lexer;
+        }
     }
 }

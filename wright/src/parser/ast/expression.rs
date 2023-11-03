@@ -1,6 +1,6 @@
 //! Structures used for representing expressions in wright source code.
 
-use self::{literal::{integer::IntegerLiteral, boolean::BooleanLiteral}, parentheses::ParenthesesExpression};
+use self::{literal::Literal, parentheses::ParenthesesExpression};
 use super::{identifier::Identifier, path::Path};
 
 pub mod block;
@@ -28,13 +28,6 @@ pub enum Primary<'src> {
     Parentheses(ParenthesesExpression<'src>)
 }
 
-#[derive(Debug)]
-pub enum Literal<'src> {
-    /// An integer literal in source code.
-    Integer(IntegerLiteral<'src>),
-    /// A boolean literal in source code. 
-    Boolean(BooleanLiteral<'src>),
-}
 
 // macro_rules! unary_expr {
 //     (

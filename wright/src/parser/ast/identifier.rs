@@ -20,6 +20,8 @@ pub struct Identifier<'src> {
 
 impl<'src> Parser<'src> {
     /// Parse an identifier in source code or error.
+    /// 
+    /// If the parse is unsuccessful, return an error and do not update the parser state. 
     pub fn parse_identifier(&mut self) -> ParserResult<Identifier<'src>> {
         // Clone the lexer to try to parse an identifier.
         let mut lexer = self.lexer.clone();

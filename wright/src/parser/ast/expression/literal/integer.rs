@@ -23,6 +23,8 @@ pub struct IntegerLiteral<'src> {
 
 impl<'src> Parser<'src> {
     /// Parse an integer literal or error.
+    /// 
+    /// If no integer is parsed, the parser's lexer iterator will not be updated/modified. 
     pub fn parse_integer(&mut self) -> ParserResult<IntegerLiteral<'src>> {
         // Clone the current lexer (token cursor) to parse an integer.
         let mut lexer = self.lexer.clone();
