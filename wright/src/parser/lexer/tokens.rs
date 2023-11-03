@@ -101,6 +101,7 @@ pub enum TokenTy {
     As,
     On,
     In,
+    Not,
     /// Marks functions as dynamic, and not to be executed at compile time.
     Dyn,
     /// For try { } blocks.

@@ -235,6 +235,7 @@ impl<'a> Iterator for Lexer<'a> {
                 "as" => TokenTy::As,
                 "on" => TokenTy::On,
                 "in" => TokenTy::In,
+                "not" => TokenTy::Not,
                 "dyn" => TokenTy::Dyn,
                 "try" => TokenTy::Try,
 

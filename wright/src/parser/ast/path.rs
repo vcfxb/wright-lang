@@ -21,6 +21,7 @@ pub struct Path<'src> {
 
 impl<'src> Parser<'src> {
     /// Try to parse a path from the inner lexer iterator. 
+    /// The result may be a single length path holding one identifier. 
     /// 
     /// If a [`Path`] could not be parsed, return an error and leave the parser unmodified. 
     pub fn parse_path(&mut self) -> ParserResult<Path<'src>> {
@@ -63,7 +64,7 @@ impl<'src> Parser<'src> {
         if let Some(IndexedToken { token: Token { variant: TokenTy::ColonColon, .. }, .. }) = self.lexer.next() {
             // Allow a whitespace between the double colon and head identifier. 
             self.ignore_whitespace();
-            
+
             // Try to parse the head identifier. 
             let head = match self.parse_identifier().ok() {
                 // On success, keep the head, continue to parse the tail. 
