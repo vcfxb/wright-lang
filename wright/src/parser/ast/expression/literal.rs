@@ -1,10 +1,14 @@
 //! Representation for literal expressions in wright source code.
 
-use crate::parser::{Parser, ParserResult, ParserErrorVariant};
-use self::{integer::IntegerLiteral, boolean::BooleanLiteral};
+use crate::parser::{state::ParserState, util::{NodeParserResult, map::map_node_type, NodeParserOption, ParserSuccess, BoxedParserFn}};
+
+use self::{boolean::{BooleanLiteral, parse_boolean_literal}, integer::{IntegerLiteral, parse_integer_literal}};
+
 
 pub mod boolean;
 pub mod integer;
+// pub mod string;
+// pub mod character;
 
 #[derive(Debug)]
 pub enum Literal<'src> {
@@ -14,22 +18,28 @@ pub enum Literal<'src> {
     Boolean(BooleanLiteral<'src>),
 }
 
-impl<'src> Parser<'src> {
-    /// Parse a literal from Wright source code. If no parse is successful, an error will be returned and
-    /// the parser's internal state will remain unchaged. 
-    pub fn parse_literal(&mut self) -> ParserResult<Literal<'src>> {
-        // Try parsing an intger literal. 
-        if let Ok(int_lit) = self.parse_integer() {
-            Ok(Literal::Integer(int_lit))
-        } 
-        // If that fails, try parsing a boolean literal. 
-        else if let Ok(bool_lit) = self.parse_boolean() {
-            Ok(Literal::Boolean(bool_lit))
-        }
-        // If that fails, error
-        else {
-            Err(self.next_token_err(ParserErrorVariant::Expected("literal value")))
+/// Parse a literal from source code. 
+pub fn parse_literal<'src>(parser_state: ParserState<'src>) -> NodeParserOption<'src, Literal<'src>> {
+    // Make a list of the parsers to attempt in order on fresh clones of the parser state. 
+    // Map each parser to the enum constructor to normalize types. 
+    let literal_parsers: [BoxedParserFn<'src, NodeParserResult<'src, Literal<'src>>>; 2] = [
+        map_node_type(parse_integer_literal, Literal::Integer),
+        map_node_type(parse_boolean_literal, Literal::Boolean),
+    ];
+
+    for parser_function in literal_parsers.into_iter() {
+        // Make a clean state to pass to the child parser. 
+        let clean_state = parser_state.clone();
+
+        // Call the parser and handle the result. 
+        match (parser_function)(clean_state) {
+            // Ignore/handle the output. 
+            // Go to the next parser on errors. 
+            Err(_) => continue,
+            ok @ Ok(_) => return ok.ok(),
         }
     }
-}
 
+    // If none return a sucessful result, return None.
+    None
+}

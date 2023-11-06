@@ -9,3 +9,8 @@ pub mod metadata;
 pub mod path;
 pub mod types;
 pub mod statement;
+
+/// Trait implementd
+pub trait AstNode<'src> {
+        
+}
