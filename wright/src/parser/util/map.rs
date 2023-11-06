@@ -27,11 +27,7 @@ where
         let parse_result = (parser_function)(parse_state);
 
         // Map the node type
-        parse_result.map(
-            |ParserSuccess {
-                 updated_parser_state,
-                 ast_node,
-             }| {
+        parse_result.map(| ParserSuccess { updated_parser_state, ast_node} | {
                 ParserSuccess {
                     updated_parser_state,
                     ast_node: ((map_function)(ast_node)),
