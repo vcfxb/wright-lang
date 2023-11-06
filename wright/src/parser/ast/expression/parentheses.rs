@@ -1,4 +1,4 @@
-//! An expression in parentheses in Wright source code. 
+//! An expression in parentheses in Wright source code.
 
 use crate::parser::ast::metadata::AstNodeMeta;
 

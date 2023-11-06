@@ -1,10 +1,10 @@
-//! Parser state structure and implementation. 
+//! Parser state structure and implementation.
 
-use crate::filemap::{FileMap, FileId};
-use super::{lexer::IndexedLexer, ast::metadata::AstNodeMeta};
+use super::{ast::metadata::AstNodeMeta, lexer::IndexedLexer};
+use crate::filemap::{FileId, FileMap};
 use codespan_reporting::files::Files;
 
-/// The state of the [`Parser`] used to transform wright source code into the 
+/// The state of the [`Parser`] used to transform wright source code into the
 /// appropriate series of [AST] (Abstract Syntax Tree) nodes.
 ///
 /// [AST]: https://en.wikipedia.org/wiki/Abstract_syntax_tree
@@ -39,15 +39,15 @@ impl<'src> ParserState<'src> {
         }
     }
 
-    /// Make a new [`AstNodeMeta`] object using this [`Parser`]'s [`FileMap`] and [`FileId`]. 
+    /// Make a new [`AstNodeMeta`] object using this [`Parser`]'s [`FileMap`] and [`FileId`].
     /// The byte index and byte length in source code are supplied as arguments, usually from the
-    /// [`IndexedToken`] pulled from this [Parser]'s internal [`IndexedLexer`]. 
+    /// [`IndexedToken`] pulled from this [Parser]'s internal [`IndexedLexer`].
     pub fn make_ast_node_meta(&self, index: usize, length: usize) -> AstNodeMeta<'src> {
-        AstNodeMeta { 
+        AstNodeMeta {
             file_map: self.file_map,
             file_id: self.file_id,
             index: index,
-            matching_source: &self.source[index..index+length]
+            matching_source: &self.source[index..index + length],
         }
     }
 }

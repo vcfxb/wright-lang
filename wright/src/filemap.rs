@@ -12,7 +12,7 @@ pub enum FileName {
     Real(PathBuf),
     /// A named test-case in this crate's source code.
     Test(&'static str),
-    /// The interactive Wright repl. 
+    /// The interactive Wright repl.
     #[display(fmt = "REPL:{}", line_number)]
     Repl { line_number: usize },
     /// An un-named test case in this crate's source code.

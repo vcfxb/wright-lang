@@ -24,7 +24,7 @@ enum Commands {
         command: DebugCommands,
     },
 
-    /// Subcommand to start an interactive repl. 
+    /// Subcommand to start an interactive repl.
     Repl,
 }
 
@@ -65,7 +65,7 @@ fn main() -> Result<()> {
             Ok(())
         }
 
-        // Start an interactive repl. 
+        // Start an interactive repl.
         Some(Commands::Repl) => repl::start(),
 
         _ => unimplemented!(),

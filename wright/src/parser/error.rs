@@ -1,4 +1,4 @@
-//! Parser error handling. 
+//! Parser error handling.
 
 use std::ops::Range;
 
@@ -17,4 +17,3 @@ pub enum ParserErrorVariant {
     /// Something was expected and wasn't there.
     Expected(&'static str),
 }
-

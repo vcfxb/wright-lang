@@ -1,9 +1,17 @@
 //! Integer literal representation and parsing in wright source.
 
+use crate::parser::{
+    ast::metadata::AstNodeMeta,
+    error::{ParserError, ParserErrorVariant},
+    lexer::{
+        tokens::{Token, TokenTy},
+        IndexedToken,
+    },
+    state::ParserState,
+    util::{NodeParserResult, ParserSuccess},
+};
 use num::{BigUint, Num};
 use std::cmp;
-use crate::parser::{state::ParserState, ast::metadata::AstNodeMeta, util::{NodeParserResult, ParserSuccess}, lexer::{IndexedToken, tokens::{Token, TokenTy}}, error::{ParserError, ParserErrorVariant}};
-
 
 /// An integer in Wright source code.
 #[derive(Debug)]
@@ -14,12 +22,14 @@ pub struct IntegerLiteral<'src> {
     pub value: BigUint,
 }
 
-/// Parse an [`IntegerLiteral`] from source code. 
-pub fn parse_integer_literal<'src>(mut parser_state: ParserState<'src>) -> NodeParserResult<'src, IntegerLiteral<'src>> {
-    // Get the initial index of the lexer for later error reporting. 
+/// Parse an [`IntegerLiteral`] from source code.
+pub fn parse_integer_literal<'src>(
+    mut parser_state: ParserState<'src>,
+) -> NodeParserResult<'src, IntegerLiteral<'src>> {
+    // Get the initial index of the lexer for later error reporting.
     let initial_index = parser_state.lexer.index;
 
-    // Match on the next token from the lexer, erroring if it's anything but an integer literal. 
+    // Match on the next token from the lexer, erroring if it's anything but an integer literal.
     match parser_state.lexer.next() {
         Some(IndexedToken {
             index,
@@ -58,12 +68,12 @@ pub fn parse_integer_literal<'src>(mut parser_state: ParserState<'src>) -> NodeP
             // Make the AST node metadata for the parsed value
             let ast_node_meta = parser_state.make_ast_node_meta(index, length);
 
-            Ok(ParserSuccess { 
-                updated_parser_state: parser_state, 
+            Ok(ParserSuccess {
+                updated_parser_state: parser_state,
                 ast_node: IntegerLiteral {
                     meta: ast_node_meta,
                     value,
-                }
+                },
             })
         }
 

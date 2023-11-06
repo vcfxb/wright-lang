@@ -1,8 +1,12 @@
-//! The Wright interactive REPL. 
+//! The Wright interactive REPL.
 
-use std::io::{self, BufRead, Write};
-use crate::{WRIGHT_VERSION, filemap::{FileMap, FileName}, parser::lexer::Lexer};
+use crate::{
+    filemap::{FileMap, FileName},
+    parser::lexer::Lexer,
+    WRIGHT_VERSION,
+};
 use derive_more::Display;
+use std::io::{self, BufRead, Write};
 
 const HELP_MESSAGE: &'static str = "
 Wright REPL Help:
@@ -25,21 +29,20 @@ Modes:
 
 #[derive(Clone, Copy, PartialEq, Debug, Default, Display)]
 enum ReplMode {
-    
-    /// Default REPL mode -- evaluates and prints results of input. 
+    /// Default REPL mode -- evaluates and prints results of input.
     #[default]
     Eval,
 
-    /// Print the tokens passed to the repl. 
-    Tokens, 
+    /// Print the tokens passed to the repl.
+    Tokens,
 
-    /// Print the AST Tree passed to the repl. 
+    /// Print the AST Tree passed to the repl.
     Ast,
 }
 
-/// Start an interactive Wright repl. 
+/// Start an interactive Wright repl.
 pub fn start() -> anyhow::Result<()> {
-    // Print version info. 
+    // Print version info.
     println!("Wright REPL interpreter (wright version {})", WRIGHT_VERSION);
 
     // Get a global lock on the standard input.
@@ -54,23 +57,23 @@ pub fn start() -> anyhow::Result<()> {
     // Set the repl mode.
     let mut repl_mode = ReplMode::Tokens;
 
-    // Make a file map to track input. 
+    // Make a file map to track input.
     let mut code_map = FileMap::new();
 
-    // Loop until this returns/exits. 
+    // Loop until this returns/exits.
     loop {
         // Increment input number.
         input_number += 1;
 
-        // Write prompt. 
+        // Write prompt.
         write!(&mut output, "[{}]: >> ", input_number)?;
         output.flush()?;
 
-        // Read line of input. 
+        // Read line of input.
         let mut line = String::new();
         input.read_line(&mut line)?;
-        
-        // Handle certain builtin REPL commands. 
+
+        // Handle certain builtin REPL commands.
         match line.trim() {
             ":?" | ":h" | ":help" => {
                 writeln!(&mut output, "{}", HELP_MESSAGE)?;
@@ -109,7 +112,7 @@ pub fn start() -> anyhow::Result<()> {
                 continue;
             }
 
-            // Any other input is a no-op here and will get handled later. 
+            // Any other input is a no-op here and will get handled later.
             _ => {}
         }
 
@@ -118,8 +121,13 @@ pub fn start() -> anyhow::Result<()> {
         output.flush()?;
 
         // Add line to the code map.
-        let file_handle = code_map.add(FileName::Repl { line_number: input_number }, line);
-        // Get a ref to the line we just added to the code map. 
+        let file_handle = code_map.add(
+            FileName::Repl {
+                line_number: input_number,
+            },
+            line,
+        );
+        // Get a ref to the line we just added to the code map.
         let line_ref: &str = code_map.get(file_handle).unwrap().source().as_str();
 
         match repl_mode {
@@ -135,12 +143,11 @@ pub fn start() -> anyhow::Result<()> {
                     write!(&mut output, "[{}]", token)?;
                 }
 
-                // Write newline. 
+                // Write newline.
                 writeln!(&mut output, "")?;
             }
 
             ReplMode::Eval => unimplemented!("Eval mode is unimplemented."),
         }
-
     }
 }

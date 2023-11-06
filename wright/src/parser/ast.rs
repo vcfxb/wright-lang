@@ -7,10 +7,8 @@ pub mod expression;
 pub mod identifier;
 pub mod metadata;
 pub mod path;
-pub mod types;
 pub mod statement;
+pub mod types;
 
 /// Trait implementd
-pub trait AstNode<'src> {
-        
-}
+pub trait AstNode<'src> {}

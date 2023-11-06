@@ -1,28 +1,28 @@
 //! Parsing utility functions used throughout the parser to make the process of parsing easier.
 
-use super::{state::ParserState, error::ParserError};
+use super::{error::ParserError, state::ParserState};
 
-pub mod map;
-pub mod first_successful;
 pub mod discard_error;
+pub mod first_successful;
+pub mod map;
 
-
-/// The output of a successful parse always includes the updated [`ParserState`] after parsing and the 
-/// parsed AST node. 
+/// The output of a successful parse always includes the updated [`ParserState`] after parsing and the
+/// parsed AST node.
 #[derive(Debug)]
 pub struct ParserSuccess<'src, Node> {
     /// The updated state of the parser.
     pub updated_parser_state: ParserState<'src>,
 
-    /// The produced AST node. 
-    pub ast_node: Node
+    /// The produced AST node.
+    pub ast_node: Node,
 }
 
 /// A [`Result`] returned from an AST node parser.
-pub type NodeParserResult<'src, Node, Error = ParserError> = Result<ParserSuccess<'src, Node>, Error>;
+pub type NodeParserResult<'src, Node, Error = ParserError> =
+    Result<ParserSuccess<'src, Node>, Error>;
 
-/// An [`Option`] returned from an AST node parser. 
+/// An [`Option`] returned from an AST node parser.
 pub type NodeParserOption<'src, Node> = Option<ParserSuccess<'src, Node>>;
 
-/// Type alias used to apease the borrow/lifetime checker complaining about HKTs and stuff. 
+/// Type alias used to apease the borrow/lifetime checker complaining about HKTs and stuff.
 pub type BoxedParserFn<'src, Output> = Box<dyn Fn(ParserState<'src>) -> Output>;
