@@ -23,9 +23,7 @@ pub struct IntegerLiteral<'src> {
 }
 
 /// Parse an [`IntegerLiteral`] from source code.
-pub fn parse_integer_literal<'src>(
-    mut parser_state: ParserState<'src>,
-) -> NodeParserResult<'src, IntegerLiteral<'src>> {
+pub fn parse_integer_literal(mut parser_state: ParserState) -> NodeParserResult<IntegerLiteral> {
     // Get the initial index of the lexer for later error reporting.
     let initial_index = parser_state.lexer.index;
 

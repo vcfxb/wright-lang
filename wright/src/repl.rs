@@ -8,7 +8,7 @@ use crate::{
 use derive_more::Display;
 use std::io::{self, BufRead, Write};
 
-const HELP_MESSAGE: &'static str = "
+const HELP_MESSAGE: &str = "
 Wright REPL Help:
 
 Built-in commands:
@@ -144,7 +144,7 @@ pub fn start() -> anyhow::Result<()> {
                 }
 
                 // Write newline.
-                writeln!(&mut output, "")?;
+                writeln!(&mut output)?;
             }
 
             ReplMode::Eval => unimplemented!("Eval mode is unimplemented."),

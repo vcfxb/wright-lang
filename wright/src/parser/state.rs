@@ -46,7 +46,7 @@ impl<'src> ParserState<'src> {
         AstNodeMeta {
             file_map: self.file_map,
             file_id: self.file_id,
-            index: index,
+            index,
             matching_source: &self.source[index..index + length],
         }
     }

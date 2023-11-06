@@ -21,9 +21,7 @@ pub struct BooleanLiteral<'src> {
 }
 
 /// Attempt to parse a boolean literal from the lexer held by the parser state.
-pub fn parse_boolean_literal<'src>(
-    mut parser_state: ParserState<'src>,
-) -> NodeParserResult<'src, BooleanLiteral<'src>> {
+pub fn parse_boolean_literal(mut parser_state: ParserState) -> NodeParserResult<BooleanLiteral> {
     // Get the initial lexer index for later error reporting.
     let initial_index = parser_state.lexer.index;
 

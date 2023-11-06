@@ -492,7 +492,8 @@ impl<'a> Iterator for IndexedLexer<'a> {
         // Update the current index with the length of the token.
         self.index += token.length;
 
-        return Some(indexed_token);
+        // Return indexed token
+        Some(indexed_token)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
