@@ -1,6 +1,6 @@
 //! Representation for literal expressions in wright source code.
 
-use crate::parser::{state::ParserState, util::{NodeParserResult, map::map_node_type, NodeParserOption, ParserSuccess, BoxedParserFn}};
+use crate::parser::{state::ParserState, util::{NodeParserResult, map::map_node_type, NodeParserOption, BoxedParserFn}};
 
 use self::{boolean::{BooleanLiteral, parse_boolean_literal}, integer::{IntegerLiteral, parse_integer_literal}};
 
