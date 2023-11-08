@@ -13,7 +13,7 @@ where
     Box::new(move |parser_state: ParserState| (map_function)((parser_function)(parser_state)))
 }
 
-/// Map specifically the node
+/// Map specifically the node produced by a parser function. 
 pub fn map_node_type<'src, PF, MF, N1, N2>(
     parser_function: PF,
     map_function: MF,

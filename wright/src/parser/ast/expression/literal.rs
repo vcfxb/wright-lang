@@ -2,7 +2,7 @@
 
 use crate::parser::{
     state::ParserState,
-    util::{map::map_node_type, BoxedParserFn, NodeParserOption, NodeParserResult},
+    util::{map::map_node_type, BoxedParserFn, NodeParserOption, NodeParserResult, first_successful::first_sucessful, discard_error::discard_errors, erase::erase},
 };
 
 use self::{
@@ -23,30 +23,27 @@ pub enum Literal<'src> {
     Boolean(BooleanLiteral<'src>),
 }
 
+/// Convenience function for converting a child parser to one that is erased and generates
+///  [`Literal`]s in [`NodeParserOption`]s. 
+fn convert_to_literal_parser<'src, PF, LC, N>(parser_function: PF, literal_conversion: LC) -> BoxedParserFn<'src, NodeParserOption<'src, Literal<'src>>> 
+where 
+    PF: (Fn(ParserState<'src>) -> NodeParserResult<'src, N>) + 'static,
+    LC: (Fn(N) -> Literal<'src>) + 'static,
+{
+    erase(discard_errors(map_node_type(parser_function, literal_conversion)))
+}
+
 /// Parse a literal from source code.
 pub fn parse_literal<'src>(
     parser_state: ParserState<'src>,
-) -> NodeParserOption<'src, Literal<'src>> {
-    // Make a list of the parsers to attempt in order on fresh clones of the parser state.
-    // Map each parser to the enum constructor to normalize types.
-    let literal_parsers: [BoxedParserFn<'src, NodeParserResult<'src, Literal<'src>>>; 2] = [
-        map_node_type(parse_integer_literal, Literal::Integer),
-        map_node_type(parse_boolean_literal, Literal::Boolean),
-    ];
+) -> NodeParserOption<'src, Literal<'src>> 
+{
+    // Make a parser that finds the first successfull literal parse. 
+    let parser = first_sucessful(vec![
+        convert_to_literal_parser(parse_integer_literal, Literal::Integer),
+        convert_to_literal_parser(parse_boolean_literal, Literal::Boolean),
+    ]);
 
-    for parser_function in literal_parsers.into_iter() {
-        // Make a clean state to pass to the child parser.
-        let clean_state = parser_state.clone();
-
-        // Call the parser and handle the result.
-        match (parser_function)(clean_state) {
-            // Ignore/handle the output.
-            // Go to the next parser on errors.
-            Err(_) => continue,
-            ok @ Ok(_) => return ok.ok(),
-        }
-    }
-
-    // If none return a sucessful result, return None.
-    None
+    // Call that parser. 
+    (parser)(parser_state)
 }

@@ -73,19 +73,3 @@ pub fn parse_boolean_literal(mut parser_state: ParserState) -> NodeParserResult<
         }),
     }
 }
-
-// impl<'a> Parse for ParseBooleanLiteral<'a> {
-//     type Success = BooleanLiteral<'a>;
-
-//     type Error = ParserError;
-
-//     /// Attempt to parse a boolean literal from the given parser. This will mutate the parser, and return either [`Ok`]
-//     /// with a [`BooleanLiteral`] or an [`Err`] containing a [`ParserError`]. The parser will have the front-most
-//     /// [`Token`] consumed from its lexer regardless.
-//     fn parse<'src>(&self, parser: &mut Parser<'src>) -> Result<Self::Success, Self::Error> {
-//         // Get the initial lexer index for use in calculating the span of errors reported.
-//         let initial_index = parser.lexer.index;
-
-//
-//     }
-// }
