@@ -23,13 +23,17 @@ pub struct IntegerLiteral<'src> {
 }
 
 /// Parse an [`IntegerLiteral`] from source code.
-pub fn parse_integer_literal<'src>(parser_state: &mut ParserState<'src>) -> NodeParserResult<IntegerLiteral<'src>> {
-
-    // Read and destructure an integer literal token from the lexer. 
-    let IndexedToken { index, token: Token { length, .. }} = parser_state
-        // All integer literals should be of this token type. 
+pub fn parse_integer_literal<'src>(
+    parser_state: &mut ParserState<'src>,
+) -> NodeParserResult<IntegerLiteral<'src>> {
+    // Read and destructure an integer literal token from the lexer.
+    let IndexedToken {
+        index,
+        token: Token { length, .. },
+    } = parser_state
+        // All integer literals should be of this token type.
         .next_token_if_ty_eq(TokenTy::IntegerLit)
-        // Error out if the next token is not an integer literal. 
+        // Error out if the next token is not an integer literal.
         .ok_or_else(|| ParserError {
             byte_range: parser_state.peek_byte_range(),
             ty: ParserErrorVariant::Expected("integer literal"),

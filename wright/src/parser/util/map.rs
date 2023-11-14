@@ -1,7 +1,7 @@
 //! Parser mapping utilities.
 
-use crate::parser::state::ParserState;
 use super::{BoxedParserFn, NodeParserResult};
+use crate::parser::state::ParserState;
 
 /// Create a [Box]xed function (dyn [`Fn`]) that maps the output of a parser function through another function.
 pub fn map<'src, PF, MF, O1, O2>(parser_function: PF, map_function: MF) -> BoxedParserFn<'src, O2>
@@ -12,7 +12,7 @@ where
     Box::new(move |parser_state: &mut ParserState| (map_function)((parser_function)(parser_state)))
 }
 
-/// Map specifically the node produced by a parser function. 
+/// Map specifically the node produced by a parser function.
 pub fn map_node_type<'src, PF, MF, N1, N2>(
     parser_function: PF,
     map_function: MF,

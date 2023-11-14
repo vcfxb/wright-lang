@@ -1,6 +1,12 @@
 //! Parser state structure and implementation.
 
-use super::{ast::metadata::AstNodeMeta, lexer::{IndexedLexer, IndexedToken, tokens::{TokenTy, Token}}};
+use super::{
+    ast::metadata::AstNodeMeta,
+    lexer::{
+        tokens::{Token, TokenTy},
+        IndexedLexer, IndexedToken,
+    },
+};
 use crate::filemap::{FileId, FileMap};
 use codespan_reporting::files::Files;
 
@@ -22,9 +28,9 @@ pub struct ParserState<'src> {
     pub source: &'src str,
     /// Underlying indexed lexer feeding tokens to this parser.
     lexer: IndexedLexer<'src>,
-    /// Store up to one "peeked" token, similar to the [`Peekable`] iterator. 
-    /// See https://doc.rust-lang.org/std/iter/struct.Peekable.html#method.peek for design inspiration. 
-    peeked_token: Option<Option<IndexedToken>>
+    /// Store up to one "peeked" token, similar to the [`Peekable`] iterator.
+    /// See https://doc.rust-lang.org/std/iter/struct.Peekable.html#method.peek for design inspiration.
+    peeked_token: Option<Option<IndexedToken>>,
 }
 
 impl<'src> ParserState<'src> {
@@ -63,45 +69,53 @@ impl<'src> ParserState<'src> {
     pub fn peek_token(&mut self) -> Option<&IndexedToken> {
         // Get a mutable reference to the internal iterator.
         let iter = &mut self.lexer;
-        // Get the previously peeked token or a new one from the iterator. 
-        self.peeked_token.get_or_insert_with(|| iter.next()).as_ref()
+        // Get the previously peeked token or a new one from the iterator.
+        self.peeked_token
+            .get_or_insert_with(|| iter.next())
+            .as_ref()
     }
 
-    /// Peek the type of the next token. 
+    /// Peek the type of the next token.
     pub fn peek_token_ty(&mut self) -> Option<&TokenTy> {
-        self.peek_token().map(|indexed_token| &indexed_token.token.variant)
+        self.peek_token()
+            .map(|indexed_token| &indexed_token.token.variant)
     }
 
-    /// Get the starting byte index of the next [`IndexedToken`] in source code. 
+    /// Get the starting byte index of the next [`IndexedToken`] in source code.
     pub fn index(&self) -> usize {
-        // Check to see if a token has been peeked already. 
+        // Check to see if a token has been peeked already.
         match self.peeked_token.as_ref() {
             // If one has, return its index.
             Some(Some(IndexedToken { index, .. })) => *index,
 
-            // Otherwise return the current lexer index. 
-            _ => self.lexer.index
+            // Otherwise return the current lexer index.
+            _ => self.lexer.index,
         }
     }
 
-    /// Get the next token from the internal lexer. 
+    /// Get the next token from the internal lexer.
     pub fn next_token(&mut self) -> Option<IndexedToken> {
         match self.peeked_token.take() {
             Some(peeked_token) => peeked_token,
-            None => self.lexer.next()
+            None => self.lexer.next(),
         }
     }
 
-    /// Get the next token if it satisfies a given predicate. 
+    /// Get the next token if it satisfies a given predicate.
     pub fn next_token_if_ty_eq(&mut self, token_ty: TokenTy) -> Option<IndexedToken> {
-        // Get the next token or consume a previously peeked token. 
+        // Get the next token or consume a previously peeked token.
         match self.next_token() {
             // Token with matching variant field.
-            Some(token @ IndexedToken { token: Token { variant, .. }, .. }) if variant == token_ty => Some(token),
+            Some(
+                token @ IndexedToken {
+                    token: Token { variant, .. },
+                    ..
+                },
+            ) if variant == token_ty => Some(token),
 
             // Otherwise save the peeked token (the field should have been consumed by calling next_token)
             other => {
-                // Sanity check. 
+                // Sanity check.
                 assert!(self.peeked_token.is_none());
                 self.peeked_token = Some(other);
                 None
@@ -109,11 +123,15 @@ impl<'src> ParserState<'src> {
         }
     }
 
-    /// Get the byte range of the next token. If there is no next token in the lexer, return a zero-length 
-    /// range of the current index. 
+    /// Get the byte range of the next token. If there is no next token in the lexer, return a zero-length
+    /// range of the current index.
     pub fn peek_byte_range(&mut self) -> Range<usize> {
-        if let Some(IndexedToken { index, token: Token { length, .. } }) = self.peek_token() {
-            *index..*index+*length
+        if let Some(IndexedToken {
+            index,
+            token: Token { length, .. },
+        }) = self.peek_token()
+        {
+            *index..*index + *length
         } else {
             self.index()..self.index()
         }

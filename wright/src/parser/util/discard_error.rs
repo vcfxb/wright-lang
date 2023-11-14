@@ -1,13 +1,11 @@
 //! Parser function combinator useful for discarding errors. This can transform a parser from returning a [`Result`]
 //! to returning an [`Option`].
 
-use crate::parser::state::ParserState;
 use super::{BoxedParserFn, NodeParserOption, NodeParserResult};
+use crate::parser::state::ParserState;
 
 /// Return a [Box]xed parser function that returns an [`Option`] rather than a [`Result`].
-pub fn discard_errors<'src, PF, O>(
-    parser_function: PF,
-) -> BoxedParserFn<'src, NodeParserOption<O>>
+pub fn discard_errors<'src, PF, O>(parser_function: PF) -> BoxedParserFn<'src, NodeParserOption<O>>
 where
     PF: (Fn(&mut ParserState<'src>) -> NodeParserResult<O>) + 'src,
 {

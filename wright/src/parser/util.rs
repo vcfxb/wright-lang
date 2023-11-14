@@ -3,10 +3,10 @@
 use super::{error::ParserError, state::ParserState};
 
 pub mod discard_error;
-pub mod first_successful;
-pub mod map;
 pub mod erase;
+pub mod first_successful;
 pub mod ignore;
+pub mod map;
 
 /// A [`Result`] returned from an AST node parser.
 pub type NodeParserResult<Node, Error = ParserError> = Result<Node, Error>;

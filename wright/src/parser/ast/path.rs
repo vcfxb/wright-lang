@@ -2,8 +2,16 @@
 //!
 //! Path items are separated using `::` similar to rust.
 
-use crate::parser::{state::ParserState, util::{NodeParserResult, NodeParserOption, ignore::ignore_whitespace_and_comments}, error::ParserErrorVariant, lexer::tokens::TokenTy};
-use super::{identifier::{Identifier, parse_identifier}, metadata::AstNodeMeta};
+use super::{
+    identifier::{parse_identifier, Identifier},
+    metadata::AstNodeMeta,
+};
+use crate::parser::{
+    error::ParserErrorVariant,
+    lexer::tokens::TokenTy,
+    state::ParserState,
+    util::{ignore::ignore_whitespace_and_comments, NodeParserOption, NodeParserResult},
+};
 
 /// A double-colon seperated path to a module, type, or function in Wright source code.
 ///
@@ -20,58 +28,60 @@ pub struct Path<'src> {
 
 /// Parse a path (`head::tail`) in source code.  
 pub fn parse_path<'src>(parser_state: &mut ParserState<'src>) -> NodeParserResult<Path<'src>> {
-    // Get the initial index to make metadata at the end. 
+    // Get the initial index to make metadata at the end.
     let initial_index = parser_state.index();
 
-    // Parse the head of the path and destructure the parser success. 
+    // Parse the head of the path and destructure the parser success.
     let head = parse_identifier(parser_state)
-        // Replace the error with a missing path error. 
+        // Replace the error with a missing path error.
         .map_err(|mut parser_error| {
-            // Replace the parser error text. 
-            parser_error.ty = ParserErrorVariant::Expected("fully qualified symbol reference (path) or identifier");
+            // Replace the parser error text.
+            parser_error.ty = ParserErrorVariant::Expected(
+                "fully qualified symbol reference (path) or identifier",
+            );
             parser_error
         })?;
-    
-    // Parse the tail of the path. Map through Box::new to create neccesary heap allocation. 
+
+    // Parse the tail of the path. Map through Box::new to create neccesary heap allocation.
     let tail = parse_path_tail(parser_state).map(Box::new);
-    // Make the metadata for the produced AST node. 
+    // Make the metadata for the produced AST node.
     let meta = parser_state.make_ast_node_meta(initial_index, parser_state.index() - initial_index);
     // Return Ok.
     Ok(Path { meta, head, tail })
 }
 
-/// Parse the tail of a path, ignoring any whitespace encountered and producing an [`Option`] with a [`Path`]. 
-/// 
+/// Parse the tail of a path, ignoring any whitespace encountered and producing an [`Option`] with a [`Path`].
+///
 /// This will update the parser state's cursor incrementally, avoiding leaving it partially between two tokens in
-/// the tail or past the whitespace at the end of the tail. 
+/// the tail or past the whitespace at the end of the tail.
 fn parse_path_tail<'src>(parser_state: &mut ParserState<'src>) -> NodeParserOption<Path<'src>> {
     // Get the initial index of the parser.
     let initial_index = parser_state.index();
-    // Make a clone of the parser state to parse path parts incrementally on. 
+    // Make a clone of the parser state to parse path parts incrementally on.
     let mut scoped_state = parser_state.clone();
-    // Allow ignored whitespace/comment between parts of the path. 
-    // This will turn into None and return early if we peek a multi-line unterminated comment. 
+    // Allow ignored whitespace/comment between parts of the path.
+    // This will turn into None and return early if we peek a multi-line unterminated comment.
     ignore_whitespace_and_comments(&mut scoped_state).ok()?;
     // Parse the double colon.
-    // Returns early if this returns none and the next token is not a double colon. 
+    // Returns early if this returns none and the next token is not a double colon.
     scoped_state.next_token_if_ty_eq(TokenTy::ColonColon)?;
-    // Allow ignored whitespace/comments after the double colon. 
-    // This will turn into None and error out if we peek a multi-line unterminated comment. 
+    // Allow ignored whitespace/comments after the double colon.
+    // This will turn into None and error out if we peek a multi-line unterminated comment.
     ignore_whitespace_and_comments(&mut scoped_state).ok()?;
-    // Parse the head of the tail. If this errors, return none and do not update parser state. 
+    // Parse the head of the tail. If this errors, return none and do not update parser state.
     let head = parse_identifier(&mut scoped_state).ok()?;
     // Update the parser state after parsing the head so that the parent function does not re-parse it.
     *parser_state = scoped_state.clone();
-    // Parse the rest of the tail. If this returns None we have reached the end of the path. 
-    // Map througgh Box::new to create a heap allocation and prevent infinite stack nesting. 
+    // Parse the rest of the tail. If this returns None we have reached the end of the path.
+    // Map througgh Box::new to create a heap allocation and prevent infinite stack nesting.
     let tail = parse_path_tail(&mut scoped_state).map(Box::new);
-    // Update the parser state if there was a parsed tail. If there was not, do not update the parser state as 
-    // it may have greedily consumed various whitespace, comments, and double colons. 
+    // Update the parser state if there was a parsed tail. If there was not, do not update the parser state as
+    // it may have greedily consumed various whitespace, comments, and double colons.
     if tail.is_some() {
         *parser_state = scoped_state;
     }
 
-    // Make AST node metadata using the initial index and the current index. 
+    // Make AST node metadata using the initial index and the current index.
     let meta = parser_state.make_ast_node_meta(initial_index, parser_state.index() - initial_index);
     // Return the parsed tail combined into a path.
     Some(Path { meta, head, tail })
@@ -79,11 +89,14 @@ fn parse_path_tail<'src>(parser_state: &mut ParserState<'src>) -> NodeParserOpti
 
 #[cfg(test)]
 mod test_path {
-    use crate::{filemap::{FileMap, FileName}, parser::state::ParserState};
+    use crate::{
+        filemap::{FileMap, FileName},
+        parser::state::ParserState,
+    };
 
     use super::parse_path;
 
-    /// Test the simple case path. 
+    /// Test the simple case path.
     #[test]
     fn test_simple_path() {
         let source = "test::path";

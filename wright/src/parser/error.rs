@@ -17,6 +17,6 @@ pub enum ParserErrorVariant {
     /// Something was expected and wasn't there.
     Expected(&'static str),
 
-    /// Encountered unterminated multi-line comment. 
+    /// Encountered unterminated multi-line comment.
     UnterminatedMultilineComment,
 }
