@@ -1,5 +1,6 @@
 //! Identifiers in wright source code.
 
+use crate::parser::{state::ParserState, util::NodeParserResult, lexer::{IndexedToken, tokens::{Token, TokenTy}}, error::{ParserError, ParserErrorVariant}};
 use super::metadata::AstNodeMeta;
 
 /// An identifier in the source code being parsed.
@@ -10,30 +11,25 @@ pub struct Identifier<'src> {
     pub inner: AstNodeMeta<'src>,
 }
 
-// impl<'src> Parser<'src> {
-//     /// Parse an identifier in source code or error.
-//     ///
-//     /// If the parse is unsuccessful, return an error and do not update the parser state.
-//     pub fn parse_identifier(&mut self) -> ParserResult<Identifier<'src>> {
-//         // Clone the lexer to try to parse an identifier.
-//         let mut lexer = self.lexer.clone();
+impl<'src> Identifier<'src> {
+    /// Get the matching source for this identifier. 
+    pub fn matching_source(&self) -> &'src str {
+        self.inner.matching_source
+    }
+}
 
-//         match lexer.next() {
-//             Some(IndexedToken {
-//                 token:
-//                     Token {
-//                         variant: TokenTy::Identifier,
-//                         ..
-//                     },
-//                 ..
-//             }) => Ok(Identifier {
-//                 inner: self.update_lexer(lexer),
-//             }),
+/// Parse an identifier in source code. 
+pub fn parse_identifier<'src>(parser_state: &mut ParserState<'src>) -> NodeParserResult<Identifier<'src>> {
+    // Conditionally get an identifier token from the lexer.
+    let IndexedToken { index, token: Token { length, .. } } = parser_state
+        // Require the token to be an identifier token.
+        .next_token_if_ty_eq(TokenTy::Identifier)
+        // Error out if there is not an identifier token.
+        .ok_or_else(|| ParserError {
+            byte_range: parser_state.peek_byte_range(),
+            ty: ParserErrorVariant::Expected("identifer"),
+        })?;
 
-//             _ => Err(ParserError {
-//                 byte_range: self.lexer.index..lexer.index,
-//                 ty: ParserErrorVariant::Expected("identifier"),
-//             }),
-//         }
-//     }
-// }
+    // Turn the token into an AST node and return OK.
+    Ok(Identifier { inner: parser_state.make_ast_node_meta(index, length) })
+}

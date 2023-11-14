@@ -25,18 +25,18 @@ pub enum Literal<'src> {
 
 /// Convenience function for converting a child parser to one that is erased and generates
 ///  [`Literal`]s in [`NodeParserOption`]s. 
-fn convert_to_literal_parser<'src, PF, LC, N>(parser_function: PF, literal_conversion: LC) -> BoxedParserFn<'src, NodeParserOption<'src, Literal<'src>>> 
+fn convert_to_literal_parser<'src, PF, LC, N>(parser_function: PF, literal_conversion: LC) -> BoxedParserFn<'src, NodeParserOption<Literal<'src>>> 
 where 
-    PF: (Fn(ParserState<'src>) -> NodeParserResult<'src, N>) + 'static,
-    LC: (Fn(N) -> Literal<'src>) + 'static,
+    PF: (Fn(&mut ParserState<'src>) -> NodeParserResult<N>) + 'src,
+    LC: (Fn(N) -> Literal<'src>) + 'src,
 {
     erase(discard_errors(map_node_type(parser_function, literal_conversion)))
 }
 
 /// Parse a literal from source code.
 pub fn parse_literal<'src>(
-    parser_state: ParserState<'src>,
-) -> NodeParserOption<'src, Literal<'src>> 
+    parser_state: &mut ParserState<'src>,
+) -> NodeParserOption<Literal<'src>> 
 {
     // Make a parser that finds the first successfull literal parse. 
     let parser = first_sucessful(vec![
