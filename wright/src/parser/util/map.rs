@@ -25,7 +25,9 @@ where
         // Run the parser and get the result.
         let parser_result = (parser_function)(parser_state);
 
-        // Map the node type
+        // Map the node type 
+        // Allow the redundant closure as it seems to bypass the need for the generic to impl Copy. 
+        #[allow(clippy::redundant_closure)] 
         parser_result.map(|node| (map_function)(node))
     })
 }
