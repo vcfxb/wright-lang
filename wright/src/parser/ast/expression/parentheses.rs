@@ -13,7 +13,7 @@ pub struct ParenthesesExpression<'src> {
 
 /// Parse an expression in parentheses from source code.
 pub fn parse_parentheses_expr<'src>(
-    parser_state: &mut ParserState<'src>,
+    _parser_state: &mut ParserState<'src>,
 ) -> NodeParserResult<ParenthesesExpression<'src>> {
     unimplemented!()
 }
