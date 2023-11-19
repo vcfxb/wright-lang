@@ -1,4 +1,4 @@
-name: Clippy
+name: Clippy 
 
 on:
   push:
