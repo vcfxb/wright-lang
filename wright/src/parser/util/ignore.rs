@@ -9,30 +9,22 @@ use crate::parser::{
 
 /// Parse through any/all whitespace and comments from the lexer. Return an error if any unterminated
 /// comment is encountered. Does not parse through doc-comments.
-pub fn ignore_whitespace_and_comments<'src>(
-    parser_state: &mut ParserState<'src>,
-) -> NodeParserResult<()> {
+#[rustfmt::skip] // Do not rustfmt this. 
+pub fn ignore_whitespace_and_comments(parser_state: &mut ParserState) -> NodeParserResult<()> {
     // Use an infinite loop and only break out when we cannot parse either another whitespace or another comment.
     while let Some(peeked_token_ty) = parser_state.peek_token_ty() {
         match peeked_token_ty {
             // Any of the following can be safely ignored.
-            TokenTy::Whitespace
-            | TokenTy::SingleLineComment {
-                comment_type: CommentTy::Normal,
-            }
-            | TokenTy::MultilineComment {
-                comment_type: CommentTy::Normal,
-                is_terminated: true,
-            } => {
+            | TokenTy::Whitespace
+            | TokenTy::SingleLineComment { comment_type: CommentTy::Normal }
+            | TokenTy::MultilineComment { comment_type: CommentTy::Normal, is_terminated: true } 
+            => {
                 // Discard the next token.
                 let _ = parser_state.next_token();
             }
 
             // Any unterminated multiline comment will cause an error.
-            TokenTy::MultilineComment {
-                is_terminated: false,
-                ..
-            } => {
+            TokenTy::MultilineComment { is_terminated: false, .. } => {
                 return Err(ParserError {
                     byte_range: parser_state.peek_byte_range(),
                     ty: ParserErrorVariant::UnterminatedMultilineComment,
