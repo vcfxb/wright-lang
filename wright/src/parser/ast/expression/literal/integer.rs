@@ -23,6 +23,7 @@ pub struct IntegerLiteral<'src> {
 }
 
 /// Parse an [`IntegerLiteral`] from source code.
+/// Do not mutate parser state if there is not a [`TokenTy::IntegerLit`] next. 
 pub fn parse_integer_literal<'src>(
     parser_state: &mut ParserState<'src>,
 ) -> NodeParserResult<IntegerLiteral<'src>> {

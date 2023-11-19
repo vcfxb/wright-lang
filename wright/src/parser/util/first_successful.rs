@@ -12,10 +12,9 @@ pub fn first_sucessful<'src, N: 'src>(
     Box::new(move |parser_state: &mut ParserState<'_>| {
         parser_functions
             .iter()
-            .filter_map(|parser_function| {
+            .find_map(|parser_function| {
                 // Call the function on the clean clone.
                 (parser_function)(parser_state)
             })
-            .next()
     })
 }

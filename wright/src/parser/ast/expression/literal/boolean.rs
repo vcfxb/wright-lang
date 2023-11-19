@@ -21,6 +21,7 @@ pub struct BooleanLiteral<'src> {
 }
 
 /// Attempt to parse a boolean literal from the lexer held by the parser state.
+/// Do not mutate parser state if a viable [`TokenTy`] is not available from the lexer. 
 pub fn parse_boolean_literal<'src>(
     parser_state: &mut ParserState<'src>,
 ) -> NodeParserResult<BooleanLiteral<'src>> {
