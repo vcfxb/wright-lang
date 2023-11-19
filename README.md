@@ -3,7 +3,9 @@
 #### Badges
 | Service | Badge |
 |:---:|:---:|
-| GitHub Action CI | [![Rust](https://github.com/Alfriadox/wright-lang/workflows/Rust/badge.svg?branch=master)](https://github.com/Alfriadox/wright-lang/actions?query=workflow%3ARust) |
+| Cargo Check Status | ![Cargo Check status](https://github.com/Alfriadox/wright-lang/workflows/cargo-check.yml/badge.svg?branch=master) |
+| Cargo Test Status | ![Cargo Test status](https://github.com/Alfriadox/wright-lang/workflows/cargo-test.yml/badge.svg?branch=master) |
+| Cargo Clippy Status | ![Cargo Clippy status](https://github.com/Alfriadox/wright-lang/workflows/cargo-clippy.yml/badge.svg?branch=master) |
 | Code Coverage | [![Coverage Status](https://coveralls.io/repos/github/Alfriadox/wright-lang/badge.svg?branch=master)](https://coveralls.io/github/Alfriadox/wright-lang?branch=master) |
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
 | Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |

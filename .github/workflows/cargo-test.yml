@@ -1,0 +1,18 @@
+name: Cargo Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./wright
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: cargo test
+        working-directory: ${{env.working-directory}}
