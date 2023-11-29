@@ -15,4 +15,4 @@ pub type NodeParserResult<Node, Error = ParserError> = Result<Node, Error>;
 pub type NodeParserOption<Node> = Option<Node>;
 
 /// Type alias used to apease the borrow/lifetime checker complaining about HKTs and stuff.
-pub type BoxedParserFn<'src, Output> = Box<dyn Fn(&mut ParserState<'src>) -> Output + 'src>;
+pub type BoxedParserFn<'src, Output> = Box<dyn (Fn(&mut ParserState<'src>) -> Output) + 'src>;

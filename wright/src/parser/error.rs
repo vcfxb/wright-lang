@@ -19,4 +19,7 @@ pub enum ParserErrorVariant {
 
     /// Encountered unterminated multi-line comment.
     UnterminatedMultilineComment,
+
+    /// Encountered unterminated string literral. 
+    UnterminatedStringLiteral,
 }

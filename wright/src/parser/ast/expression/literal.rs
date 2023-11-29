@@ -9,14 +9,15 @@ use crate::parser::{
 };
 
 use self::{
-    boolean::{parse_boolean_literal, BooleanLiteral},
-    integer::{parse_integer_literal, IntegerLiteral},
+    boolean::BooleanLiteral,
+    integer::IntegerLiteral,
 };
 
 pub mod boolean;
 pub mod integer;
-// pub mod string;
-// pub mod character;
+pub mod string;
+pub mod character;
+pub(self) mod escapes;
 
 #[derive(Debug)]
 pub enum Literal<'src> {
@@ -39,16 +40,16 @@ where
     erase(discard_errors(map_node_type(parser_function, literal_conversion)))
 }
 
-/// Parse a literal from source code.
-pub fn parse_literal<'src>(
-    parser_state: &mut ParserState<'src>,
-) -> NodeParserOption<Literal<'src>> {
-    // Make a parser that finds the first successfull literal parse.
-    let parser = first_sucessful(vec![
-        convert_to_literal_parser(parse_integer_literal, Literal::Integer),
-        convert_to_literal_parser(parse_boolean_literal, Literal::Boolean),
-    ]);
-
-    // Call that parser.
-    (parser)(parser_state)
+impl<'src> Literal<'src> {
+    /// Parse a literal value in source code. 
+    pub fn parse(parser_state: &mut ParserState<'src>) -> NodeParserOption<Self> {
+        // Make a parser that finds the first successfull literal parse.
+        let parser = first_sucessful(vec![
+            convert_to_literal_parser(IntegerLiteral::parse, Literal::Integer),
+            convert_to_literal_parser(BooleanLiteral::parse, Literal::Boolean),
+        ]);
+    
+        // Call that parser.
+        (parser)(parser_state)
+    }
 }

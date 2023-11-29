@@ -5,7 +5,7 @@ use super::{
     lexer::{
         tokens::{Token, TokenTy},
         IndexedLexer, IndexedToken,
-    },
+    }, error::{ParserError, ParserErrorVariant},
 };
 use crate::filemap::{FileId, FileMap};
 use codespan_reporting::files::Files;
@@ -135,5 +135,11 @@ impl<'src> ParserState<'src> {
         } else {
             self.index()..self.index()
         }
+    }
+
+    /// Create a parser error by peeking the next byte range and combining it with the given variant.
+    #[inline]
+    pub(crate) fn peek_byte_range_into_error(&mut self, err_ty: ParserErrorVariant) -> ParserError {
+        ParserError { byte_range: self.peek_byte_range(), ty: err_ty }
     }
 }

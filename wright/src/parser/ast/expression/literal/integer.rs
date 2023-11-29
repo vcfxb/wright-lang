@@ -22,52 +22,52 @@ pub struct IntegerLiteral<'src> {
     pub value: BigUint,
 }
 
-/// Parse an [`IntegerLiteral`] from source code.
-/// Do not mutate parser state if there is not a [`TokenTy::IntegerLit`] next. 
-pub fn parse_integer_literal<'src>(
-    parser_state: &mut ParserState<'src>,
-) -> NodeParserResult<IntegerLiteral<'src>> {
-    // Read and destructure an integer literal token from the lexer.
-    let IndexedToken {
-        index,
-        token: Token { length, .. },
-    } = parser_state
-        // All integer literals should be of this token type.
-        .next_token_if_ty_eq(TokenTy::IntegerLit)
-        // Error out if the next token is not an integer literal.
-        .ok_or_else(|| ParserError {
-            byte_range: parser_state.peek_byte_range(),
-            ty: ParserErrorVariant::Expected("integer literal"),
-        })?;
+impl<'src> IntegerLiteral<'src> {
+    /// Parse a literal integer from source code.
+    /// Do not mutate parser state if there is not a [`TokenTy::IntegerLit`] next. 
+    pub fn parse(parser_state: &mut ParserState<'src>) -> NodeParserResult<Self> {
+        // Read and destructure an integer literal token from the lexer.
+        let IndexedToken {
+            index,
+            token: Token { length, .. },
+        } = parser_state
+            // All integer literals should be of this token type.
+            .next_token_if_ty_eq(TokenTy::IntegerLit)
+            // Error out if the next token is not an integer literal.
+            .ok_or_else(|| ParserError {
+                byte_range: parser_state.peek_byte_range(),
+                ty: ParserErrorVariant::Expected("integer literal"),
+            })?;
 
-    // Get the matching source of this token.
-    let matching_source = &parser_state.source[index..index + length];
-    // Check for a prefix
-    let prefix = &matching_source[..cmp::max(2, matching_source.len())];
+        // Get the matching source of this token.
+        let matching_source = &parser_state.source[index..index + length];
+        // Check for a prefix
+        let prefix = &matching_source[..cmp::max(2, matching_source.len())];
 
-    // Get a radix off the prefix
-    let radix = match prefix {
-        "0x" | "0X" => 16,
-        "0b" | "0B" => 2,
-        "0o" => 8,
-        _ => 10,
-    };
+        // Get a radix off the prefix
+        let radix = match prefix {
+            "0x" | "0X" => 16,
+            "0b" | "0B" => 2,
+            "0o" => 8,
+            _ => 10,
+        };
 
-    // Strip the prefix from the string to get the body of it to parse.
-    let body = if radix != 10 {
-        &matching_source[2..]
-    } else {
-        matching_source
-    };
+        // Strip the prefix from the string to get the body of it to parse.
+        let body = if radix != 10 {
+            &matching_source[2..]
+        } else {
+            matching_source
+        };
 
-    // Parse it.
-    let value = BigUint::from_str_radix(body, radix)
-        // Panic here as the lexer should check for this.
-        .expect("lexer checks integer literal format");
+        // Parse it.
+        let value = BigUint::from_str_radix(body, radix)
+            // Panic here as the lexer should check for this.
+            .expect("lexer checks integer literal format");
 
-    // Return ok.
-    Ok(IntegerLiteral {
-        meta: parser_state.make_ast_node_meta(index, length),
-        value,
-    })
+        // Return ok.
+        Ok(IntegerLiteral {
+            meta: parser_state.make_ast_node_meta(index, length),
+            value,
+        })
+    }
 }

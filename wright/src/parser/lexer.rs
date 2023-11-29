@@ -201,11 +201,13 @@ impl<'a> Iterator for Lexer<'a> {
                 "struct" => TokenTy::Struct,
                 "record" => TokenTy::Record,
                 "trait" => TokenTy::Trait,
-                "fn" => TokenTy::Fn,
+                "func" => TokenTy::Func,
                 "enum" => TokenTy::Enum,
                 "union" => TokenTy::Union,
-                "mod" => TokenTy::Module,
+                "module" => TokenTy::Module,
                 "import" => TokenTy::Import,
+                "implement" => TokenTy::Implement,
+                "represent" => TokenTy::Represent,
 
                 // Visibility keywords
                 "public" => TokenTy::Public,
@@ -222,7 +224,6 @@ impl<'a> Iterator for Lexer<'a> {
                 "relation" => TokenTy::Relation,
                 "unsafe" => TokenTy::Unsafe,
                 "unchecked" => TokenTy::Unchecked,
-                "impl" => TokenTy::Impl,
                 "Self" => TokenTy::SelfUpper,
                 "self" => TokenTy::SelfLower,
                 "type" => TokenTy::Type,

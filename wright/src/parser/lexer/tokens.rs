@@ -72,8 +72,14 @@ pub enum TokenTy {
     Class,
     Struct,
     Record,
+    Enum,
+    Union,
     Trait,
-    Fn,
+    Type,
+    Func,
+    Module,
+    Implement,
+    Represent,
     /// Publicly visible.
     Public,
     /// Visible in the package only.
@@ -84,14 +90,10 @@ pub enum TokenTy {
     Constrain,
     /// Used to constrain relations between variables.
     Relation,
-    Enum,
-    Union,
     Unsafe,
     /// May use similar to unsafe in Rust -- call a function or cast without checking any of the constraints.
     Unchecked,
     Import,
-    Impl,
-    Type,
     Const,
     Var,
     If,
@@ -116,9 +118,6 @@ pub enum TokenTy {
     /// `self` in source code.
     #[display(fmt = "self")]
     SelfLower,
-
-    /// `mod` in source code.
-    Module,
 
     /// Whitespace of any kind and length.
     #[display(fmt = "W")]
