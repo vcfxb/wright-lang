@@ -224,6 +224,8 @@ impl<'a> Iterator for Lexer<'a> {
                 "relation" => TokenTy::Relation,
                 "unsafe" => TokenTy::Unsafe,
                 "unchecked" => TokenTy::Unchecked,
+                "lifetime" => TokenTy::Lifetime,
+                "outlives" => TokenTy::Outlives,
                 "Self" => TokenTy::SelfUpper,
                 "self" => TokenTy::SelfLower,
                 "type" => TokenTy::Type,

@@ -19,16 +19,18 @@ should be kept in mind.
 With those principles in mind, we can start to establish a set of features to guide the language's design. 
 
 1. Wright is strongly typed, and will infer types wherever possible. 
-2. Wright is garbage collected. 
+2. ~~Wright is garbage collected.~~ -- I changed my mind on this -- Wright will have lifetimes and borrowing similar to 
+    Rust. 
 3. Wright has traits.
 4. Wright has enumerations.
 5. Wright has tagged unions.
-6. Wright has classes.
+6. Wright has ~~classes~~ record types.
 7. Wright has type aliases. 
 8. Wright has constraints (to be discussed further).
 9. Wright has inheritance for traits, enumerations, tagged unions, and constraints. 
 10. Functions are first class language constructs in Wright. 
 11. Wright does not have macros -- most macro-style meta programming should be achievable with generics. 
+12. Wright has abstract types -- representation & implementation can be dependent on the generic used. 
 
 ## On Constraints:
 

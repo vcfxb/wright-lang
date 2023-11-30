@@ -19,6 +19,15 @@ pub enum StringLiteralValue<'src> {
     WithEscapes(Rc<str>)
 }
 
+impl<'src> StringLiteralValue<'src> {
+    pub fn as_str(&self) -> &str {
+        match self {
+            StringLiteralValue::WithoutEscapes(s) => s,
+            StringLiteralValue::WithEscapes(rc) => rc.as_ref(),
+        }
+    }
+}
+
 /// A string literal in source code. 
 #[derive(Debug)]
 pub struct StringLit<'src> {

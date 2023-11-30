@@ -110,6 +110,8 @@ pub enum TokenTy {
     Try,
     True,
     False,
+    Lifetime,
+    Outlives,
 
     /// `Self` in source code.
     #[display(fmt = "Self")]
