@@ -6,13 +6,14 @@
 | Cargo Check Status | ![Cargo Check status](https://github.com/Alfriadox/wright-lang/actions/workflows/cargo-check.yml/badge.svg?branch=master) |
 | Cargo Test Status | ![Cargo Test status](https://github.com/Alfriadox/wright-lang/actions/workflows/cargo-test.yml/badge.svg?branch=master) |
 | Cargo Clippy Status | ![Cargo Clippy status](https://github.com/Alfriadox/wright-lang/actions/workflows/cargo-clippy.yml/badge.svg?branch=master) |
-<!-- On kill_cache=1: https://github.com/lemurheavy/coveralls-public/issues/1065#issuecomment-435494495 -->
 | Code Coverage | [![Coverage Status](https://coveralls.io/repos/github/Alfriadox/wright-lang/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/Alfriadox/wright-lang?branch=master) |
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
 | Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |
 | GitHub release | [![GitHub release](https://img.shields.io/github/release/Alfriadox/wright-lang.svg)](https://github.com/Alfriadox/wright-lang/releases) |
 | GitHub (pre-)release | [![GitHub (pre-)release](https://img.shields.io/github/release/Alfriadox/wright-lang/all.svg)](https://github.com/Alfriadox/wright-lang/releases) |
 | Development Status | ![Status](https://img.shields.io/badge/status-actively--developed-green.svg) |
+
+<!-- On `kill_cache=1` above: https://github.com/lemurheavy/coveralls-public/issues/1065#issuecomment-435494495 -->
 
 |  | Downloads|
 |:---:|:---:|
