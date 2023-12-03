@@ -34,3 +34,6 @@ doctest = false
 
 [badges]
 maintenance = { status = "actively-developed" }
+
+[dev-dependencies]
+rayon = "1.8.0"

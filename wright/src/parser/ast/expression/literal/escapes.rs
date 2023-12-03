@@ -81,7 +81,7 @@ pub struct StringLiteralError {
 }
 
 /// An error in a string literal. 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StringLiteralErrorTy {
     /// An error with an ASCII escape.
     AsciiEscapeError(AsciiEscapeErrorTy),
@@ -135,18 +135,24 @@ enum StringLiteralPart {
 }
 
 /// An error with a unicode escape sequence. 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum UnicodeEscapeErrorTy {
-    /// There were too many digits in the escape sequence. 
-    TooManyDigits,
     /// Empty escape sequence,
     Empty,
     /// The escaped digits do not represent a valid unicode codepoint. 
     InvalidCodepoint,
+    /// Expected an open brace after `\u`. 
+    ExpectedOpenBrace,
+    /// No closing brace was supplied after the hex digits. 
+    MissingClosingBrace,
+    /// A non-ascii hex digit character was reached. 
+    NonDigitCharacter,
+    /// Too many digits supplied. 
+    TooManyDigits,
 }
 
 /// An error with an ASCII escape sequence. 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AsciiEscapeErrorTy {
     /// Error in cases when the escaped character is higher than `0x7F` 
     /// <https://doc.rust-lang.org/reference/tokens.html#ascii-escapes>.
@@ -204,6 +210,7 @@ impl<'str_lit> Iterator for StringLiteralPartsIterator<'str_lit> {
                         if a.is_ascii_hexdigit() && b.is_ascii_hexdigit() {
                             // Parse the value of the escaped hex digits.
                             let parsed_value: u8 = u8::from_str_radix(&self.str_lit_body[a_offset..a_offset+2], 16)
+                                // We have confirmed the digits to be ascii hex. 
                                 .expect("ASCII escape characters have been confirmed to be hex digits.");
 
                             if parsed_value > 0x7F {
@@ -223,8 +230,100 @@ impl<'str_lit> Iterator for StringLiteralPartsIterator<'str_lit> {
                 }
 
                 (_, 'u') => {
-                    // Unicode escape. 
-                    unimplemented!()
+                    // Handle open brace.
+                    if self.iter.next_if(|(_, next_char)| *next_char == '{').is_none() {
+                        return Some(StringLiteralPart::UnicodeEscape { source_range: offset..offset+2, parsed: Err(UnicodeEscapeErrorTy::ExpectedOpenBrace) });
+                    }
+
+                    // Recieve up to 3 bytes (6 hex digits) containing the hex value of a unicode codepoint. 
+                    let mut hex_value: u32;
+
+                    // Match the first character after the opening brace. 
+                    match self.iter.next() {
+                        // No character after the opening brace. 
+                        None => return 
+                            Some(StringLiteralPart::UnicodeEscape { source_range: offset..offset+3, parsed: Err(UnicodeEscapeErrorTy::MissingClosingBrace) }),
+                        
+                        // Closing brace immediately.
+                        Some((_, '}')) => return 
+                            Some(StringLiteralPart::UnicodeEscape { source_range: offset..offset+4, parsed: Err(UnicodeEscapeErrorTy::Empty) }),
+
+                        // Non-hex digit
+                        Some((end_offset, c)) if !c.is_ascii_hexdigit() => {
+                            return Some(StringLiteralPart::UnicodeEscape { 
+                                source_range: offset..end_offset+c.len_utf8(), 
+                                parsed: Err(UnicodeEscapeErrorTy::NonDigitCharacter) 
+                            });
+                        }
+
+                        // Hex digit. 
+                        Some((_, digit)) if digit.is_ascii_hexdigit() => {
+                            // Unwrap here since we know for sure that the digit is an ASCII hex digit. 
+                            hex_value = digit.to_digit(16).unwrap();
+                        }
+
+                        // Any other character or case should be unreachable here. 
+                        _ => unreachable!()
+                    }
+
+                    // Track the number of digits pulled from the iterator. 
+                    let mut digits_taken = 1;
+                    // Take digits while the next char is not a closing brace. 
+                    while self.iter.peek().map(|(_, c)| *c) != Some('}') {
+                        // Get the next indexed char from the iterator. 
+                        let next_indexed_char = self.iter.next();
+                        
+                        // If it's none, return a part.
+                        if next_indexed_char.is_none() {
+                            return Some(StringLiteralPart::UnicodeEscape { 
+                                // Use offset+3 here because it should be close enough and I don't care to carry
+                                // an offset tracker all the way through this loop. This should cover the `\u{` of the
+                                // current escape sequence. 
+                                source_range: offset..offset+3, 
+                                parsed: Err(UnicodeEscapeErrorTy::MissingClosingBrace) 
+                            });
+                        }
+
+                        // Unwrap since we know we have a non-closing character here. 
+                        let (end_offset, next_char) = next_indexed_char.unwrap();
+                        // Check that the next char is a digit. 
+                        if !next_char.is_ascii_hexdigit() {
+                            return Some(StringLiteralPart::UnicodeEscape { 
+                                source_range: offset..end_offset+next_char.len_utf8(),
+                                parsed: Err(UnicodeEscapeErrorTy::NonDigitCharacter) 
+                            });
+                        }
+
+                        // Increment counter.
+                        digits_taken += 1;
+                        // Cut the string lit part if there are too many characters. 
+                        if digits_taken > 6 {
+                            return Some(StringLiteralPart::UnicodeEscape { 
+                                source_range: offset..end_offset+1, 
+                                parsed: Err(UnicodeEscapeErrorTy::TooManyDigits) 
+                            });
+                        }
+
+                        // Otherwise we have a valid ASCII hex digit and not too many so we can add it to the value.
+                        // We can use unwrap here since we know the next char is a valid ascii hex digit. 
+                        hex_value = (hex_value << 4) | next_char.to_digit(16).unwrap();
+                    }
+
+                    // The next value from the iterator here cannot be `None` or it would be caught by the while loop. 
+                    // It must be a closing brace. 
+                    let (end_offset, closing_brace) = self.iter.next().expect("closing brace available");
+                    // Use a debug assert to panic if it's not a closing brace in debug mode only. 
+                    debug_assert_eq!(closing_brace, '}');
+                    // Make the range to return, assuming that a closing brace of UTF-8 len 1 was consumed. 
+                    let source_range = offset..end_offset+1;
+                    // Try to convert the char. 
+                    match char::from_u32(hex_value) {
+                        // Failed conversion -- must be an invalid codepoint. 
+                        None => Some(StringLiteralPart::UnicodeEscape { source_range, parsed: Err(UnicodeEscapeErrorTy::InvalidCodepoint) }),
+
+                        // Successful conversion -- Return OK. 
+                        Some(valid_char) => Some(StringLiteralPart::UnicodeEscape { source_range, parsed: Ok(valid_char) })
+                    }
                 }
 
                 // Unrecognized escape sequence. 
@@ -252,7 +351,9 @@ impl<'str_lit> FusedIterator for StringLiteralPartsIterator<'str_lit> {}
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::ast::expression::literal::escapes::unescape;
+    use rayon::prelude::*;
+    use std::panic;
+    use crate::parser::ast::expression::literal::escapes::{unescape, StringLiteralErrorTy, UnicodeEscapeErrorTy};
 
     #[test]
     fn test_all_ascii_byte_escapes_dont_panic_or_error() {
@@ -267,5 +368,46 @@ mod tests {
             // Call the unescape function and assert that it does not panic or error. 
             assert_eq!(unescape(&source_str).unwrap().as_str(), &target_string);
         }
+    }
+
+    #[test]
+    fn test_string_with_no_escapes() {
+        assert_eq!(unescape("test string").unwrap().as_str(), "test string");
+    }
+
+    #[test]
+    fn test_unclosed_unicode_escape() {
+        assert_eq!(unescape("\\u{FFFF").unwrap_err()[0].ty, StringLiteralErrorTy::UnicodeEscapeError(UnicodeEscapeErrorTy::MissingClosingBrace));
+    }
+
+
+    #[test] 
+    fn test_all_unicode_codepoints() {
+        (0u32..=0x00FF_FFFF)
+            // Use rayon's parallel iterator to speed up testing all possible unicode codepoints. 
+            .into_par_iter()
+            // We have to use the `try_for_each` and `panic_catch_unwind` here so that any panic on a thread
+            // will cancel the execution of other testing threads. 
+            .try_for_each(|n| panic::catch_unwind(|| {
+                // Construct a source string.
+                let source_str: String = format!("\\u{{{n:06X}}}");
+                // Determine if there is a target char to match by codepoint. 
+                let target_char: Option<char> = char::from_u32(n);
+                // Call unescape. 
+                let unescape_result = unescape(&source_str);
+
+                // If invalid codepoint, assert the correct error type. 
+                // Otherwise check that the one in the string is correct. 
+                if target_char.is_none() {
+                    assert_eq!(unescape_result.unwrap_err()[0].ty, StringLiteralErrorTy::UnicodeEscapeError(UnicodeEscapeErrorTy::InvalidCodepoint));
+                } else {
+                    assert_eq!(unescape_result.unwrap().as_str().chars().next().unwrap(), target_char.unwrap());
+                }
+            })).expect("A unicode codepoint is not being handled properly.")
+    }
+
+    #[test]
+    fn test_empty_unicode_escape() {
+        assert_eq!(unescape("\\u{}").unwrap_err()[0].ty, StringLiteralErrorTy::UnicodeEscapeError(UnicodeEscapeErrorTy::Empty))
     }
 }
