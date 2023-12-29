@@ -2,7 +2,7 @@
 
 use std::rc::Rc;
 
-use crate::parser::{ast::metadata::AstNodeMeta, state::ParserState, util::NodeParserResult, lexer::{tokens::{TokenTy, Token}, IndexedToken}, error::{ParserError, ParserErrorVariant}};
+use crate::parser::{ast::{metadata::AstNodeMeta, expression::literal::escapes::unescape}, state::ParserState, util::NodeParserResult, lexer::{tokens::{TokenTy, Token}, IndexedToken}, error::{ParserError, ParserErrorVariant}};
 
 /// The value of a string literal in source code. 
 #[derive(Debug, Clone)]
@@ -65,6 +65,12 @@ impl<'src> StringLit<'src> {
                 // Get a reference to the body of the string literal itself (without the quotes or backticks for format
                 // strings).
                 let string_lit_body: &str = &full_matching_source[1..(full_matching_source.len()-1)];
+
+                // Try to unescape the string literal. 
+                match unescape(string_lit_body) {
+                    Ok(str_lit_value) => {},
+                    Err(str_lit_errors) => {},
+                }
                 
                 
 
