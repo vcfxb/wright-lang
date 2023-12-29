@@ -386,7 +386,7 @@ mod tests {
         (0u32..=0x00FF_FFFF)
             // Use rayon's parallel iterator to speed up testing all possible unicode codepoints. 
             .into_par_iter()
-            // We have to use the `try_for_each` and `panic_catch_unwind` here so that any panic on a thread
+            // We have to use the `try_for_each` and `panic::catch_unwind` here so that any panic on a thread
             // will cancel the execution of other testing threads. 
             .try_for_each(|n| panic::catch_unwind(|| {
                 // Construct a source string.
