@@ -47,24 +47,6 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        // Printing token debug information.
-        Some(Commands::Debug {
-            command: DebugCommands::Tokens { file, pretty },
-        }) => {
-            let source_str = fs::read_to_string(&file)?;
-            let source = SimpleFile::new(file.to_string_lossy(), &source_str);
-
-            if pretty {
-                Lexer::debug_pretty_print(&source)?;
-            } else {
-                for token in Lexer::new(&source_str) {
-                    println!("{}", token);
-                }
-            }
-
-            Ok(())
-        }
-
         // Start an interactive repl.
         Some(Commands::Repl) => repl::start(),
 

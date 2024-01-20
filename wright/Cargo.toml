@@ -24,7 +24,15 @@ derive_more = "0.99.17"
 unicode-ident = "1.0"
 codespan-reporting = "0.11.1"
 termcolor = "1.2.0"
+
+# Integers larger than 128 bits
 num = "0.4"
+
+# Portable (windows, mac, linux) file locking
+fs4 = { version = "0.7.0", features = ["sync"] }
+
+# Memory mapped files. 
+memmap2 = "0.9.3"
 
 [[bin]]
 name = "wright"
