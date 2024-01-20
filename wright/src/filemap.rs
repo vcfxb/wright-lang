@@ -196,7 +196,7 @@ impl<'src> Drop for FileMap<'src> {
                     locked_file.unlock().map_err(|err| eprintln!("Error unlocking file: {:?}", err)).ok();
                 },
 
-                // All other types of file can drop normally. 
+                // All other types of files can drop normally. 
                 _ => {}
             }
         }
