@@ -124,7 +124,7 @@ impl<'src> FileMap<'src> {
         // Thread to warn user if it takes too long. 
         thread::spawn(move || {
             thread::sleep(FILE_LOCK_WARNING_TIME);
-            timout_tx.send(ChannelMessage::FiveSecondWarning);
+            timout_tx.send(ChannelMessage::FiveSecondWarning)
         });
 
         // Use an infinite loop to make sure we recieve all the messages from the senders. 
@@ -159,7 +159,7 @@ impl<'src> FileMap<'src> {
                         Mmap::map(&file)
                             // Make sure we unlock the file if there's an issue memory mapping it. 
                             .map_err(|err| {
-                                file.unlock();
+                                file.unlock().map_err(|err| eprintln!("Error unlocking file: {:?}", err)).ok();
                                 err
                             })
                     }?;
@@ -169,7 +169,7 @@ impl<'src> FileMap<'src> {
                     let as_str: Result<&str, std::str::Utf8Error> = std::str::from_utf8(raw_data);
                     if as_str.is_err() {
                         // The file is not valid for us so we should unlock it and return an error. 
-                        file.unlock();
+                        file.unlock().map_err(|err| eprintln!("Error unlocking file: {:?}", err)).ok();
                         return Err(io::Error::new(io::ErrorKind::InvalidData, as_str.unwrap_err()));
                     }
 
@@ -193,7 +193,7 @@ impl<'src> Drop for FileMap<'src> {
                 // Locked and memory-mapped files need to be unlocked before dropping. 
                 ImmutableString::LockedFile { locked_file, .. } => {
                     // Unlock the file to give back to the OS. 
-                    locked_file.unlock();
+                    locked_file.unlock().map_err(|err| eprintln!("Error unlocking file: {:?}", err)).ok();
                 },
 
                 // All other types of file can drop normally. 
