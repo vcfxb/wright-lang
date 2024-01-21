@@ -199,20 +199,21 @@ impl<'src> FileMap<'src> {
     }
 }
 
-impl<'src> Drop for FileMap<'src> {
+/// Implement drop here to make sure that the files get unlocked as they go out of scope/use.
+impl<'src> Drop for ImmutableString<'src> {
     fn drop(&mut self) {
-        // Unlock all files from the file system. 
-        for file in self.inner.iter() {
-            match file.source() {
-                // Locked and memory-mapped files need to be unlocked before dropping. 
-                ImmutableString::LockedFile { locked_file, .. } => {
-                    // Unlock the file to give back to the OS. 
-                    locked_file.unlock().map_err(|err| eprintln!("Error unlocking file: {:?}", err)).ok();
-                },
-
-                // All other types of files can drop normally. 
-                _ => {}
+        match self {
+            // Unlock locked files.
+            ImmutableString::LockedFile { locked_file, .. } => {
+                locked_file.unlock()
+                    // Log the error if there is one, 
+                    .map_err(|io_err: io::Error| eprintln!("{}", io_err))
+                    // Discard value of result
+                    .ok();
             }
+
+            // All other types drop trivially.  
+            ImmutableString::Owned(_) | ImmutableString::Reference(_) => {}
         }
     }
 }
