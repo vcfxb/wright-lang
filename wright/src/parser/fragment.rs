@@ -15,21 +15,33 @@ impl<'src> Fragment<'src> {
         self.inner.len()
     }
 
+    /// Get a pair of pointers, the first one being at the beginning of the fragment, the second one pointing 
+    /// to the byte after the end of the fragment.
+    const fn start_and_end(&self) -> (*const u8, *const u8) {
+        // Get the pointer to the start of the fragment. 
+        let start: *const u8 = self.inner.as_ptr();
+        // Get a pointer just past the end of the string. 
+        // SAFETY: the resulting pointer is guarunteed to point at one byte past the end of the string. 
+        (start, unsafe { start.add(self.len()) })
+    }
+
     /// Return true if this fragment overlaps at all with the other (either one contains the start of the other, 
     /// by pointer).
     pub fn overlaps(&self, other: &Self) -> bool {
-        // Get the pointer to the start of the string. 
-        let (start, len) = (self.inner.as_ptr(), self.len());
-        // Get a pointer just past the end of the string. 
-        // SAFETY: the resulting pointer is guarunteed to point at one byte past the end of the string. 
-        let end = unsafe { start.add(len) };
-
-        // Do the same thing for the other fragment. 
-        let (other_start, len) = (other.inner.as_ptr(), other.len());
-        let other_end = unsafe { other_start.add(len) };
-
-        // Check bounds. 
+        // Get start and end pointers for both fragments.
+        let (start, end) = self.start_and_end();
+        let (other_start, other_end) = other.start_and_end();
+        // Check if this fragment contains either end of the other fragment. 
         (start <= other_start && other_start < end) || (other_start <= start && start < other_end)
+    }
+
+    /// Return true if this fragment entirely contains another fragment using pointers. 
+    pub fn contains(&self, other: &Self) -> bool {
+        // Get start and end pointers for both fragments.
+        let (start, end) = self.start_and_end();
+        let (other_start, other_end) = other.start_and_end();
+        // Check bounds.
+        start <= other_start && end >= other_end
     }
 
     /// Split this fragment into two sub fragments, with the first one being `bytes` long and the second containing the

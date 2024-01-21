@@ -6,6 +6,7 @@ use fs4::FileExt;
 use memmap2::Mmap;
 use termcolor::{ColorChoice, StandardStream};
 use std::{path::PathBuf, io, fs::File, sync::mpsc, thread, time::Duration};
+use crate::parser::fragment::Fragment;
 
 /// Rename import for clarity. 
 use codespan_reporting::files::Error as CodespanError;
@@ -180,6 +181,21 @@ impl<'src> FileMap<'src> {
                 Err(_) => unreachable!("The reciever should never reach a state where both senders are closed."),
             }    
         }
+    }
+
+    /// Find the file ID of a given [Fragment] using the fragment's internal pointer. 
+    pub fn find_fragment(&self, fragment: &Fragment<'src>) -> Option<<Self as Files<'src>>::FileId> {
+        // Iterate on file IDs. 
+        for file_id in 0..self.inner.len() {
+            // Use expect because all of these file IDs should be fine. 
+            let source: &str = self.source(file_id).expect("All file IDs here are valid");
+            if (Fragment { inner: source }).contains(fragment) {
+                return Some(file_id);
+            }
+        }
+
+        // If there was no file containing the given fragment, return none. 
+        None
     }
 }
 
