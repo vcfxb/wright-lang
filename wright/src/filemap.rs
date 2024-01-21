@@ -57,7 +57,7 @@ pub struct FileMap<'src> {
     /// This is just a list of files we're keeping track of. 
     /// This is identical to the current implementation of [codespan_reporting::files::SimpleFiles],
     /// but we don't use theirs because we need to iterate over the [SimpleFile]s manually for various 
-    /// parts of the implementation (including the [Drop] implementation). 
+    /// parts of the implementation.
     inner: Vec<SimpleFile<FileName, ImmutableString<'src>>>
 }
 
