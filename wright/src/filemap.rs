@@ -174,9 +174,7 @@ impl<'src> FileMap<'src> {
                     }
 
                     // The file's contents are valid utf-8, add them to the file map. 
-                    let file_id: usize = self.inner.len();
-                    self.add(FileName::Real(path), ImmutableString::LockedFile { locked_file: file, mem_map });
-                    return Ok(file_id);
+                    return Ok(self.add(FileName::Real(path), ImmutableString::LockedFile { locked_file: file, mem_map }));
                 }
 
                 Err(_) => unreachable!("The reciever should never reach a state where both senders are closed."),
