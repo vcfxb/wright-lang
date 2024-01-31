@@ -9,11 +9,11 @@ jobs:
       working-directory: ./wright
     steps:
       - uses: actions/checkout@v4
-      - name: Install LLVM package
+      - name: Install LLVM
         run: |
-          deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
-          deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
-          sudo apt-get install llvm-17-dev
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
       - name: Check rust code
         run: cargo check 
         working-directory: ${{env.working-directory}}
