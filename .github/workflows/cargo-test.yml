@@ -4,13 +4,16 @@ on: ["push", "pull_request"]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       working-directory: ./wright
     steps:
       - uses: actions/checkout@v4
       - name: Install LLVM package
-        run: sudo apt-get install llvm-17-dev
+        run: |
+          deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
+          deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
+          sudo apt-get install llvm-17-dev
       - name: Run tests
         run: cargo test
         working-directory: ${{env.working-directory}}

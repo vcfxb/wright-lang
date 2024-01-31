@@ -4,11 +4,14 @@ name: Code Coverage
 
 jobs:
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Install LLVM package
-        run: sudo apt-get install llvm-17-dev
+        run: |
+          deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
+          deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
+          sudo apt-get install llvm-17-dev
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly

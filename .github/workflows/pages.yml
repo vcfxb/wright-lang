@@ -23,11 +23,14 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install LLVM package
-        run: sudo apt-get install llvm-17-dev
+        run: |
+          deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
+          deb-src http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main
+          sudo apt-get install llvm-17-dev
       - name: Install mdBook
         run: |
           curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf -y | sh
