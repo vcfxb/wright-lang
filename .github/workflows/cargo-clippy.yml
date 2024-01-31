@@ -14,6 +14,7 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 17
+          sudo apt install libpolly-17-dev libz-dev
       - name: Run Clippy
         run: cargo clippy -- --deny clippy::all --deny warnings
         working-directory: ${{env.working-directory}}
