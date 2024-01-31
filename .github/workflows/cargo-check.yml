@@ -1,10 +1,6 @@
 name: Cargo Check 
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: ["push", "pull_request"]
 
 jobs:
   check:
@@ -13,6 +9,8 @@ jobs:
       working-directory: ./wright
     steps:
       - uses: actions/checkout@v4
+      - name: Install LLVM package
+        run: sudo apt-get install llvm-17-dev
       - name: Check rust code
         run: cargo check 
         working-directory: ${{env.working-directory}}

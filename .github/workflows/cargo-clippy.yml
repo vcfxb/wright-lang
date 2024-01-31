@@ -1,10 +1,6 @@
 name: Clippy 
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: ["push", "pull_request"]
 
 jobs:
   clippy:
@@ -13,6 +9,8 @@ jobs:
       working-directory: ./wright
     steps:
       - uses: actions/checkout@v4
+      - name: Install LLVM package
+        run: sudo apt-get install llvm-17-dev
       - name: Run Clippy
         run: cargo clippy -- --deny clippy::all --deny warnings
         working-directory: ${{env.working-directory}}
