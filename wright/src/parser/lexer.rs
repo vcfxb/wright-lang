@@ -5,6 +5,49 @@
 
 use super::fragment::Fragment;
 
+/// Constant table of single character tokens and the characters that match them. 
+pub const SINGLE_CHAR_TOKENS: &[(char, TokenTy)] = &[
+    ('(', TokenTy::LeftParen),
+    (')', TokenTy::RightParen),
+    ('[', TokenTy::LeftBracket),
+    (']', TokenTy::RightBracket),
+    ('{', TokenTy::LeftCurly),
+    ('}', TokenTy::RightCurly),
+    ('@', TokenTy::At),
+    (';', TokenTy::Semi),
+    ('?', TokenTy::Question),
+    (',', TokenTy::Comma),
+    ('#', TokenTy::Hash),
+    ('$', TokenTy::Dollar),
+];
+
+/// Tokens that can be either a single character or upgraded with an
+/// equals sign. 
+pub const POSSIBLE_EQ_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy)] = &[
+    ('!', TokenTy::Bang, TokenTy::BangEq),
+    ('%', TokenTy::Mod, TokenTy::ModEq),
+    ('^', TokenTy::Xor, TokenTy::XorEq),
+    ('*', TokenTy::Star, TokenTy::StarEq),
+    ('+', TokenTy::Plus, TokenTy::PlusEq),
+    ('/', TokenTy::Div, TokenTy::DivEq),
+];
+
+/// Characters that can produce different tokens when followed by an equals sign or themselves. 
+pub const POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy, TokenTy)] = &[
+    ('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd),
+    ('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
+    ('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::LtLt),
+    ('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::GtGt),
+    (':', TokenTy::Colon, TokenTy::ColonEq, TokenTy::ColonColon),
+];
+
+/// Characters that can produce different tokens when followed by an equals sign or 
+/// a `>` for arrows.
+pub const POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy, TokenTy)] = &[
+    ('-', TokenTy::Minus, TokenTy::MinusEq, TokenTy::SingleArrow),
+    ('=', TokenTy::Eq, TokenTy::EqEq, TokenTy::DoubleArrow),
+];
+
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language. 
 #[derive(Debug)]
 pub struct Lexer<'src> {
@@ -30,20 +73,20 @@ pub enum TokenTy {
     LeftParen, RightParen,
 
     Plus, PlusEq,
-    Minus, MinusEq,
     Star, StarEq,
     Div, DivEq,
     Xor, XorEq,
     Mod, ModEq,
     Bang, BangEq,
-    Eq, EqEq,
+
+    Minus, MinusEq, SingleArrow,
+    Eq, EqEq, DoubleArrow,
 
     Lt, LtEq, LtLt,
     Gt, GtEq, GtGt,
     And, AndEq, AndAnd,
     Or, OrEq, OrOr,
-    
-    Colon, ColonColon,
+    Colon, ColonEq, ColonColon,
 
     At,
     Tilde,
@@ -52,6 +95,8 @@ pub enum TokenTy {
     Dot,
     Comma,
     Hash,
+    Question,
+    Dollar,
 
     Identifier,
 
@@ -96,31 +141,6 @@ impl<'src> Lexer<'src> {
         Lexer { remaining: Fragment { inner: source } }
     }
 
-    /// Try to match a single character to a single character token if possible. 
-    #[rustfmt::skip]
-    const fn single_char_tokens(c: char) -> Option<TokenTy> {
-        use TokenTy::*;
-
-        match c {
-            '{' => Some(LeftCurly),
-            '}' => Some(RightCurly),
-            '[' => Some(LeftBracket),
-            ']' => Some(RightBracket),
-            '(' => Some(LeftParen),
-            ')' => Some(RightParen),
-            
-            '@' => Some(At),
-            '~' => Some(Tilde),
-            '_' => Some(Underscore),
-            '.' => Some(Dot),
-            ',' => Some(Comma),
-            ';' => Some(Semi),
-            '#' => Some(Hash),
-
-            _ => None,
-        }
-    }
-
     /// Try to match a fragment recognized to be an identifier or keyword to
     /// a keyword or return [TokenTy::Identifier]. 
     fn identifier_or_keyword(fragment: Fragment<'src>) -> TokenTy {
@@ -156,6 +176,52 @@ impl<'src> Lexer<'src> {
 
             _ => Identifier
         }
+    }
+
+    /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
+    /// and labeling them with the given kind. 
+    fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
+        let (token_fragment, new_remaining_fragment) = self.remaining.split(bytes);
+        self.remaining = new_remaining_fragment;
+        Token { variant: kind, fragment: token_fragment }
+    }
+
+    /// Get the next token from the lexer.
+    pub fn next_token(&mut self) -> Option<Token<'src>> {
+        // If the remaining input is empty, there is no token. 
+        if self.remaining.is_empty() {
+            return None;
+        }
+
+        // Otherwise create a char iterator on the fragment. 
+        // This one will be mainly used to check for shorter tokens -- a new one may be created later
+        // to check for identifiers and strings. 
+        let mut char_indices = self.remaining.inner.chars();
+
+        // Get the next character from the iterator. 
+        let next_char = char_indices.next().unwrap();
+
+        // Match a single character if possible. 
+        for (c, kind) in SINGLE_CHAR_TOKENS {
+            if next_char == *c {
+                return Some(self.split_token(next_char.len_utf8(), *kind));
+            }
+        }
+
+        // Get the character after the next char if there is one. 
+        let following_char_option = char_indices.next();
+
+        // Try to match a token that can be augmented with a possible additional equal sign. 
+        for (c, without_eq, with_eq) in POSSIBLE_EQ_UPGRADE_TOKENS {
+            if next_char == *c {
+                match following_char_option {
+                    Some('=') => return Some(self.split_token(next_char.len_utf8() + 1, *with_eq)),
+                    _ => return Some(self.split_token(next_char.len_utf8(), *without_eq)),
+                }   
+            }
+        }
+
+        unimplemented!()
     }
 
 }

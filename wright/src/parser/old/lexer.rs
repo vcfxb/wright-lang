@@ -42,18 +42,7 @@ impl<'a> Iterator for Lexer<'a> {
 
         // Handle single character tokens first.
         let single_char_tokens = [
-            ('(', TokenTy::LeftParen),
-            (')', TokenTy::RightParen),
-            ('[', TokenTy::LeftSquare),
-            (']', TokenTy::RightSquare),
-            ('{', TokenTy::LeftBracket),
-            ('}', TokenTy::RightBracket),
-            ('@', TokenTy::At),
-            (';', TokenTy::Semi),
-            ('?', TokenTy::Question),
-            (',', TokenTy::Comma),
-            ('#', TokenTy::Pound),
-            ('$', TokenTy::Dollar),
+            
         ];
 
         for (c, variant) in single_char_tokens {

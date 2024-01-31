@@ -15,6 +15,11 @@ impl<'src> Fragment<'src> {
         self.inner.len()
     }
 
+    /// Check if the length of this fragment is zero. 
+    pub const fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
     /// Get a pair of pointers, the first one being at the beginning of the fragment, the second one pointing 
     /// to the byte after the end of the fragment.
     const fn start_and_end(&self) -> (*const u8, *const u8) {
@@ -46,8 +51,13 @@ impl<'src> Fragment<'src> {
 
     /// Split this fragment into two sub fragments, with the first one being `bytes` long and the second containing the
     /// rest of this fragment. 
+    /// 
+    /// Panics if the byte index is not in the fragment, or if it's on a char boundary. 
     pub fn split(&self, bytes: usize) -> (Self, Self) {
-        (Self { inner: &self.inner[..bytes] }, Self { inner: &self.inner[bytes..]})
+        // Use str's split_at. 
+        let (left, right) = self.inner.split_at(bytes);
+
+        (Self { inner: left }, Self { inner: right })
     }
 
     /// Get an iterator over the characters in this fragment. 
