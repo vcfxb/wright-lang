@@ -83,4 +83,12 @@ mod tests {
         assert!(c.overlaps(&a));
         assert!(!a.overlaps(&d));
     }
+
+    #[test]
+    fn test_split_single() {
+        let a = Fragment { inner: "+" };
+        let (left, right) = a.split(1);
+        assert_eq!(left.inner, "+");
+        assert_eq!(right.inner, "");
+    }
 }

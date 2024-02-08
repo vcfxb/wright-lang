@@ -26,6 +26,12 @@ test = false
 doc = false
 doctest = false
 
+# BENCHMARKS
+[[bench]]
+name = "lexer"
+harness = false
+
+
 # CRATES.IO BADGES
 [badges.maintenance]
 status = "actively-developed"
@@ -86,3 +92,7 @@ features = ["llvm17-0"]
 # Rayon to speed up brute-force testing in some cases.
 [dev-dependencies.rayon]
 version = "1.8.0"
+
+# Criterion is used for benchmarking. 
+[dev-dependencies]
+criterion = "0.5.1"

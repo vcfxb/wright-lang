@@ -48,6 +48,145 @@ pub const POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy, TokenT
     ('=', TokenTy::Eq, TokenTy::EqEq, TokenTy::DoubleArrow),
 ];
 
+/// The number of rows of the generated prefix table. 
+pub const PREFIX_TABLE_ROWS: usize = {
+    SINGLE_CHAR_TOKENS.len() 
+    + 2 * POSSIBLE_EQ_UPGRADE_TOKENS.len()
+    + 3 * POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS.len()
+    + 3 * POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS.len()
+};
+
+/// A relationship between a prefix and the token that should be generated when that prefix matches. 
+#[derive(Copy, Clone, Debug)]
+pub struct PrefixToToken {
+    /// An array of two chars. In single char tokens, the second one should be a null character (`'\0'`). 
+    /// the char_length field will be used to slice this buffer to get the actual prefix. 
+    pub char_buffer: [char; 2],
+    /// The byte length of this prefix and all generated tokens by this prefix. 
+    pub byte_len: usize,
+    /// The kind of [Token] generated when this prefix matches. 
+    pub kind: TokenTy,
+}
+
+/// A full table generated at compile time using all the token tables 
+/// ([SINGLE_CHAR_TOKENS], [POSSIBLE_EQ_UPGRADE_TOKENS], [POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS], 
+/// [POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS]). 
+/// 
+/// This table can be iterated on in order when trying to match a token at the start of a fragment of source code. 
+pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
+    // Make a mutable table with dummy values to replace with actual values. 
+    let mut table: [PrefixToToken; PREFIX_TABLE_ROWS] = 
+        [PrefixToToken { char_buffer: ['\0'; 2], byte_len: 0, kind: TokenTy::Unknown }; PREFIX_TABLE_ROWS];
+
+    // Current index to insert into table at.
+    let mut write_index: usize = 0;
+
+    // Index used for reading from various tables. 
+    let mut read_index: usize = 0;
+
+    // Iterate first over all the single char tokens. 
+    while read_index < SINGLE_CHAR_TOKENS.len() {
+        // Get row from source table.
+        let (c, token_kind) = SINGLE_CHAR_TOKENS[read_index];
+
+        // Put row in destination table.
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '\0'],
+            byte_len: c.len_utf8(),
+            kind: token_kind,
+        };
+
+        // Increment both indices. 
+        read_index += 1;
+        write_index += 1;
+    }
+
+    // Then do all the tokens that can be upgraded with an equals sign. 
+    // Add the row for the token with the equals sign first so that when we iterate over this table in order,
+    // the version without the equals sign does not match prematurely. 
+    read_index = 0;
+    while read_index < POSSIBLE_EQ_UPGRADE_TOKENS.len() {
+        let (c, without_eq, with_eq) = POSSIBLE_EQ_UPGRADE_TOKENS[read_index];
+
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '='],
+            byte_len: c.len_utf8() + '='.len_utf8(),
+            kind: with_eq,
+        };
+
+        write_index += 1;
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '\0'],
+            byte_len: c.len_utf8(),
+            kind: without_eq,
+        };
+
+        read_index += 1;
+        write_index += 1;
+    }
+
+    // Do the same for the tokens that can be upgraded with an equals sign or doubled. 
+    read_index = 0;
+    while read_index < POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS.len() {
+        let (c, without_eq, with_eq, doubled) = POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS[read_index];
+
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, c],
+            byte_len: 2 * c.len_utf8(),
+            kind: doubled,
+        };
+
+        write_index += 1;
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '='],
+            byte_len: c.len_utf8() + '='.len_utf8(),
+            kind: with_eq,
+        };
+
+        write_index += 1;
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '\0'],
+            byte_len: c.len_utf8(),
+            kind: without_eq,
+        };
+
+        read_index += 1;
+        write_index += 1;
+    }
+
+    // Do the same for possible eq or arrow upgrades.
+    read_index = 0;
+    while read_index < POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS.len() {
+        let (c, without_eq, with_eq, with_arrow) = POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS[read_index];
+
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '>'],
+            byte_len: c.len_utf8() + '>'.len_utf8(),
+            kind: with_arrow,
+        };
+
+        write_index += 1;
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '='],
+            byte_len: c.len_utf8() + '='.len_utf8(),
+            kind: with_eq,
+        };
+
+        write_index += 1;
+        table[write_index] = PrefixToToken {
+            char_buffer: [c, '\0'],
+            byte_len: c.len_utf8(),
+            kind: without_eq,
+        };
+
+        read_index += 1;
+        write_index += 1;
+    }
+
+    table
+};
+
+
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language. 
 #[derive(Debug)]
 pub struct Lexer<'src> {
@@ -186,42 +325,71 @@ impl<'src> Lexer<'src> {
         Token { variant: kind, fragment: token_fragment }
     }
 
+    /// See if the remaining fragment in this [Lexer] starts with a given [str] prefix and if so,
+    /// split off a token of the length of this prefix with the given variant. 
+    fn match_str_prefix(&mut self, prefix: &str, token_kind: TokenTy) -> Option<Token<'src>> {
+        if self.remaining.inner.starts_with(prefix) {
+            Some(self.split_token(prefix.len(), token_kind))
+        } else {
+            None
+        }
+    }
+
+
     /// Get the next token from the lexer.
     pub fn next_token(&mut self) -> Option<Token<'src>> {
         // If the remaining input is empty, there is no token. 
         if self.remaining.is_empty() {
             return None;
         }
+        
+        // To attempt to match a token from the prefix table, make a char iterator
+        // and get two chars from it to test equality. None of the tokens start with a
+        // null character so use that as a single of an unavailable char.
+        let mut char_iter = self.remaining.chars();
+        let char_array: [char; 2] = [
+            // Just unwrap here since we know there's at least one char. 
+            char_iter.next().unwrap(), 
+            char_iter.next().unwrap_or('\0')
+        ];
 
-        // Otherwise create a char iterator on the fragment. 
-        // This one will be mainly used to check for shorter tokens -- a new one may be created later
-        // to check for identifiers and strings. 
-        let mut char_indices = self.remaining.inner.chars();
-
-        // Get the next character from the iterator. 
-        let next_char = char_indices.next().unwrap();
-
-        // Match a single character if possible. 
-        for (c, kind) in SINGLE_CHAR_TOKENS {
-            if next_char == *c {
-                return Some(self.split_token(next_char.len_utf8(), *kind));
-            }
-        }
-
-        // Get the character after the next char if there is one. 
-        let following_char_option = char_indices.next();
-
-        // Try to match a token that can be augmented with a possible additional equal sign. 
-        for (c, without_eq, with_eq) in POSSIBLE_EQ_UPGRADE_TOKENS {
-            if next_char == *c {
-                match following_char_option {
-                    Some('=') => return Some(self.split_token(next_char.len_utf8() + 1, *with_eq)),
-                    _ => return Some(self.split_token(next_char.len_utf8(), *without_eq)),
-                }   
+        // Next iterate through the prefix table to try to get any tokens that are covered there.
+        for prefix_meta in PREFIX_TABLE.iter() {
+            if &prefix_meta.char_buffer == &char_array {
+                return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
             }
         }
 
         unimplemented!()
     }
 
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parser::lexer::TokenTy;
+
+    use super::Lexer;
+    use super::PREFIX_TABLE;
+
+    #[test]
+    #[ignore = "this test is just used for debugging the prefix table"]
+    /// Run this with `cargo test manual_debug_prefix_table -- --nocapture --ignored`.
+    fn manual_debug_prefix_table() {
+        dbg!(PREFIX_TABLE);
+    }
+
+    #[test]
+    fn plus_and_plus_eq_tokens() {
+        let mut plus = Lexer::new("+");
+        let mut plus_eq = Lexer::new("+=");
+
+        let plus_token = plus.next_token().unwrap();
+        let plus_eq_token = plus_eq.next_token().unwrap();
+
+        assert_eq!(plus.bytes_remaining(), 0);
+        assert_eq!(plus_eq.bytes_remaining(), 0);
+        assert_eq!(plus_token.variant, TokenTy::Plus);
+        assert_eq!(plus_eq_token.variant, TokenTy::PlusEq);
+    }
 }
