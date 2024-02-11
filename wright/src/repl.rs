@@ -116,6 +116,6 @@ pub fn start() -> anyhow::Result<()> {
         write!(&mut output, "[{}]: << ", input_number)?;
         output.flush()?;
 
-        unimplemented!("REPL needs to be re-worked a bit."); 
+        unimplemented!("REPL needs to be re-worked a bit.");
     }
 }

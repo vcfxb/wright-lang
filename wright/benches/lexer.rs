@@ -1,17 +1,16 @@
 //! Lexer benchmarks.
 
-
-use criterion::{black_box, criterion_group, criterion_main, Criterion, Bencher};
+use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
 use wright::parser::lexer::Lexer;
 
 fn bench_symbol_tokens(c: &mut Criterion) {
     // Make a benchmark group.
     let mut group = c.benchmark_group("lexer symbol benchmarks");
 
-    // Function to make a lexer and get a token from it. 
-    let make_lexer_and_get_token = |b: &mut Bencher, input: &str| {
-        b.iter(|| Lexer::new(black_box(input)).next_token())
-    };
+    // Function to make a lexer and get a token from it.
+    fn make_lexer_and_get_token(b: &mut Bencher, input: &str) {
+        b.iter(|| Lexer::new(black_box(input)).next_token());
+    }
 
     let inputs = ["+", "+=", "*", "@", "?"];
 

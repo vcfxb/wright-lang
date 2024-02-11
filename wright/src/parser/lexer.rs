@@ -1,14 +1,14 @@
 //! First pass lexer that gets run on the source code and returns a series of tokens with their associated [Fragment]s.
-//! 
-//! Note that this will strip out comments and whitespace, returning only fragments that match one of the paterns 
-//! defined for tokens. 
+//!
+//! Note that this will strip out comments and whitespace, returning only fragments that match one of the paterns
+//! defined for tokens.
 
+use super::fragment::Fragment;
 use std::ptr;
 use std::str::Chars;
 use unicode_ident::{is_xid_continue, is_xid_start};
-use super::fragment::Fragment;
 
-/// Constant table of single character tokens and the characters that match them. 
+/// Constant table of single character tokens and the characters that match them.
 pub const SINGLE_CHAR_TOKENS: &[(char, TokenTy)] = &[
     ('(', TokenTy::LeftParen),
     (')', TokenTy::RightParen),
@@ -25,7 +25,7 @@ pub const SINGLE_CHAR_TOKENS: &[(char, TokenTy)] = &[
 ];
 
 /// Tokens that can be either a single character or upgraded with an
-/// equals sign. 
+/// equals sign.
 pub const POSSIBLE_EQ_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy)] = &[
     ('!', TokenTy::Bang, TokenTy::BangEq),
     ('%', TokenTy::Mod, TokenTy::ModEq),
@@ -35,7 +35,7 @@ pub const POSSIBLE_EQ_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy)] = &[
     ('/', TokenTy::Div, TokenTy::DivEq),
 ];
 
-/// Characters that can produce different tokens when followed by an equals sign or themselves. 
+/// Characters that can produce different tokens when followed by an equals sign or themselves.
 pub const POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy, TokenTy)] = &[
     ('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd),
     ('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
@@ -44,40 +44,46 @@ pub const POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy, Toke
     (':', TokenTy::Colon, TokenTy::ColonEq, TokenTy::ColonColon),
 ];
 
-/// Characters that can produce different tokens when followed by an equals sign or 
+/// Characters that can produce different tokens when followed by an equals sign or
 /// a `>` for arrows.
 pub const POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS: &[(char, TokenTy, TokenTy, TokenTy)] = &[
     ('-', TokenTy::Minus, TokenTy::MinusEq, TokenTy::SingleArrow),
     ('=', TokenTy::Eq, TokenTy::EqEq, TokenTy::DoubleArrow),
 ];
 
-/// The number of rows of the generated prefix table. 
+/// The number of rows of the generated prefix table.
 pub const PREFIX_TABLE_ROWS: usize = {
-    SINGLE_CHAR_TOKENS.len() 
-    + 2 * POSSIBLE_EQ_UPGRADE_TOKENS.len()
-    + 3 * POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS.len()
-    + 3 * POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS.len()
+    SINGLE_CHAR_TOKENS.len()
+        + 2 * POSSIBLE_EQ_UPGRADE_TOKENS.len()
+        + 3 * POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS.len()
+        + 3 * POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS.len()
 };
 
-/// A relationship between a prefix and the token that should be generated when that prefix matches. 
+/// A relationship between a prefix and the token that should be generated when that prefix matches.
 #[derive(Copy, Clone, Debug)]
 pub struct PrefixToToken {
-    /// An array of two chars. In single char tokens, the second one should be a null character (`'\0'`). 
-    /// the char_length field will be used to slice this buffer to get the actual prefix. 
+    /// An array of two chars. In single char tokens, the second one should be a null character (`'\0'`).
+    /// the char_length field will be used to slice this buffer to get the actual prefix.
     pub char_buffer: [char; 2],
-    /// The byte length of this prefix and all generated tokens by this prefix. 
+    /// The byte length of this prefix and all generated tokens by this prefix.
     pub byte_len: usize,
-    /// The kind of [Token] generated when this prefix matches. 
+    /// The kind of [Token] generated when this prefix matches.
     pub kind: TokenTy,
 }
 
 impl PrefixToToken {
-    /// Convenience function to construct a [`PrefixToToken`] by calculating the length of both chars 
-    /// (and ignoring the second one if it's null). 
+    /// Convenience function to construct a [`PrefixToToken`] by calculating the length of both chars
+    /// (and ignoring the second one if it's null).
     pub const fn new(chars: [char; 2], kind: TokenTy) -> Self {
         PrefixToToken {
             char_buffer: chars,
-            byte_len: if chars[1] == '\0' { chars[0].len_utf8() } else { chars[0].len_utf8() + chars[1].len_utf8() },
+
+            byte_len: if chars[1] == '\0' {
+                chars[0].len_utf8()
+            } else {
+                chars[0].len_utf8() + chars[1].len_utf8()
+            },
+            
             kind,
         }
     }
@@ -156,21 +162,20 @@ pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
     table
 };
 
-
-/// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language. 
+/// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug)]
 pub struct Lexer<'src> {
-    /// The remaining source code that has not been processed and returned as a token from the iterator yet. 
+    /// The remaining source code that has not been processed and returned as a token from the iterator yet.
     pub remaining: Fragment<'src>,
 }
 
-/// A token in wright source code. 
+/// A token in wright source code.
 #[derive(Debug)]
 pub struct Token<'src> {
-    /// What type of token this is. 
+    /// What type of token this is.
     pub variant: TokenTy,
-    /// The matching fragment of source code -- this contains the location and length data for the token. 
-    pub fragment: Fragment<'src>
+    /// The matching fragment of source code -- this contains the location and length data for the token.
+    pub fragment: Fragment<'src>,
 }
 
 /// The different types of tokens in wright source.
@@ -242,18 +247,20 @@ pub enum TokenTy {
 }
 
 impl<'src> Lexer<'src> {
-    /// Get the number of bytes remaining that we need to transform into tokens. 
+    /// Get the number of bytes remaining that we need to transform into tokens.
     pub const fn bytes_remaining(&self) -> usize {
         self.remaining.len()
     }
 
-    /// Construct a new lexer over a given reference to a source string. 
+    /// Construct a new lexer over a given reference to a source string.
     pub const fn new(source: &'src str) -> Self {
-        Lexer { remaining: Fragment { inner: source } }
+        Lexer {
+            remaining: Fragment { inner: source },
+        }
     }
 
     /// Try to match a fragment recognized to be an identifier or keyword to
-    /// a keyword or return [TokenTy::Identifier]. 
+    /// a keyword or return [TokenTy::Identifier].
     fn identifier_or_keyword(fragment: Fragment<'src>) -> TokenTy {
         use TokenTy::*;
 
@@ -269,11 +276,11 @@ impl<'src> Lexer<'src> {
             "trait" => KwTrait,
             "const" => KwConst,
             "where" => KwWhere,
-            
+
             "use" => KwUse,
             "as" => KwAs,
             "mod" => KwMod,
-            
+
             "if" => KwIf,
             "else" => KwElse,
 
@@ -287,30 +294,34 @@ impl<'src> Lexer<'src> {
 
             "_" => Underscore,
 
-            _ => Identifier
+            _ => Identifier,
         }
     }
 
     /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
-    /// and labeling them with the given kind. 
+    /// and labeling them with the given kind.
     fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
         let (token_fragment, new_remaining_fragment) = self.remaining.split(bytes);
         self.remaining = new_remaining_fragment;
-        Token { variant: kind, fragment: token_fragment }
+        
+        Token {
+            variant: kind,
+            fragment: token_fragment,
+        }
     }
 
     /// Get the next token from the lexer.
     pub fn next_token(&mut self) -> Option<Token<'src>> {
-        // If the remaining input is empty, there is no token. 
+        // If the remaining input is empty, there is no token.
         if self.remaining.is_empty() {
             return None;
         }
 
-        // Use blocks heavily in this function as we don't want to re-use iterators or variables 
-        // after we check them in most cases. 
+        // Use blocks heavily in this function as we don't want to re-use iterators or variables
+        // after we check them in most cases.
 
-        // If there is whitespace at the start of the remaining fragment, strip it and re-run this 
-        // function to get the next token. 
+        // If there is whitespace at the start of the remaining fragment, strip it and re-run this
+        // function to get the next token.
         {
             let without_whitespace: &str = self.remaining.inner.trim_start();
 
@@ -319,69 +330,72 @@ impl<'src> Lexer<'src> {
                 return self.next_token();
             }
         }
-        
+
         // To attempt to match a token from the prefix table, make a char iterator
         // and get two chars from it to test equality. None of the tokens start with a
         // null character so use that as a single of an unavailable char.
         {
             let mut char_iter: Chars = self.remaining.chars();
             let char_array: [char; 2] = [
-                // Unchecked unwrap here since we know there's at least one char. 
-                unsafe { char_iter.next().unwrap_unchecked() }, 
-                char_iter.next().unwrap_or('\0')
+                // Unchecked unwrap here since we know there's at least one char.
+                unsafe { char_iter.next().unwrap_unchecked() },
+                char_iter.next().unwrap_or('\0'),
             ];
 
             // Next iterate through the prefix table to try to get any tokens that are covered there.
             for prefix_meta in PREFIX_TABLE.iter() {
                 // If it's a single char comparison, only compare the first chars.
-                if prefix_meta.char_buffer[1] == '\0' && prefix_meta.char_buffer[0] == char_array[0] {
+                if prefix_meta.char_buffer[1] == '\0' && prefix_meta.char_buffer[0] == char_array[0]
+                {
                     return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
                 }
 
-                // Otherwise compare the whole slices. 
+                // Otherwise compare the whole slices.
                 if &prefix_meta.char_buffer == &char_array {
                     return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
                 }
             }
         }
 
-        // Next attempt to match a keyword or identifier. 
+        // Next attempt to match a keyword or identifier.
         {
             let mut chars: Chars = self.remaining.chars();
 
-            // The unsafe is fine here -- we've established that this lexer has bytes remaining. 
+            // The unsafe is fine here -- we've established that this lexer has bytes remaining.
             let next: char = unsafe { chars.next().unwrap_unchecked() };
 
             if is_xid_start(next) || next == '_' {
                 let mut bytes_consumed: usize = next.len_utf8();
 
-                // Take remaining chars and add to sum. 
+                // Take remaining chars and add to sum.
                 bytes_consumed += chars
                     .take_while(|c| is_xid_continue(*c))
                     .map(char::len_utf8)
                     .sum::<usize>();
 
-                // Split the number of bytes we consumed. 
+                // Split the number of bytes we consumed.
                 let (ident_frag, new_remaining) = self.remaining.split(bytes_consumed);
-                // Get the token kind to produce for this fragment. 
+                // Get the token kind to produce for this fragment.
                 let variant = Lexer::identifier_or_keyword(ident_frag);
-                // Update the lexers remaining fragment. 
+                // Update the lexers remaining fragment.
                 self.remaining = new_remaining;
-                // Return the identifier, keyword, or underscore. 
-                return Some(Token { variant, fragment: ident_frag });
+                // Return the identifier, keyword, or underscore.
+                return Some(Token {
+                    variant,
+                    fragment: ident_frag,
+                });
             }
         }
 
         unimplemented!()
     }
-
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::lexer::TokenTy;
     use super::Lexer;
     use super::PREFIX_TABLE;
+    use crate::parser::lexer::TokenTy;
 
     #[test]
     #[ignore = "this test is just used for debugging the prefix table"]
