@@ -195,11 +195,8 @@ impl<'src> FileMap<'src> {
                         file.unlock()
                             .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
                             .ok();
-                        
-                        return Err(io::Error::new(
-                            io::ErrorKind::InvalidData,
-                            utf8_err,
-                        ));
+
+                        return Err(io::Error::new(io::ErrorKind::InvalidData, utf8_err));
                     }
 
                     // The file's contents are valid utf-8, add them to the file map.

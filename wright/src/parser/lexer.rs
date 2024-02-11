@@ -83,7 +83,7 @@ impl PrefixToToken {
             } else {
                 chars[0].len_utf8() + chars[1].len_utf8()
             },
-            
+
             kind,
         }
     }

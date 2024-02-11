@@ -79,11 +79,11 @@ mod tests {
         let b = Fragment {
             inner: &a.inner[3..],
         };
-        
+
         let c = Fragment {
             inner: &a.inner[..a.len() - 3],
         };
-        
+
         let d = Fragment {
             inner: "other string",
         };
