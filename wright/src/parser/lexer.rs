@@ -303,7 +303,7 @@ impl<'src> Lexer<'src> {
     fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
         let (token_fragment, new_remaining_fragment) = self.remaining.split(bytes);
         self.remaining = new_remaining_fragment;
-        
+
         Token {
             variant: kind,
             fragment: token_fragment,
@@ -351,7 +351,7 @@ impl<'src> Lexer<'src> {
                 }
 
                 // Otherwise compare the whole slices.
-                if &prefix_meta.char_buffer == &char_array {
+                if prefix_meta.char_buffer == char_array {
                     return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
                 }
             }

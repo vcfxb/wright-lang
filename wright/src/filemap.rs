@@ -189,7 +189,8 @@ impl<'src> FileMap<'src> {
                     // Double check that the file is valid utf-8. If not, return an IO error.
                     let raw_data: &[u8] = mem_map.as_ref();
                     let as_str: Result<&str, std::str::Utf8Error> = std::str::from_utf8(raw_data);
-                    if as_str.is_err() {
+
+                    if let Err(utf8_err) = as_str {
                         // The file is not valid for us so we should unlock it and return an error.
                         file.unlock()
                             .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
@@ -197,7 +198,7 @@ impl<'src> FileMap<'src> {
                         
                         return Err(io::Error::new(
                             io::ErrorKind::InvalidData,
-                            as_str.unwrap_err(),
+                            utf8_err,
                         ));
                     }
 
@@ -298,7 +299,7 @@ impl<'src> AsRef<str> for ImmutableString<'src> {
     fn as_ref(&self) -> &str {
         match self {
             ImmutableString::Reference(str) => str,
-            ImmutableString::Owned(str) => &str,
+            ImmutableString::Owned(str) => str,
             ImmutableString::LockedFile { mem_map, .. } => {
                 // Get a direct reference to the data that is in the memory map.
                 let raw_data: &[u8] = mem_map.as_ref();
