@@ -1,10 +1,6 @@
 //! The Wright interactive REPL.
 
-use crate::{
-    filemap::{FileMap, FileName},
-    // parser::lexer::Lexer,
-    WRIGHT_VERSION,
-};
+use crate::WRIGHT_VERSION;
 use derive_more::Display;
 use std::io::{self, BufRead, Write};
 
@@ -58,7 +54,7 @@ pub fn start() -> anyhow::Result<()> {
     let mut repl_mode = ReplMode::Tokens;
 
     // Make a file map to track input.
-    let mut code_map = FileMap::new();
+    // let mut code_map = FileMap::new();
 
     // Loop until this returns/exits.
     loop {

@@ -3,6 +3,9 @@
 //! Note that this will strip out comments and whitespace, returning only fragments that match one of the paterns 
 //! defined for tokens. 
 
+use std::ptr;
+use std::str::Chars;
+use unicode_ident::{is_xid_continue, is_xid_start};
 use super::fragment::Fragment;
 
 /// Constant table of single character tokens and the characters that match them. 
@@ -68,11 +71,24 @@ pub struct PrefixToToken {
     pub kind: TokenTy,
 }
 
+impl PrefixToToken {
+    /// Convenience function to construct a [`PrefixToToken`] by calculating the length of both chars 
+    /// (and ignoring the second one if it's null). 
+    pub const fn new(chars: [char; 2], kind: TokenTy) -> Self {
+        PrefixToToken {
+            char_buffer: chars,
+            byte_len: if chars[1] == '\0' { chars[0].len_utf8() } else { chars[0].len_utf8() + chars[1].len_utf8() },
+            kind,
+        }
+    }
+}
+
 /// A full table generated at compile time using all the token tables 
 /// ([SINGLE_CHAR_TOKENS], [POSSIBLE_EQ_UPGRADE_TOKENS], [POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS], 
 /// [POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS]). 
 /// 
 /// This table can be iterated on in order when trying to match a token at the start of a fragment of source code. 
+#[rustfmt::skip]
 pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
     // Make a mutable table with dummy values to replace with actual values. 
     let mut table: [PrefixToToken; PREFIX_TABLE_ROWS] = 
@@ -90,11 +106,7 @@ pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
         let (c, token_kind) = SINGLE_CHAR_TOKENS[read_index];
 
         // Put row in destination table.
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '\0'],
-            byte_len: c.len_utf8(),
-            kind: token_kind,
-        };
+        table[write_index] = PrefixToToken::new([c, '\0'], token_kind);
 
         // Increment both indices. 
         read_index += 1;
@@ -108,21 +120,11 @@ pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
     while read_index < POSSIBLE_EQ_UPGRADE_TOKENS.len() {
         let (c, without_eq, with_eq) = POSSIBLE_EQ_UPGRADE_TOKENS[read_index];
 
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '='],
-            byte_len: c.len_utf8() + '='.len_utf8(),
-            kind: with_eq,
-        };
-
-        write_index += 1;
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '\0'],
-            byte_len: c.len_utf8(),
-            kind: without_eq,
-        };
+        table[write_index]     = PrefixToToken::new([c, '='], with_eq);
+        table[write_index + 1] = PrefixToToken::new([c, '\0'], without_eq);
 
         read_index += 1;
-        write_index += 1;
+        write_index += 2;
     }
 
     // Do the same for the tokens that can be upgraded with an equals sign or doubled. 
@@ -130,28 +132,12 @@ pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
     while read_index < POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS.len() {
         let (c, without_eq, with_eq, doubled) = POSSIBLE_EQ_OR_DOUBLED_UPGRADE_TOKENS[read_index];
 
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, c],
-            byte_len: 2 * c.len_utf8(),
-            kind: doubled,
-        };
-
-        write_index += 1;
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '='],
-            byte_len: c.len_utf8() + '='.len_utf8(),
-            kind: with_eq,
-        };
-
-        write_index += 1;
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '\0'],
-            byte_len: c.len_utf8(),
-            kind: without_eq,
-        };
+        table[write_index]     = PrefixToToken::new([c, c], doubled);
+        table[write_index + 1] = PrefixToToken::new([c, '='], with_eq);
+        table[write_index + 2] = PrefixToToken::new([c, '\0'], without_eq);
 
         read_index += 1;
-        write_index += 1;
+        write_index += 3;
     }
 
     // Do the same for possible eq or arrow upgrades.
@@ -159,28 +145,12 @@ pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
     while read_index < POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS.len() {
         let (c, without_eq, with_eq, with_arrow) = POSSIBLE_EQ_OR_ARROW_UPGRADE_TOKENS[read_index];
 
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '>'],
-            byte_len: c.len_utf8() + '>'.len_utf8(),
-            kind: with_arrow,
-        };
-
-        write_index += 1;
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '='],
-            byte_len: c.len_utf8() + '='.len_utf8(),
-            kind: with_eq,
-        };
-
-        write_index += 1;
-        table[write_index] = PrefixToToken {
-            char_buffer: [c, '\0'],
-            byte_len: c.len_utf8(),
-            kind: without_eq,
-        };
+        table[write_index]     = PrefixToToken::new([c, '>'], with_arrow);
+        table[write_index + 1] = PrefixToToken::new([c, '='], with_eq);
+        table[write_index + 2] = PrefixToToken::new([c, '\0'], without_eq);
 
         read_index += 1;
-        write_index += 1;
+        write_index += 3;
     }
 
     table
@@ -229,13 +199,15 @@ pub enum TokenTy {
 
     At,
     Tilde,
-    Underscore,
     Semi,
     Dot,
     Comma,
     Hash,
     Question,
     Dollar,
+    
+    // Not in the same group as the other ones there since it can be used at the start of identifiers.
+    Underscore,
 
     Identifier,
 
@@ -313,6 +285,8 @@ impl<'src> Lexer<'src> {
             "true" => KwTrue,
             "false" => KwFalse,
 
+            "_" => Underscore,
+
             _ => Identifier
         }
     }
@@ -325,38 +299,76 @@ impl<'src> Lexer<'src> {
         Token { variant: kind, fragment: token_fragment }
     }
 
-    /// See if the remaining fragment in this [Lexer] starts with a given [str] prefix and if so,
-    /// split off a token of the length of this prefix with the given variant. 
-    fn match_str_prefix(&mut self, prefix: &str, token_kind: TokenTy) -> Option<Token<'src>> {
-        if self.remaining.inner.starts_with(prefix) {
-            Some(self.split_token(prefix.len(), token_kind))
-        } else {
-            None
-        }
-    }
-
-
     /// Get the next token from the lexer.
     pub fn next_token(&mut self) -> Option<Token<'src>> {
         // If the remaining input is empty, there is no token. 
         if self.remaining.is_empty() {
             return None;
         }
+
+        // Use blocks heavily in this function as we don't want to re-use iterators or variables 
+        // after we check them in most cases. 
+
+        // If there is whitespace at the start of the remaining fragment, strip it and re-run this 
+        // function to get the next token. 
+        {
+            let without_whitespace: &str = self.remaining.inner.trim_start();
+
+            if !ptr::eq(without_whitespace, self.remaining.inner) {
+                self.remaining.inner = without_whitespace;
+                return self.next_token();
+            }
+        }
         
         // To attempt to match a token from the prefix table, make a char iterator
         // and get two chars from it to test equality. None of the tokens start with a
         // null character so use that as a single of an unavailable char.
-        let mut char_iter = self.remaining.chars();
-        let char_array: [char; 2] = [
-            // Just unwrap here since we know there's at least one char. 
-            char_iter.next().unwrap(), 
-            char_iter.next().unwrap_or('\0')
-        ];
+        {
+            let mut char_iter: Chars = self.remaining.chars();
+            let char_array: [char; 2] = [
+                // Unchecked unwrap here since we know there's at least one char. 
+                unsafe { char_iter.next().unwrap_unchecked() }, 
+                char_iter.next().unwrap_or('\0')
+            ];
 
-        // Next iterate through the prefix table to try to get any tokens that are covered there.
-        for prefix_meta in PREFIX_TABLE.iter() {
-            if &prefix_meta.char_buffer == &char_array {
-                return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
+            // Next iterate through the prefix table to try to get any tokens that are covered there.
+            for prefix_meta in PREFIX_TABLE.iter() {
+                // If it's a single char comparison, only compare the first chars.
+                if prefix_meta.char_buffer[1] == '\0' && prefix_meta.char_buffer[0] == char_array[0] {
+                    return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
+                }
+
+                // Otherwise compare the whole slices. 
+                if &prefix_meta.char_buffer == &char_array {
+                    return Some(self.split_token(prefix_meta.byte_len, prefix_meta.kind));
+                }
+            }
+        }
+
+        // Next attempt to match a keyword or identifier. 
+        {
+            let mut chars: Chars = self.remaining.chars();
+
+            // The unsafe is fine here -- we've established that this lexer has bytes remaining. 
+            let next: char = unsafe { chars.next().unwrap_unchecked() };
+
+            if is_xid_start(next) || next == '_' {
+                let mut bytes_consumed: usize = next.len_utf8();
+
+                // Take remaining chars and add to sum. 
+                bytes_consumed += chars
+                    .take_while(|c| is_xid_continue(*c))
+                    .map(char::len_utf8)
+                    .sum::<usize>();
+
+                // Split the number of bytes we consumed. 
+                let (ident_frag, new_remaining) = self.remaining.split(bytes_consumed);
+                // Get the token kind to produce for this fragment. 
+                let variant = Lexer::identifier_or_keyword(ident_frag);
+                // Update the lexers remaining fragment. 
+                self.remaining = new_remaining;
+                // Return the identifier, keyword, or underscore. 
+                return Some(Token { variant, fragment: ident_frag });
             }
         }
 
@@ -368,7 +380,6 @@ impl<'src> Lexer<'src> {
 #[cfg(test)]
 mod tests {
     use crate::parser::lexer::TokenTy;
-
     use super::Lexer;
     use super::PREFIX_TABLE;
 
@@ -391,5 +402,22 @@ mod tests {
         assert_eq!(plus_eq.bytes_remaining(), 0);
         assert_eq!(plus_token.variant, TokenTy::Plus);
         assert_eq!(plus_eq_token.variant, TokenTy::PlusEq);
+    }
+
+    #[test]
+    fn plus_one_token() {
+        let mut plus_one = Lexer::new("+1");
+        let plus_token = plus_one.next_token().unwrap();
+        assert_eq!(plus_one.bytes_remaining(), 1);
+        assert_eq!(plus_token.variant, TokenTy::Plus);
+        assert_eq!(plus_token.fragment.len(), 1);
+    }
+
+    #[test]
+    fn identifiers_and_keywords() {
+        let mut lexer = Lexer::new("const TEST");
+
+        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::KwConst);
+        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Identifier);
     }
 }

@@ -2,9 +2,8 @@
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use codespan_reporting::files::SimpleFile;
-use std::{fs, path::PathBuf};
-use wright::{parser::lexer::Lexer, repl};
+use std::path::PathBuf;
+use wright::repl;
 
 /// The wright cli.
 #[derive(Parser, Debug)]
