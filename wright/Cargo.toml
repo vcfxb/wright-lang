@@ -87,9 +87,9 @@ features = ["strict-versioning", "force-static"]
 version = "0.3"
 features = ["llvm17-0"]
 
-# Fast parsing for integers and floats from source code. 
-[dependencies.lexical-core]
-version = "0.8"
+# # Fast parsing for integers and floats from source code. 
+# [dependencies.lexical-core]
+# version = "0.8"
 
 # TEST DEPENDENCIES
 

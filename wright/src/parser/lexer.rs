@@ -4,8 +4,8 @@
 //! defined for tokens.
 
 use super::fragment::Fragment;
-use std::ptr;
 use std::str::Chars;
+use std::{iter::Peekable, ptr};
 use unicode_ident::{is_xid_continue, is_xid_start};
 
 /// Constant table of single character tokens and the characters that match them.
@@ -242,6 +242,8 @@ pub enum TokenTy {
     KwLoop,
     KwWhere,
 
+    IntegerLiteral,
+
     /// Unknown character in lexer fragment. 
     Unknown
 }
@@ -360,7 +362,6 @@ impl<'src> Lexer<'src> {
         // Next attempt to match a keyword or identifier.
         {
             let mut chars: Chars = self.remaining.chars();
-
             // The unsafe is fine here -- we've established that this lexer has bytes remaining.
             let next: char = unsafe { chars.next().unwrap_unchecked() };
 
@@ -384,6 +385,43 @@ impl<'src> Lexer<'src> {
                     variant,
                     fragment: ident_frag,
                 });
+            }
+        }
+
+        // Next attempt to parse a numerical literal.
+        {
+            let mut chars: Peekable<Chars> = self.remaining.chars().peekable();
+            // The unsafe is fine here -- we've established that this lexer has bytes remaining.
+            let next: char = unsafe { chars.next().unwrap_unchecked() };
+
+            if next.is_ascii_digit() {
+                // Accumulate the number of bytes consumed in the numeric literal.
+                let mut acc: usize = 1;
+                // Track the radix
+                let mut radix: u32 = 10;
+
+                // Change the radix if necessary
+                if next == '0' {
+                    if let Some(prefix) = chars.next_if(|x| ['x', 'o', 'b', 'X', 'B'].contains(x)) {
+                        // All the possible prefix chars are 1 byte ascii characters.
+                        acc += 1;
+
+                        radix = match prefix {
+                            'x' | 'X' => 16,
+                            'b' | 'B' => 2,
+                            'o' => 8,
+                            _ => unreachable!("the prefix byte is checked above"),
+                        };
+                    }
+                }
+
+                // Add the rest of the integer literal.
+                acc += chars
+                    .take_while(|c| c.is_digit(radix) || *c == '_')
+                    .map(char::len_utf8)
+                    .sum::<usize>();
+
+                return Some(self.split_token(acc, TokenTy::IntegerLiteral));
             }
         }
 
@@ -433,5 +471,15 @@ mod tests {
 
         assert_eq!(lexer.next_token().unwrap().variant, TokenTy::KwConst);
         assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Identifier);
+    }
+
+    #[test]
+    fn intger_literal() {
+        let mut lexer = Lexer::new("123_456_789.");
+
+        let token = lexer.next_token().unwrap();
+
+        assert_eq!(token.fragment.inner, "123_456_789");
+        assert_eq!(token.variant, TokenTy::IntegerLiteral);
     }
 }
