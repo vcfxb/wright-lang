@@ -7,3 +7,4 @@
 
 pub mod fragment;
 pub mod lexer;
+pub mod ast;

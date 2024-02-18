@@ -4,9 +4,11 @@
 //! defined for tokens.
 
 use super::fragment::Fragment;
+use std::iter::FusedIterator;
 use std::str::Chars;
 use std::{iter::Peekable, ptr};
 use unicode_ident::{is_xid_continue, is_xid_start};
+use derive_more::Display;
 
 /// Constant table of single character tokens and the characters that match them.
 pub const SINGLE_CHAR_TOKENS: &[(char, TokenTy)] = &[
@@ -170,7 +172,8 @@ pub struct Lexer<'src> {
 }
 
 /// A token in wright source code.
-#[derive(Debug)]
+#[derive(Debug, Display)]
+#[display(fmt = "\"{}\" ({:?})", "fragment.inner", variant)]
 pub struct Token<'src> {
     /// What type of token this is.
     pub variant: TokenTy,
@@ -227,6 +230,7 @@ pub enum TokenTy {
     KwRepr,
     KwImpl,
     KwConstraint,
+    KwReferences,
     KwTrait,
     KwUse,
     KwAs,
@@ -275,6 +279,7 @@ impl<'src> Lexer<'src> {
             "repr" => KwRepr,
             "impl" => KwImpl,
             "constraint" => KwConstraint,
+            "references" => KwReferences,
             "trait" => KwTrait,
             "const" => KwConst,
             "where" => KwWhere,
@@ -425,9 +430,29 @@ impl<'src> Lexer<'src> {
             }
         }
 
-        unimplemented!()
+        // If we haven't matched at this point, produce a token marked as "Unknown".
+        // The unsafe is fine -- we know from above that there are remaining characters. 
+        let unknown_char = unsafe { self.remaining.chars().next().unwrap_unchecked() };
+        return Some(self.split_token(unknown_char.len_utf8(), TokenTy::Unknown));
     }
 }
+
+/// Lexers can be considered token iterators. 
+impl<'src> Iterator for Lexer<'src> {
+    type Item = Token<'src>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next_token()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        // Lexers cannot return multiple tokens for a single byte. 
+        (0, Some(self.bytes_remaining()))
+    }
+}
+
+// Lexers are fused -- they cannot generate tokens infinitely. 
+impl<'src> FusedIterator for Lexer<'src> {}
 
 #[cfg(test)]
 mod tests {

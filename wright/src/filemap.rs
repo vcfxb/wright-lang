@@ -65,6 +65,9 @@ pub struct FileMap<'src> {
     inner: Vec<SimpleFile<FileName, ImmutableString<'src>>>,
 }
 
+/// File Identifier used to refer to files. 
+pub type FileId = <FileMap<'static> as Files<'static>>::FileId;
+
 impl<'src> FileMap<'src> {
     /// Construct a new empty [FileMap].
     pub const fn new() -> Self {
@@ -72,20 +75,13 @@ impl<'src> FileMap<'src> {
     }
 
     /// Get a reference to a file from the internal [Vec] or return a [`CodespanError::FileMissing`] error.
-    fn get(
-        &self,
-        file_id: <Self as Files<'src>>::FileId,
-    ) -> CodespanResult<&SimpleFile<FileName, ImmutableString<'src>>> {
+    fn get(&self, file_id: FileId) -> CodespanResult<&SimpleFile<FileName, ImmutableString<'src>>> {
         self.inner.get(file_id).ok_or(CodespanError::FileMissing)
     }
 
     /// Internal function to add a file to the vec. Public facing functions will need to do some conversion
     /// and then call this.
-    fn add(
-        &mut self,
-        name: FileName,
-        source: ImmutableString<'src>,
-    ) -> <Self as Files<'src>>::FileId {
+    fn add(&mut self, name: FileName, source: ImmutableString<'src>) -> FileId {
         // The file id is just the next index in the vec.
         let file_id: usize = self.inner.len();
         self.inner.push(SimpleFile::new(name, source));
@@ -93,23 +89,19 @@ impl<'src> FileMap<'src> {
     }
 
     /// Add a file (in the form of an owned string) to the file map.
-    pub fn add_string(&mut self, name: FileName, source: String) -> <Self as Files<'src>>::FileId {
+    pub fn add_string(&mut self, name: FileName, source: String) -> FileId {
         self.add(name, ImmutableString::Owned(source.into_boxed_str()))
     }
 
     /// Add a file (in the form of a string reference) to the file map.
-    pub fn add_str_ref(
-        &mut self,
-        name: FileName,
-        source: &'src str,
-    ) -> <Self as Files<'src>>::FileId {
+    pub fn add_str_ref(&mut self, name: FileName, source: &'src str) -> FileId {
         self.add(name, ImmutableString::Reference(source))
     }
 
     /// Add a file from the file system. This file will be
     /// opened with read permissions, locked, memory mapped,
     /// and then added to the file map. The file name in the memory map will be the [PathBuf] passed to this function.
-    pub fn add_file(&mut self, path: PathBuf) -> io::Result<<Self as Files<'src>>::FileId> {
+    pub fn add_file(&mut self, path: PathBuf) -> io::Result<FileId> {
         // Make a one-off enum here to use for channel messages.
         enum ChannelMessage {
             /// The file was successfully locked.
@@ -217,10 +209,7 @@ impl<'src> FileMap<'src> {
     }
 
     /// Find the file ID of a given [Fragment] using the fragment's internal pointer.
-    pub fn find_fragment(
-        &self,
-        fragment: &Fragment<'src>,
-    ) -> Option<<Self as Files<'src>>::FileId> {
+    pub fn find_fragment(&self, fragment: &Fragment<'src>) -> Option<FileId> {
         // Iterate on file IDs.
         for file_id in 0..self.inner.len() {
             // Use expect because all of these file IDs should be fine.
