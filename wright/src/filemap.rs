@@ -65,7 +65,7 @@ pub struct FileMap<'src> {
     inner: Vec<SimpleFile<FileName, ImmutableString<'src>>>,
 }
 
-/// File Identifier used to refer to files. 
+/// File Identifier used to refer to files.
 pub type FileId = <FileMap<'static> as Files<'static>>::FileId;
 
 impl<'src> FileMap<'src> {

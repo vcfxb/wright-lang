@@ -5,6 +5,6 @@
 // pub mod state;
 // pub mod util;
 
+pub mod ast;
 pub mod fragment;
 pub mod lexer;
-pub mod ast;

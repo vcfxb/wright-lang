@@ -1,3 +1,1 @@
-//! Abstract syntax tree representation for Wright source code. 
-
-
+//! Abstract syntax tree representation for Wright source code.

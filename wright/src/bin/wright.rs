@@ -4,7 +4,11 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use codespan_reporting::files::Files;
 use std::path::PathBuf;
-use wright::{filemap::{FileId, FileMap}, parser::lexer::{Lexer, Token}, repl};
+use wright::{
+    filemap::{FileId, FileMap},
+    parser::lexer::{Lexer, Token},
+    repl,
+};
 
 /// The wright cli.
 #[derive(Parser, Debug)]
@@ -50,21 +54,26 @@ fn main() -> Result<()> {
         // Start an interactive repl.
         Some(Commands::Repl) => repl::start(),
 
-        // Print all the tokens for a given file. 
-        Some(Commands::Debug { command: DebugCommands::Tokens { file, pretty: false } }) => {
+        // Print all the tokens for a given file.
+        Some(Commands::Debug {
+            command:
+                DebugCommands::Tokens {
+                    file,
+                    pretty: false,
+                },
+        }) => {
             let mut file_map: FileMap = FileMap::new();
-            // Add the given file to the file map. 
+            // Add the given file to the file map.
             let file_id: FileId = file_map.add_file(file)?;
-            // Make a lexer over the entirety of the given file. 
-            // Use unwrap here, since we know we just added the file. 
+            // Make a lexer over the entirety of the given file.
+            // Use unwrap here, since we know we just added the file.
             let lexer: Lexer = Lexer::new(file_map.source(file_id).unwrap());
-            // Get all the tokens from the lexer and print them each. 
+            // Get all the tokens from the lexer and print them each.
             lexer.for_each(|token: Token| println!("{token:?}"));
             // Return ok.
             Ok(())
-        },
+        }
 
-
-        _ => unimplemented!()
+        _ => unimplemented!(),
     }
 }
