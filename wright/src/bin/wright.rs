@@ -86,7 +86,7 @@ fn main() -> Result<()> {
 
     // Handle timing info.
     if cli.timed {
-        println!("\nTime elapsed: {:?}", Instant::now() - start);
+        println!("\nTotal time elapsed since parsing arguments: {:?}", Instant::now() - start);
     }
 
     Ok(())
