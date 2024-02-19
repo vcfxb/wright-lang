@@ -343,7 +343,7 @@ impl<'src> Lexer<'src> {
         {
             if let Some(without_comment_prefix) = self.remaining.inner.strip_prefix("//") {
                 // If the next character is not a slash or exclamation, indicating a doc comment.
-                if !without_comment_prefix.starts_with(&['/', '!']) {
+                if !without_comment_prefix.starts_with(['/', '!']) {
                     // Get the number of bytes between the start of the comment and the newline, or end of file.
                     // Do not include bytes of whitespace at or past the newline -- those are handled above.
                     let line_bytes: usize = without_comment_prefix
