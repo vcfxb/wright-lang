@@ -54,12 +54,14 @@ enum DebugCommands {
 fn main() -> Result<()> {
     // Parse the command line arguments.
     let cli: Cli = Cli::parse();
-    // Get the start time to track duration if asked. 
+    // Get the start time to track duration if asked.
     let start: Instant = Instant::now();
 
     match cli.command {
         // Start an interactive repl.
-        Some(Commands::Repl) => { repl::start()?; },
+        Some(Commands::Repl) => {
+            repl::start()?;
+        }
 
         // Print all the tokens for a given file.
         Some(Commands::Debug {

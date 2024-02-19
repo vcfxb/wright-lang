@@ -338,8 +338,8 @@ impl<'src> Lexer<'src> {
             }
         }
 
-        // Discard any single-line comment at the start of this lexer and then re-run this function if there was one. 
-        // Note that this will not detect doc comments or multi-line comments. 
+        // Discard any single-line comment at the start of this lexer and then re-run this function if there was one.
+        // Note that this will not detect doc comments or multi-line comments.
         {
             if let Some(without_comment_prefix) = self.remaining.inner.strip_prefix("//") {
                 // If the next character is not a slash or exclamation, indicating a doc comment.
@@ -347,21 +347,24 @@ impl<'src> Lexer<'src> {
                     // Get the number of bytes between the start of the comment and the newline, or end of file.
                     // Do not include bytes of whitespace at or past the newline -- those are handled above.
                     let line_bytes: usize = without_comment_prefix
-                        // Make an iterator over the lines after this `//`. 
+                        // Make an iterator over the lines after this `//`.
                         .lines()
-                        // Get only the first line. 
+                        // Get only the first line.
                         .next()
                         // Map to the length of the line string.
                         .map(str::len)
                         // If there is no line after the start of this comment we have zero bytes to read.
                         .unwrap_or(0);
-                    
-                    // Split this number of bytes from the string and ignore them. 
+
+                    // Split this number of bytes from the string and ignore them.
                     let (_, new_remaining) = without_comment_prefix.split_at(line_bytes);
                     // Put the split off string in a Fragment, and consider this fragment to be the
-                    // remaining Fragment for this lexer. 
-                    self.remaining = Fragment { inner: new_remaining };
-                    // Restart this function. 
+                    // remaining Fragment for this lexer.
+                    self.remaining = Fragment {
+                        inner: new_remaining,
+                    };
+                    
+                    // Restart this function.
                     return self.next_token();
                 }
             }
