@@ -3,7 +3,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use codespan_reporting::files::Files;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 use wright::{
     filemap::{FileId, FileMap},
     parser::lexer::{Lexer, Token},
@@ -17,6 +17,10 @@ struct Cli {
     /// The subcommand passed to the wright cli.
     #[command(subcommand)]
     command: Option<Commands>,
+
+    /// Output elapsed timing information at the end of the command.
+    #[arg(short, long)]
+    timed: bool,
 }
 
 /// Different sub-commands that the wright cli supports.
@@ -48,11 +52,14 @@ enum DebugCommands {
 }
 
 fn main() -> Result<()> {
-    let cli = Cli::parse();
+    // Parse the command line arguments.
+    let cli: Cli = Cli::parse();
+    // Get the start time to track duration if asked. 
+    let start: Instant = Instant::now();
 
     match cli.command {
         // Start an interactive repl.
-        Some(Commands::Repl) => repl::start(),
+        Some(Commands::Repl) => { repl::start()?; },
 
         // Print all the tokens for a given file.
         Some(Commands::Debug {
@@ -70,10 +77,15 @@ fn main() -> Result<()> {
             let lexer: Lexer = Lexer::new(file_map.source(file_id).unwrap());
             // Get all the tokens from the lexer and print them each.
             lexer.for_each(|token: Token| println!("{token:?}"));
-            // Return ok.
-            Ok(())
         }
 
         _ => unimplemented!(),
     }
+
+    // Handle timing info.
+    if cli.timed {
+        println!("\nTime elapsed: {:?}", Instant::now() - start);
+    }
+
+    Ok(())
 }
