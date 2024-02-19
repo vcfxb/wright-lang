@@ -363,7 +363,7 @@ impl<'src> Lexer<'src> {
                     self.remaining = Fragment {
                         inner: new_remaining,
                     };
-                    
+
                     // Restart this function.
                     return self.next_token();
                 }
