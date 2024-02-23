@@ -339,7 +339,7 @@ impl<'src> Lexer<'src> {
         }
 
         // Discard any single-line comment at the start of this lexer and then re-run this function if there was one.
-        // Note that this will not detect doc comments or multi-line comments.
+        // Note that this will not detect/discard doc comments or multi-line comments.
         {
             if let Some(without_comment_prefix) = self.remaining.inner.strip_prefix("//") {
                 // If the next character is not a slash or exclamation, indicating a doc comment.
@@ -368,6 +368,11 @@ impl<'src> Lexer<'src> {
                     return self.next_token();
                 }
             }
+        }
+
+        // Discard any multi-line comments we encounter, sparing doc comments.
+        {
+            
         }
 
         // To attempt to match a token from the prefix table, make a char iterator
