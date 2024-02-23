@@ -98,5 +98,5 @@ features = ["llvm17-0"]
 version = "1.8.0"
 
 # Criterion is used for benchmarking. 
-[dev-dependencies]
-criterion = "0.5.1"
+[dev-dependencies.criterion] 
+version = "0.5.1"
