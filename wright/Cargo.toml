@@ -1,8 +1,9 @@
+# PACKAGE METADATA
 [package]
 name = "wright"
-description = "The wright programming language interpreter and tooling."
+description = "The wright programming language compiler and tooling."
 license = "MIT"
-version = "0.10.0"
+version = "0.9.0"
 authors = ["Venus Xeon-Blonde <venusflameblonde@gmail.com>"]
 repository = "https://github.com/Alfriadox/wright-lang"
 documentation = "https://docs.rs/wright"
@@ -11,29 +12,90 @@ keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
 edition.workspace = true
 rust-version.workspace = true
 
+# LIBRARY METADATA
 [lib]
 name = "wright"
 test = true
 doctest = true
 doc = true
 
-[dependencies]
-clap = { version = "4", features = ["derive"] }
-anyhow = "1"
-derive_more = "0.99.17"
-unicode-ident = "1.0"
-codespan-reporting = "0.11.1"
-termcolor = "1.2.0"
-num = "0.4"
-
+# BINARIES
 [[bin]]
 name = "wright"
 test = false
 doc = false
 doctest = false
 
-[badges]
-maintenance = { status = "actively-developed" }
+# BENCHMARKS (currently none)
+# [[bench]]
+# name = "lexer"
+# harness = false
 
-[dev-dependencies]
-rayon = "1.8.0"
+# CRATES.IO BADGES
+[badges.maintenance]
+status = "actively-developed"
+
+# DEPENDENCIES: 
+
+# Comand-line interface generator
+[dependencies.clap]
+version = "4"
+features = ["derive"]
+
+# Error handling glue code
+[dependencies.anyhow]
+version = "1"
+
+# Derives for various traits
+[dependencies.derive_more]
+version = "0.99.17"
+
+# Unicode identifier functions
+[dependencies.unicode-ident]
+version = "1.0"
+
+# Source code location tracking and cli error rendering 
+[dependencies.codespan-reporting]
+version = "0.11.1"
+
+# Terminal output colors
+[dependencies.termcolor]
+version = "1.2.0"
+
+# Big Integers
+[dependencies.num] 
+version = "0.4"
+
+# Portable (windows, mac, linux) file locking
+[dependencies.fs4] 
+version = "0.7.0"
+features = ["sync"]
+
+# Memory mapped files. 
+[dependencies.memmap2]
+version = "0.9.3"
+
+# Unsafe bindings to LLVM 
+# See https://llvm.org/.
+[dependencies.llvm-sys]
+version = "170"
+features = ["strict-versioning", "force-static"]
+
+# Safe bindings to llvm
+[dependencies.inkwell]
+version = "0.3"
+features = ["llvm17-0"]
+
+# # Fast parsing for integers and floats from source code. 
+# [dependencies.lexical-core]
+# version = "0.8"
+
+# TEST DEPENDENCIES
+
+# Rayon to speed up brute-force testing in some cases.
+[dev-dependencies.rayon]
+version = "1.8.0"
+
+# Criterion is used for benchmarking. 
+[dev-dependencies.criterion] 
+version = "0.5.1"
