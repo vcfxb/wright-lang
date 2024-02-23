@@ -30,6 +30,12 @@ impl<'src> Fragment<'src> {
         (start, unsafe { start.add(self.len()) })
     }
 
+    /// Return true if both of these [`Fragment`]s point to the exact same slice of source code. 
+    pub fn ptr_eq(&self, other: &Self) -> bool {
+        // Since std::ptr::eq works for fat pointers, we can use it here.
+        std::ptr::eq(self.inner, other.inner)
+    } 
+
     /// Return true if this fragment overlaps at all with the other (either one contains the start of the other,
     /// by pointer).
     pub fn overlaps(&self, other: &Self) -> bool {
@@ -63,6 +69,29 @@ impl<'src> Fragment<'src> {
     /// Get an iterator over the characters in this fragment.
     pub fn chars(&self) -> Chars<'src> {
         self.inner.chars()
+    }
+
+    /// Get the number of bytes between the beginning of [`origin`] and the beginning of [`self`]. 
+    /// 
+    /// # Panics:
+    /// - Panics if [`self`] is not a fragment within [`origin`] according to [`Fragment::contains`].
+    pub fn offset_from(&self, origin: &Self) -> usize {
+        if !origin.contains(self) {
+            panic!("This fragment must be contained in the original fragment");
+        }
+
+        // Get a pointer to the start of the original fragment.
+        let start: *const u8 = origin.inner.as_ptr();
+        // Do the same for the subslice.
+        let subslice_start: *const u8 = self.inner.as_ptr();
+
+        // SAFETY: Since the subslice is contained (by pointer) by the origin slice, both of them 
+        // necessarily satisfy the safety requirements of offset_from to be pointers to the same 
+        // allocation. 
+        // 
+        // We can always cast to a usize since this should always be a positive offset, as long 
+        // as the subslice is contained in the origin fragment. 
+        unsafe { subslice_start.offset_from(start) as usize } 
     }
 }
 

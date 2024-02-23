@@ -164,8 +164,11 @@ pub const PREFIX_TABLE: [PrefixToToken; PREFIX_TABLE_ROWS] = {
     table
 };
 
+/// The pattern that begins any single line comments (including doc comments). 
+pub const SINGLE_LINE_COMMENT_PREFIX: &str = "//";
+
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Lexer<'src> {
     /// The remaining source code that has not been processed and returned as a token from the iterator yet.
     pub remaining: Fragment<'src>,
@@ -317,57 +320,152 @@ impl<'src> Lexer<'src> {
         }
     }
 
+    /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for 
+    /// failable parsing. This can be compared to the original lexer it was forked from using [Fragment::offset_from]
+    /// on the underlying `remaining` fragments. 
+    fn fork(&self) -> Self {
+        *self
+    }
+
+    /// Remove and ignore any whitespace at the start of the remaining fragment. 
+    fn ignore_whitespace(&mut self) {
+        // Get a reference to the slice of the string past any whitespace at the start. 
+        let without_whitespace: &str = self.remaining.inner.trim_start();
+
+        // If the references aren't equal, update the remaining fragment. 
+        if !ptr::eq(without_whitespace, self.remaining.inner) {
+            self.remaining.inner = without_whitespace;
+        }
+    }
+
+    /// Check if a pattern matches at the start of the remaining fragment, and if so return the number of bytes.
+    fn matches(&self, pattern: &str) -> bool {
+        self.remaining.inner.starts_with(pattern)
+    }
+
+    /// If the remaining fragment starts with the given `pattern`, strip it from the remaining fragment and return 
+    /// true. Otherwise return false. 
+    fn consume(&mut self, pattern: &str) -> bool {
+        if let Some(stripped) = self.remaining.inner.strip_prefix(pattern) {
+            self.remaining.inner = stripped;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Remove a character from the start of the `remaining` [`Fragment`], return the character 
+    /// consumed if there was a character available to consume. 
+    fn consume_any(&mut self) -> Option<char> {
+        // Make a character iterator. 
+        let mut chars: Chars = self.remaining.chars();
+
+        if let Some(c) = chars.next() {
+            // Consumed a char, update the remaining fragment of this lexer.
+            let char_bytes: usize = c.len_utf8();
+            // SAFETY: we know that this is not on a char boundary and does not exceed the length of the slice,
+            // since we just pulled it from a `Chars` iterator. 
+            self.remaining.inner = unsafe { self.remaining.inner.get_unchecked(char_bytes..) };
+            // Return the character. 
+            Some(c)
+        } else {
+            // No characters available, return nothing. 
+            None
+        }
+    }
+
+    // /// Consume characters from the lexer until given pattern matches. Do not consume the pattern or
+    // /// any characters in it. This will consumed to the end of the lexer if the pattern is not found. 
+    // fn consume_until(&mut self, pattern: &str) {
+    //     while !self.remaining.is_empty() && !self.matches(pattern) {
+    //         self.consume_any();
+    //     }
+    // }
+
+    /// Attempt to read/handle a single line comment from the start of the 
+    /// remaining fragment. If there's a doc-style single line comment, return a [`Token`],
+    /// otherwise return [`None`]. 
+    /// 
+    /// Generally I'm trying to follow the [rust comment spec] here.
+    ///
+    /// [rust comment spec]: https://doc.rust-lang.org/reference/comments.html 
+    fn handle_single_line_comment(&mut self) -> Option<Token<'src>> {
+        // Fork the lexer to attempt to consume a single line comment. 
+        let mut fork: Self = self.fork();
+
+        // Try to consume the single line comment prefix from the fork. 
+        if fork.consume(SINGLE_LINE_COMMENT_PREFIX) {
+            // We consumed it successfully, read through a newline or the end of the forked lexer if we get there. 
+            
+            // First determine if this is a doc comment of some kind. 
+            let is_inner_doc_comment: bool = fork.matches("/") && !fork.matches("//");
+            let is_outer_doc_comment: bool = fork.matches("!");
+
+            // The consume until a newline, carraige return, or the end of the source fragment. 
+            while !fork.remaining.is_empty() && !fork.matches("\r") && !fork.matches("\n") {
+                fork.consume_any();
+            }
+
+            // Determine the kind of token to produce (if any).
+            let variant: Option<TokenTy>; 
+            
+            if is_inner_doc_comment { 
+                variant = Some(TokenTy::InnerDocComment);
+            } 
+            else if is_outer_doc_comment { 
+                variant = Some(TokenTy::OuterDocComment);
+            } 
+            else {
+                variant = None;
+            }
+
+            // Map the variant to a token to return. 
+            let token: Option<Token> = variant.map(|kind| {
+                // Get the number of bytes we have consumed using `offset_from`. 
+                let bytes_consumed: usize = fork.remaining.offset_from(&self.remaining);
+                // Split this token from `self` rather than `fork` since self is still in an unmodified position.
+                self.split_token(bytes_consumed, kind)
+            });
+
+            // Update this lexer to match the state of the forked lexer. 
+            *self = fork;
+            // Consume any outstanding whitespace. 
+            self.ignore_whitespace();
+            // Return any token produced.
+            return token;
+        }
+
+        // If there was no comment prefix, there is no comment immediately available. 
+        None
+    }
+
     /// Get the next token from the lexer.
     pub fn next_token(&mut self) -> Option<Token<'src>> {
+        // Ignore any whitespace at the start of the lexer.
+        self.ignore_whitespace();
+
+        // Attempt to parse a single line comment. Return it if it's documentation.
+        // Rerun this function if there was a comment and it was ignored successfully.
+        let initial_lexer: Self = self.fork();
+        match self.handle_single_line_comment() {
+            // There was a single line comment ignored or no single line comment. 
+            None => {
+                // Check if the remaining fragment changed.
+                if !self.remaining.ptr_eq(&initial_lexer.remaining) {
+                    // If so, re-run this function.  
+                    return self.next_token();
+                }
+                
+                // If the lexer was unchanged, then there was no comment -- keep trying to match tokens.
+            },
+
+            // If there was some token, return it. 
+            token => return token,
+        }
+
         // If the remaining input is empty, there is no token.
         if self.remaining.is_empty() {
             return None;
-        }
-
-        // Use blocks heavily in this function as we don't want to re-use iterators or variables
-        // after we check them in most cases.
-
-        // If there is whitespace at the start of the remaining fragment, strip it and re-run this
-        // function to get the next token.
-        {
-            let without_whitespace: &str = self.remaining.inner.trim_start();
-
-            if !ptr::eq(without_whitespace, self.remaining.inner) {
-                self.remaining.inner = without_whitespace;
-                return self.next_token();
-            }
-        }
-
-        // Discard any single-line comment at the start of this lexer and then re-run this function if there was one.
-        // Note that this will not detect/discard doc comments or multi-line comments.
-        {
-            if let Some(without_comment_prefix) = self.remaining.inner.strip_prefix("//") {
-                // If the next character is not a slash or exclamation, indicating a doc comment.
-                if !without_comment_prefix.starts_with(['/', '!']) {
-                    // Get the number of bytes between the start of the comment and the newline, or end of file.
-                    // Do not include bytes of whitespace at or past the newline -- those are handled above.
-                    let line_bytes: usize = without_comment_prefix
-                        // Make an iterator over the lines after this `//`.
-                        .lines()
-                        // Get only the first line.
-                        .next()
-                        // Map to the length of the line string.
-                        .map(str::len)
-                        // If there is no line after the start of this comment we have zero bytes to read.
-                        .unwrap_or(0);
-
-                    // Split this number of bytes from the string and ignore them.
-                    let (_, new_remaining) = without_comment_prefix.split_at(line_bytes);
-                    // Put the split off string in a Fragment, and consider this fragment to be the
-                    // remaining Fragment for this lexer.
-                    self.remaining = Fragment {
-                        inner: new_remaining,
-                    };
-
-                    // Restart this function.
-                    return self.next_token();
-                }
-            }
         }
 
         // Discard any multi-line comments we encounter, sparing doc comments.
@@ -543,5 +641,12 @@ mod tests {
 
         assert_eq!(token.fragment.inner, "123_456_789");
         assert_eq!(token.variant, TokenTy::IntegerLiteral);
+    }
+
+    #[test]
+    fn ignored_single_line_comment() {
+        let mut lexer = Lexer::new("// test comment ");
+        assert!(lexer.next_token().is_none());
+        assert_eq!(lexer.remaining.len(), 0);
     }
 }
