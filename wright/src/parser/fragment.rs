@@ -71,7 +71,7 @@ impl<'src> Fragment<'src> {
     /// where the left one contains the first `bytes` bytes of the fragment, and the right one 
     /// contains the rest. 
     /// 
-    /// # Safety: 
+    /// # Safety
     /// - Undefined Behavior occurs if `bytes` is greater than the length of the [Fragment].
     /// - Undefined Behavior occurs if `bytes` is not on a UTF-8 character boundary. 
     /// - See [str::get_unchecked] for more details. 
