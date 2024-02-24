@@ -9,7 +9,7 @@ fn bench_symbol_tokens(c: &mut Criterion) {
 
     // Function to make a lexer and get a token from it.
     fn make_lexer_and_get_token(b: &mut Bencher, input: &str) {
-        b.iter(|| Lexer::new(black_box(input)).next_token());
+        b.iter(|| black_box(Lexer::new(input).next_token()));
     }
 
     let inputs = ["+", "+=", "*", "@", "?"];
@@ -19,5 +19,13 @@ fn bench_symbol_tokens(c: &mut Criterion) {
     }
 }
 
-criterion_group!(benches, bench_symbol_tokens);
+fn bench_block_doc_comment(c: &mut Criterion) {
+    c.bench_function("lexer block style doc comment", move |b: &mut Bencher| {
+        b.iter(move || {
+            black_box(Lexer::new("/*! \n this is a block-style comment \n\n */").next_token())
+        });
+    });
+}
+
+criterion_group!(benches, bench_symbol_tokens, bench_block_doc_comment);
 criterion_main!(benches);
