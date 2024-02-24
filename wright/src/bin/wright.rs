@@ -43,7 +43,6 @@ enum DebugCommands {
     Tokens {
         /// A file of wright source code.
         file: PathBuf,
-
         // /// Pretty print the source code with the tokens lined under them.
         // /// If not used, a list of tokens will be printed with their metadata.
         // #[arg(short, long)]
@@ -65,10 +64,7 @@ fn main() -> Result<()> {
 
         // Print all the tokens for a given file.
         Some(Commands::Debug {
-            command:
-                DebugCommands::Tokens {
-                    file,
-                },
+            command: DebugCommands::Tokens { file },
         }) => {
             let mut file_map: FileMap = FileMap::new();
             // Add the given file to the file map.

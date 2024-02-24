@@ -4,27 +4,24 @@
 //! defined for tokens.
 
 use super::fragment::Fragment;
+use derive_more::Display;
 use std::iter::FusedIterator;
 use std::str::Chars;
 use std::{iter::Peekable, ptr};
-use derive_more::Display;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
-/// Trivial tokens that are two ASCII characters and can be matched directly 
-/// against the input source code. 
+/// Trivial tokens that are two ASCII characters and can be matched directly
+/// against the input source code.
 pub const TWO_ASCII_TRIVIAL_TOKENS: &[(&[u8; 2], TokenTy)] = &[
     (b"->", TokenTy::SingleArrow),
     (b"-=", TokenTy::MinusEq),
-
     (b"=>", TokenTy::DoubleArrow),
     (b"==", TokenTy::EqEq),
-
     (b"&&", TokenTy::AndAnd),
     (b"||", TokenTy::OrOr),
     (b"<<", TokenTy::LtLt),
     (b">>", TokenTy::GtGt),
     (b"::", TokenTy::ColonColon),
-
     (b"|=", TokenTy::OrEq),
     (b"&=", TokenTy::AndEq),
     (b":=", TokenTy::ColonEq),
@@ -38,8 +35,8 @@ pub const TWO_ASCII_TRIVIAL_TOKENS: &[(&[u8; 2], TokenTy)] = &[
     (b"/=", TokenTy::DivEq),
 ];
 
-/// Single ASCII character trivial tokens that can be matched directly against 
-/// the source code. 
+/// Single ASCII character trivial tokens that can be matched directly against
+/// the source code.
 pub const SINGLE_ASCII_CHAR_TRIVIAL_TOKENS: &[(u8, TokenTy)] = &[
     (b'(', TokenTy::LeftParen),
     (b')', TokenTy::RightParen),
@@ -224,9 +221,9 @@ impl<'src> Lexer<'src> {
 
     /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
     /// and labeling them with the given kind.
-    /// 
+    ///
     /// # Panics:
-    /// - Panics if the number of bytes lands out of bounds or in the middle of a character. 
+    /// - Panics if the number of bytes lands out of bounds or in the middle of a character.
     fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
         let (token_fragment, new_remaining_fragment) = self.remaining.split(bytes);
         self.remaining = new_remaining_fragment;
@@ -320,7 +317,9 @@ impl<'src> Lexer<'src> {
                 (true, false) => Some(TokenTy::InnerDocComment),
                 (false, true) => Some(TokenTy::OuterDocComment),
                 (false, false) => None,
-                (true, true) => unreachable!("Lexer should not match multiple comment types at once."),
+                (true, true) => {
+                    unreachable!("Lexer should not match multiple comment types at once.")
+                }
             };
 
             // Map the variant to a token to return.
@@ -343,9 +342,9 @@ impl<'src> Lexer<'src> {
         None
     }
 
-    /// Attempt to read/consume a multi-line comment from the start of the `remaining` fragment. 
+    /// Attempt to read/consume a multi-line comment from the start of the `remaining` fragment.
     fn handle_multi_line_comment(&mut self) -> Option<Token<'src>> {
-        // Handle corner cases here so we don't have to below. 
+        // Handle corner cases here so we don't have to below.
         // These are both considered empty non-documenting comments.
         if self.consume("/***/") {
             return None;
@@ -355,40 +354,42 @@ impl<'src> Lexer<'src> {
             return None;
         }
 
-        // Make a fork of the lexer to avoid modifying this lexer if we fail to parse. 
+        // Make a fork of the lexer to avoid modifying this lexer if we fail to parse.
         let mut fork: Self = self.fork();
 
-        // Try to parse the start of a multi-line comment. 
+        // Try to parse the start of a multi-line comment.
         if fork.consume(MULTI_LINE_COMMENT_START) {
-            // Check if this is a doc comment. 
+            // Check if this is a doc comment.
             let is_outer_doc: bool = fork.matches("!");
-            // Use this to indicate that more than one following asterix is not a doc comment. 
+            // Use this to indicate that more than one following asterix is not a doc comment.
             let is_inner_doc: bool = fork.matches("*") && !fork.matches("**");
 
-            // Consume until we see the end of the doc comment. If we run out of characters, consider the 
-            // comment unterminated. 
+            // Consume until we see the end of the doc comment. If we run out of characters, consider the
+            // comment unterminated.
             while !fork.matches(MULTI_LINE_COMMENT_END) {
-                // Handle nested comments here: 
-                if fork.matches(MULTI_LINE_COMMENT_START) { 
-                    // Discard the output -- don't care about doc comments in other comments. 
+                // Handle nested comments here:
+                if fork.matches(MULTI_LINE_COMMENT_START) {
+                    // Discard the output -- don't care about doc comments in other comments.
                     fork.handle_multi_line_comment();
                     continue;
                 }
 
                 // Handle unterminated comments here.
                 if fork.remaining.is_empty() {
-                    // If we have not hit a "*/" before the end of the input, return an unterminated block comment. 
+                    // If we have not hit a "*/" before the end of the input, return an unterminated block comment.
                     let bytes_consumed: usize = fork.remaining.offset_from(&self.remaining);
-                    // Split the token and return it. 
-                    return Some(self.split_token(bytes_consumed, TokenTy::UnterminatedBlockComment));
+                    // Split the token and return it.
+                    return Some(
+                        self.split_token(bytes_consumed, TokenTy::UnterminatedBlockComment),
+                    );
                 }
-                
-                // If there's still input, and not a nested comment, consume it. 
+
+                // If there's still input, and not a nested comment, consume it.
                 fork.consume_any();
             }
 
-            // If we get here, the comment was terminated. Consume the terminating characters, and return. 
-            // Use debug assert here to make sure that the comment is actually terminated. 
+            // If we get here, the comment was terminated. Consume the terminating characters, and return.
+            // Use debug assert here to make sure that the comment is actually terminated.
             debug_assert!(fork.consume(MULTI_LINE_COMMENT_END), "comment is actually terminated");
 
             // Determine the kind of token to produce (if any).
@@ -396,10 +397,12 @@ impl<'src> Lexer<'src> {
                 (true, false) => Some(TokenTy::InnerBlockDocComment),
                 (false, true) => Some(TokenTy::OuterBlockDocComment),
                 (false, false) => None,
-                (true, true) => unreachable!("Lexer should not match multiple comment types at once."),
+                (true, true) => {
+                    unreachable!("Lexer should not match multiple comment types at once.")
+                }
             };
 
-            // Make the token to return. 
+            // Make the token to return.
             let token: Option<Token> = variant.map(|kind| {
                 // Get the number of bytes we have consumed using `offset_from`.
                 let bytes_consumed: usize = fork.remaining.offset_from(&self.remaining);
@@ -413,8 +416,8 @@ impl<'src> Lexer<'src> {
             return token;
         }
 
-        // If the fork did not consume a multi-line comment start, return None and do 
-        // not update this lexer. 
+        // If the fork did not consume a multi-line comment start, return None and do
+        // not update this lexer.
         None
     }
 
@@ -449,28 +452,28 @@ impl<'src> Lexer<'src> {
             token => return token,
         }
 
-        // Try to handle a multi-line comment if there is one. 
+        // Try to handle a multi-line comment if there is one.
         match self.handle_multi_line_comment() {
-            // There was an ignored comment or no comment. 
+            // There was an ignored comment or no comment.
             None => {
-                // If the lexer was changed, restart this function. 
+                // If the lexer was changed, restart this function.
                 if !self.remaining.ptr_eq(&initial_lexer.remaining) {
                     return self.next_token();
                 }
             }
 
             // If there was a block style doc-comment, or an unterminated multi-line comment
-            // return. 
+            // return.
             token => return token,
         }
 
         // Do all trivial matching after matching comments to avoid matching "/" for "//".
-        
-        // Attempt to match any two-byte ASCII trivial tokens. 
-        // This must be done before single-ascii byte tokens since matching is greedy. 
+
+        // Attempt to match any two-byte ASCII trivial tokens.
+        // This must be done before single-ascii byte tokens since matching is greedy.
         if self.remaining.len() >= 2 {
-            // Get the first two bytes of the remaining fragment. 
-            // SAFETY: We just checked length. 
+            // Get the first two bytes of the remaining fragment.
+            // SAFETY: We just checked length.
             let bytes: &[u8] = unsafe { self.remaining.inner.as_bytes().get_unchecked(0..2) };
             // Match against each possible token pattern.
             for (pattern, kind) in TWO_ASCII_TRIVIAL_TOKENS {
@@ -481,9 +484,9 @@ impl<'src> Lexer<'src> {
         }
 
         // Do the same for single byte patterns.
-        { 
+        {
             // We can assume there is at least one more byte since we check above if the fragment
-            // is empty and return early if not. 
+            // is empty and return early if not.
             let byte: &u8 = unsafe { self.remaining.inner.as_bytes().get_unchecked(0) };
 
             for (pattern, kind) in SINGLE_ASCII_CHAR_TRIVIAL_TOKENS {

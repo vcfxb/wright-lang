@@ -147,6 +147,4 @@ mod tests {
         let b = Fragment { inner: "def" };
         a.offset_from(&b);
     }
-
-
 }
