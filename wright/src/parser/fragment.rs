@@ -22,7 +22,7 @@ impl<'src> Fragment<'src> {
 
     /// Get a pair of pointers, the first one being at the beginning of the fragment, the second one pointing
     /// to the byte after the end of the fragment.
-    const fn start_and_end(&self) -> (*const u8, *const u8) {
+    pub const fn start_and_end(&self) -> (*const u8, *const u8) {
         // Get the pointer to the start of the fragment.
         let start: *const u8 = self.inner.as_ptr();
         // Get a pointer just past the end of the string.
@@ -74,7 +74,7 @@ impl<'src> Fragment<'src> {
     /// Get the number of bytes between the beginning of [`origin`] and the beginning of [`self`].
     ///
     /// # Panics:
-    /// - Panics if [`self`] is not a fragment within [`origin`] according to [`Fragment::contains`].
+    /// - Panics if [`self`] is not a fragment within `origin` according to [`Fragment::contains`].
     pub fn offset_from(&self, origin: &Self) -> usize {
         if !origin.contains(self) {
             panic!("This fragment must be contained in the original fragment");
@@ -130,4 +130,22 @@ mod tests {
         assert_eq!(left.inner, "+");
         assert_eq!(right.inner, "");
     }
+
+    #[test]
+    fn test_offset_from() {
+        let a = Fragment { inner: "abcde" };
+        let (b, c) = a.split(2);
+        assert_eq!(b.offset_from(&a), 0);
+        assert_eq!(c.offset_from(&a), 2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_offset_panics() {
+        let a = Fragment { inner: "abc" };
+        let b = Fragment { inner: "def" };
+        a.offset_from(&b);
+    }
+
+
 }

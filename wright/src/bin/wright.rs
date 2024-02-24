@@ -44,10 +44,10 @@ enum DebugCommands {
         /// A file of wright source code.
         file: PathBuf,
 
-        /// Pretty print the source code with the tokens lined under them.
-        /// If not used, a list of tokens will be printed with their metadata.
-        #[arg(short, long)]
-        pretty: bool,
+        // /// Pretty print the source code with the tokens lined under them.
+        // /// If not used, a list of tokens will be printed with their metadata.
+        // #[arg(short, long)]
+        // pretty: bool,
     },
 }
 
@@ -68,7 +68,6 @@ fn main() -> Result<()> {
             command:
                 DebugCommands::Tokens {
                     file,
-                    pretty: false,
                 },
         }) => {
             let mut file_map: FileMap = FileMap::new();
@@ -78,7 +77,7 @@ fn main() -> Result<()> {
             // Use unwrap here, since we know we just added the file.
             let lexer: Lexer = Lexer::new(file_map.source(file_id).unwrap());
             // Get all the tokens from the lexer and print them each.
-            lexer.for_each(|token: Token| println!("{token:?}"));
+            lexer.for_each(|token: Token| println!("{token}"));
         }
 
         _ => unimplemented!(),
