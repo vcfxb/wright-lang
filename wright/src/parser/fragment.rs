@@ -60,11 +60,26 @@ impl<'src> Fragment<'src> {
     ///
     /// # Panics:
     /// - Panics if the byte index is not in the fragment, or if it's on a char boundary.
-    pub fn split(&self, bytes: usize) -> (Self, Self) {
+    pub fn split_at(&self, bytes: usize) -> (Self, Self) {
         // Use str's split_at.
         let (left, right) = self.inner.split_at(bytes);
 
         (Self { inner: left }, Self { inner: right })
+    }
+
+    /// Unsafe version of [`Fragment::split_at`]. Splits this [Fragment] into two subfragments,
+    /// where the left one contains the first `bytes` bytes of the fragment, and the right one 
+    /// contains the rest. 
+    /// 
+    /// # Safety: 
+    /// - Undefined Behavior occurs if `bytes` is greater than the length of the [Fragment].
+    /// - Undefined Behavior occurs if `bytes` is not on a UTF-8 character boundary. 
+    /// - See [str::get_unchecked] for more details. 
+    pub unsafe fn split_at_unchecked(&self, bytes: usize) -> (Self, Self) {
+        let left: &str = self.inner.get_unchecked(..bytes);
+        let right: &str = self.inner.get_unchecked(bytes..);
+
+        (Fragment { inner: left }, Fragment { inner: right })
     }
 
     /// Get an iterator over the characters in this fragment.
@@ -72,7 +87,7 @@ impl<'src> Fragment<'src> {
         self.inner.chars()
     }
 
-    /// Get the number of bytes between the beginning of [`origin`] and the beginning of [`self`].
+    /// Get the number of bytes between the beginning of `origin` and the beginning of [`self`].
     ///
     /// # Panics:
     /// - Panics if [`self`] is not a fragment within `origin` according to [`Fragment::contains`].
@@ -127,7 +142,7 @@ mod tests {
     #[test]
     fn test_split_single() {
         let a = Fragment { inner: "+" };
-        let (left, right) = a.split(1);
+        let (left, right) = a.split_at(1);
         assert_eq!(left.inner, "+");
         assert_eq!(right.inner, "");
     }
@@ -135,7 +150,7 @@ mod tests {
     #[test]
     fn test_offset_from() {
         let a = Fragment { inner: "abcde" };
-        let (b, c) = a.split(2);
+        let (b, c) = a.split_at(2);
         assert_eq!(b.offset_from(&a), 0);
         assert_eq!(c.offset_from(&a), 2);
     }

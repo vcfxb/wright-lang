@@ -4,66 +4,14 @@
 //! defined for tokens.
 
 use super::fragment::Fragment;
-use derive_more::Display;
 use std::iter::FusedIterator;
 use std::str::Chars;
 use std::{iter::Peekable, ptr};
 use unicode_ident::{is_xid_continue, is_xid_start};
+use token::{Token, TokenTy};
 
-/// Trivial tokens that are two ASCII characters and can be matched directly
-/// against the input source code.
-pub const TWO_ASCII_TRIVIAL_TOKENS: &[(&[u8; 2], TokenTy)] = &[
-    (b"->", TokenTy::SingleArrow),
-    (b"-=", TokenTy::MinusEq),
-    (b"=>", TokenTy::DoubleArrow),
-    (b"==", TokenTy::EqEq),
-    (b"&&", TokenTy::AndAnd),
-    (b"||", TokenTy::OrOr),
-    (b"<<", TokenTy::LtLt),
-    (b">>", TokenTy::GtGt),
-    (b"::", TokenTy::ColonColon),
-    (b"|=", TokenTy::OrEq),
-    (b"&=", TokenTy::AndEq),
-    (b":=", TokenTy::ColonEq),
-    (b">=", TokenTy::GtEq),
-    (b"<=", TokenTy::LtEq),
-    (b"!=", TokenTy::BangEq),
-    (b"%=", TokenTy::ModEq),
-    (b"^=", TokenTy::XorEq),
-    (b"*=", TokenTy::StarEq),
-    (b"+=", TokenTy::PlusEq),
-    (b"/=", TokenTy::DivEq),
-];
-
-/// Single ASCII character trivial tokens that can be matched directly against
-/// the source code.
-pub const SINGLE_ASCII_CHAR_TRIVIAL_TOKENS: &[(u8, TokenTy)] = &[
-    (b'(', TokenTy::LeftParen),
-    (b')', TokenTy::RightParen),
-    (b'[', TokenTy::LeftBracket),
-    (b']', TokenTy::RightBracket),
-    (b'{', TokenTy::LeftCurly),
-    (b'}', TokenTy::RightCurly),
-    (b'@', TokenTy::At),
-    (b';', TokenTy::Semi),
-    (b'?', TokenTy::Question),
-    (b',', TokenTy::Comma),
-    (b'#', TokenTy::Hash),
-    (b'$', TokenTy::Dollar),
-    (b'>', TokenTy::Gt),
-    (b'<', TokenTy::Lt),
-    (b'-', TokenTy::Minus),
-    (b':', TokenTy::Colon),
-    (b'!', TokenTy::Bang),
-    (b'=', TokenTy::Eq),
-    (b'&', TokenTy::And),
-    (b'|', TokenTy::Or),
-    (b'/', TokenTy::Div),
-    (b'+', TokenTy::Plus),
-    (b'^', TokenTy::Xor),
-    (b'*', TokenTy::Star),
-    (b'%', TokenTy::Mod),
-];
+pub mod token;
+pub mod trivial;
 
 /// The pattern that begins any single line comments (including doc comments).
 pub const SINGLE_LINE_COMMENT_PREFIX: &str = "//";
@@ -79,91 +27,6 @@ pub const MULTI_LINE_COMMENT_END: &str = "*/";
 pub struct Lexer<'src> {
     /// The remaining source code that has not been processed and returned as a token from the iterator yet.
     pub remaining: Fragment<'src>,
-}
-
-/// A token in wright source code.
-#[derive(Debug, Display)]
-#[display(fmt = "\"{}\" ({:?})", "fragment.inner", variant)]
-pub struct Token<'src> {
-    /// What type of token this is.
-    pub variant: TokenTy,
-    /// The matching fragment of source code -- this contains the location and length data for the token.
-    pub fragment: Fragment<'src>,
-}
-
-/// The different types of tokens in wright source.
-#[rustfmt::skip] // Turn off auto reformat. 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum TokenTy {
-    LeftCurly, RightCurly,
-    LeftBracket, RightBracket,
-    LeftParen, RightParen,
-
-    Plus, PlusEq,
-    Star, StarEq,
-    Div, DivEq,
-    Xor, XorEq,
-    Mod, ModEq,
-    Bang, BangEq,
-
-    Minus, MinusEq, SingleArrow,
-    Eq, EqEq, DoubleArrow,
-
-    Lt, LtEq, LtLt,
-    Gt, GtEq, GtGt,
-    And, AndEq, AndAnd,
-    Or, OrEq, OrOr,
-    Colon, ColonEq, ColonColon,
-
-    At,
-    Tilde,
-    Semi,
-    Dot,
-    Comma,
-    Hash,
-    Question,
-    Dollar,
-    
-    // Not in the same group as the other ones there since it can be used at the start of identifiers.
-    Underscore,
-
-    Identifier,
-
-    OuterDocComment, OuterBlockDocComment,
-    InnerDocComment, InnerBlockDocComment,
-    
-    /// Indicates a block style comment without termination. 
-    UnterminatedBlockComment,
-
-
-    KwRecord,
-    KwType,
-    KwEnum,
-    KwUnion,
-    KwFunc,
-    KwRepr,
-    KwImpl,
-    KwConstraint,
-    KwReferences,
-    KwTrait,
-    KwUse,
-    KwAs,
-    KwConst,
-    KwMod,
-    KwIf,
-    KwElse,
-    KwFor,
-    KwIn,
-    KwWhile,
-    KwTrue,
-    KwFalse,
-    KwLoop,
-    KwWhere,
-
-    IntegerLiteral,
-
-    /// Unknown character in lexer fragment. 
-    Unknown
 }
 
 impl<'src> Lexer<'src> {
@@ -225,13 +88,24 @@ impl<'src> Lexer<'src> {
     /// # Panics:
     /// - Panics if the number of bytes lands out of bounds or in the middle of a character.
     fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
-        let (token_fragment, new_remaining_fragment) = self.remaining.split(bytes);
+        let (token_fragment, new_remaining_fragment) = self.remaining.split_at(bytes);
         self.remaining = new_remaining_fragment;
 
         Token {
             variant: kind,
             fragment: token_fragment,
         }
+    }
+
+    /// Unsafe version of [Lexer::split_token]. 
+    /// 
+    /// # Safety:
+    /// - This function matches the safety guarantees of [Fragment::split_at_unchecked].
+    unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
+        let (token_fragment, new_remaining_fragment) = self.remaining.split_at_unchecked(bytes);
+        self.remaining = new_remaining_fragment;
+
+        Token { variant: kind, fragment: token_fragment }
     }
 
     /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
@@ -467,33 +341,9 @@ impl<'src> Lexer<'src> {
             token => return token,
         }
 
-        // Do all trivial matching after matching comments to avoid matching "/" for "//".
-
-        // Attempt to match any two-byte ASCII trivial tokens.
-        // This must be done before single-ascii byte tokens since matching is greedy.
-        if self.remaining.len() >= 2 {
-            // Get the first two bytes of the remaining fragment.
-            // SAFETY: We just checked length.
-            let bytes: &[u8] = unsafe { self.remaining.inner.as_bytes().get_unchecked(0..2) };
-            // Match against each possible token pattern.
-            for (pattern, kind) in TWO_ASCII_TRIVIAL_TOKENS {
-                if bytes == *pattern {
-                    return Some(self.split_token(2, *kind));
-                }
-            }
-        }
-
-        // Do the same for single byte patterns.
-        {
-            // We can assume there is at least one more byte since we check above if the fragment
-            // is empty and return early if not.
-            let byte: &u8 = unsafe { self.remaining.inner.as_bytes().get_unchecked(0) };
-
-            for (pattern, kind) in SINGLE_ASCII_CHAR_TRIVIAL_TOKENS {
-                if byte == pattern {
-                    return Some(self.split_token(1, *kind));
-                }
-            }
+        // Handle a trivial token if there is one. 
+        if let Some(token) = trivial::try_consume_trivial_token(self) {
+            return Some(token);
         }
 
         // Next attempt to match a keyword or identifier.
@@ -512,7 +362,7 @@ impl<'src> Lexer<'src> {
                     .sum::<usize>();
 
                 // Split the number of bytes we consumed.
-                let (ident_frag, new_remaining) = self.remaining.split(bytes_consumed);
+                let (ident_frag, new_remaining) = self.remaining.split_at(bytes_consumed);
                 // Get the token kind to produce for this fragment.
                 let variant = Lexer::identifier_or_keyword(ident_frag);
                 // Update the lexers remaining fragment.
