@@ -53,7 +53,6 @@ pub const SINGLE_ASCII_CHAR_TRIVIAL_TOKENS: &[(u8, TokenTy)] = &[
     (b',', TokenTy::Comma),
     (b'#', TokenTy::Hash),
     (b'$', TokenTy::Dollar),
-
     (b'>', TokenTy::Gt),
     (b'<', TokenTy::Lt),
     (b'-', TokenTy::Minus),
@@ -225,6 +224,9 @@ impl<'src> Lexer<'src> {
 
     /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
     /// and labeling them with the given kind.
+    /// 
+    /// # Panics:
+    /// - Panics if the number of bytes lands out of bounds or in the middle of a character. 
     fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
         let (token_fragment, new_remaining_fragment) = self.remaining.split(bytes);
         self.remaining = new_remaining_fragment;

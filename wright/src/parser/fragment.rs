@@ -58,7 +58,8 @@ impl<'src> Fragment<'src> {
     /// Split this fragment into two sub fragments, with the first one being `bytes` long and the second containing the
     /// rest of this fragment.
     ///
-    /// Panics if the byte index is not in the fragment, or if it's on a char boundary.
+    /// # Panics:
+    /// - Panics if the byte index is not in the fragment, or if it's on a char boundary.
     pub fn split(&self, bytes: usize) -> (Self, Self) {
         // Use str's split_at.
         let (left, right) = self.inner.split_at(bytes);
