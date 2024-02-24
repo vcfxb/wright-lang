@@ -6,7 +6,7 @@ use codespan_reporting::files::Files;
 use std::{path::PathBuf, time::Instant};
 use wright::{
     filemap::{FileId, FileMap},
-    parser::lexer::{Lexer, token::Token},
+    parser::lexer::{token::Token, Lexer},
     repl,
 };
 

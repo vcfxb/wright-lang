@@ -7,8 +7,8 @@ use super::fragment::Fragment;
 use std::iter::FusedIterator;
 use std::str::Chars;
 use std::{iter::Peekable, ptr};
-use unicode_ident::{is_xid_continue, is_xid_start};
 use token::{Token, TokenTy};
+use unicode_ident::{is_xid_continue, is_xid_start};
 
 pub mod token;
 pub mod trivial;
@@ -97,15 +97,18 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    /// Unsafe version of [Lexer::split_token]. 
-    /// 
+    /// Unsafe version of [Lexer::split_token].
+    ///
     /// # Safety:
     /// - This function matches the safety guarantees of [Fragment::split_at_unchecked].
     unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
         let (token_fragment, new_remaining_fragment) = self.remaining.split_at_unchecked(bytes);
         self.remaining = new_remaining_fragment;
 
-        Token { variant: kind, fragment: token_fragment }
+        Token {
+            variant: kind,
+            fragment: token_fragment,
+        }
     }
 
     /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
@@ -341,7 +344,7 @@ impl<'src> Lexer<'src> {
             token => return token,
         }
 
-        // Handle a trivial token if there is one. 
+        // Handle a trivial token if there is one.
         if let Some(token) = trivial::try_consume_trivial_token(self) {
             return Some(token);
         }

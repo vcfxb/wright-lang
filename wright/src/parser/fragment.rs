@@ -68,13 +68,13 @@ impl<'src> Fragment<'src> {
     }
 
     /// Unsafe version of [`Fragment::split_at`]. Splits this [Fragment] into two subfragments,
-    /// where the left one contains the first `bytes` bytes of the fragment, and the right one 
-    /// contains the rest. 
-    /// 
+    /// where the left one contains the first `bytes` bytes of the fragment, and the right one
+    /// contains the rest.
+    ///
     /// # Safety
     /// - Undefined Behavior occurs if `bytes` is greater than the length of the [Fragment].
-    /// - Undefined Behavior occurs if `bytes` is not on a UTF-8 character boundary. 
-    /// - See [str::get_unchecked] for more details. 
+    /// - Undefined Behavior occurs if `bytes` is not on a UTF-8 character boundary.
+    /// - See [str::get_unchecked] for more details.
     pub unsafe fn split_at_unchecked(&self, bytes: usize) -> (Self, Self) {
         let left: &str = self.inner.get_unchecked(..bytes);
         let right: &str = self.inner.get_unchecked(bytes..);

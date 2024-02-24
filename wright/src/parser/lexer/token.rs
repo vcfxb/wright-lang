@@ -1,7 +1,7 @@
-//! Token models. 
+//! Token models.
 
-use derive_more::Display;
 use crate::parser::fragment::Fragment;
+use derive_more::Display;
 
 /// A token in wright source code.
 #[derive(Debug, Display)]
