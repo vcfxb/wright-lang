@@ -12,9 +12,9 @@ use std::{iter::Peekable, ptr};
 use token::{Token, TokenTy};
 use unicode_ident::{is_xid_continue, is_xid_start};
 
+pub mod comments;
 pub mod token;
 pub mod trivial;
-pub mod comments;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
@@ -112,13 +112,13 @@ impl<'src> Lexer<'src> {
         *self
     }
 
-    /// Get the number of bytes between the origin's [remaining](Lexer::remaining) and 
-    /// this [Lexer]'s [remaining](Lexer::remaining) using [`Fragment::offset_from`]. 
-    /// 
+    /// Get the number of bytes between the origin's [remaining](Lexer::remaining) and
+    /// this [Lexer]'s [remaining](Lexer::remaining) using [`Fragment::offset_from`].
+    ///
     /// # Panics
     /// - This function panics under the same conditions as [`Fragment::offset_from`].
-    /// - Generally the best way to avoid panics is to only call this function on 
-    ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer. 
+    /// - Generally the best way to avoid panics is to only call this function on
+    ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer.
     #[inline]
     fn offset_from(&self, origin: &Self) -> usize {
         self.remaining.offset_from(&origin.remaining)
@@ -171,23 +171,23 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    /// Advance this lexer by the specified number of bytes. 
-    /// 
+    /// Advance this lexer by the specified number of bytes.
+    ///
     /// # Panics
-    /// - If the lexer is not on a unicode character boundary after advancing. 
-    /// - If the number of bytes is greater than the length of the [remaining](Lexer::remaining) fragment. 
+    /// - If the lexer is not on a unicode character boundary after advancing.
+    /// - If the number of bytes is greater than the length of the [remaining](Lexer::remaining) fragment.
     fn advance(&mut self, bytes: usize) {
         self.remaining.inner = &self.remaining.inner[bytes..];
     }
 
-    /// Unsafe version of [Lexer::advance]. 
+    /// Unsafe version of [Lexer::advance].
     /// Advances this lexer by the specified number of bytes.
-    /// 
+    ///
     /// # Safety
     /// - This lexer will be left in an invalid/undefined state if the number of bytes is greater than the length
     ///     of the [Lexer::remaining] fragment.
-    /// - This lexer will be left in an invalid/undefined state if after advancing, the next byte in the 
-    ///     [Lexer::remaining] fragment is not the start of a unicode code point. 
+    /// - This lexer will be left in an invalid/undefined state if after advancing, the next byte in the
+    ///     [Lexer::remaining] fragment is not the start of a unicode code point.
     unsafe fn advance_unchecked(&mut self, bytes: usize) {
         self.remaining.inner = self.remaining.inner.get_unchecked(bytes..);
     }
@@ -202,27 +202,27 @@ impl<'src> Lexer<'src> {
             return None;
         }
 
-        // Attempt to parse a single line comment and then attempt a multi-line comment. 
+        // Attempt to parse a single line comment and then attempt a multi-line comment.
         for comment_match_fn in [try_match_single_line_comment, try_match_block_comment] {
             // Attempt to parse a comment using the given match function. Return it if it's documentation or unterminated.
             // Get a new token and return that if there was a comment and it was ignored successfully.
             match (comment_match_fn)(self) {
-                // A comment was parsed, consume and return it. 
+                // A comment was parsed, consume and return it.
                 (bytes, Some(comment_variant)) => {
                     // Split the token.
                     let token: Token = self.split_token(bytes, comment_variant);
                     // Return it.
                     return Some(token);
-                },
+                }
 
-                // There was a comment, advance the lexer and ignore it. Re-start this function. 
+                // There was a comment, advance the lexer and ignore it. Re-start this function.
                 (bytes @ 1.., None) => {
                     self.advance(bytes);
                     return self.next_token();
                 }
 
-                // There was no comment, keep trying to match other tokens. 
-                (0, None) => {},
+                // There was no comment, keep trying to match other tokens.
+                (0, None) => {}
             }
         }
 

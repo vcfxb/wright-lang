@@ -17,7 +17,7 @@ pub const MULTI_LINE_COMMENT_END: &str = "*/";
 ///
 /// If the [TokenTy] is not [None], the lexer should consume the specified number of bytes (by the [usize]) and
 /// Produce a token with the [variant](super::token::Token::variant) from this function.
-/// 
+///
 /// Generally I'm trying to follow the [rust comment spec] here.
 ///
 /// [rust comment spec]: https://doc.rust-lang.org/reference/comments.html
@@ -93,7 +93,7 @@ pub fn try_match_block_comment(lexer: &Lexer) -> (usize, Option<TokenTy>) {
                 let (nested_comment_bytes, _) = try_match_block_comment(&fork);
 
                 // SAFETY: the return from this function should never be on a char boundary or out of bounds.
-                // This is because the return value is always either 0 or calculated using `offset_from`. 
+                // This is because the return value is always either 0 or calculated using `offset_from`.
                 unsafe { fork.advance_unchecked(nested_comment_bytes) };
 
                 // Restart the loop to keep consuming this comment.
