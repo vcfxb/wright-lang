@@ -3,6 +3,8 @@
 //! Note that this will strip out comments and whitespace, returning only fragments that match one of the paterns
 //! defined for tokens.
 
+use self::comments::{try_match_block_comment, try_match_single_line_comment};
+
 use super::fragment::Fragment;
 use std::iter::FusedIterator;
 use std::str::Chars;
@@ -12,15 +14,7 @@ use unicode_ident::{is_xid_continue, is_xid_start};
 
 pub mod token;
 pub mod trivial;
-
-/// The pattern that begins any single line comments (including doc comments).
-pub const SINGLE_LINE_COMMENT_PREFIX: &str = "//";
-
-/// The pattern that starts any multi-line comments (including doc comments).
-pub const MULTI_LINE_COMMENT_START: &str = "/*";
-
-/// The pattern that ends any multi-line comments (including doc comments).
-pub const MULTI_LINE_COMMENT_END: &str = "*/";
+pub mod comments;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
@@ -112,10 +106,22 @@ impl<'src> Lexer<'src> {
     }
 
     /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
-    /// failable parsing. This can be compared to the original lexer it was forked from using [Fragment::offset_from]
+    /// failable parsing. This can be compared to the original lexer it was forked from using [Lexer::offset_from]
     /// on the underlying `remaining` fragments.
     fn fork(&self) -> Self {
         *self
+    }
+
+    /// Get the number of bytes between the origin's [remaining](Lexer::remaining) and 
+    /// this [Lexer]'s [remaining](Lexer::remaining) using [`Fragment::offset_from`]. 
+    /// 
+    /// # Panics
+    /// - This function panics under the same conditions as [`Fragment::offset_from`].
+    /// - Generally the best way to avoid panics is to only call this function on 
+    ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer. 
+    #[inline]
+    fn offset_from(&self, origin: &Self) -> usize {
+        self.remaining.offset_from(&origin.remaining)
     }
 
     /// Remove and ignore any whitespace at the start of the remaining fragment.
@@ -165,137 +171,25 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    /// Attempt to read/handle a single line comment from the start of the
-    /// remaining fragment. If there's a doc-style single line comment, return a [`Token`],
-    /// otherwise return [`None`].
-    ///
-    /// Generally I'm trying to follow the [rust comment spec] here.
-    ///
-    /// [rust comment spec]: https://doc.rust-lang.org/reference/comments.html
-    fn handle_single_line_comment(&mut self) -> Option<Token<'src>> {
-        // Fork the lexer to attempt to consume a single line comment.
-        let mut fork: Self = self.fork();
-
-        // Try to consume the single line comment prefix from the fork.
-        if fork.consume(SINGLE_LINE_COMMENT_PREFIX) {
-            // We consumed it successfully, read through a newline or the end of the forked lexer if we get there.
-
-            // First determine if this is a doc comment of some kind.
-            let is_inner_doc: bool = fork.matches("/") && !fork.matches("//");
-            let is_outer_doc: bool = fork.matches("!");
-
-            // The consume until a newline, carraige return, or the end of the source fragment.
-            while !fork.remaining.is_empty() && !fork.matches("\r") && !fork.matches("\n") {
-                fork.consume_any();
-            }
-
-            // Determine the kind of token to produce (if any).
-            let variant: Option<TokenTy> = match (is_inner_doc, is_outer_doc) {
-                (true, false) => Some(TokenTy::InnerDocComment),
-                (false, true) => Some(TokenTy::OuterDocComment),
-                (false, false) => None,
-                (true, true) => {
-                    unreachable!("Lexer should not match multiple comment types at once.")
-                }
-            };
-
-            // Map the variant to a token to return.
-            let token: Option<Token> = variant.map(|kind| {
-                // Get the number of bytes we have consumed using `offset_from`.
-                let bytes_consumed: usize = fork.remaining.offset_from(&self.remaining);
-                // Split this token from `self` rather than `fork` since self is still in an unmodified position.
-                self.split_token(bytes_consumed, kind)
-            });
-
-            // Update this lexer to match the state of the forked lexer.
-            *self = fork;
-            // Consume any outstanding whitespace.
-            self.ignore_whitespace();
-            // Return any token produced.
-            return token;
-        }
-
-        // If there was no comment prefix, there is no comment immediately available.
-        None
+    /// Advance this lexer by the specified number of bytes. 
+    /// 
+    /// # Panics
+    /// - If the lexer is not on a unicode character boundary after advancing. 
+    /// - If the number of bytes is greater than the length of the [remaining](Lexer::remaining) fragment. 
+    fn advance(&mut self, bytes: usize) {
+        self.remaining.inner = &self.remaining.inner[bytes..];
     }
 
-    /// Attempt to read/consume a multi-line comment from the start of the `remaining` fragment.
-    fn handle_multi_line_comment(&mut self) -> Option<Token<'src>> {
-        // Handle corner cases here so we don't have to below.
-        // These are both considered empty non-documenting comments.
-        if self.consume("/***/") {
-            return None;
-        }
-
-        if self.consume("/**/") {
-            return None;
-        }
-
-        // Make a fork of the lexer to avoid modifying this lexer if we fail to parse.
-        let mut fork: Self = self.fork();
-
-        // Try to parse the start of a multi-line comment.
-        if fork.consume(MULTI_LINE_COMMENT_START) {
-            // Check if this is a doc comment.
-            let is_outer_doc: bool = fork.matches("!");
-            // Use this to indicate that more than one following asterix is not a doc comment.
-            let is_inner_doc: bool = fork.matches("*") && !fork.matches("**");
-
-            // Consume until we see the end of the doc comment. If we run out of characters, consider the
-            // comment unterminated.
-            while !fork.matches(MULTI_LINE_COMMENT_END) {
-                // Handle nested comments here:
-                if fork.matches(MULTI_LINE_COMMENT_START) {
-                    // Discard the output -- don't care about doc comments in other comments.
-                    fork.handle_multi_line_comment();
-                    continue;
-                }
-
-                // Handle unterminated comments here.
-                if fork.remaining.is_empty() {
-                    // If we have not hit a "*/" before the end of the input, return an unterminated block comment.
-                    let bytes_consumed: usize = fork.remaining.offset_from(&self.remaining);
-                    // Split the token and return it.
-                    return Some(
-                        self.split_token(bytes_consumed, TokenTy::UnterminatedBlockComment),
-                    );
-                }
-
-                // If there's still input, and not a nested comment, consume it.
-                fork.consume_any();
-            }
-
-            // If we get here, the comment was terminated. Consume the terminating characters, and return.
-            // Use debug assert here to make sure that the comment is actually terminated.
-            debug_assert!(fork.consume(MULTI_LINE_COMMENT_END), "comment is actually terminated");
-
-            // Determine the kind of token to produce (if any).
-            let variant: Option<TokenTy> = match (is_inner_doc, is_outer_doc) {
-                (true, false) => Some(TokenTy::InnerBlockDocComment),
-                (false, true) => Some(TokenTy::OuterBlockDocComment),
-                (false, false) => None,
-                (true, true) => {
-                    unreachable!("Lexer should not match multiple comment types at once.")
-                }
-            };
-
-            // Make the token to return.
-            let token: Option<Token> = variant.map(|kind| {
-                // Get the number of bytes we have consumed using `offset_from`.
-                let bytes_consumed: usize = fork.remaining.offset_from(&self.remaining);
-                // Split this token from `self` rather than `fork` since self is still in an unmodified position.
-                self.split_token(bytes_consumed, kind)
-            });
-
-            // Update this lexer to match the state of the fork.
-            *self = fork;
-            // Return token if there was one.
-            return token;
-        }
-
-        // If the fork did not consume a multi-line comment start, return None and do
-        // not update this lexer.
-        None
+    /// Unsafe version of [Lexer::advance]. 
+    /// Advances this lexer by the specified number of bytes.
+    /// 
+    /// # Safety
+    /// - This lexer will be left in an invalid/undefined state if the number of bytes is greater than the length
+    ///     of the [Lexer::remaining] fragment.
+    /// - This lexer will be left in an invalid/undefined state if after advancing, the next byte in the 
+    ///     [Lexer::remaining] fragment is not the start of a unicode code point. 
+    unsafe fn advance_unchecked(&mut self, bytes: usize) {
+        self.remaining.inner = self.remaining.inner.get_unchecked(bytes..);
     }
 
     /// Get the next token from the lexer.
@@ -308,40 +202,28 @@ impl<'src> Lexer<'src> {
             return None;
         }
 
-        // Grab a copy of the initial lexer to compare and check when progress has been made.
-        let initial_lexer: Self = self.fork();
+        // Attempt to parse a single line comment and then attempt a multi-line comment. 
+        for comment_match_fn in [try_match_single_line_comment, try_match_block_comment] {
+            // Attempt to parse a comment using the given match function. Return it if it's documentation or unterminated.
+            // Get a new token and return that if there was a comment and it was ignored successfully.
+            match (comment_match_fn)(self) {
+                // A comment was parsed, consume and return it. 
+                (bytes, Some(comment_variant)) => {
+                    // Split the token.
+                    let token: Token = self.split_token(bytes, comment_variant);
+                    // Return it.
+                    return Some(token);
+                },
 
-        // Attempt to parse a single line comment. Return it if it's documentation.
-        // Rerun this function if there was a comment and it was ignored successfully.
-        match self.handle_single_line_comment() {
-            // There was a single line comment ignored or no single line comment.
-            None => {
-                // Check if the remaining fragment changed.
-                if !self.remaining.ptr_eq(&initial_lexer.remaining) {
-                    // If so, re-run this function.
+                // There was a comment, advance the lexer and ignore it. Re-start this function. 
+                (bytes @ 1.., None) => {
+                    self.advance(bytes);
                     return self.next_token();
                 }
 
-                // If the lexer was unchanged, then there was no comment -- keep trying to match tokens.
+                // There was no comment, keep trying to match other tokens. 
+                (0, None) => {},
             }
-
-            // If there was some token, return it.
-            token => return token,
-        }
-
-        // Try to handle a multi-line comment if there is one.
-        match self.handle_multi_line_comment() {
-            // There was an ignored comment or no comment.
-            None => {
-                // If the lexer was changed, restart this function.
-                if !self.remaining.ptr_eq(&initial_lexer.remaining) {
-                    return self.next_token();
-                }
-            }
-
-            // If there was a block style doc-comment, or an unterminated multi-line comment
-            // return.
-            token => return token,
         }
 
         // Handle a trivial token if there is one.
