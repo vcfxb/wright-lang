@@ -68,9 +68,8 @@ impl<'src> Lexer<'src> {
     }
 
     /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
-    /// failable parsing. This can be compared to the original lexer it was forked from using [Lexer::offset_from]
-    /// on the underlying `remaining` fragments.
-    fn fork(&self) -> Self {
+    /// failable parsing. This can be compared to the original lexer it was forked from using [Lexer::offset_from].
+    pub fn fork(&self) -> Self {
         *self
     }
 
@@ -82,12 +81,12 @@ impl<'src> Lexer<'src> {
     /// - Generally the best way to avoid panics is to only call this function on
     ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer.
     #[inline]
-    fn offset_from(&self, origin: &Self) -> usize {
+    pub fn offset_from(&self, origin: &Self) -> usize {
         self.remaining.offset_from(&origin.remaining)
     }
 
-    /// Remove and ignore any whitespace at the start of the remaining fragment.
-    fn ignore_whitespace(&mut self) {
+    /// Remove and ignore any whitespace at the start of the [Lexer::remaining] [Fragment].
+    pub fn ignore_whitespace(&mut self) {
         // Get a reference to the slice of the string past any whitespace at the start.
         let without_whitespace: &str = self.remaining.inner.trim_start();
 
@@ -97,8 +96,8 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    /// Check if a pattern matches at the start of the remaining fragment, and if so return the number of bytes.
-    fn matches(&self, pattern: &str) -> bool {
+    /// Check if a pattern matches at the start of the [Lexer::remaining] [Fragment].
+    pub fn matches(&self, pattern: &str) -> bool {
         self.remaining.inner.starts_with(pattern)
     }
 

@@ -55,6 +55,8 @@ pub enum TokenTy {
     InnerDocComment, InnerBlockDocComment,
     
     /// Indicates a block style comment without termination. 
+    /// Separate from [TokenTy::InnerDocComment] and [TokenTy::OuterDocComment] to indicate that 
+    /// unterminated comments will be handled differently (produce errors eventually). 
     UnterminatedBlockComment,
 
     KwRecord,
@@ -82,8 +84,9 @@ pub enum TokenTy {
     KwWhere,
 
     IntegerLiteral,
-    StringLiteral, 
-    CharLiteral,
+    StringLiteral { terminated: bool }, 
+    FormatStringLiteral { terminated: bool },
+    CharLiteral { terminated: bool },
 
     /// Unknown character in lexer fragment. 
     Unknown
