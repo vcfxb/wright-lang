@@ -7,7 +7,7 @@ use super::{token::Token, Lexer, token::TokenTy};
 
 /// Try to match a fragment recognized to be an identifier or keyword to
 /// a keyword or return [TokenTy::Identifier].
-fn identifier_or_keyword<'src>(fragment: Fragment<'src>) -> TokenTy {
+fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
     use TokenTy::*;
 
     match fragment.inner {
@@ -74,7 +74,7 @@ pub fn try_consume_keyword_or_identifier<'src>(lexer: &mut Lexer<'src>) -> Optio
     // Update the lexer's remaining fragment. 
     lexer.remaining = new_remaining;
     // Return the token. 
-    return Some(Token { variant, fragment: token_fragment });
+    Some(Token { variant, fragment: token_fragment })
 }
 
 #[cfg(test)]
