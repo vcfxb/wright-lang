@@ -5,6 +5,7 @@
 
 use self::comments::{try_match_block_comment, try_match_single_line_comment};
 use self::integer_literal::try_consume_integer_literal;
+use self::quoted::try_consume_quoted_literal;
 
 use super::fragment::Fragment;
 use std::iter::FusedIterator;
@@ -17,6 +18,7 @@ pub mod identifier;
 pub mod integer_literal;
 pub mod token;
 pub mod trivial;
+pub mod quoted;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
@@ -200,6 +202,11 @@ impl<'src> Lexer<'src> {
         // Next attempt to parse an integer literal.
         if let Some(integer_lit) = try_consume_integer_literal(self) {
             return Some(integer_lit);
+        }
+
+        // Next attempt to parse a quoted literal. 
+        if let Some(quoted_lit) = try_consume_quoted_literal(self) {
+            return Some(quoted_lit);
         }
 
         // If we haven't matched at this point, produce a token marked as "Unknown".
