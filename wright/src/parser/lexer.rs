@@ -10,11 +10,11 @@ use std::iter::FusedIterator;
 use std::str::Chars;
 use std::{iter::Peekable, ptr};
 use token::{Token, TokenTy};
-use unicode_ident::{is_xid_continue, is_xid_start};
 
 pub mod comments;
 pub mod token;
 pub mod trivial;
+pub mod identifier;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
@@ -36,46 +36,6 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    /// Try to match a fragment recognized to be an identifier or keyword to
-    /// a keyword or return [TokenTy::Identifier].
-    fn identifier_or_keyword(fragment: Fragment<'src>) -> TokenTy {
-        use TokenTy::*;
-
-        match fragment.inner {
-            "record" => KwRecord,
-            "type" => KwType,
-            "enum" => KwEnum,
-            "union" => KwUnion,
-            "func" => KwFunc,
-            "repr" => KwRepr,
-            "impl" => KwImpl,
-            "constraint" => KwConstraint,
-            "references" => KwReferences,
-            "trait" => KwTrait,
-            "const" => KwConst,
-            "where" => KwWhere,
-
-            "use" => KwUse,
-            "as" => KwAs,
-            "mod" => KwMod,
-
-            "if" => KwIf,
-            "else" => KwElse,
-
-            "for" => KwFor,
-            "in" => KwIn,
-            "while" => KwWhile,
-            "loop" => KwLoop,
-
-            "true" => KwTrue,
-            "false" => KwFalse,
-
-            "_" => Underscore,
-
-            _ => Identifier,
-        }
-    }
-
     /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
     /// and labeling them with the given kind.
     ///
@@ -93,7 +53,7 @@ impl<'src> Lexer<'src> {
 
     /// Unsafe version of [Lexer::split_token].
     ///
-    /// # Safety:
+    /// # Safety
     /// - This function matches the safety guarantees of [Fragment::split_at_unchecked].
     unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
         let (token_fragment, new_remaining_fragment) = self.remaining.split_at_unchecked(bytes);
@@ -232,32 +192,8 @@ impl<'src> Lexer<'src> {
         }
 
         // Next attempt to match a keyword or identifier.
-        {
-            let mut chars: Chars = self.remaining.chars();
-            // The unsafe is fine here -- we've established that this lexer has bytes remaining.
-            let next: char = unsafe { chars.next().unwrap_unchecked() };
-
-            if is_xid_start(next) || next == '_' {
-                let mut bytes_consumed: usize = next.len_utf8();
-
-                // Take remaining chars and add to sum.
-                bytes_consumed += chars
-                    .take_while(|c| is_xid_continue(*c))
-                    .map(char::len_utf8)
-                    .sum::<usize>();
-
-                // Split the number of bytes we consumed.
-                let (ident_frag, new_remaining) = self.remaining.split_at(bytes_consumed);
-                // Get the token kind to produce for this fragment.
-                let variant = Lexer::identifier_or_keyword(ident_frag);
-                // Update the lexers remaining fragment.
-                self.remaining = new_remaining;
-                // Return the identifier, keyword, or underscore.
-                return Some(Token {
-                    variant,
-                    fragment: ident_frag,
-                });
-            }
+        if let Some(token) = identifier::try_consume_keyword_or_identifier(self) {
+            return Some(token);
         }
 
         // Next attempt to parse a numerical literal.
@@ -313,7 +249,7 @@ impl<'src> Iterator for Lexer<'src> {
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        // Lexers cannot return multiple tokens for a single byte.
+        // Lexers should not return multiple tokens for a single byte.
         (0, Some(self.bytes_remaining()))
     }
 }
