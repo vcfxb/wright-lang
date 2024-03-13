@@ -135,7 +135,7 @@ pub fn try_match_block_comment(lexer: &Lexer) -> (usize, Option<TokenTy>) {
 #[cfg(test)]
 mod tests {
     use super::Lexer;
-    
+
     #[test]
     fn ignored_single_line_comment() {
         let mut lexer = Lexer::new("// test comment ");

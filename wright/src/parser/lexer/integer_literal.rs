@@ -1,17 +1,20 @@
-//! Implementation for lexing integer literals. 
+//! Implementation for lexing integer literals.
 
+use super::{
+    token::{Token, TokenTy},
+    Lexer,
+};
 use std::{iter::Peekable, str::Chars};
-use super::{token::{Token, TokenTy}, Lexer};
 
 /// Attempt to lex and consume an [TokenTy::IntegerLiteral] from the lexer.
 pub fn try_consume_integer_literal<'src>(lexer: &mut Lexer<'src>) -> Option<Token<'src>> {
-    // Make a peekable character iterator. 
+    // Make a peekable character iterator.
     let mut chars: Peekable<Chars> = lexer.remaining.chars().peekable();
-    // Get the first character from the iterator. We can only continue lexing if one exists and is an ascii 
-    // decimal digit. 
+    // Get the first character from the iterator. We can only continue lexing if one exists and is an ascii
+    // decimal digit.
     let next: char = chars.next().filter(char::is_ascii_digit)?;
-    // Track the number of bytes consumed. We use the length of the parsed first char here but we could probably 
-    // assume it to be 1. 
+    // Track the number of bytes consumed. We use the length of the parsed first char here but we could probably
+    // assume it to be 1.
     let mut bytes_consumed: usize = next.len_utf8();
     // Track the radix
     let mut radix: u32 = 10;
@@ -42,7 +45,7 @@ pub fn try_consume_integer_literal<'src>(lexer: &mut Lexer<'src>) -> Option<Toke
 
 #[cfg(test)]
 mod tests {
-    use super::{TokenTy, Lexer};
+    use super::{Lexer, TokenTy};
 
     #[test]
     fn integer_literal() {

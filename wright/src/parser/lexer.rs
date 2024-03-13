@@ -8,15 +8,15 @@ use self::integer_literal::try_consume_integer_literal;
 
 use super::fragment::Fragment;
 use std::iter::FusedIterator;
-use std::str::Chars;
 use std::ptr;
+use std::str::Chars;
 use token::{Token, TokenTy};
 
 pub mod comments;
-pub mod token;
-pub mod trivial;
 pub mod identifier;
 pub mod integer_literal;
+pub mod token;
+pub mod trivial;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
