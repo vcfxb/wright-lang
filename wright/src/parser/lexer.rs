@@ -16,9 +16,9 @@ use token::{Token, TokenTy};
 pub mod comments;
 pub mod identifier;
 pub mod integer_literal;
+pub mod quoted;
 pub mod token;
 pub mod trivial;
-pub mod quoted;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
@@ -204,7 +204,7 @@ impl<'src> Lexer<'src> {
             return Some(integer_lit);
         }
 
-        // Next attempt to parse a quoted literal. 
+        // Next attempt to parse a quoted literal.
         if let Some(quoted_lit) = try_consume_quoted_literal(self) {
             return Some(quoted_lit);
         }
