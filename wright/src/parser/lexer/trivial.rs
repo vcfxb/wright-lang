@@ -105,3 +105,31 @@ pub fn try_consume_trivial_token<'src>(lexer: &mut Lexer<'src>) -> Option<Token<
     // If nothing else has matched, there is no trivial token available.
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Lexer, TokenTy};
+
+    #[test]
+    fn plus_and_plus_eq_tokens() {
+        let mut plus = Lexer::new("+");
+        let mut plus_eq = Lexer::new("+=");
+
+        let plus_token = plus.next_token().unwrap();
+        let plus_eq_token = plus_eq.next_token().unwrap();
+
+        assert_eq!(plus.bytes_remaining(), 0);
+        assert_eq!(plus_eq.bytes_remaining(), 0);
+        assert_eq!(plus_token.variant, TokenTy::Plus);
+        assert_eq!(plus_eq_token.variant, TokenTy::PlusEq);
+    }
+
+    #[test]
+    fn plus_one_token() {
+        let mut plus_one = Lexer::new("+1");
+        let plus_token = plus_one.next_token().unwrap();
+        assert_eq!(plus_one.bytes_remaining(), 1);
+        assert_eq!(plus_token.variant, TokenTy::Plus);
+        assert_eq!(plus_token.fragment.len(), 1);
+    }
+}

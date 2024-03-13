@@ -4,17 +4,19 @@
 //! defined for tokens.
 
 use self::comments::{try_match_block_comment, try_match_single_line_comment};
+use self::integer_literal::try_consume_integer_literal;
 
 use super::fragment::Fragment;
 use std::iter::FusedIterator;
 use std::str::Chars;
-use std::{iter::Peekable, ptr};
+use std::ptr;
 use token::{Token, TokenTy};
 
 pub mod comments;
 pub mod token;
 pub mod trivial;
 pub mod identifier;
+pub mod integer_literal;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
 #[derive(Debug, Clone, Copy)]
@@ -196,41 +198,9 @@ impl<'src> Lexer<'src> {
             return Some(token);
         }
 
-        // Next attempt to parse a numerical literal.
-        {
-            let mut chars: Peekable<Chars> = self.remaining.chars().peekable();
-            // The unsafe is fine here -- we've established that this lexer has bytes remaining.
-            let next: char = unsafe { chars.next().unwrap_unchecked() };
-
-            if next.is_ascii_digit() {
-                // Accumulate the number of bytes consumed in the numeric literal.
-                let mut acc: usize = 1;
-                // Track the radix
-                let mut radix: u32 = 10;
-
-                // Change the radix if necessary
-                if next == '0' {
-                    if let Some(prefix) = chars.next_if(|x| ['x', 'o', 'b', 'X', 'B'].contains(x)) {
-                        // All the possible prefix chars are 1 byte ascii characters.
-                        acc += 1;
-
-                        radix = match prefix {
-                            'x' | 'X' => 16,
-                            'b' | 'B' => 2,
-                            'o' => 8,
-                            _ => unreachable!("the prefix byte is checked above"),
-                        };
-                    }
-                }
-
-                // Add the rest of the integer literal.
-                acc += chars
-                    .take_while(|c| c.is_digit(radix) || *c == '_')
-                    .map(char::len_utf8)
-                    .sum::<usize>();
-
-                return Some(self.split_token(acc, TokenTy::IntegerLiteral));
-            }
+        // Next attempt to parse an integer literal.
+        if let Some(integer_lit) = try_consume_integer_literal(self) {
+            return Some(integer_lit);
         }
 
         // If we haven't matched at this point, produce a token marked as "Unknown".
@@ -256,57 +226,3 @@ impl<'src> Iterator for Lexer<'src> {
 
 // Lexers are fused -- they cannot generate tokens infinitely.
 impl<'src> FusedIterator for Lexer<'src> {}
-
-#[cfg(test)]
-mod tests {
-    use super::Lexer;
-    use crate::parser::lexer::TokenTy;
-
-    #[test]
-    fn plus_and_plus_eq_tokens() {
-        let mut plus = Lexer::new("+");
-        let mut plus_eq = Lexer::new("+=");
-
-        let plus_token = plus.next_token().unwrap();
-        let plus_eq_token = plus_eq.next_token().unwrap();
-
-        assert_eq!(plus.bytes_remaining(), 0);
-        assert_eq!(plus_eq.bytes_remaining(), 0);
-        assert_eq!(plus_token.variant, TokenTy::Plus);
-        assert_eq!(plus_eq_token.variant, TokenTy::PlusEq);
-    }
-
-    #[test]
-    fn plus_one_token() {
-        let mut plus_one = Lexer::new("+1");
-        let plus_token = plus_one.next_token().unwrap();
-        assert_eq!(plus_one.bytes_remaining(), 1);
-        assert_eq!(plus_token.variant, TokenTy::Plus);
-        assert_eq!(plus_token.fragment.len(), 1);
-    }
-
-    #[test]
-    fn identifiers_and_keywords() {
-        let mut lexer = Lexer::new("const TEST");
-
-        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::KwConst);
-        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Identifier);
-    }
-
-    #[test]
-    fn intger_literal() {
-        let mut lexer = Lexer::new("123_456_789.");
-
-        let token = lexer.next_token().unwrap();
-
-        assert_eq!(token.fragment.inner, "123_456_789");
-        assert_eq!(token.variant, TokenTy::IntegerLiteral);
-    }
-
-    #[test]
-    fn ignored_single_line_comment() {
-        let mut lexer = Lexer::new("// test comment ");
-        assert!(lexer.next_token().is_none());
-        assert_eq!(lexer.remaining.len(), 0);
-    }
-}

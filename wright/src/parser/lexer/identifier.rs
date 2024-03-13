@@ -76,3 +76,16 @@ pub fn try_consume_keyword_or_identifier<'src>(lexer: &mut Lexer<'src>) -> Optio
     // Return the token. 
     return Some(Token { variant, fragment: token_fragment });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Lexer, TokenTy};
+
+    #[test]
+    fn identifiers_and_keywords() {
+        let mut lexer = Lexer::new("const TEST");
+
+        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::KwConst);
+        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Identifier);
+    }
+}
