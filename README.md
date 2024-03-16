@@ -30,14 +30,14 @@ Wright is an all-purpose programming language inspired by Rust, Ada, and Typescr
 excellent languages, Wright intends to offer a combination of speed, ergonomics, and precision.
 
 ##### The core goals of the language:
-* Developer experience -- Every error message, syntax choice, and standard library function should be friendly and well
+* __Developer experience__ -- Every error message, syntax choice, and standard library function should be friendly and well
     documented.
-* Robustness -- Wright's type system should be expressive enough to appropriately capture the domain, representation, 
+* __Robustness__ -- Wright's type system should be expressive enough to appropriately capture the domain, representation, 
     and functionality of every symbol the programmer interacts with. 
-* Speed -- Wright leverages the newest version of LLVM (at the time of writing, LLVM 17), to compile code 
+* __Speed__ -- Wright leverages the newest version of LLVM (at the time of writing, LLVM 17), to compile code 
     directly to assembly, avoiding the overhead of an interpreter, garbage collector, and other associated tools 
     by default. 
-* Memory Safety -- Wright pulls significant inspiration from Rust's lifetime system, with some modifications. 
+* __Memory Safety__ -- Wright pulls significant inspiration from Rust's lifetime system, with some modifications. 
 
 ### Installation:
 There are several installation options.
