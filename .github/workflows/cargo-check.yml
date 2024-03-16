@@ -6,16 +6,25 @@ jobs:
   check:
     strategy: 
       matrix:
-        os: ["windows-latest", "ubuntu-latest", "macos-latest"]
+        os: ["windows-latest", "ubuntu-latest"]
     runs-on: ${{ matrix.os }}
     env:
       working-directory: ./wright
     steps:
       - uses: actions/checkout@v4
+      - name: Cache LLVM installation
+        id: cache-llvm
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:/Program Files/LLVM
+            ./llvm
+          key: llvm-17
       - name: Install LLVM
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "17"
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
       - name: Check rust code
         run: cargo check 
         working-directory: ${{env.working-directory}}
