@@ -43,7 +43,7 @@ func main() {
 // FizzBuzz 1 through 100
 use wright::io::println;
 
-type FizzBuzzInteger = integer constrain |i| { i < 100 && i >= 0 };
+type FizzBuzzInteger = integer constrain |i| { i <= 100 && i >= 0 };
 
 func fizzbuzz(i: FizzBuzzInteger) {
     if i % 15 == 0 { println("FizzBuzz"); }
