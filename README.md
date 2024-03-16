@@ -6,7 +6,8 @@
 | Cargo Check Status | ![Cargo Check status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-check.yml/badge.svg?branch=master) |
 | Cargo Test Status | ![Cargo Test status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-test.yml/badge.svg?branch=master) |
 | Cargo Clippy Status | ![Cargo Clippy status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-clippy.yml/badge.svg?branch=master) |
-| Code Coverage | [![Coverage Status](https://coveralls.io/repos/github/vcfxb/wright-lang/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/vcfxb/wright-lang?branch=master) |
+| Code Coverage (Coveralls) | [![Coverage Status](https://coveralls.io/repos/github/vcfxb/wright-lang/badge.svg?branch=master&kill_cache=1)](https://coveralls.io/github/vcfxb/wright-lang?branch=master) |
+| Code Coverage (Codecov.io) | [![codecov](https://codecov.io/github/vcfxb/wright-lang/graph/badge.svg?token=HO07JEYMIH)](https://codecov.io/github/vcfxb/wright-lang)
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
 | Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |
 | GitHub release | [![GitHub release](https://img.shields.io/github/release/vcfxb/wright-lang.svg)](https://github.com/vcfxb/wright-lang/releases) |
