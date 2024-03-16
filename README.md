@@ -1,5 +1,6 @@
-# The Wright language
+# The Wright Programming Language
 ### *A language that flies*
+
 #### Badges
 | Service | Badge |
 |:---:|:---:|
@@ -25,21 +26,24 @@
 | Crates.io (Latest) | [![Crates.io](https://img.shields.io/crates/dv/wright.svg)](https://crates.io/crates/wright/0.8.0) |
 
 
-Wright is a lightweight programming language heavily inspired by Rust. Wright aims to take advantage of some of 
-Rust's key features such as safety and speed, and augment them a number of other features and additions to the
-backend and type system.
+Wright is an all-purpose programming language inspired by Rust, Ada, and Typescript. Pulling from all three of these
+excellent languages, Wright intends to offer a combination of speed, ergonomics, and precision.
 
 ##### The core goals of the language:
-* Ease of use
-* Robustness
-* Reasonable speed
-* Memory Safety
-* Concurrency
-* Portability
+* Developer experience -- Every error message, syntax choice, and standard library function should be friendly and well
+    documented.
+* Robustness -- Wright's type system should be expressive enough to appropriately capture the domain, representation, 
+    and functionality of every symbol the programmer interacts with. 
+* Speed -- Wright leverages the newest version of LLVM (at the time of writing, LLVM 17), to compile code 
+    directly to assembly, avoiding the overhead of an interpreter, garbage collector, and other associated tools 
+    by default. 
+* Memory Safety -- Wright pulls significant inspiration from Rust's lifetime system, with some modifications. 
 
 ### Installation:
 There are several installation options.
 1. Get the latest stable version from [the releases page](https://github.com/vcfxb/wright-lang/releases).
 2. If you have rust, via `cargo install wright`.
 3. Building from source, by cloning this repository, and running `cargo build --release` in the wright directory, and 
-then adding wright/target/release to your system path.
+    then adding `wright/target/release` to your system path. You will need LLVM 17 installed and appropriately 
+    configured to compile Wright. See the [llvm-sys crate docs](https://crates.io/crates/llvm-sys) for tips on how to do 
+    this.
