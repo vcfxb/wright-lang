@@ -27,6 +27,6 @@ jobs:
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
       - name: Check rust code
         run: cargo check 
-        working-directory: ${{env.working-directory}}
-        with:
+        env:
           LLVM_SYS_170_PREFIX: ${{ env.LLVM_PATH }}
+        working-directory: ${{env.working-directory}}
