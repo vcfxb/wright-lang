@@ -60,9 +60,6 @@ func main() {
 }
 ```
 
-
-
-
 ### The core goals of the language:
 * __Developer experience__ -- Every error message, syntax choice, and standard library function should be friendly and well
     documented.
