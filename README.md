@@ -1,7 +1,11 @@
 # The Wright Programming Language
-### *A language that flies*
+## *A language that flies*
 
-#### Badges
+
+*Wright is an all-purpose programming language inspired by Rust, Ada, and Typescript. 
+Pulling from all three of these excellent languages, Wright intends to offer a combination of speed, ergonomics, and precision.*
+
+### Badges
 | Service | Badge |
 |:---:|:---:|
 | Cargo Check Status | ![Cargo Check status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-check.yml/badge.svg?branch=main) |
@@ -25,11 +29,37 @@
 | Crates.io | [![Crates.io](https://img.shields.io/crates/d/wright.svg)](https://crates.io/crates/wright) |
 | Crates.io (Latest) | [![Crates.io](https://img.shields.io/crates/dv/wright.svg)](https://crates.io/crates/wright/0.8.0) |
 
+### Syntax Samples
+```
+// Hello World! 
+use wright::io::println;
 
-Wright is an all-purpose programming language inspired by Rust, Ada, and Typescript. Pulling from all three of these
-excellent languages, Wright intends to offer a combination of speed, ergonomics, and precision.
+func main() {
+    println("Hello World!");
+}
+```
 
-##### The core goals of the language:
+```
+// FizzBuzz 1 through 100
+use wright::io::println;
+
+type FizzBuzzInteger = integer constrain |i| { i < 100 && i >= 0 };
+
+func fizzbuzz(i: FizzBuzzInteger) {
+    if i % 15 == 0 { println("FizzBuzz"); }
+    else if i % 5 == 0 { println("Buzz"); }
+    else if i % 3 == 0 { println("Fizz"); }
+    else { println(i); }
+}
+
+func main() {
+    // Compiler error here if we use a range iterator that contains a value violating the constraints of 
+    // `FizzBuzzInteger`. 
+    (1..=100).for_each(fizzbuzz);
+}
+```
+
+### The core goals of the language:
 * __Developer experience__ -- Every error message, syntax choice, and standard library function should be friendly and well
     documented.
 * __Robustness__ -- Wright's type system should be expressive enough to appropriately capture the domain, representation, 

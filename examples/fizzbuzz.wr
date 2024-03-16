@@ -1,5 +1,9 @@
+// FizzBuzz 1 through 100
+use wright::io::println;
 
-func fizzbuzz(i: integer) {
+type FizzBuzzInteger = integer constrain |i| { i < 100 && i >= 0 };
+
+func fizzbuzz(i: FizzBuzzInteger) {
     if i % 15 == 0 { println("FizzBuzz"); }
     else if i % 5 == 0 { println("Buzz"); }
     else if i % 3 == 0 { println("Fizz"); }
@@ -7,5 +11,7 @@ func fizzbuzz(i: integer) {
 }
 
 func main() {
+    // Compiler error here if we use a range iterator that contains a value violating the constraints of 
+    // `FizzBuzzInteger`. 
     (1..=100).for_each(fizzbuzz);
 }
