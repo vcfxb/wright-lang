@@ -28,5 +28,5 @@ jobs:
       - name: Check rust code
         run: cargo check 
         env:
-          LLVM_SYS_170_PREFIX: ${{ env.LLVM_PATH }}
+          LLVM_SYS_170_PREFIX: ${{ env.LLVM_PATH }}/bin
         working-directory: ${{env.working-directory}}
