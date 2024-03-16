@@ -26,10 +26,11 @@ test = false
 doc = false
 doctest = false
 
-# BENCHMARKS (currently none)
-# [[bench]]
-# name = "lexer"
-# harness = false
+# BENCHMARKS
+[[bench]]
+name = "lexer"
+harness = false
+
 
 # CRATES.IO BADGES
 [badges.maintenance]
@@ -62,9 +63,9 @@ version = "0.11.1"
 [dependencies.termcolor]
 version = "1.2.0"
 
-# Big Integers
-[dependencies.num] 
-version = "0.4"
+# # Big Integers
+# [dependencies.num] 
+# version = "0.4"
 
 # Portable (windows, mac, linux) file locking
 [dependencies.fs4] 
@@ -86,16 +87,12 @@ features = ["strict-versioning", "force-static"]
 version = "0.3"
 features = ["llvm17-0"]
 
-# # Fast parsing for integers and floats from source code. 
-# [dependencies.lexical-core]
-# version = "0.8"
-
 # TEST DEPENDENCIES
-
-# Rayon to speed up brute-force testing in some cases.
-[dev-dependencies.rayon]
-version = "1.8.0"
 
 # Criterion is used for benchmarking. 
 [dev-dependencies.criterion] 
 version = "0.5.1"
+
+# Rayon is used to do various brute-force tests in parallel
+[dev-dependencies.rayon]
+version = "1.8.0"

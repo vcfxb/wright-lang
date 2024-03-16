@@ -1,507 +1,234 @@
-//! The wright lexer. This module is responsible for lexical analysis and initial processing of source code.
+//! First pass lexer that gets run on the source code and returns a series of tokens with their associated [Fragment]s.
+//!
+//! Note that this will strip out comments and whitespace, returning only fragments that match one of the paterns
+//! defined for tokens.
 
-mod pretty_print;
-pub mod tokens;
+use self::comments::{try_match_block_comment, try_match_single_line_comment};
+use self::integer_literal::try_consume_integer_literal;
+use self::quoted::try_consume_quoted_literal;
 
-use std::{
-    iter::{FusedIterator, Peekable},
-    str::CharIndices,
-};
+use super::fragment::Fragment;
+use std::iter::FusedIterator;
+use std::ptr;
+use std::str::Chars;
+use token::{Token, TokenTy};
 
-use self::tokens::{CommentTy, Token, TokenTy};
+pub mod comments;
+pub mod identifier;
+pub mod integer_literal;
+pub mod quoted;
+pub mod token;
+pub mod trivial;
 
-/// Lexical analyzer for wright code. This struct host functions that produce tokens from wright source.
-#[derive(Debug, Clone)]
-pub struct Lexer<'a> {
-    /// Iterator over the indexed input characters tied to the lifetime of the source code.
-    iterator: Peekable<CharIndices<'a>>,
-    /// The source code passed to the lexer. This is used to check for keywords.
-    source: &'a str,
+/// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
+#[derive(Debug, Clone, Copy)]
+pub struct Lexer<'src> {
+    /// The remaining source code that has not been processed and returned as a token from the iterator yet.
+    pub remaining: Fragment<'src>,
 }
 
-impl<'a> Lexer<'a> {
-    /// Create a new lexer that iterates on a given source string.
-    pub fn new(source: &'a str) -> Self {
+impl<'src> Lexer<'src> {
+    /// Get the number of bytes remaining that we need to transform into tokens.
+    pub const fn bytes_remaining(&self) -> usize {
+        self.remaining.len()
+    }
+
+    /// Construct a new lexer over a given reference to a source string.
+    pub const fn new(source: &'src str) -> Self {
         Lexer {
-            iterator: source.char_indices().peekable(),
-            source,
+            remaining: Fragment { inner: source },
         }
+    }
+
+    /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
+    /// and labeling them with the given kind.
+    ///
+    /// # Panics:
+    /// - Panics if the number of bytes lands out of bounds or in the middle of a character.
+    fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
+        let (token_fragment, new_remaining_fragment) = self.remaining.split_at(bytes);
+        self.remaining = new_remaining_fragment;
+
+        Token {
+            variant: kind,
+            fragment: token_fragment,
+        }
+    }
+
+    /// Unsafe version of [Lexer::split_token].
+    ///
+    /// # Safety
+    /// - This function matches the safety guarantees of [Fragment::split_at_unchecked].
+    unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
+        let (token_fragment, new_remaining_fragment) = self.remaining.split_at_unchecked(bytes);
+        self.remaining = new_remaining_fragment;
+
+        Token {
+            variant: kind,
+            fragment: token_fragment,
+        }
+    }
+
+    /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
+    /// failable parsing. This can be compared to the original lexer it was forked from using [Lexer::offset_from].
+    pub fn fork(&self) -> Self {
+        *self
+    }
+
+    /// Get the number of bytes between the origin's [remaining](Lexer::remaining) and
+    /// this [Lexer]'s [remaining](Lexer::remaining) using [`Fragment::offset_from`].
+    ///
+    /// # Panics
+    /// - This function panics under the same conditions as [`Fragment::offset_from`].
+    /// - Generally the best way to avoid panics is to only call this function on
+    ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer.
+    #[inline]
+    pub fn offset_from(&self, origin: &Self) -> usize {
+        self.remaining.offset_from(&origin.remaining)
+    }
+
+    /// Remove and ignore any whitespace at the start of the [Lexer::remaining] [Fragment].
+    pub fn ignore_whitespace(&mut self) {
+        // Get a reference to the slice of the string past any whitespace at the start.
+        let without_whitespace: &str = self.remaining.inner.trim_start();
+
+        // If the references aren't equal, update the remaining fragment.
+        if !ptr::eq(without_whitespace, self.remaining.inner) {
+            self.remaining.inner = without_whitespace;
+        }
+    }
+
+    /// Check if a pattern matches at the start of the [Lexer::remaining] [Fragment].
+    pub fn matches(&self, pattern: &str) -> bool {
+        self.remaining.inner.starts_with(pattern)
+    }
+
+    /// If the remaining fragment starts with the given `pattern`, strip it from the remaining fragment and return
+    /// true. Otherwise return false.
+    fn consume(&mut self, pattern: &str) -> bool {
+        if let Some(stripped) = self.remaining.inner.strip_prefix(pattern) {
+            self.remaining.inner = stripped;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Remove a character from the start of the `remaining` [`Fragment`], return the character
+    /// consumed if there was a character available to consume.
+    fn consume_any(&mut self) -> Option<char> {
+        // Make a character iterator.
+        let mut chars: Chars = self.remaining.chars();
+
+        if let Some(c) = chars.next() {
+            // Consumed a char, update the remaining fragment of this lexer.
+            let char_bytes: usize = c.len_utf8();
+            // SAFETY: we know that this is not on a char boundary and does not exceed the length of the slice,
+            // since we just pulled it from a `Chars` iterator.
+            self.remaining.inner = unsafe { self.remaining.inner.get_unchecked(char_bytes..) };
+            // Return the character.
+            Some(c)
+        } else {
+            // No characters available, return nothing.
+            None
+        }
+    }
+
+    /// Advance this lexer by the specified number of bytes.
+    ///
+    /// # Panics
+    /// - If the lexer is not on a unicode character boundary after advancing.
+    /// - If the number of bytes is greater than the length of the [remaining](Lexer::remaining) fragment.
+    fn advance(&mut self, bytes: usize) {
+        self.remaining.inner = &self.remaining.inner[bytes..];
+    }
+
+    /// Unsafe version of [Lexer::advance].
+    /// Advances this lexer by the specified number of bytes.
+    ///
+    /// # Safety
+    /// - This lexer will be left in an invalid/undefined state if the number of bytes is greater than the length
+    ///     of the [Lexer::remaining] fragment.
+    /// - This lexer will be left in an invalid/undefined state if after advancing, the next byte in the
+    ///     [Lexer::remaining] fragment is not the start of a unicode code point.
+    unsafe fn advance_unchecked(&mut self, bytes: usize) {
+        self.remaining.inner = self.remaining.inner.get_unchecked(bytes..);
+    }
+
+    /// Get the next token from the lexer.
+    pub fn next_token(&mut self) -> Option<Token<'src>> {
+        // Ignore any whitespace at the start of the lexer.
+        self.ignore_whitespace();
+
+        // If the remaining input is empty, there is no token.
+        if self.remaining.is_empty() {
+            return None;
+        }
+
+        // Attempt to parse a single line comment and then attempt a multi-line comment.
+        for comment_match_fn in [try_match_single_line_comment, try_match_block_comment] {
+            // Attempt to parse a comment using the given match function. Return it if it's documentation or unterminated.
+            // Get a new token and return that if there was a comment and it was ignored successfully.
+            match (comment_match_fn)(self) {
+                // A comment was parsed, consume and return it.
+                (bytes, Some(comment_variant)) => {
+                    // Split the token.
+                    let token: Token = self.split_token(bytes, comment_variant);
+                    // Return it.
+                    return Some(token);
+                }
+
+                // There was a comment, advance the lexer and ignore it. Re-start this function.
+                (bytes @ 1.., None) => {
+                    self.advance(bytes);
+                    return self.next_token();
+                }
+
+                // There was no comment, keep trying to match other tokens.
+                (0, None) => {}
+            }
+        }
+
+        // Handle a trivial token if there is one.
+        if let Some(token) = trivial::try_consume_trivial_token(self) {
+            return Some(token);
+        }
+
+        // Next attempt to match a keyword or identifier.
+        if let Some(token) = identifier::try_consume_keyword_or_identifier(self) {
+            return Some(token);
+        }
+
+        // Next attempt to parse an integer literal.
+        if let Some(integer_lit) = try_consume_integer_literal(self) {
+            return Some(integer_lit);
+        }
+
+        // Next attempt to parse a quoted literal.
+        if let Some(quoted_lit) = try_consume_quoted_literal(self) {
+            return Some(quoted_lit);
+        }
+
+        // If we haven't matched at this point, produce a token marked as "Unknown".
+        // The unsafe is fine -- we know from above that there are remaining characters.
+        let unknown_char = unsafe { self.remaining.chars().next().unwrap_unchecked() };
+        return Some(self.split_token(unknown_char.len_utf8(), TokenTy::Unknown));
     }
 }
 
-impl<'a> Iterator for Lexer<'a> {
-    type Item = Token;
-
-    fn next(&mut self) -> Option<Token> {
-        // Get the next character out of the iterator.
-        let (start_index, next) = self.iterator.next()?;
-
-        // Handle single character tokens first.
-        let single_char_tokens = [
-            ('(', TokenTy::LeftParen),
-            (')', TokenTy::RightParen),
-            ('[', TokenTy::LeftSquare),
-            (']', TokenTy::RightSquare),
-            ('{', TokenTy::LeftBracket),
-            ('}', TokenTy::RightBracket),
-            ('@', TokenTy::At),
-            (';', TokenTy::Semi),
-            ('?', TokenTy::Question),
-            (',', TokenTy::Comma),
-            ('#', TokenTy::Pound),
-            ('$', TokenTy::Dollar),
-        ];
-
-        for (c, variant) in single_char_tokens {
-            if next == c {
-                return Some(Token { variant, length: 1 });
-            }
-        }
-
-        // Next handle tokens that can possibly be followed by an equal sign.
-        let possible_eq_upgrades = [
-            ('!', TokenTy::Bang, TokenTy::BangEq),
-            ('%', TokenTy::Mod, TokenTy::ModEq),
-            ('^', TokenTy::Xor, TokenTy::XorEq),
-            ('*', TokenTy::Star, TokenTy::StarEq),
-            ('+', TokenTy::Plus, TokenTy::PlusEq),
-        ];
-
-        for (c, no_eq, with_eq) in possible_eq_upgrades {
-            if next == c {
-                return match self.iterator.next_if(|&(_, x)| x == '=') {
-                    Some(_) => Some(Token {
-                        variant: with_eq,
-                        length: 2,
-                    }),
-                    None => Some(Token {
-                        variant: no_eq,
-                        length: 1,
-                    }),
-                };
-            }
-        }
-
-        // Next handle tokens that can be doubled or have an equals sign.
-        let possible_eq_or_double = [
-            ('&', TokenTy::And, TokenTy::AndEq, TokenTy::AndAnd),
-            ('|', TokenTy::Or, TokenTy::OrEq, TokenTy::OrOr),
-            ('<', TokenTy::Lt, TokenTy::LtEq, TokenTy::ShiftLeft),
-            ('>', TokenTy::Gt, TokenTy::GtEq, TokenTy::ShiftRight),
-            (':', TokenTy::Colon, TokenTy::ColonEq, TokenTy::ColonColon),
-            ('/', TokenTy::Div, TokenTy::DivEq, TokenTy::DivDiv),
-        ];
-
-        for (c, alone, with_eq, doubled) in possible_eq_or_double {
-            if next == c {
-                return match self.iterator.next_if(|&(_, x)| x == '=' || x == c) {
-                    // Followed by `=`
-                    Some((_, '=')) => Some(Token {
-                        variant: with_eq,
-                        length: 2,
-                    }),
-
-                    // Followed by itself.
-                    Some(_) => Some(Token {
-                        variant: doubled,
-                        length: 2,
-                    }),
-
-                    // Single char token
-                    None => Some(Token {
-                        variant: alone,
-                        length: 1,
-                    }),
-                };
-            }
-        }
-
-        // Next deal with arrows
-        let arrows = [
-            ('-', TokenTy::Minus, TokenTy::MinusEq, TokenTy::SingleArrow),
-            ('=', TokenTy::Eq, TokenTy::EqEq, TokenTy::DoubleArrow),
-            ('~', TokenTy::Tilde, TokenTy::TildeEq, TokenTy::TildeArrow),
-        ];
-
-        for (c, alone, with_eq, as_arrow) in arrows {
-            if next == c {
-                return match self.iterator.next_if(|&(_, x)| x == '=' || x == '>') {
-                    Some((_, '=')) => Some(Token {
-                        variant: with_eq,
-                        length: 2,
-                    }),
-                    Some((_, '>')) => Some(Token {
-                        variant: as_arrow,
-                        length: 2,
-                    }),
-                    None => Some(Token {
-                        variant: alone,
-                        length: 1,
-                    }),
-                    _ => unreachable!(),
-                };
-            }
-        }
-
-        // Dot and range operators.
-        if next == '.' {
-            return match self.iterator.next_if(|&(_, x)| x == '.') {
-                None => Some(Token {
-                    variant: TokenTy::Dot,
-                    length: 1,
-                }),
-                Some(_) => match self.iterator.next_if(|&(_, x)| x == '=') {
-                    None => Some(Token {
-                        variant: TokenTy::Range,
-                        length: 2,
-                    }),
-                    Some(_) => Some(Token {
-                        variant: TokenTy::RangeInclusive,
-                        length: 3,
-                    }),
-                },
-            };
-        }
-
-        // Whitespace.
-        if next.is_whitespace() {
-            // Accumulate the number of bytes of whitespace consumed.
-            let mut acc = next.len_utf8();
-            // Use while-let instead of take-while to avoid consuming the whole iterator.
-            while let Some((_, consumed)) = self.iterator.next_if(|&(_, x)| x.is_whitespace()) {
-                acc += consumed.len_utf8();
-            }
-
-            return Some(Token {
-                variant: TokenTy::Whitespace,
-                length: acc,
-            });
-        }
-
-        // Identifiers
-        if unicode_ident::is_xid_start(next) || next == '_' {
-            // Accumulate the number of bytes consumed in the identifier.
-            let mut acc = next.len_utf8();
-            // Consume the rest of the identifier.
-            while let Some((_, consumed)) = self
-                .iterator
-                .next_if(|&(_, x)| unicode_ident::is_xid_continue(x))
-            {
-                acc += consumed.len_utf8();
-            }
-
-            // Get the matching source code to check for reserved words.
-            let range = start_index..start_index + acc;
-            let matching_source = &self.source[range];
-
-            // Match on reserved words.
-            let variant: TokenTy = match matching_source {
-                // Declaration keywords
-                "class" => TokenTy::Class,
-                "struct" => TokenTy::Struct,
-                "record" => TokenTy::Record,
-                "trait" => TokenTy::Trait,
-                "func" => TokenTy::Func,
-                "enum" => TokenTy::Enum,
-                "union" => TokenTy::Union,
-                "module" => TokenTy::Module,
-                "import" => TokenTy::Import,
-                "implement" => TokenTy::Implement,
-                "represent" => TokenTy::Represent,
-
-                // Visibility keywords
-                "public" => TokenTy::Public,
-                "package" => TokenTy::Package,
-                "private" => TokenTy::Private,
-
-                // Boolean literals
-                "true" => TokenTy::True,
-                "false" => TokenTy::False,
-
-                // Other keywords.
-                "constraint" => TokenTy::Constraint,
-                "constrain" => TokenTy::Constrain,
-                "relation" => TokenTy::Relation,
-                "unsafe" => TokenTy::Unsafe,
-                "unchecked" => TokenTy::Unchecked,
-                "lifetime" => TokenTy::Lifetime,
-                "outlives" => TokenTy::Outlives,
-                "Self" => TokenTy::SelfUpper,
-                "self" => TokenTy::SelfLower,
-                "type" => TokenTy::Type,
-                "const" => TokenTy::Const,
-                "var" => TokenTy::Var,
-                "if" => TokenTy::If,
-                "else" => TokenTy::Else,
-                "match" => TokenTy::Match,
-                "is" => TokenTy::Is,
-                "as" => TokenTy::As,
-                "on" => TokenTy::On,
-                "in" => TokenTy::In,
-                "not" => TokenTy::Not,
-                "dyn" => TokenTy::Dyn,
-                "try" => TokenTy::Try,
-
-                _ => TokenTy::Identifier,
-            };
-
-            return Some(Token {
-                variant,
-                length: acc,
-            });
-        }
-
-        // Numerical literals.
-        if next.is_ascii_digit() {
-            // Accumulate the number of bytes consumed in the numeric literal.
-            // All ascii is 1 byte wide so avoid the extra call to `.len_utf8()`.
-            let mut acc = 1;
-            // Track the radix
-            let mut radix = 10;
-
-            // Change the radix if necessary
-            if next == '0' {
-                if let Some((_, prefix)) = self
-                    .iterator
-                    .next_if(|(_, x)| ['x', 'o', 'b', 'X', 'B'].contains(x))
-                {
-                    acc += 1;
-
-                    radix = match prefix {
-                        'x' | 'X' => 16,
-                        'b' | 'B' => 2,
-                        'o' => 8,
-                        _ => unreachable!(),
-                    };
-                }
-            }
-
-            // Consume the rest of the integer literal.
-            while self
-                .iterator
-                .next_if(|&(_, x)| x.is_digit(radix) || x == '_')
-                .is_some()
-            {
-                // All accepted characters should be ascii, so we can just simplify `.len_utf8()` to 1.
-                acc += 1;
-            }
-
-            return Some(Token {
-                variant: TokenTy::IntegerLit,
-                length: acc,
-            });
-        }
-
-        // String and Character literals.
-        if ['\'', '"', '`'].contains(&next) {
-            // Accumulator to track number of bytes consumed.
-            let mut acc: usize = 1;
-            let mut is_terminated = false;
-
-            // Consume characters until the end of the literal
-            while let Some((_, consumed)) = self.iterator.next() {
-                acc += consumed.len_utf8();
-
-                match consumed {
-                    // Ending character is the same as starting character.
-                    // Escapes should all be handled, so don't worry about this being escaped.
-                    _ if consumed == next => {
-                        is_terminated = true;
-                        break;
-                    }
-
-                    // Escaped pattern.
-                    // Only worry about escaped terminators here, since all other escaped
-                    // patterns can be dealt with later.
-                    '\\' => {
-                        // Consume the escaped character regardless of what it is.
-                        // It will always be part of the quoted literal.
-                        if let Some((_, escaped)) = self.iterator.next() {
-                            acc += escaped.len_utf8();
-                        }
-                    }
-
-                    // Do nothing for non-escaped chars since the quoted literal continues
-                    // and we have already recorded the consumed bytes.
-                    _ => {}
-                }
-            }
-
-            // We have finished consuming the literal -- make sure we produce the
-            // right variant
-            return match next {
-                '\'' => Some(Token {
-                    variant: TokenTy::CharLit { is_terminated },
-                    length: acc,
-                }),
-                _ => Some(Token {
-                    variant: TokenTy::StringLit {
-                        is_format: next == '`',
-                        is_terminated,
-                    },
-                    length: acc,
-                }),
-            };
-        }
-
-        // Comments.
-        if next == '#' {
-            // Use accumulator to track number of bytes consumed.
-            let mut acc = 1;
-
-            // There are a few variants as follows.
-            // `#...` - single line comment
-            // `#*...*#` - multiline comment
-            // `##...` - single line inner doc comment
-            // `##!...` - single line outer doc comment
-            // `#**...*#` - multiline inner doc comment
-            // `#*!...*#` - multiline outer doc comment
-            // If a multiline comment is not terminated by the end of the file then just mark it as such in the
-            // produced token. A seperate token error handling layer will raise that outside of this function.
-
-            // Handle multiline comments
-            if self.iterator.next_if(|&(_, x)| x == '*').is_some() {
-                acc += 1;
-
-                // Check if it's a doc comment.
-                let comment_type = match self.iterator.next_if(|&(_, x)| x == '*' || x == '!') {
-                    Some((_, '*')) => {
-                        acc += 1;
-                        CommentTy::InnerDoc
-                    }
-
-                    Some((_, '!')) => {
-                        acc += 1;
-                        CommentTy::OuterDoc
-                    }
-
-                    None => CommentTy::Normal,
-
-                    _ => unreachable!(),
-                };
-
-                // Read the rest of the multi-line comment
-                while let Some((_, consumed)) = self.iterator.next() {
-                    acc += consumed.len_utf8();
-                    if consumed == '*' && matches!(self.iterator.peek(), Some((_, '#'))) {
-                        acc += 1;
-                        return Some(Token {
-                            variant: TokenTy::MultilineComment {
-                                comment_type,
-                                is_terminated: true,
-                            },
-                            length: acc,
-                        });
-                    }
-                }
-
-                // If we hit the end, the comment is not terminated.
-                return Some(Token {
-                    variant: TokenTy::MultilineComment {
-                        comment_type,
-                        is_terminated: false,
-                    },
-                    length: acc,
-                });
-            }
-
-            // Handle single line comment.
-            let mut comment_type = CommentTy::Normal;
-
-            // Check for inner doc comment
-            if self.iterator.next_if(|&(_, x)| x == '#').is_some() {
-                acc += 1;
-                comment_type = CommentTy::InnerDoc;
-
-                // Check for outer doc comment
-                if self.iterator.next_if(|&(_, x)| x == '!').is_some() {
-                    acc += 1;
-                    comment_type = CommentTy::OuterDoc;
-                }
-            }
-
-            // Read to end of line/file for rest of comment. Include line ending in consumed bytes.
-            for (_, consumed) in self.iterator.by_ref() {
-                acc += consumed.len_utf8();
-                if consumed == '\n' {
-                    break;
-                }
-            }
-
-            return Some(Token {
-                variant: TokenTy::SingleLineComment { comment_type },
-                length: acc,
-            });
-        }
-
-        // If we haven't matched by this point, return an unknown token.
-        Some(Token {
-            variant: TokenTy::Unknown,
-            length: next.len_utf8(),
-        })
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        // Get the size hint of the internal iterator.
-        let (inner_lower, upper) = self.iterator.size_hint();
-        // If there are any characters left, then there is at least one token remaining.
-        ((inner_lower > 0) as usize, upper)
-    }
-}
-
-impl<'a> FusedIterator for Lexer<'a> {}
-
-/// A token with an index in a piece of source code.
-#[derive(Copy, Clone, Debug)]
-pub struct IndexedToken {
-    /// The byte index into the source code that this token starts on.
-    pub index: usize,
-    /// The token itself.
-    pub token: Token,
-}
-
-/// An iterator over the tokens in the source code with byte indices attached.
-#[derive(Debug, Clone)]
-pub struct IndexedLexer<'src> {
-    /// The current index in source code -- the number of bytes currently consumed by the iterator.
-    pub index: usize,
-    /// The underlying lexer iterator.
-    lexer: Lexer<'src>,
-}
-
-impl<'src> IndexedLexer<'src> {
-    /// Construct a new indexed lexer.
-    pub fn new(source: &'src str) -> Self {
-        Self {
-            index: 0,
-            lexer: Lexer::new(source),
-        }
-    }
-}
-
-impl<'a> Iterator for IndexedLexer<'a> {
-    type Item = IndexedToken;
+/// Lexers can be considered token iterators.
+impl<'src> Iterator for Lexer<'src> {
+    type Item = Token<'src>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // Pull a token from the iterator.
-        let token = self.lexer.next()?;
-
-        // If available, add the current index to it to return.
-        let indexed_token = IndexedToken {
-            index: self.index,
-            token,
-        };
-
-        // Update the current index with the length of the token.
-        self.index += token.length;
-
-        // Return indexed token
-        Some(indexed_token)
+        self.next_token()
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.lexer.size_hint()
+        // Lexers should not return multiple tokens for a single byte.
+        (0, Some(self.bytes_remaining()))
     }
 }
 
-impl<'a> FusedIterator for IndexedLexer<'a> {}
+// Lexers are fused -- they cannot generate tokens infinitely.
+impl<'src> FusedIterator for Lexer<'src> {}

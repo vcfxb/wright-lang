@@ -1,10 +1,6 @@
 //! The Wright interactive REPL.
 
-use crate::{
-    filemap::{FileMap, FileName},
-    parser::lexer::Lexer,
-    WRIGHT_VERSION,
-};
+use crate::WRIGHT_VERSION;
 use derive_more::Display;
 use std::io::{self, BufRead, Write};
 
@@ -58,7 +54,7 @@ pub fn start() -> anyhow::Result<()> {
     let mut repl_mode = ReplMode::Tokens;
 
     // Make a file map to track input.
-    let mut code_map = FileMap::new();
+    // let mut code_map = FileMap::new();
 
     // Loop until this returns/exits.
     loop {
@@ -120,34 +116,6 @@ pub fn start() -> anyhow::Result<()> {
         write!(&mut output, "[{}]: << ", input_number)?;
         output.flush()?;
 
-        // Add line to the code map.
-        let file_handle = code_map.add(
-            FileName::Repl {
-                line_number: input_number,
-            },
-            line,
-        );
-        // Get a ref to the line we just added to the code map.
-        let line_ref: &str = code_map.get(file_handle).unwrap().source().as_str();
-
-        match repl_mode {
-            ReplMode::Ast => {
-                unimplemented!("AST mode is unimplemented.");
-            }
-
-            ReplMode::Tokens => {
-                // Make a new lexer and iterate through the tokens generated.
-                let lexer = Lexer::new(line_ref);
-
-                for token in lexer {
-                    write!(&mut output, "[{}]", token)?;
-                }
-
-                // Write newline.
-                writeln!(&mut output)?;
-            }
-
-            ReplMode::Eval => unimplemented!("Eval mode is unimplemented."),
-        }
+        unimplemented!("REPL needs to be re-worked a bit.");
     }
 }
