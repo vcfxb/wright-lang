@@ -1,5 +1,5 @@
 <!-- Put the icon at the top/in the title I guess... -->
-# <img src="./pages/static/assets/white_logo.png" height=35 /> The Wright Programming Language
+# <img src="./pages/static/assets/white_logo.png" height=50 /> The Wright Programming Language
 ## *A language that flies*
 
 
