@@ -1,4 +1,5 @@
-# The Wright Programming Language
+<!-- Put the icon at the top/in the title I guess... -->
+# <img src="./pages/static/assets/white_logo.png" height=35 /> The Wright Programming Language
 ## *A language that flies*
 
 
@@ -58,6 +59,9 @@ func main() {
     (1..=100).for_each(fizzbuzz);
 }
 ```
+
+
+
 
 ### The core goals of the language:
 * __Developer experience__ -- Every error message, syntax choice, and standard library function should be friendly and well
