@@ -1,8 +1,6 @@
 on:
   push:
     branches:
-      # https://stackoverflow.com/questions/64635032/github-actions-run-on-push-to-all-branches
-      - "**"
   pull_request:
     branches: 
       - "main"
