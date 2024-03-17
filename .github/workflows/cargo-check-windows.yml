@@ -18,7 +18,7 @@ jobs:
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
-          git clone --config core.autocrlf=false --branch release/17.x https://github.com/llvm/llvm-project.git
+          git clone --depth 1 --config core.autocrlf=false --branch release/17.x https://github.com/llvm/llvm-project.git
 
           mkdir build
           cd build
