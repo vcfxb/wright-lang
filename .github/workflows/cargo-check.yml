@@ -1,0 +1,53 @@
+# Combined cargo check with LLVM installation for the three major platforms.
+
+name: Cargo Check
+on: ["push", "pull_request"]
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        llvm-version: ["18.1.1"]
+
+    runs-on: ${{ matrix.os }}
+    
+    # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
+    steps:
+      - id: cache-llvm-src
+        name: Cache LLVM ${{ matrix.llvm-version }} source tree
+        uses: actions/cache@v4
+        with:
+          path: /llvm-src
+          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-src
+        
+      - id: checkout-llvm
+        if: steps.cache-llvm-src.outputs.cache-hit != 'true'
+        name: Checkout LLVM ${{ matrix.llvm-version }}
+        uses: actions/checkout@v4
+        with:
+          repository: llvm/llvm-project
+          ref: llvmorg-${{ matrix.llvm-version }}
+          path: /llvm-src
+          sparse-checkout: |
+            llvm
+      
+      # Cached LLVM installation. 
+      - id: cache-llvm-install
+        name: Cache LLVM ${{ matrix.llvm-version }} build/install output
+        uses: actions/cache@v4
+        with:
+          path: /llvm-build
+          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-install
+
+      - id: build-llvm
+        if: steps.cache-llvm-build.outputs.cache-hit != 'true'
+        name: Build LLVM ${{ matrix.llvm-version }}
+        working-directory: /llvm-src
+        run: |
+          cmake -S llvm -B build -G Ninja -DCMAKE_INSTALL_PREFIX=/llvm-install -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=lld
+
+
+
+
