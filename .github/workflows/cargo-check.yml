@@ -36,21 +36,32 @@ jobs:
           ref: llvmorg-${{ matrix.llvm-version }}
           path: ./llvm-src
       
-      # Cached LLVM installation. 
-      - id: cache-llvm-install
-        name: Cache LLVM ${{ matrix.llvm-version }} build/install output
+      # Cached LLVM build files.
+      - id: cache-llvm-build
+        name: Cache LLVM ${{ matrix.llvm-version }} build output
         uses: actions/cache@v4
         with:
-          path: ./llvm-install
-          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-install
+          path: ./llvm-src/build
+          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-build
 
       - id: build-llvm
         if: steps.cache-llvm-build.outputs.cache-hit != 'true'
         name: Build LLVM ${{ matrix.llvm-version }}
         working-directory: ./llvm-src
+        # Use lld if on windows. It's not available otherwise it seems. 
         run: |
-          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=lld
+          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release ${{ matrix.os == 'windows-latest' && '-DLLVM_USE_LINKER=lld' }}
+      
+      # Cached LLVM installation.
+      - id: cache-llvm-install
+        name: Cache LLVM ${{ matrix.llvm-version }} installation output
+        uses: actions/cache@v4
+        with:
+          path: ./llvm-install
+          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-install
 
-
-
-
+      - id: install-llvm
+        name: Install LLVM ${{ matrix.llvm-version }}
+        working-directory: ./llvm-src
+        run: |
+          cmake --build build --target llvm
