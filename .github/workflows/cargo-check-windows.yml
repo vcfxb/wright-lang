@@ -1,0 +1,35 @@
+name: Cargo Check (Windows)
+
+on: ["push", "pull_request"]
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache LLVM installation
+        id: cache-llvm
+        uses: actions/cache@v3
+        with:
+          path: C:\LLVM
+          key: llvm-17
+      - name: Build LLVM
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+          git clone --config core.autocrlf=false --branch release/17.x https://github.com/llvm/llvm-project.git
+
+          mkdir build
+          cd build
+
+          cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="C:\LLVM" ../llvm-project/llvm
+          cmake --build . --config Release
+
+          if not exist C:\LLVM mkdir C:\LLVM
+          cmake --build . --target install --config Release
+        
+      - name: Check LLVM version
+        run: llvm-config --version
+      - name: Check rust code
+        run: cargo check
