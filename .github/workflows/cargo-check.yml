@@ -19,7 +19,7 @@ jobs:
         name: Cache LLVM ${{ matrix.llvm-version }} source tree
         uses: actions/cache@v4
         with:
-          path: /llvm-src
+          path: ./llvm-src
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-src
         
       - id: checkout-llvm
@@ -29,7 +29,7 @@ jobs:
         with:
           repository: llvm/llvm-project
           ref: llvmorg-${{ matrix.llvm-version }}
-          path: /llvm-src
+          path: ./llvm-src
           sparse-checkout: |
             llvm
       
@@ -38,15 +38,15 @@ jobs:
         name: Cache LLVM ${{ matrix.llvm-version }} build/install output
         uses: actions/cache@v4
         with:
-          path: /llvm-build
+          path: ./llvm-install
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-install
 
       - id: build-llvm
         if: steps.cache-llvm-build.outputs.cache-hit != 'true'
         name: Build LLVM ${{ matrix.llvm-version }}
-        working-directory: /llvm-src
+        working-directory: ./llvm-src
         run: |
-          cmake -S llvm -B build -G Ninja -DCMAKE_INSTALL_PREFIX=/llvm-install -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=lld
+          cmake -S llvm -B build -G Ninja -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_LINKER=lld
 
 
 
