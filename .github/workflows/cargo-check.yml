@@ -6,7 +6,13 @@ jobs:
   check:
     strategy: 
       matrix:
-        os: ["windows-latest", "ubuntu-latest"]
+        include: 
+          - os: windows-latest
+            llvm-dir: C:/LLVM
+          - os: ubuntu-latest
+            llvm-dir: ./llvm
+          # macos does not support LLVM 17.
+
     runs-on: ${{ matrix.os }}
     env:
       working-directory: ./wright
@@ -16,19 +22,16 @@ jobs:
         id: cache-llvm
         uses: actions/cache@v3
         with:
-          path: |
-            C:/Program Files/LLVM
-            ./llvm
+          path: ${{ matrix.llvm_dir }}
           key: llvm-17
       - name: Install LLVM
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "17"
+          directory: ${{ matrix.llvm_dir }}
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
       - name: Check LLVM version
         run: llvm-config --version
       - name: Check rust code
-        run: cargo check 
-        env:
-          LLVM_SYS_170_PREFIX: ${{ env.LLVM_PATH }}
+        run: cargo check
         working-directory: ${{env.working-directory}}
