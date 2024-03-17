@@ -64,4 +64,4 @@ jobs:
         name: Install LLVM ${{ matrix.llvm-version }}
         working-directory: ./llvm-src
         run: |
-          cmake --build build
+          cmake --build build --target install
