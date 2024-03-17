@@ -9,7 +9,7 @@ jobs:
         include: 
           - os: windows-latest
             # https://stackoverflow.com/questions/77743610/inkwell-llvm-sys-not-able-to-compile-on-windows
-            llvm-dir: C:/LLVM
+            llvm-dir: C:\LLVM
           - os: ubuntu-latest
             llvm-dir: ./llvm
           # macos does not support LLVM 17.
@@ -23,16 +23,20 @@ jobs:
         id: cache-llvm
         uses: actions/cache@v3
         with:
-          path: ${{ matrix.llvm_dir }}
+          path: ${{ matrix.llvm-dir }}
           key: llvm-17
       - name: Install LLVM
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "17"
-          directory: ${{ matrix.llvm_dir }}
+          directory: ${{ matrix.llvm-dir }}
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
-      - name: Check LLVM version
-        run: ${{ env.LLVM_PATH }}/bin/llvm-config.exe --version
+      - name: Check LLVM version (Windows)
+        run: ${{ env.LLVM_PATH }}\bin\llvm-config.exe --version
+        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Check LLVM version (Ubuntu)
+        run: llvm-config --version
+        if: ${{ matrix.os == 'ubuntu-latest' }}
       - name: Check rust code
         run: cargo check
         working-directory: ${{env.working-directory}}
