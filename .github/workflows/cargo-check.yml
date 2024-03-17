@@ -8,6 +8,7 @@ jobs:
       matrix:
         include: 
           - os: windows-latest
+            # https://stackoverflow.com/questions/77743610/inkwell-llvm-sys-not-able-to-compile-on-windows
             llvm-dir: C:/LLVM
           - os: ubuntu-latest
             llvm-dir: ./llvm
@@ -31,7 +32,7 @@ jobs:
           directory: ${{ matrix.llvm_dir }}
           cached: ${{ steps.cache-llvm.outputs.cache-hit }}
       - name: Check LLVM version
-        run: llvm-config --version
+        run: ${{ env.LLVM_PATH }}/bin/llvm-config.exe --version
       - name: Check rust code
         run: cargo check
         working-directory: ${{env.working-directory}}
