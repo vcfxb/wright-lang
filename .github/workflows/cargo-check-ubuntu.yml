@@ -1,0 +1,28 @@
+name: Cargo Check (Ubuntu)
+
+on: ["push", "pull_request"]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./wright
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache LLVM installation
+        id: cache-llvm
+        uses: actions/cache@v3
+        with:
+          path: ./llvm
+          key: llvm-17
+      - name: Install LLVM
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "17"
+          directory: ./llvm
+          cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+      - name: Check LLVM version
+        run: llvm-config --version
+      - name: Check rust code
+        run: cargo check
+        working-directory: ${{env.working-directory}}
