@@ -50,7 +50,7 @@ jobs:
         working-directory: ./llvm-src
         # Use lld if on windows. It's not available otherwise it seems. 
         run: |
-          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release ${{ matrix.os == 'windows-latest' && '-DLLVM_USE_LINKER=lld' }}
+          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release ${{ matrix.os == 'windows-latest' && '-DLLVM_USE_LINKER=lld' || ''}}
       
       # Cached LLVM installation.
       - id: cache-llvm-install
@@ -64,4 +64,4 @@ jobs:
         name: Install LLVM ${{ matrix.llvm-version }}
         working-directory: ./llvm-src
         run: |
-          cmake --build build --target llvm
+          cmake --build build
