@@ -36,6 +36,10 @@ jobs:
           ref: llvmorg-${{ matrix.llvm-version }}
           path: ./llvm-src
       
+      - name: Install Ninja on Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: apt update && apt install -y ninja-build 
+
       # Cached LLVM installation. 
       - id: cache-llvm-install
         name: Cache LLVM ${{ matrix.llvm-version }} build/install output
