@@ -30,8 +30,6 @@ jobs:
           repository: llvm/llvm-project
           ref: llvmorg-${{ matrix.llvm-version }}
           path: ./llvm-src
-          sparse-checkout: |
-            llvm
       
       # Cached LLVM installation. 
       - id: cache-llvm-install
