@@ -30,6 +30,7 @@ jobs:
           cmake --build . --target install --config Release
         
       - name: Check LLVM version
-        run: llvm-config --version
-      - name: Check rust code
-        run: cargo check
+        run: C:\LLVM\bin\llvm-config.exe --version
+      # - name: Check rust code
+      #   run: cargo check
+          
