@@ -20,16 +20,27 @@ jobs:
     
     # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
     steps:
+      - name: Install LLVM (Ubuntu only).
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        # See: https://apt.llvm.org/
+        # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh ${{ matrix.llvm-version }}
+          sudo apt install libpolly-17-dev libz-dev
+
       - id: cache-llvm-src
-        name: Cache LLVM ${{ matrix.llvm-version }} source tree
+        name: Cache LLVM ${{ matrix.llvm-version }} source tree (Mac & Windows)
+        if: ${{ matrix.os != 'ubuntu-latest' }}
         uses: actions/cache@v4
         with:
           path: ./llvm-src
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-src
         
       - id: checkout-llvm
-        if: steps.cache-llvm-src.outputs.cache-hit != 'true'
-        name: Checkout LLVM ${{ matrix.llvm-version }}
+        if:  ${{ matrix.os != 'ubuntu-latest' }} && steps.cache-llvm-src.outputs.cache-hit != 'true'
+        name: Checkout LLVM ${{ matrix.llvm-version }} (Mac & Windows)
         uses: actions/checkout@v4
         with:
           repository: llvm/llvm-project
@@ -38,15 +49,16 @@ jobs:
       
       # Cached LLVM build files.
       - id: cache-llvm-build
-        name: Cache LLVM ${{ matrix.llvm-version }} build output
+        name: Cache LLVM ${{ matrix.llvm-version }} build output (Mac & Windows)
+        if:  ${{ matrix.os != 'ubuntu-latest' }}
         uses: actions/cache@v4
         with:
           path: ./llvm-src/build
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-build
 
       - id: build-llvm
-        if: steps.cache-llvm-build.outputs.cache-hit != 'true'
-        name: Build LLVM ${{ matrix.llvm-version }}
+        if:  ${{ matrix.os != 'ubuntu-latest' }} && steps.cache-llvm-build.outputs.cache-hit != 'true'
+        name: Build LLVM ${{ matrix.llvm-version }} (Mac & Windows)
         working-directory: ./llvm-src
         # Use lld if on windows. It's not available otherwise it seems. 
         run: |
@@ -54,14 +66,25 @@ jobs:
       
       # Cached LLVM installation.
       - id: cache-llvm-install
-        name: Cache LLVM ${{ matrix.llvm-version }} installation output
+        name: Cache LLVM ${{ matrix.llvm-version }} installation output (Mac & Windows)
+        if:  ${{ matrix.os != 'ubuntu-latest' }}
         uses: actions/cache@v4
         with:
           path: ./llvm-install
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-version }}-install
 
       - id: install-llvm
-        name: Install LLVM ${{ matrix.llvm-version }}
+        name: Install LLVM ${{ matrix.llvm-version }} (Mac and Windows)
+        if:  ${{ matrix.os != 'ubuntu-latest' }}
         working-directory: ./llvm-src
         run: |
           cmake --build build --target install
+      
+      - name: Get the LLVM version
+        run: llvm-config --version
+      
+      - name: Checkout Wright source
+        uses: actions/checkout@v4
+
+      - name: Run cargo check
+        run: cargo check
