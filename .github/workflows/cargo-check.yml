@@ -28,7 +28,6 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo apt update
           sudo ./llvm.sh ${{ matrix.llvm-major-version }}
           sudo apt install libpolly-17-dev libz-dev
 
