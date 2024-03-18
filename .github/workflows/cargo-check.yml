@@ -40,7 +40,7 @@ jobs:
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-major-version }}-src
         
       - id: checkout-llvm
-        if:  ${{ matrix.os != 'ubuntu-latest' }} && steps.cache-llvm-src.outputs.cache-hit != 'true'
+        if:  ${{ matrix.os != 'ubuntu-latest' && steps.cache-llvm-src.outputs.cache-hit != 'true' }}
         name: Checkout LLVM ${{ matrix.llvm-major-version }} (Mac & Windows)
         uses: actions/checkout@v4
         with:
@@ -58,7 +58,7 @@ jobs:
           key: ${{ matrix.os }}-llvm-${{ matrix.llvm-major-version }}-build
 
       - id: build-llvm
-        if:  ${{ matrix.os != 'ubuntu-latest' }} && steps.cache-llvm-build.outputs.cache-hit != 'true'
+        if:  ${{ matrix.os != 'ubuntu-latest' && steps.cache-llvm-build.outputs.cache-hit != 'true' }}
         name: Build LLVM ${{ matrix.llvm-major-version }} (Mac & Windows)
         working-directory: ./llvm-src
         # Use lld if on windows. It's not available otherwise it seems. 
