@@ -79,7 +79,7 @@ version = "0.9.3"
 # Unsafe bindings to LLVM 
 # See https://llvm.org/.
 [dependencies.llvm-sys]
-version = "170"
+version = "180"
 features = ["strict-versioning", "force-static"]
 
 # Safe bindings to llvm
