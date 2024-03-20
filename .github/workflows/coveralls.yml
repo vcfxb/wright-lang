@@ -9,7 +9,7 @@ concurrency:
 
 jobs:
   coverage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install LLVM
@@ -18,8 +18,8 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 17
-          sudo apt install libpolly-17-dev libz-dev
+          sudo ./llvm.sh 18
+          sudo apt install libpolly-18-dev libz-dev
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
