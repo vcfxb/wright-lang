@@ -14,13 +14,29 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        llvm-major-version: ["18"]
 
     runs-on: ${{ matrix.os }}
     
     # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
     steps:
-      - name: Install LLVM (Ubuntu only).
+      - id: cache-windows-llvm-install
+        name: Cache Windows LLVM 18 installation
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/cache@v4
+        with:
+          path: ./clang+llvm-18.1.1-x86_64-pc-windows-msvc
+          key: windows-llvm-8-1-1-install
+
+      - name: Install LLVM (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' && steps.cache-windows-llvm-install.outputs.cache-hit != 'true' }} 
+        shell: pwsh
+        # Get the LLVM build off github and add to path. 
+        run: |
+          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.1/clang+llvm-18.1.1-x86_64-pc-windows-msvc.tar.xz
+          tar -xzvf "clang+llvm-18.1.1-x86_64-pc-windows-msvc.tar.xz"
+          $Env:Path += ";./clang+llvm-18.1.1-x86_64-pc-windows-msvc/bin"
+
+      - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         # See: https://apt.llvm.org/
         # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
@@ -28,55 +44,53 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh ${{ matrix.llvm-major-version }}
-          sudo apt install libpolly-${{ matrix.llvm-major-version }}-dev libz-dev
+          sudo ./llvm.sh 18
+          sudo apt install libpolly-18-dev libz-dev
 
-      - id: cache-llvm-src
-        name: Cache LLVM ${{ matrix.llvm-major-version }} source tree (Mac & Windows)
-        if: ${{ matrix.os != 'ubuntu-latest' }}
+      - id: mac-cache-llvm-src
+        name: Cache LLVM 18 source tree (Mac Only)
+        if: ${{ matrix.os == 'macos-latest' }}
         uses: actions/cache@v4
         with:
           path: ./llvm-src
-          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-major-version }}-src
+          key: ${{ matrix.os }}-llvm-18-src
         
       - id: checkout-llvm
-        if:  ${{ matrix.os != 'ubuntu-latest' && steps.cache-llvm-src.outputs.cache-hit != 'true' }}
-        name: Checkout LLVM ${{ matrix.llvm-major-version }} (Mac & Windows)
+        if:  ${{ matrix.os == 'macos-latest' && steps.mac-cache-llvm-src.outputs.cache-hit != 'true' }}
+        name: Checkout LLVM 18 (Mac Only)
         uses: actions/checkout@v4
         with:
           repository: llvm/llvm-project
-          ref: release/${{ matrix.llvm-major-version }}.x
+          ref: release/18.x
           path: ./llvm-src
       
       # Cached LLVM build files.
-      - id: cache-llvm-build
-        name: Cache LLVM ${{ matrix.llvm-major-version }} build output (Mac & Windows)
-        if:  ${{ matrix.os != 'ubuntu-latest' }}
+      - id: mac-cache-llvm-config
+        name: Cache LLVM 18 build output (Mac Only)
+        if:  ${{ matrix.os == 'macos-latest' }}
         uses: actions/cache@v4
         with:
           path: ./llvm-src/build
-          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-major-version }}-build
+          key: ${{ matrix.os }}-llvm-18-build
 
-      - id: build-llvm
-        if:  ${{ matrix.os != 'ubuntu-latest' && steps.cache-llvm-build.outputs.cache-hit != 'true' }}
-        name: Build LLVM ${{ matrix.llvm-major-version }} (Mac & Windows)
+      - name: Configure LLVM 18 (Mac Only)
+        if:  ${{ matrix.os == 'macos-latest' && steps.mac-cache-llvm-config.outputs.cache-hit != 'true' }}
         working-directory: ./llvm-src
         # Use lld if on windows. It's not available otherwise it seems. 
         run: |
-          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release ${{ matrix.os == 'windows-latest' && '-DLLVM_USE_LINKER=lld' || ''}}
+          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release
       
       # Cached LLVM installation.
-      - id: cache-llvm-install
-        name: Cache LLVM ${{ matrix.llvm-major-version }} installation output (Mac & Windows)
-        if:  ${{ matrix.os != 'ubuntu-latest' }}
+      - id: mac-cache-llvm-install
+        name: Cache LLVM 18 installation (Mac Only)
+        if:  ${{ matrix.os == 'macos-latest' }}
         uses: actions/cache@v4
         with:
           path: ./llvm-install
-          key: ${{ matrix.os }}-llvm-${{ matrix.llvm-major-version }}-install
+          key: ${{ matrix.os }}-llvm-18-install
 
-      - id: install-llvm
-        name: Install LLVM ${{ matrix.llvm-major-version }} (Mac and Windows)
-        if:  ${{ matrix.os != 'ubuntu-latest' }}
+      - name: Install LLVM 18 (Mac Only)
+        if:  ${{ matrix.os != 'ubuntu-latest' && steps.mac-cache-llvm-install.outputs.cache-hit != 'true'}}
         working-directory: ./llvm-src
         run: |
           cmake --build build --target install
