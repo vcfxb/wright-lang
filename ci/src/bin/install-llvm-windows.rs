@@ -75,5 +75,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         format!("{};{}", current_path_var, fq_install_dir.display()),
     );
 
+    println!("Updating LLVM_SYS_180_PREFIX var");
+    env::set_var("LLVM_SYS_180_PREFIX", fq_install_dir.parent().unwrap());
+
     Ok(())
 }
