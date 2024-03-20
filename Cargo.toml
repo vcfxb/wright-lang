@@ -1,5 +1,5 @@
 [workspace]
-members = ["wright"]
+members = [ "ci","wright"]
 # Use the Rust 2021 resolver. 
 resolver = "2"
 

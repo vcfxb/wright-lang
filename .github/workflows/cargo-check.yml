@@ -14,26 +14,36 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        include: 
+          - os: windows-latest
+            llvm-install-dir: llvm-18-install
 
     runs-on: ${{ matrix.os }}
     
     # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
     steps:
+      - name: Checkout Wright source
+        uses: actions/checkout@v4
+      
+      # Use stable Rust toolchain 
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      
       - id: cache-windows-llvm-install
         name: Cache Windows LLVM 18 installation
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/cache@v4
         with:
-          path: ./llvm-18
+          path: ./${{ matrix.llvm-install-dir }}
           key: windows-llvm-8-1-1-install
 
       - name: Install LLVM (Windows Only)
-        uses: engineerd/configurator@v0.0.10
-        if: ${{ matrix.os == 'windows-latest' && steps.cache-windows-llvm-install.outputs.cache-hit != 'true' }} 
-        with: 
-          name: llvm-18
-          url: https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.1/clang+llvm-18.1.1-x86_64-pc-windows-msvc.tar.xz
-          pathInArchive: bin/
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --release --bin install-llvm-windows -- ../${{ matrix.llvm-install-dir }}
+        working-directory: ./ci
 
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -98,8 +108,7 @@ jobs:
         run: llvm-config --version
         continue-on-error: true
       
-      - name: Checkout Wright source
-        uses: actions/checkout@v4
-
-      - name: Run cargo check
-        run: cargo check
+      # Cargo check
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check

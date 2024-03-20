@@ -1,0 +1,30 @@
+[package]
+name = "ci"
+version = "0.1.0"
+description = "Tools for building/testing wright on GitHub CI."
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# BINARIES
+[[bin]]
+name = "install-llvm-windows"
+test = false
+doc = false
+doctest = false
+
+[dependencies]
+indicatif = "0.17.8"
+# Web requests
+reqwest = { version = "0.11", features = ["json", "gzip", "brotli", "stream"] }
+# Tar archive 
+tar = "0.4.40"
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+# Url manipulation.
+url = "2.5.0"
+# Xz compression
+xz2 = { version = "0.1.7", features = ["tokio"] }
+
