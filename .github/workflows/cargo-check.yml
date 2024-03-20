@@ -24,17 +24,16 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/cache@v4
         with:
-          path: ./clang+llvm-18.1.1-x86_64-pc-windows-msvc
+          path: ./llvm-18
           key: windows-llvm-8-1-1-install
 
       - name: Install LLVM (Windows Only)
+        uses: engineerd/configurator@v0.0.10
         if: ${{ matrix.os == 'windows-latest' && steps.cache-windows-llvm-install.outputs.cache-hit != 'true' }} 
-        shell: pwsh
-        # Get the LLVM build off github and add to path. 
-        run: |
-          wget https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.1/clang+llvm-18.1.1-x86_64-pc-windows-msvc.tar.xz
-          tar -xzvf "clang+llvm-18.1.1-x86_64-pc-windows-msvc.tar.xz"
-          $Env:Path += ";./clang+llvm-18.1.1-x86_64-pc-windows-msvc/bin"
+        with: 
+          name: llvm-18
+          url: https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.1/clang+llvm-18.1.1-x86_64-pc-windows-msvc.tar.xz
+          pathInArchive: bin/
 
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
