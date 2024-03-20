@@ -97,7 +97,7 @@ jobs:
           key: ${{ matrix.os }}-llvm-18-install
 
       - name: Install LLVM 18 (Mac Only)
-        if:  ${{ matrix.os != 'ubuntu-latest' && steps.mac-cache-llvm-install.outputs.cache-hit != 'true'}}
+        if:  ${{ matrix.os == 'macos-latest' && steps.mac-cache-llvm-install.outputs.cache-hit != 'true'}}
         working-directory: ./llvm-src
         run: |
           cmake --build build --target install
