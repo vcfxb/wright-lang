@@ -70,7 +70,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Updating PATH var");
     let current_path_var = env::var("PATH")?;
     let fq_install_dir = PathBuf::from(dest_dir).canonicalize()?.join("bin");
-    env::set_var("PATH", format!("{};{}", current_path_var, fq_install_dir.display()));
+    env::set_var(
+        "PATH",
+        format!("{};{}", current_path_var, fq_install_dir.display()),
+    );
 
     Ok(())
 }
