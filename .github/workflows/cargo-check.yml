@@ -39,10 +39,7 @@ jobs:
           key: windows-llvm-8-1-1-install
 
       - name: Install LLVM (Windows Only)
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: --release --bin install-llvm-windows -- ../${{ matrix.llvm-install-dir }}
+        run: cargo run --release --bin install-llvm-windows -- ../${{ matrix.llvm-install-dir }}
         working-directory: ./ci
 
       - name: Install LLVM (Ubuntu Only)
