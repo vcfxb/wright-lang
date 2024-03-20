@@ -80,7 +80,7 @@ version = "0.9.3"
 # See https://llvm.org/.
 [dependencies.llvm-sys]
 version = "180"
-features = ["strict-versioning", "force-static"]
+features = ["force-static"]
 
 # Safe bindings to llvm
 [dependencies.inkwell]
