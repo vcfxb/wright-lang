@@ -39,6 +39,7 @@ jobs:
           key: windows-llvm-8-1-1-install
 
       - name: Install LLVM (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' && steps.cache-windows-llvm-install.outputs.cache-hit != 'true' }}
         run: cargo run --release --bin install-llvm-windows -- ../${{ matrix.llvm-install-dir }}
         working-directory: ./ci
 
