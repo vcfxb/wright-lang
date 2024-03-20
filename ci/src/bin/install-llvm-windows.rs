@@ -1,6 +1,6 @@
 //! Script that gets called by CI to install LLVM on windows.
 
-use std::{fs, io, time::Duration};
+use std::{env, fs, io, path::PathBuf, time::Duration};
 
 use indicatif::{HumanBytes, ProgressBar};
 use tar::Archive;
@@ -64,7 +64,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Renamining {rename_folder} to {dest_dir}");
 
-    fs::rename(rename_folder, dest_dir)?;
+    fs::rename(rename_folder, &dest_dir)?;
+
+    // Append the install to path.
+    println!("Updating PATH var");
+    let current_path_var = env::var("PATH")?;
+    let fq_install_dir = PathBuf::from(dest_dir).canonicalize()?.join("bin");
+    env::set_var("PATH", format!("{};{}", current_path_var, fq_install_dir.display()));
 
     Ok(())
 }
