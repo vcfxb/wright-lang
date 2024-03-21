@@ -1,5 +1,6 @@
-name: Cargo Test 
+# Combined cargo test with LLVM installation for the three major platforms.
 
+name: Cargo Check
 on: ["push", "pull_request"]
 
 # Cancel in-progress runs for previous commits if there are any that haven't completed yet.
@@ -8,15 +9,81 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  setup-llvm:
-    # Call reusable LLVM-setup workflow
-    uses: ./.github/workflows/setup-llvm.yml
-  
-  test: 
-    needs: ['setup-llvm']
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        shell: [bash]
+        include: 
+          - os: windows-latest
+            shell: 'msys2 {0}'
+          - os: macos-latest
+            llvm-install-dir: /usr/local/opt/llvm
+            # Temporarily allow mac to fail until the homebrew package for llvm is updated.
+            allow-failure: true
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow-failure || false }}
+    
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Wright source
+        uses: actions/checkout@v4
+      
+      # Use stable Rust toolchain 
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
-      - name: Run tests
+      # Use MSYS2 on windows to install and check LLVM
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.os == 'windows-latest' }}
+        with: 
+          update: true
+          # Use special mingw LLVM package. 
+          # Also install the current stable rust
+          install: >-
+            mingw-w64-x86_64-llvm
+            mingw-w64-x86_64-rust
+
+      - name: Install LLVM (Ubuntu Only)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        # See: https://apt.llvm.org/
+        # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 18
+          sudo apt install libpolly-18-dev libz-dev
+
+      - name: Install LLVM 18 (Mac Only)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: brew install llvm@18
+      
+      - name: Get the LLVM version (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: llvm-config --version
+
+      - name: Get the LLVM version (Mac Only)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
+        
+      - name: Get the LLVM version (Ubuntu Only)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: llvm-config --version
+        # For some reason, this seems to error even when the build checks successfully. Leaving it in for now. 
+        continue-on-error: true
+
+      - name: Run cargo check (Mac Only)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: cargo check
+        env:
+          LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
+        
+      - name: Run cargo test (Ubuntu & Windows)
+        if: ${{ matrix.os != 'macos-latest' }}
         run: cargo test
