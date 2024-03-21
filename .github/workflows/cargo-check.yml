@@ -111,4 +111,4 @@ jobs:
       - name: Run cargo check
         run: cargo check
         env:
-          LLVM_SYS_180_PREFIX: ${{ matrix.os == 'windows-latest' && matrix.llvm-install-dir || '' }}
+          LLVM_SYS_180_PREFIX: ${{ matrix.os == 'windows-latest' && format('./{0}/', matrix.llvm-install-dir) || '' }}
