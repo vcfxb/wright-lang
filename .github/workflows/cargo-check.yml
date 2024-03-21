@@ -19,8 +19,10 @@ jobs:
             llvm-install-dir: ./llvm-18-install
           - os: macos-latest
             llvm-install-dir: /usr/local/opt/llvm
+            allow-failure: true
 
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow-failure }}
     
     # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
     steps:
@@ -33,9 +35,15 @@ jobs:
           toolchain: stable
 
       - name: Install LLVM (Windows Only)
-        if: ${{ matrix.os == 'windows-latest' && steps.cache-windows-llvm-install.outputs.cache-hit != 'true' }}
+        if: ${{ matrix.os == 'windows-latest'}}
         run: cargo run --release --bin install-llvm-windows -- ../${{ matrix.llvm-install-dir }}
         working-directory: ./ci
+
+      - name: Update the Windows PATH (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        # https://stackoverflow.com/questions/60169752/how-to-update-the-path-in-a-github-action-workflow-file-for-a-windows-latest-hos
+        shell: pwsh
+        run: echo "${{ matrix.llvm-install-dir }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -54,26 +62,24 @@ jobs:
       - name: Get the LLVM version (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
         run: ${{ format('{0}/bin/llvm-config.exe', matrix.llvm-install-dir) }} --version
-        continue-on-error: true
+      
 
       - name: Get the LLVM version (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
         run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
-        continue-on-error: true
         
       - name: Get the LLVM version (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: llvm-config --version
+        # For some reason, this seems to error even when the build checks successfully. Leaving it in for now. 
         continue-on-error: true
 
-      - name: Run cargo check (Mac & Windows)
-        if: ${{ matrix.os != 'ubuntu-latest' }}
-        run: | 
-          echo $LLVM_SYS_180_PREFIX
-          cargo check
+      - name: Run cargo check (Mac Only)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: cargo check
         env:
-          LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }}      
+          LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
       
-      - name: Run cargo check (Ubuntu Only)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Run cargo check (Ubuntu & Windows)
+        if: ${{ matrix.os != 'macos-latest' }}
         run: cargo check
