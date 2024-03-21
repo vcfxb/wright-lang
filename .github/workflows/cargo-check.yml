@@ -54,53 +54,9 @@ jobs:
           sudo ./llvm.sh 18
           sudo apt install libpolly-18-dev libz-dev
 
-      - id: mac-cache-llvm-src
-        name: Cache LLVM 18 source tree (Mac Only)
+      - name: Install LLVM 18 (Mac only)
         if: ${{ matrix.os == 'macos-latest' }}
-        uses: actions/cache@v4
-        with:
-          path: ./llvm-src
-          key: ${{ matrix.os }}-llvm-18-src
-        
-      - id: checkout-llvm
-        if:  ${{ matrix.os == 'macos-latest' && steps.mac-cache-llvm-src.outputs.cache-hit != 'true' }}
-        name: Checkout LLVM 18 (Mac Only)
-        uses: actions/checkout@v4
-        with:
-          repository: llvm/llvm-project
-          ref: release/18.x
-          path: ./llvm-src
-      
-      # Cached LLVM build files.
-      - id: mac-cache-llvm-config
-        name: Cache LLVM 18 build output (Mac Only)
-        if:  ${{ matrix.os == 'macos-latest' }}
-        uses: actions/cache@v4
-        with:
-          path: ./llvm-src/build
-          key: ${{ matrix.os }}-llvm-18-build
-
-      - name: Configure LLVM 18 (Mac Only)
-        if:  ${{ matrix.os == 'macos-latest' && steps.mac-cache-llvm-config.outputs.cache-hit != 'true' }}
-        working-directory: ./llvm-src
-        # Use lld if on windows. It's not available otherwise it seems. 
-        run: |
-          cmake -S llvm -B build -DCMAKE_INSTALL_PREFIX=../llvm-install -DCMAKE_BUILD_TYPE=Release
-      
-      # Cached LLVM installation.
-      - id: mac-cache-llvm-install
-        name: Cache LLVM 18 installation (Mac Only)
-        if:  ${{ matrix.os == 'macos-latest' }}
-        uses: actions/cache@v4
-        with:
-          path: ./llvm-install
-          key: ${{ matrix.os }}-llvm-18-install
-
-      - name: Install LLVM 18 (Mac Only)
-        if:  ${{ matrix.os == 'macos-latest' && steps.mac-cache-llvm-install.outputs.cache-hit != 'true'}}
-        working-directory: ./llvm-src
-        run: |
-          cmake --build build --target install
+        run: brew install llvm
       
       - name: Get the LLVM version
         run: |
