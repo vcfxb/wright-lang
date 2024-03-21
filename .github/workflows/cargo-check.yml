@@ -16,7 +16,9 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include: 
           - os: windows-latest
-            llvm-install-dir: llvm-18-install
+            llvm-install-dir: ./llvm-18-install
+          - os: macos-latest
+            llvm-install-dir: /usr/local/opt/llvm
 
     runs-on: ${{ matrix.os }}
     
@@ -29,14 +31,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      
-      - id: cache-windows-llvm-install
-        name: Cache Windows LLVM 18 installation
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/cache@v4
-        with:
-          path: ./${{ matrix.llvm-install-dir }}
-          key: windows-llvm-8-1-1-install
 
       - name: Install LLVM (Windows Only)
         if: ${{ matrix.os == 'windows-latest' && steps.cache-windows-llvm-install.outputs.cache-hit != 'true' }}
@@ -47,24 +41,37 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         # See: https://apt.llvm.org/
         # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
-        # Add sudo apt update to make sure stuff resolves correctly
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 18
           sudo apt install libpolly-18-dev libz-dev
 
-      - name: Install LLVM 18 (Mac only)
+      - name: Install LLVM 18 (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
         run: brew install llvm
       
-      - name: Get the LLVM version
-        run: |
-          ${{ matrix.os == 'windows-latest' && format('./{0}/bin/llvm-config.exe', matrix.llvm-install-dir)  || 'llvm-config'}} --version
+      - name: Get the LLVM version (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: ${{ format('{0}/bin/llvm-config.exe', matrix.llvm-install-dir) }} --version
         continue-on-error: true
-      
-      # Cargo check
-      - name: Run cargo check
+
+      - name: Get the LLVM version (Mac Only)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
+        continue-on-error: true
+        
+      - name: Get the LLVM version (Ubuntu Only)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: llvm-config --version
+        continue-on-error: true
+
+      - name: Run cargo check (Mac & Windows)
+        if: ${{ matrix.os != 'ubuntu-latest' }}
         run: cargo check
         env:
-          LLVM_SYS_180_PREFIX: ${{ matrix.os == 'windows-latest' && format('./{0}/', matrix.llvm-install-dir) || '' }}
+          LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }}      
+      
+      - name: Run cargo check (Ubuntu Only)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: cargo check
