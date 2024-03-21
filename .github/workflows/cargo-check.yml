@@ -23,7 +23,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow-failure || false }}
     
-    # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
     steps:
       - name: Checkout Wright source
         uses: actions/checkout@v4
