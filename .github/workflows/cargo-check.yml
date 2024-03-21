@@ -22,7 +22,7 @@ jobs:
             allow-failure: true
 
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.allow-failure }}
+    continue-on-error: ${{ matrix.allow-failure || 'false' }}
     
     # Cached checkout of the LLVM source code, excluding CLANG and any other tools we don't need. 
     steps:
