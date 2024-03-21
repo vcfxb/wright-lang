@@ -13,13 +13,7 @@ jobs:
     uses: ./.github/workflows/setup-llvm.yml
   
   test: 
-    needs: setup-llvm 
-    
-    strategy:
-      matrix:
-        os: ['windows-latest', 'ubuntu-latest', 'macos-latest']
-    
-    runs-on: ${{ matrix.os }}
+    needs: ['setup-llvm']
     
     steps:
       - uses: actions/checkout@v4
