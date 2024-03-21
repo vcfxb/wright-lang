@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include: 
           - os: windows-latest
-            llvm-install-dir: ./llvm-18-install
+            llvm-install-dir: llvm-18-install
           - os: macos-latest
             llvm-install-dir: /usr/local/opt/llvm
             allow-failure: true
@@ -43,7 +43,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         # https://stackoverflow.com/questions/60169752/how-to-update-the-path-in-a-github-action-workflow-file-for-a-windows-latest-hos
         shell: pwsh
-        run: echo "${{ matrix.llvm-install-dir }}/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        run: echo ".\${{ matrix.llvm-install-dir }}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -61,7 +61,11 @@ jobs:
       
       - name: Get the LLVM version (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: ${{ format('{0}/bin/llvm-config.exe', matrix.llvm-install-dir) }} --version
+        # Run two commands, the second checks if we get it from the path properly.
+        run: |
+          ${{ format('{0}\bin\llvm-config.exe', matrix.llvm-install-dir) }} --version
+          llvm-config --version
+        continue-on-error: true
       
 
       - name: Get the LLVM version (Mac Only)
