@@ -104,7 +104,7 @@ jobs:
       
       - name: Get the LLVM version
         run: |
-          ${{ matrix.os == 'windows-latetst' && format('./{0}/llvm-config.exe', matrix.llvm-install-dir),  || 'llvm-config'}} --version
+          ${{ matrix.os == 'windows-latetst' && format('./{0}/llvm-config.exe', matrix.llvm-install-dir)  || 'llvm-config'}} --version
         continue-on-error: true
       
       # Cargo check
