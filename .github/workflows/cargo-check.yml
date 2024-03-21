@@ -15,10 +15,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include: 
-          - os: windows-latest
-            llvm-install-dir: llvm-18-install
-            # Temporarily allow windows to fail until the pacman/MSYS2 package for llvm is updated.
-            allow-failure: true
           - os: macos-latest
             llvm-install-dir: /usr/local/opt/llvm
             # Temporarily allow mac to fail until the homebrew package for llvm is updated.
@@ -42,8 +38,11 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         with: 
           update: true
+          # Use special mingw LLVM package. 
+          # Also install the current stable rust
           install: >-
-            llvm
+            mingw-w64-x86_64-llvm
+            mingw-w64-x86_64-rust
 
       # - name: Install LLVM (Windows Only)
       #   if: ${{ matrix.os == 'windows-latest'}}
