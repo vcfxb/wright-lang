@@ -1,6 +1,6 @@
 //! Script that gets called by CI to install LLVM on windows.
 
-use std::{env, fs, io, path::PathBuf, time::Duration};
+use std::{fs, io, time::Duration};
 
 use indicatif::{HumanBytes, ProgressBar};
 use tar::Archive;
@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .entries()?
         // Skip entries that error.
         .filter_map(Result::ok)
-        .map(|mut entry| -> io::Result<()> {
+        .try_for_each(|mut entry| -> io::Result<()> {
             // Print that we're unpacking.
             println!(
                 "Unpacking {}: {}",
@@ -50,8 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             entry.unpack_in(".")?;
 
             Ok(())
-        })
-        .collect::<io::Result<()>>()?;
+        })?;
 
     let rename_folder = Url::parse(WINDOWS_LLVM_URL)?
         .path_segments()
@@ -65,18 +64,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Renamining {rename_folder} to {dest_dir}");
 
     fs::rename(rename_folder, &dest_dir)?;
-
-    // Append the install to path.
-    println!("Updating PATH var");
-    let current_path_var = env::var("PATH")?;
-    let fq_install_dir = PathBuf::from(dest_dir).canonicalize()?.join("bin");
-    env::set_var(
-        "PATH",
-        format!("{};{}", current_path_var, fq_install_dir.display()),
-    );
-
-    println!("Updating LLVM_SYS_180_PREFIX var");
-    env::set_var("LLVM_SYS_180_PREFIX", fq_install_dir.parent().unwrap());
 
     Ok(())
 }

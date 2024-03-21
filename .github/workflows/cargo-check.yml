@@ -103,10 +103,12 @@ jobs:
           cmake --build build --target install
       
       - name: Get the LLVM version
-        run: llvm-config --version
+        run: |
+          ${{ matrix.os == 'windows-latetst' && format("./{0}/llvm-config.exe", matrix.llvm-install-dir),  || 'llvm-config'}} --version
         continue-on-error: true
       
       # Cargo check
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
+      - name: Run cargo check
+        run: cargo check
+        env:
+          LLVM_SYS_180_PREFIX: ${{ matrix.os == 'windows-latest' && matrix.llvm-install-dir || '' }}
