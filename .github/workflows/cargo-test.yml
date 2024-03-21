@@ -8,12 +8,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  setup-llvm:
     # Call reusable LLVM-setup workflow
     uses: ./.github/workflows/setup-llvm.yml
-
+  
+  test: 
+    needs: setup-llvm 
+    
+    strategy:
+      matrix:
+        os: ['windows-latest', 'ubuntu-latest', 'macos-latest']
+    
+    runs-on: ${{ matrix.os }}
+    
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Run tests
         run: cargo test
