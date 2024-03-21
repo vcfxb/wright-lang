@@ -80,6 +80,7 @@ jobs:
         
       - name: Get the LLVM version (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
         run: llvm-config --version
         continue-on-error: true
 
@@ -99,6 +100,11 @@ jobs:
         env:
           LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
       
-      - name: Run cargo check (Ubuntu & Windows)
-        if: ${{ matrix.os != 'macos-latest' }}
+      - name: Run cargo check (Ubuntu Only)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: cargo check
+
+      - name: Run cargo check (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: msys2 {0}
         run: cargo check
