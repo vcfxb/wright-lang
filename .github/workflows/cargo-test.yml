@@ -1,6 +1,6 @@
 # Combined cargo test with LLVM installation for the three major platforms.
 
-name: Cargo Check
+name: Cargo Test
 on: ["push", "pull_request"]
 
 # Cancel in-progress runs for previous commits if there are any that haven't completed yet.
@@ -78,9 +78,9 @@ jobs:
         # For some reason, this seems to error even when the build checks successfully. Leaving it in for now. 
         continue-on-error: true
 
-      - name: Run cargo check (Mac Only)
+      - name: Run cargo test (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cargo check
+        run: cargo test
         env:
           LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
         
