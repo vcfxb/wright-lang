@@ -49,7 +49,7 @@ jobs:
 
       - name: Install LLVM 18 (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install llvm
+        run: brew install llvm@HEAD
       
       - name: Get the LLVM version (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -68,7 +68,9 @@ jobs:
 
       - name: Run cargo check (Mac & Windows)
         if: ${{ matrix.os != 'ubuntu-latest' }}
-        run: cargo check
+        run: | 
+          echo $LLVM_SYS_180_PREFIX
+          cargo check
         env:
           LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }}      
       
