@@ -3,10 +3,10 @@
 use std::str::Chars;
 
 /// A fragment of source code.
-/// 
-/// An empty fragment at the end of a file can be used in errors to represent a [Token] expected 
+///
+/// An empty fragment at the end of a file can be used in errors to represent a [Token] expected
 /// at the end of the file.
-/// 
+///
 /// [Token]: crate::parser::lexer::token::Token
 #[derive(Clone, Copy, Debug)]
 pub struct Fragment<'src> {
@@ -180,7 +180,9 @@ mod tests {
     fn test_is_at_end_of() {
         let a = Fragment { inner: "abc" };
         let b = a.split_at(a.len()).1;
-        let c = Fragment { inner: &a.inner[a.len()..] };
+        let c = Fragment {
+            inner: &a.inner[a.len()..],
+        };
 
         assert!(b.is_at_end_of(&a));
         assert!(c.is_at_end_of(&a));
