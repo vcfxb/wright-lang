@@ -37,11 +37,6 @@ jobs:
       - name: Checkout Wright source
         uses: actions/checkout@v4
       
-      # Use stable Rust toolchain 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-
       # Use MSYS2 on windows to install and check LLVM
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.os == 'windows-latest' }}
@@ -53,9 +48,10 @@ jobs:
             mingw-w64-x86_64-llvm
             mingw-w64-x86_64-rust
       
-      - name: Update Rust to latest stable on MSYS2 (Windows Only)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: rustup update stable
+      # Use stable Rust toolchain 
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
 
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
