@@ -23,7 +23,11 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest      
+    # Use stable Rust toolchain 
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
     steps:
       - uses: actions/checkout@v4
       - name: Install LLVM
