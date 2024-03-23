@@ -5,4 +5,5 @@ resolver = "2"
 
 [workspace.package]
 edition = "2021"
-rust-version = "1.77"
+# Use [cargo msrv](https://crates.io/crates/cargo-msrv) to make sure we get an accurate value for this. 
+rust-version = "1.75"
