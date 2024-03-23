@@ -71,7 +71,7 @@ impl<'src> Lexer<'src> {
 
     /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
     /// failable parsing. This can be compared to the original lexer it was forked from using [Lexer::offset_from].
-    pub fn fork(&self) -> Self {
+    pub const fn fork(&self) -> Self {
         *self
     }
 

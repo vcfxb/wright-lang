@@ -3,6 +3,11 @@
 use std::str::Chars;
 
 /// A fragment of source code.
+/// 
+/// An empty fragment at the end of a file can be used in errors to represent a [Token] expected 
+/// at the end of the file.
+/// 
+/// [Token]: crate::parser::lexer::token::Token
 #[derive(Clone, Copy, Debug)]
 pub struct Fragment<'src> {
     /// Fragments are represented using direct string references into the source file itself.
@@ -34,6 +39,14 @@ impl<'src> Fragment<'src> {
     pub fn ptr_eq(&self, other: &Self) -> bool {
         // Since std::ptr::eq works for fat pointers, we can use it here.
         std::ptr::eq(self.inner, other.inner)
+    }
+
+    /// Return true if this [Fragment] is zero bytes long and points to the end of `origin`.
+    pub fn is_at_end_of(&self, origin: &Self) -> bool {
+        let (start, end) = self.start_and_end();
+        let (_, target) = origin.start_and_end();
+
+        start == target && end == target
     }
 
     /// Return true if this fragment overlaps at all with the other (either one contains the start of the other,
@@ -161,5 +174,15 @@ mod tests {
         let a = Fragment { inner: "abc" };
         let b = Fragment { inner: "def" };
         a.offset_from(&b);
+    }
+
+    #[test]
+    fn test_is_at_end_of() {
+        let a = Fragment { inner: "abc" };
+        let b = a.split_at(a.len()).1;
+        let c = Fragment { inner: &a.inner[a.len()..] };
+
+        assert!(b.is_at_end_of(&a));
+        assert!(c.is_at_end_of(&a));
     }
 }

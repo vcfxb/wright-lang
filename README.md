@@ -2,7 +2,6 @@
 # <img src="./pages/static/assets/white_logo.png" height=50 /> The Wright Programming Language
 ## *A language that flies*
 
-
 *Wright is an all-purpose programming language inspired by Rust, Ada, and Typescript. 
 Pulling from all three of these excellent languages, Wright intends to offer a combination of speed, ergonomics, and precision.*
 
@@ -65,16 +64,16 @@ func main() {
     documented.
 * __Robustness__ -- Wright's type system should be expressive enough to appropriately capture the domain, representation, 
     and functionality of every symbol the programmer interacts with. 
-* __Speed__ -- Wright leverages the newest version of LLVM (at the time of writing, LLVM 17), to compile code 
+* __Speed__ -- Wright leverages the newest version of LLVM (at the time of writing, LLVM 18), to compile code 
     directly to assembly, avoiding the overhead of an interpreter, garbage collector, and other associated tools 
     by default. 
 * __Memory Safety__ -- Wright pulls significant inspiration from Rust's lifetime system, with some modifications. 
 
 ### Installation:
 There are several installation options.
-1. Get the latest stable version from [the releases page](https://github.com/vcfxb/wright-lang/releases).
-2. If you have rust, via `cargo install wright`.
-3. Building from source, by cloning this repository, and running `cargo build --release` in the wright directory, and 
-    then adding `wright/target/release` to your system path. You will need LLVM 17 installed and appropriately 
+- Get the latest stable version from [the releases page](https://github.com/vcfxb/wright-lang/releases).
+- If you have rust, via `cargo install wright`.
+- Building from source, by cloning this repository, and running `cargo build --release` in the wright directory, and 
+    then adding `wright/target/release` to your system path. You will need LLVM 18 installed and appropriately 
     configured to compile Wright. See the [llvm-sys crate docs](https://crates.io/crates/llvm-sys) for tips on how to do 
     this.
