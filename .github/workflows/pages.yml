@@ -24,12 +24,12 @@ jobs:
   # Build job
   build:
     runs-on: ubuntu-latest      
-    # Use stable Rust toolchain 
-    - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
     steps:
       - uses: actions/checkout@v4
+      # Use stable Rust toolchain 
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - name: Install LLVM
         # See: https://apt.llvm.org/
         # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
