@@ -11,7 +11,7 @@ Pulling from all three of these excellent languages, Wright intends to offer a c
 | Cargo Check Status | ![Cargo Check status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-check.yml/badge.svg?branch=main) |
 | Cargo Test Status | ![Cargo Test status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-test.yml/badge.svg?branch=main) |
 | Cargo Clippy Status | ![Cargo Clippy status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-clippy.yml/badge.svg?branch=main) |
-| Code Coverage (Coveralls) | [![Coverage Status](https://coveralls.io/repos/github/vcfxb/wright-lang/badge.svg?branch=main&kill_cache=1)](https://coveralls.io/github/vcfxb/wright-lang?branch=main) |
+| Code Coverage (Coveralls) | [![Coverage Status](https://coveralls.io/repos/github/vcfxb/wright-lang/badge.svg?branch=main)](https://coveralls.io/github/vcfxb/wright-lang?branch=main) |
 | Code Coverage (Codecov.io) | [![codecov](https://codecov.io/github/vcfxb/wright-lang/branch/main/graph/badge.svg?token=HO07JEYMIH)](https://codecov.io/github/vcfxb/wright-lang/commits?branch=main) |
 | Docs.rs | [![Documentation](https://docs.rs/wright/badge.svg)](https://docs.rs/wright) |
 | Crates.io | [![Crates.io](https://img.shields.io/crates/v/wright.svg)](https://crates.io/crates/wright) |
