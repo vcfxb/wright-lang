@@ -52,6 +52,10 @@ jobs:
           install: >-
             mingw-w64-x86_64-llvm
             mingw-w64-x86_64-rust
+            
+      - name: Update Rust to latest stable on MSYS2 (Windows Only)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: rustup update stable
 
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
