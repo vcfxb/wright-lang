@@ -1,36 +1,44 @@
-//! Expressions grouped in parentheses in Wright. 
+//! Expressions grouped in parentheses in Wright.
 
-use crate::parser::{ast::{expression::{Expression, ExpressionParsingError}, AstGeneratorContext, AstNode}, fragment::Fragment, lexer::token::TokenTy};
+use crate::parser::{
+    ast::{
+        expression::{Expression, ExpressionParsingError},
+        AstGeneratorContext, AstNode,
+    },
+    fragment::Fragment,
+    lexer::token::TokenTy,
+};
 
-/// An expression enclosed in parentheses in wright source code. 
+/// An expression enclosed in parentheses in wright source code.
 #[derive(Debug)]
 pub struct ParensExpression<'src> {
-    /// The matching fragment of source code. 
+    /// The matching fragment of source code.
     pub fragment: Fragment<'src>,
 
-    /// The expression enclosed in parenthesese. 
+    /// The expression enclosed in parenthesese.
     pub expression: Box<Expression<'src>>,
 }
 
-/// Error parsing parentheses expression. 
+/// Error parsing parentheses expression.
 #[derive(Debug, Clone)]
 pub enum ParensParsingError<'src> {
     /// A closing parenthese was not found.
     ClosingParenNotFound {
-        /// The location a closing parenthese was expected. 
-        at: Fragment<'src>
+        /// The location a closing parenthese was expected.
+        at: Fragment<'src>,
     },
 
-    /// An error occurred while parsing withing the parenthesese. 
+    /// An error occurred while parsing withing the parenthesese.
     ErrorInParentheses(Box<ExpressionParsingError<'src>>),
 
-    /// A parentheses expression was expected and was not found. 
+    /// A parentheses expression was expected and was not found.
     ExpectedParensExpression {
-        /// The location a parentheses expression was expected. 
-        at: Fragment<'src> 
-    }
+        /// The location a parentheses expression was expected.
+        at: Fragment<'src>,
+    },
 }
 
+#[rustfmt::skip] // Do not auto-reformat this block -- parser code gets too mangled.
 impl<'src> AstNode<'src> for ParensExpression<'src> {
     type Error = ParensParsingError<'src>;
 
