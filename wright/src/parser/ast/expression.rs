@@ -26,6 +26,7 @@ pub enum ExpressionParsingError<'src> {
     PrimaryExpressionParsingError(PrimaryExpressionParsingError<'src>),
 }
 
+#[rustfmt::skip] // Do not auto-reformat this block -- the match arms get too mangled. 
 impl<'src> AstNode<'src> for Expression<'src> {
     type Error = ExpressionParsingError<'src>;
 

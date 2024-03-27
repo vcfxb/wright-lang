@@ -46,6 +46,7 @@ impl<'src> AstNode<'src> for PrimaryExpression<'src> {
         }
     }
 
+    #[rustfmt::skip] // Do not auto-reformat this block -- the match arms get too mangled. 
     fn try_parse(
         ctx: &mut crate::parser::ast::AstGeneratorContext<'src>,
     ) -> Result<Self, Self::Error>
