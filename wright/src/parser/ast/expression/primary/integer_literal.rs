@@ -14,6 +14,7 @@ use num::{BigUint, Num};
 /// See the [lexer module] for more details.
 ///
 /// [lexer module]: crate::parser::lexer::integer_literal
+#[derive(Debug)]
 pub struct IntegerLiteral<'src> {
     /// The associated [Fragment] of source code. This is generally pulled directly from the
     /// matched [TokenTy::IntegerLiteral] token.

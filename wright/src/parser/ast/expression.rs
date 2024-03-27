@@ -1,14 +1,14 @@
 //! Expression parsing in Wright source code.
 
 use crate::parser::fragment::Fragment;
-
 use self::primary::{PrimaryExpression, PrimaryExpressionParsingError};
-
 use super::AstNode;
 
 pub mod primary;
+pub mod unary;
 
 /// An expression in Wright source code is anything that can be evaluated to a value.
+#[derive(Debug)]
 pub enum Expression<'src> {
     Primary(PrimaryExpression<'src>),
 }
@@ -48,7 +48,10 @@ impl<'src> AstNode<'src> for Expression<'src> {
             Ok(primary) => return Ok(Expression::Primary(primary)),
 
             // If we get an error that is not unavailability, return it early too.
-            Err(err @ PrimaryExpressionParsingError::OtherIntegerLiteralParsingError(_)) => {
+            Err(err @ (
+                | PrimaryExpressionParsingError::OtherIntegerLiteralParsingError(_)
+                | PrimaryExpressionParsingError::OtherParensExpressionParsingError(_)
+            )) => {
                 return Err(ExpressionParsingError::PrimaryExpressionParsingError(err));
             }
 

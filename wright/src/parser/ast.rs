@@ -85,8 +85,22 @@ impl<'src> AstGeneratorContext<'src> {
     /// exclusively with [AstGeneratorContext]s previously created by calling [AstGeneratorContext::fork]
     /// on this one. To that end, the only field that actually gets copied over/updated from `to` is
     /// [AstGeneratorContext::lexer].
-    pub fn update(&mut self, to: &Self) {
+    /// 
+    /// Returns a [Fragment] containing the difference between where this [AstGeneratorContext] was and where it got 
+    /// updated to. 
+    /// 
+    /// # Panics
+    /// - If `to` does not contain a [AstGeneratorContext::lexer] forked from this context's 
+    ///     [AstGeneratorContext::lexer]. 
+    pub fn update(&mut self, to: &Self) -> Fragment<'src> {
+        // Get the offset to the new/updated lexer. 
+        let offset = to.lexer.offset_from(&self.lexer);
+        // Create a `consumed fragment using the offset`. 
+        let (consumed, _) = self.lexer.remaining.split_at(offset);
+        // Update the internal lexer. 
         self.lexer = to.lexer;
+        // Return the consumed fragment. 
+        consumed
     }
 
     /// Peek the next [Token] from the internal [Lexer] without consuming it or making progress.

@@ -122,6 +122,15 @@ impl<'src> Fragment<'src> {
         // as the subslice is contained in the origin fragment.
         unsafe { subslice_start.offset_from(start) as usize }
     }
+
+    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace at either end trimmed off.
+    /// This is useful when the fragment is used for printing an error message and you only want the visible characters 
+    /// of it. This will return the fragment unchanged if it is empty.
+    /// 
+    /// See [str::trim] for exact behaviors. 
+    pub fn trimmed(self) -> Self {
+        Fragment { inner: self.inner.trim() }
+    }
 }
 
 #[cfg(test)]
