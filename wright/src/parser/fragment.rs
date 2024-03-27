@@ -198,4 +198,25 @@ mod tests {
         assert!(b.is_at_end_of(&a));
         assert!(c.is_at_end_of(&a));
     }
+
+    #[test]
+    fn test_trimmed_is_contained() {
+        let a = Fragment { inner: "  aa aa  " };
+        let b = a.trimmed();
+        assert!(a.contains(&b));
+    }
+
+    #[test]
+    fn trimmed_empty() {
+        let empty = Fragment { inner: "" };
+        assert!(empty.trimmed().ptr_eq(&empty));
+    }
+
+    #[test]
+    fn trimmed_whitespace() {
+        let w = Fragment { inner: "  " };
+        assert!(w.contains(&w.trimmed()));
+        assert!(w.trimmed().is_empty());
+        assert!(w.overlaps(&w.trimmed()));
+    }
 }
