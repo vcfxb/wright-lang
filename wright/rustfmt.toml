@@ -4,3 +4,5 @@
 newline_style = "Native"
 max_width = 100
 fn_call_width = 80
+match_arm_leading_pipes = "Preserve"
+
