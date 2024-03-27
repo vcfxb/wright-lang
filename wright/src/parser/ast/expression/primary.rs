@@ -3,7 +3,10 @@
 //! Primary expressions are considered the atoms of most expressions most primary expressions are literals,
 //! which cannot be broken up into sub-expressions.
 
-use self::{integer_literal::{IntegerLiteral, IntegerLiteralParsingError}, parens::{ParensExpression, ParensParsingError}};
+use self::{
+    integer_literal::{IntegerLiteral, IntegerLiteralParsingError},
+    parens::{ParensExpression, ParensParsingError},
+};
 use crate::parser::{ast::AstNode, fragment::Fragment};
 
 pub mod integer_literal;
@@ -13,7 +16,7 @@ pub mod parens;
 /// to form more complicated expressions.
 #[derive(Debug)]
 pub enum PrimaryExpression<'src> {
-    /// An integer literal in wright source code. 
+    /// An integer literal in wright source code.
     IntegerLiteral(IntegerLiteral<'src>),
 
     /// An expression in parentheses.
@@ -32,10 +35,11 @@ pub enum PrimaryExpressionParsingError<'src> {
     /// An error in parsing an integer literal besides in-availability.
     OtherIntegerLiteralParsingError(IntegerLiteralParsingError<'src>),
 
-    /// An error parsing an expression in parentheses besides lack of an opening parenthese. 
+    /// An error parsing an expression in parentheses besides lack of an opening parenthese.
     OtherParensExpressionParsingError(ParensParsingError<'src>),
 }
 
+#[rustfmt::skip] // Do not auto-reformat this block -- the match arms get too mangled.
 impl<'src> AstNode<'src> for PrimaryExpression<'src> {
     type Error = PrimaryExpressionParsingError<'src>;
 
@@ -46,7 +50,6 @@ impl<'src> AstNode<'src> for PrimaryExpression<'src> {
         }
     }
 
-    #[rustfmt::skip] // Do not auto-reformat this block -- the match arms get too mangled. 
     fn try_parse(
         ctx: &mut crate::parser::ast::AstGeneratorContext<'src>,
     ) -> Result<Self, Self::Error>

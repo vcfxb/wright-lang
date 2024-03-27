@@ -1,8 +1,8 @@
 //! Expression parsing in Wright source code.
 
-use crate::parser::fragment::Fragment;
 use self::primary::{PrimaryExpression, PrimaryExpressionParsingError};
 use super::AstNode;
+use crate::parser::fragment::Fragment;
 
 pub mod primary;
 pub mod unary;
