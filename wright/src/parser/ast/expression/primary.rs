@@ -7,7 +7,7 @@ use self::{
     integer_literal::{IntegerLiteral, IntegerLiteralParsingError},
     parens::{ParensExpression, ParensParsingError},
 };
-use crate::parser::{ast::AstNode, fragment::Fragment};
+use crate::parser::{ast::{AstGeneratorContext, AstNode}, fragment::Fragment};
 
 pub mod integer_literal;
 pub mod parens;
@@ -50,9 +50,7 @@ impl<'src> AstNode<'src> for PrimaryExpression<'src> {
         }
     }
 
-    fn try_parse(
-        ctx: &mut crate::parser::ast::AstGeneratorContext<'src>,
-    ) -> Result<Self, Self::Error>
+    fn try_parse(ctx: &mut AstGeneratorContext<'src>) -> Result<Self, Self::Error>
     where
         Self: Sized,
     {

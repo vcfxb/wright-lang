@@ -6,101 +6,117 @@ use codespan_reporting::{
     files::{Files, SimpleFile},
     term::Config,
 };
-use derive_more::Display;
 use fs4::FileExt;
 use memmap2::Mmap;
-use std::{fs::File, io, path::PathBuf, sync::mpsc, thread, time::Duration};
+use std::{fs::File, io, path::PathBuf, sync::{mpsc, Arc, RwLock}, thread, time::Duration};
 use termcolor::{ColorChoice, StandardStream};
+use self::{filename::FileName, immutable_string::ImmutableString};
 
 /// Rename import for clarity.
 use codespan_reporting::files::Error as CodespanError;
 
-/// Convenience type alias.
-type CodespanResult<T> = Result<T, CodespanError>;
+pub mod filename;
+pub mod immutable_string;
+pub mod bucket;
+
+/// Convenience type alias. Used for types returned from/with [codespan_reporting]. 
+pub type CodespanResult<T> = Result<T, CodespanError>;
 
 /// Amount of time before we should warn the user about locking the file taking too long.
-const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
+pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
 
-/// Used to represent different file names used throughout this crate.
-#[derive(Debug, Display, Clone)]
-pub enum FileName {
-    /// A real file on the user's computer.
-    #[display(fmt = "{}", "_0.display()")]
-    Real(PathBuf),
-    /// A named test-case in this crate's source code.
-    Test(&'static str),
-    /// The interactive Wright repl.
-    #[display(fmt = "REPL:{}", line_number)]
-    Repl { line_number: usize },
-    /// An un-named test case in this crate's source code.
-    #[display(fmt = "<NO_NAME>")]
-    None,
-}
 
-/// An immutable string that either references a source file in memory using an `&` reference or using a [Box].
-#[derive(Debug)]
-enum ImmutableString<'src> {
-    /// An immutable reference to an existing string.
-    Reference(&'src str),
-
-    /// An owned immutable string.
-    Owned(Box<str>),
-
-    /// A locked, memory mapped file from the OS.
-    LockedFile {
-        /// The locked file that needs to be unlocked when this object is dropped.
-        locked_file: File,
-        /// The memory locked file -- this is expected to be locked before
-        /// one creates it in the file
-        mem_map: Mmap,
-    },
-}
 
 /// The file map that we use throughout the rest of this crate.
+/// 
+/// This uses an [Arc]'d [RwLock]'d [Vec] of [Arc]s internally for concurrent access across multiple threads, 
+/// so feel free to clone this around since it's really just cloning an [Arc] (should be cheap). 
+#[derive(Clone, Debug)]
 pub struct FileMap<'src> {
-    /// This is just a list of files we're keeping track of.
-    /// This is identical to the current implementation of [codespan_reporting::files::SimpleFiles],
+    /// This list of files we're keeping track of.
+    /// This is similar to the current implementation of [codespan_reporting::files::SimpleFiles],
     /// but we don't use theirs because we need to iterate over each [SimpleFile] manually for various
-    /// parts of the implementation.
-    inner: Vec<SimpleFile<FileName, ImmutableString<'src>>>,
+    /// parts of the implementation (and we need to wrap each file in an [Arc] for sharing across threads). 
+    inner: Arc<RwLock<Vec<Arc<SimpleFile<FileName, ImmutableString<'src>>>>>>,
 }
 
-/// File Identifier used to refer to files.
-pub type FileId = <FileMap<'static> as Files<'static>>::FileId;
+/// File identifier used to refer to files.
+/// 
+/// [FileId]s should never be invalid against the [FileMap] that created them, since there is no way to 
+/// remove a file from a [FileMap]. 
+/// 
+/// Internally, these are just indices into the [Vec] inside a [FileMap]. 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(transparent)]
+pub struct FileId(usize);
 
 impl<'src> FileMap<'src> {
     /// Construct a new empty [FileMap].
-    pub const fn new() -> Self {
-        FileMap { inner: Vec::new() }
+    pub fn new() -> Self {
+        FileMap { inner: Arc::new(RwLock::new(Vec::new())) }
     }
 
-    /// Get a reference to a file from the internal [Vec] or return a [`CodespanError::FileMissing`] error.
-    fn get(&self, file_id: FileId) -> CodespanResult<&SimpleFile<FileName, ImmutableString<'src>>> {
-        self.inner.get(file_id).ok_or(CodespanError::FileMissing)
+    /// Get an [Arc] reference to a file from the internal [Vec] or return a [`CodespanError::FileMissing`] error.
+    fn get(&self, file_id: FileId) -> CodespanResult<Arc<SimpleFile<FileName, ImmutableString<'src>>>> {
+        // Unwrap the index in the file id.
+        let FileId(index) = file_id;
+        
+        // Get a read-guard to to the internal files vec.
+        let read_guard = self.inner
+            .read()
+            .expect("FileMap lock should not be poisoned");
+
+        // Try to get the file arc, if the 
+        let file_arc_clone: Option<Arc<_>> = read_guard
+            .get(index)
+            // Clone the arc so we can drop the read-guard. 
+            .cloned();
+
+        // Drop the read guard -- free this up for writes if needed. 
+        drop(read_guard);
+
+        // Return the Arc or a FileMissing error. 
+        file_arc_clone.ok_or(CodespanError::FileMissing)
     }
 
-    /// Internal function to add a file to the vec. Public facing functions will need to do some conversion
+    /// Internal function to add a file to the [Vec]. Public facing functions will need to do some conversion
     /// and then call this.
+    /// 
+    /// This writes to the internal vector and will block indefinitely if any other function 
+    /// is currently reading from this [FileMap].
     fn add(&mut self, name: FileName, source: ImmutableString<'src>) -> FileId {
+        // Get a write guard to the internal files vec.
+        let mut write_guard = self.inner
+            .write()
+            .expect("FileMap lock should not be poisoned");
+
         // The file id is just the next index in the vec.
-        let file_id: usize = self.inner.len();
-        self.inner.push(SimpleFile::new(name, source));
-        file_id
+        let file_index: usize = write_guard.len();
+        // Push the new file onto the vec. 
+        write_guard.push(Arc::new(SimpleFile::new(name, source)));
+        // Drop the write guard so that other functions/threads can read from it.
+        drop(write_guard);
+
+        // Return the file index as a file id. 
+        FileId(file_index)
     }
 
     /// Add a file (in the form of an owned string) to the file map.
     pub fn add_string(&mut self, name: FileName, source: String) -> FileId {
-        self.add(name, ImmutableString::Owned(source.into_boxed_str()))
+        self.add(name, ImmutableString::new_owned(source.into_boxed_str()))
     }
 
     /// Add a file (in the form of a string reference) to the file map.
     pub fn add_str_ref(&mut self, name: FileName, source: &'src str) -> FileId {
-        self.add(name, ImmutableString::Reference(source))
+        self.add(name, ImmutableString::new_reference(source))
     }
 
-    /// Add a file from the file system. This file will be
-    /// opened with read permissions, locked, memory mapped,
-    /// and then added to the file map. The file name in the memory map will be the [PathBuf] passed to this function.
+    /// Add a file from the file system. This file will be opened with read permissions, locked (using [fs4]), 
+    /// memory mapped (using [memmap2]), and then added to the file map. 
+    /// This file will remain locked and memory-mapped until this [FileMap] is [drop]ped. 
+    /// See [ImmutableString::drop] for more details. 
+    /// 
+    /// The [FileName] in this map will be [FileName::Real] with the [PathBuf] passed to this function.
     pub fn add_file(&mut self, path: PathBuf) -> io::Result<FileId> {
         // Make a one-off enum here to use for channel messages.
         enum ChannelMessage {
@@ -140,6 +156,7 @@ impl<'src> FileMap<'src> {
                     // Get a lock on the standard out so that we don't get interrupted here.
                     let stdout = StandardStream::stdout(ColorChoice::Auto);
                     let mut stdout = stdout.lock();
+
                     // Make the diagnostic to show to the user.
                     let message = format!(
                         "Getting a file lock on {} has taken more than {} seconds.",
@@ -147,8 +164,7 @@ impl<'src> FileMap<'src> {
                         FILE_LOCK_WARNING_TIME.as_secs()
                     );
 
-                    let diagnostic: Diagnostic<<FileMap<'src> as Files<'src>>::FileId> =
-                        Diagnostic::note().with_message(message);
+                    let diagnostic: Diagnostic<FileId> = Diagnostic::note().with_message(message);
 
                     // Emit the diagnostic to the user.
                     codespan_reporting::term::emit(&mut stdout, &Config::default(), self, &diagnostic)
@@ -169,7 +185,7 @@ impl<'src> FileMap<'src> {
                     // modification is avoided.
                     let mem_map: Mmap = unsafe {
                         Mmap::map(&file)
-                            // Make sure we unlock the file if there's an issue memory mapping it.
+                            // Make sure we (at least try to) unlock the file if there's an issue memory mapping it.
                             .map_err(|err| {
                                 file.unlock()
                                     .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
@@ -180,24 +196,20 @@ impl<'src> FileMap<'src> {
 
                     // Double check that the file is valid utf-8. If not, return an IO error.
                     let raw_data: &[u8] = mem_map.as_ref();
-                    let as_str: Result<&str, std::str::Utf8Error> = std::str::from_utf8(raw_data);
-
-                    if let Err(utf8_err) = as_str {
+                    
+                    if let Err(utf8_error) = std::str::from_utf8(raw_data) {
                         // The file is not valid for us so we should unlock it and return an error.
                         file.unlock()
                             .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
                             .ok();
 
-                        return Err(io::Error::new(io::ErrorKind::InvalidData, utf8_err));
+                        return Err(io::Error::new(io::ErrorKind::InvalidData, utf8_error));
                     }
 
-                    // The file's contents are valid utf-8, add them to the file map.
+                    // If we get here, the file is valid UTF-8 -- add it to the file map. 
                     return Ok(self.add(
                         FileName::Real(path),
-                        ImmutableString::LockedFile {
-                            locked_file: file,
-                            mem_map,
-                        },
+                        ImmutableString::new_locked_file(file, mem_map)
                     ));
                 }
 
@@ -209,13 +221,22 @@ impl<'src> FileMap<'src> {
     }
 
     /// Find the file ID of a given [Fragment] using the fragment's internal pointer.
-    pub fn find_fragment(&self, fragment: &Fragment<'src>) -> Option<FileId> {
+    pub fn find_fragment(&'src self, fragment: &Fragment<'src>) -> Option<FileId> {
+        // Get a read lock on this file map to iterate accross file indices. 
+        // This read lock will be dropped when the function returns. 
+        let read_lock = self.inner
+            .read()
+            .expect("FileMap lock should not be poisoned");
+
         // Iterate on file IDs.
-        for file_id in 0..self.inner.len() {
-            // Use expect because all of these file IDs should be fine.
-            let source: &str = self.source(file_id).expect("All file IDs here are valid");
-            if (Fragment { inner: source }).contains(fragment) {
-                return Some(file_id);
+        for file_index in 0..read_lock.len() {
+            // Use unwrap_unchecked here because all these file indicies should be valid, 
+            // and the read_lock prevents more from being added to the FileMap mid loop. 
+            let source: ImmutableString = unsafe { self.source(FileId(file_index)).unwrap_unchecked() };
+
+            // Use Fragment::contains to check this. 
+            if (Fragment { inner: source.as_ref() }).contains(fragment) {
+                return Some(FileId(file_index));
             }
         }
 
@@ -224,74 +245,30 @@ impl<'src> FileMap<'src> {
     }
 }
 
-/// Implement drop here to make sure that the files get unlocked as they go out of scope/use.
-impl<'src> Drop for ImmutableString<'src> {
-    fn drop(&mut self) {
-        match self {
-            // Unlock locked files.
-            ImmutableString::LockedFile { locked_file, .. } => {
-                locked_file
-                    .unlock()
-                    // Log the error if there is one,
-                    .map_err(|io_err: io::Error| eprintln!("{}", io_err))
-                    // Discard value of result
-                    .ok();
-            }
-
-            // All other types drop trivially.
-            ImmutableString::Owned(_) | ImmutableString::Reference(_) => {}
-        }
-    }
-}
 
 /// The implementation here is basically identical to the one for [codespan_reporting::files::SimpleFiles].
-impl<'src> Files<'src> for FileMap<'src> {
-    /// File IDs here are just indices into [FileMap]'s internal [Vec].
-    type FileId = usize;
+impl<'file_map, 'src: 'file_map> Files<'file_map> for FileMap<'src> {
+    /// See [FileId] for more info. 
+    type FileId = FileId;
 
     type Name = FileName;
 
-    type Source = &'src str;
+    type Source = ImmutableString<'src>;
 
-    fn name(&self, id: Self::FileId) -> Result<Self::Name, codespan_reporting::files::Error> {
+    fn name(&'file_map self, id: Self::FileId) -> CodespanResult<Self::Name> {
         Ok(self.get(id)?.name().clone())
     }
 
-    fn source(
-        &'src self,
-        id: Self::FileId,
-    ) -> Result<Self::Source, codespan_reporting::files::Error> {
-        Ok(self.get(id)?.source().as_ref())
+    fn source(&'file_map self, id: Self::FileId) -> CodespanResult<Self::Source> {
+        // Clone is cheap/available here now that ImmutableStrings use Arc inside. 
+        Ok(self.get(id)?.source().clone())
     }
 
-    fn line_index(
-        &self,
-        id: Self::FileId,
-        byte_index: usize,
-    ) -> Result<usize, codespan_reporting::files::Error> {
+    fn line_index(&'file_map self, id: Self::FileId, byte_index: usize) -> CodespanResult<usize> {
         self.get(id)?.line_index((), byte_index)
     }
 
-    fn line_range(
-        &self,
-        id: Self::FileId,
-        line_index: usize,
-    ) -> Result<std::ops::Range<usize>, codespan_reporting::files::Error> {
+    fn line_range(&'file_map self, id: Self::FileId, line_index: usize) -> CodespanResult<std::ops::Range<usize>> {
         self.get(id)?.line_range((), line_index)
-    }
-}
-
-impl<'src> AsRef<str> for ImmutableString<'src> {
-    fn as_ref(&self) -> &str {
-        match self {
-            ImmutableString::Reference(str) => str,
-            ImmutableString::Owned(str) => str,
-            ImmutableString::LockedFile { mem_map, .. } => {
-                // Get a direct reference to the data that is in the memory map.
-                let raw_data: &[u8] = mem_map.as_ref();
-                // SAFETY: UTF-8 validity is checked when the file is added to the file map.
-                unsafe { std::str::from_utf8_unchecked(raw_data) }
-            }
-        }
     }
 }

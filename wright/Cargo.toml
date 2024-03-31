@@ -31,7 +31,6 @@ doctest = false
 name = "lexer"
 harness = false
 
-
 # CRATES.IO BADGES
 [badges.maintenance]
 status = "actively-developed"

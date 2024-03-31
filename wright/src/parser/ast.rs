@@ -7,11 +7,14 @@ use super::{
         Lexer,
     },
 };
-use crate::filemap::{FileId, FileMap};
+use crate::filemap::{FileId, FileMap, immutable_string::ImmutableString};
 use codespan_reporting::files::Files;
 
 pub mod expression;
 pub mod identifier;
+
+#[cfg(test)]
+pub mod test_utils;
 
 /// The context needed to parse AST nodes and create errors when it doesn't work out.
 pub struct AstGeneratorContext<'src> {
@@ -19,9 +22,9 @@ pub struct AstGeneratorContext<'src> {
     /// Useful for emitting parser errors.
     file_id: FileId,
 
-    /// Immutable reference to the [FileMap] containing the source file.
-    /// Useful for emitting parser errors.
-    file_map: &'src FileMap<'src>,
+    /// The [FileMap] containing the source file. This uses an [std::sync::Arc] internally, so really this is just 
+    /// a reference. Useful for emitting parser errors.
+    file_map: FileMap<'src>,
 
     /// The full source code of the file being parsed.
     full_source: Fragment<'src>,
@@ -52,17 +55,19 @@ impl<'src> AstGeneratorContext<'src> {
     ///
     /// # Panics
     /// - This function will panic if the given `file_id` is not in the given `file_map`.
-    pub fn new(file_id: FileId, file_map: &'src FileMap<'src>) -> Self {
-        // Get the full source of the given file.
-        let full_source = Fragment {
-            inner: file_map.source(file_id).expect("Found file in file_map"),
-        };
+    pub fn new(file_id: FileId, file_map: FileMap<'src>) -> Self {
+        // Get a clone of the immutable string containing the full source of the file. 
+        let source_immutable_string: ImmutableString<'src> = file_map
+            .source(file_id)
+            .expect("File Id should be valid for given FileMap");
 
-        AstGeneratorContext {
-            file_id,
-            file_map,
-            full_source,
-            lexer: Lexer::new(full_source.inner),
+        let source_str: &'src str = source_immutable_string.as_ref();
+
+        AstGeneratorContext { 
+            file_id, 
+            file_map: file_map.clone(), 
+            full_source: Fragment { inner: source_str }, 
+            lexer: Lexer::new(source_str)
         }
     }
 
@@ -72,10 +77,10 @@ impl<'src> AstGeneratorContext<'src> {
     ///
     /// If you parse sucessfully on the forked [AstGeneratorContext], you can use [AstGeneratorContext::update]
     /// to push that progress back to this [AstGeneratorContext].
-    pub const fn fork(&self) -> Self {
+    pub fn fork(&self) -> Self {
         Self {
             file_id: self.file_id,
-            file_map: self.file_map,
+            file_map: self.file_map.clone(),
             full_source: self.full_source,
             lexer: self.lexer.fork(),
         }
