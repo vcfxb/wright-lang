@@ -37,14 +37,22 @@ status = "actively-developed"
 
 # DEPENDENCIES: 
 
+# For determining the size of the terminal we're writing to. 
+[dependencies.terminal_size]
+version = "0.3.0"
+
+# For getting the displayed width of unicode characters. 
+[dependencies.unicode-width]
+version = "0.1.11"
+
 # Comand-line interface generator
 [dependencies.clap]
 version = "4"
 features = ["derive"]
 
 # Error handling glue code
-[dependencies.anyhow]
-version = "1"
+# [dependencies.anyhow]
+# version = "1"
 
 # Derives for various traits
 [dependencies.derive_more]
@@ -54,13 +62,9 @@ version = "0.99.17"
 [dependencies.unicode-ident]
 version = "1.0"
 
-# Source code location tracking and cli error rendering 
-[dependencies.codespan-reporting]
-version = "0.11.1"
-
 # Terminal output colors
 [dependencies.termcolor]
-version = "1.2.0"
+version = "1.4.1"
 
 # Big Integers
 [dependencies.num] 

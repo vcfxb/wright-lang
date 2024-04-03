@@ -137,7 +137,7 @@ impl<'src> Fragment<'src> {
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::fragment::Fragment;
+    use super::Fragment;
 
     #[test]
     fn test_overlap() {
