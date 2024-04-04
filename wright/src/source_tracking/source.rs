@@ -31,7 +31,28 @@ pub struct Source {
 }
 
 impl Source {
-    /// Attempt to load a file from the disk into a source.  
+    /// Construct a new [Source].
+    fn new(name: FileName, source: ImmutableString) -> Self {
+        Source {
+            name,
+            line_starts: source.line_starts(),
+            source
+        }
+    }
+
+    /// Create a [Source] using a heap allocated [String].
+    pub fn new_from_string(name: FileName, source: String) -> Self {
+        Source::new(name, ImmutableString::new_owned(source.into_boxed_str()))
+    }
+
+    /// Create a [Source] from a [`&'static str`].
+    /// 
+    /// [`&'static str`]: str
+    pub fn new_from_static_str(name: FileName, source: &'static str) -> Self {
+        Source::new(name, ImmutableString::new_static(source))
+    }
+
+    /// Attempt to load a file from the disk into a [Source].
     pub fn new_from_disk(path: PathBuf) -> io::Result<Self> {
         // Make a one-off enum here to use for channel messages.
         enum ChannelMessage {
@@ -111,13 +132,7 @@ impl Source {
                     }
 
                     // If we get here, the file is valid UTF-8 -- put the memory mapped file in an Immutable string object. 
-                    let immut_string: ImmutableString = ImmutableString::new_locked_file(file, mem_map);
-
-                    return Ok(Source { 
-                        name: FileName::Real(path), 
-                        line_starts: immut_string.line_starts(),
-                        source: immut_string
-                    });
+                    return Ok(Source::new(FileName::Real(path), ImmutableString::new_locked_file(file, mem_map)));
                 }
 
                 Err(_) => unreachable!(
@@ -125,6 +140,20 @@ impl Source {
                 ),
             }
         }
+    }
 
+    /// Get byte indices of where lines start in this [Source].
+    pub fn line_starts(&self) -> &[usize] {
+        self.line_starts.as_slice()
+    }
+
+    /// Get the the source code stored.
+    pub const fn source(&self) -> &ImmutableString {
+        &self.source
+    }
+
+    /// Get the name of this [Source]. 
+    pub const fn name(&self) -> &FileName {
+        &self.name
     }
 }

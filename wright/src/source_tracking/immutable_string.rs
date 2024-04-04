@@ -145,3 +145,15 @@ impl AsRef<str> for ImmutableStringInner {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ImmutableString;
+
+    #[test]
+    fn test_line_starts() {
+        let v: Vec<usize> = ImmutableString::new_static("a\n\nb\nc").line_starts();
+
+        assert_eq!(v.as_slice(), &[0, 2, 3, 5]);
+    }
+}

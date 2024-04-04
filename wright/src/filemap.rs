@@ -101,15 +101,6 @@ impl FileMap {
         FileId(file_index)
     }
 
-    /// Add a file (in the form of an owned string) to the file map.
-    pub fn add_string(&mut self, name: FileName, source: String) -> FileId {
-        self.add(name, ImmutableString::new_owned(source.into_boxed_str()))
-    }
-
-    /// Add a file (in the form of a string reference) to the file map.
-    pub fn add_static_str(&mut self, name: FileName, source: &'static str) -> FileId {
-        self.add(name, ImmutableString::new_static(source))
-    }
 
     /// Add a file from the file system. This file will be opened with read permissions, locked (using [fs4]), 
     /// memory mapped (using [memmap2]), and then added to the file map. 

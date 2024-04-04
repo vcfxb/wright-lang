@@ -1,139 +1,175 @@
 //! [Fragment] struct and implementation for dealing with fragments of source code.
 
-use std::str::Chars;
+use std::{ops::Range, str::Chars, sync::Arc};
+use super::SourceRef;
 
-/// A fragment of source code.
-///
-/// An empty fragment at the end of a file can be used in errors to represent a [Token] expected
-/// at the end of the file.
-///
-/// [Token]: crate::parser::lexer::token::Token
-#[derive(Clone, Copy, Debug)]
-pub struct Fragment<'src> {
-    /// Fragments are represented using direct string references into the source file itself.
-    pub inner: &'src str,
+#[cfg(doc)]
+use super::Source;
+
+/// A fragment of source code. 
+/// 
+/// This can be part of (or all of) a [Source].
+#[derive(Clone, Debug)]
+pub struct Fragment {
+    /// The [Source] that this fragment is in.
+    pub source: SourceRef,
+    /// Fragments are represented using byte ranges in the [Source] referenced by [Fragment::source]. 
+    /// 
+    /// This [Fragment] is considered invalid if this range is out of order or either end of it is not
+    /// on a char boundary in source according to [str::is_char_boundary]. 
+    pub range: Range<usize>,
 }
 
-impl<'src> Fragment<'src> {
-    /// Get the length (in bytes) of this fragment.
+impl Fragment {
+    /// Check that this [Fragment] is valid, and references a real existing (though possibly empty) part of 
+    /// the [Fragment::source]. 
+    pub fn is_valid(&self) -> bool {
+        // Get a string reference to the whole source.
+        let source_as_str: &str = self.source.as_ref().source().as_ref();
+
+        // Check validity.
+        self.range.end >= self.range.start &&
+        source_as_str.is_char_boundary(self.range.start) &&
+        source_as_str.is_char_boundary(self.range.end)
+    }
+
+    /// Get the [str] represented by this [Fragment].
+    /// 
+    /// # Panics
+    /// - This will [panic] in the unlikely event that [Fragment::range] is out of bounds or lands between char
+    ///     boundaries for [Fragment::source].
+    pub fn as_str(&self) -> &str {
+        &self.source.as_ref().source().as_ref()[self.range.clone()]
+    }
+ 
+    /// Get the length (in bytes) of this [Fragment].
     pub const fn len(&self) -> usize {
-        self.inner.len()
+        self.range.end.saturating_sub(self.range.start)
     }
 
-    /// Check if the length of this fragment is zero.
+    /// Check if this fragment has a [Fragment::len] == 0.
     pub const fn is_empty(&self) -> bool {
-        self.inner.is_empty()
+        self.len() == 0
     }
 
-    /// Get a pair of pointers, the first one being at the beginning of the fragment, the second one pointing
-    /// to the byte after the end of the fragment.
-    pub const fn start_and_end(&self) -> (*const u8, *const u8) {
-        // Get the pointer to the start of the fragment.
-        let start: *const u8 = self.inner.as_ptr();
-        // Get a pointer just past the end of the string.
-        // SAFETY: the resulting pointer is guarunteed to point at one byte past the end of the string.
-        (start, unsafe { start.add(self.len()) })
-    }
-
-    /// Return true if both of these [`Fragment`]s point to the exact same slice of source code.
-    pub fn ptr_eq(&self, other: &Self) -> bool {
-        // Since std::ptr::eq works for fat pointers, we can use it here.
-        std::ptr::eq(self.inner, other.inner)
-    }
-
-    /// Return true if this [Fragment] is zero bytes long and points to the end of `origin`.
-    pub fn is_at_end_of(&self, origin: &Self) -> bool {
-        let (start, end) = self.start_and_end();
-        let (_, target) = origin.start_and_end();
-
-        start == target && end == target
-    }
-
-    /// Return true if this fragment overlaps at all with the other (either one contains the start of the other,
-    /// by pointer).
+    /// Return true if this [Fragment] overlaps at all with the other (either one contains the start of the other).
+    /// 
+    /// This will return false if the [Fragment]s reference different [Source]s. 
     pub fn overlaps(&self, other: &Self) -> bool {
-        // Get start and end pointers for both fragments.
-        let (start, end) = self.start_and_end();
-        let (other_start, other_end) = other.start_and_end();
-        // Check if this fragment contains either end of the other fragment.
-        (start <= other_start && other_start < end) || (other_start <= start && start < other_end)
+        // Check source equality. 
+        Arc::ptr_eq(&self.source, &other.source) && (
+            self.range.start <= other.range.start && other.range.start < self.range.end ||
+            other.range.start <= self.range.start && self.range.start < other.range.end
+        )
     }
 
-    /// Return true if this fragment entirely contains another fragment using pointers.
+    /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source].
     pub fn contains(&self, other: &Self) -> bool {
-        // Get start and end pointers for both fragments.
-        let (start, end) = self.start_and_end();
-        let (other_start, other_end) = other.start_and_end();
-        // Check bounds.
-        start <= other_start && end >= other_end
+        Arc::ptr_eq(&self.source, &other.source) &&
+        self.range.start <= other.range.start && 
+        self.range.end >= other.range.end
     }
-
-    /// Split this fragment into two sub fragments, with the first one being `bytes` long and the second containing the
-    /// rest of this fragment.
+    
+    /// Get the number of bytes between the beginning of `origin` and the beginning of `self`.
     ///
     /// # Panics:
-    /// - Panics if the byte index is not in the fragment, or if it's on a char boundary.
-    pub fn split_at(&self, bytes: usize) -> (Self, Self) {
-        // Use str's split_at.
-        let (left, right) = self.inner.split_at(bytes);
-
-        (Self { inner: left }, Self { inner: right })
-    }
-
-    /// Unsafe version of [`Fragment::split_at`]. Splits this [Fragment] into two subfragments,
-    /// where the left one contains the first `bytes` bytes of the fragment, and the right one
-    /// contains the rest.
-    ///
-    /// # Safety
-    /// - Undefined Behavior occurs if `bytes` is greater than the length of the [Fragment].
-    /// - Undefined Behavior occurs if `bytes` is not on a UTF-8 character boundary.
-    /// - See [str::get_unchecked] for more details.
-    pub unsafe fn split_at_unchecked(&self, bytes: usize) -> (Self, Self) {
-        let left: &str = self.inner.get_unchecked(..bytes);
-        let right: &str = self.inner.get_unchecked(bytes..);
-
-        (Fragment { inner: left }, Fragment { inner: right })
-    }
-
-    /// Get an iterator over the characters in this fragment.
-    pub fn chars(&self) -> Chars<'src> {
-        self.inner.chars()
-    }
-
-    /// Get the number of bytes between the beginning of `origin` and the beginning of [`self`].
-    ///
-    /// # Panics:
-    /// - Panics if [`self`] is not a fragment within `origin` according to [`Fragment::contains`].
+    /// - Panics if `self` is not a [Fragment] within `origin` according to [`Fragment::contains`].
     pub fn offset_from(&self, origin: &Self) -> usize {
         if !origin.contains(self) {
             panic!("This fragment must be contained in the original fragment");
         }
 
-        // Get a pointer to the start of the original fragment.
-        let start: *const u8 = origin.inner.as_ptr();
-        // Do the same for the subslice.
-        let subslice_start: *const u8 = self.inner.as_ptr();
-
-        // SAFETY: Since the subslice is contained (by pointer) by the origin slice, both of them
-        // necessarily satisfy the safety requirements of offset_from to be pointers to the same
-        // allocation.
-        //
-        // We can always cast to a usize since this should always be a positive offset, as long
-        // as the subslice is contained in the origin fragment.
-        unsafe { subslice_start.offset_from(start) as usize }
+        self.range.start - origin.range.start
+    }
+    
+    /// Get a [Chars] [Iterator] over the [char]acters in this [Fragment].
+    pub fn chars(&self) -> Chars<'_> {
+        self.as_str().chars()
     }
 
     /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace at either end trimmed off.
-    /// This is useful when the fragment is used for printing an error message and you only want the visible characters
-    /// of it. This will return the fragment unchanged if it is empty.
+    /// This will return the fragment unchanged if it is empty.
     ///
     /// See [str::trim] for exact behaviors.
-    pub fn trimmed(self) -> Self {
-        Fragment {
-            inner: self.inner.trim(),
+    pub fn trimmed(mut self) -> Self {
+        // Get the string representation of this fragment.
+        let original_str: &str = self.as_str();
+        // Trim it. 
+        let trimmed_str: &str = original_str.trim();
+        // Get the offset as the byte difference between the start of the two pointers.
+        // SAFETY: The requirements for offset_from are trivially satisfied when using substrings.
+        let offset: isize = unsafe { trimmed_str.as_ptr().offset_from(original_str.as_ptr()) };
+        // Calculate the new start of the range. 
+        let new_start: usize = self.range.start + offset as usize;
+        // Calculate the new end of the range. 
+        let new_end: usize = new_start + trimmed_str.len();
+        // Update self.
+        self.range = new_start..new_end;
+        // Return the updated self.
+        self
+    }
+
+    /// Split this [Fragment] into two sub-[Fragment]s, the left containing the first `bytes_from_start`
+    /// bytes, and the right containing the rest. 
+    /// 
+    /// # Panics
+    /// - This will panic if the provided `bytes_from_start` does not land on a unicode character boundary or is larger 
+    ///     than the length of this fragment according to [str::is_char_boundary]. 
+    pub fn split_at(&self, bytes_from_start: usize) -> (Self, Self) {
+        // Check boundaries.
+        if !self.as_str().is_char_boundary(bytes_from_start) {
+            panic!("Cannot split in the middle of a unicode character");
         }
+
+        self.split_at_unchecked(bytes_from_start)
+    }
+
+    /// This is the same as [Fragment::split_at] except it does not check that the created fragments are valid or 
+    /// that either can call [Fragment::as_str] without panicking. 
+    /// Use with caution.
+    pub fn split_at_unchecked(&self, bytes_from_start: usize) -> (Self, Self) {
+        // Calculate ranges.
+        let left_range: Range<usize> = self.range.start..(self.range.start + bytes_from_start);
+        let right_range: Range<usize> = (self.range.start + bytes_from_start)..self.range.end;
+
+        // Construct fragments.
+        (
+            Fragment { source: Arc::clone(&self.source), range: left_range }, 
+            Fragment { source: Arc::clone(&self.source), range: right_range }
+        )
+    }
+
+    /// Move the start of this [Fragment] forward by a given number of bytes. 
+    /// 
+    /// # Panics
+    /// - Panics if the advancing by `bytes` would create an invalid [Fragment]. 
+    pub fn advance_by(&mut self, bytes: usize) {
+        // Bounds check. 
+        if !self.as_str().is_char_boundary(bytes) {
+            panic!("Advancing by {bytes} bytes would create an invalid fragment.");
+        }
+
+        self.advance_by_unchecked(bytes);
+    }
+
+    /// This is the same as [Fragment::advance_by] except without the bounds checking. Use carefully or the created 
+    /// [Fragment]s will be invalid. 
+    #[inline]
+    pub fn advance_by_unchecked(&mut self, bytes: usize) {
+        self.range.start += bytes;
     }
 }
+
+impl PartialEq for Fragment {
+    /// Fragment equality is based on referencing the same [Source] using [Arc::ptr_eq] and having the same 
+    /// [Fragment::range].
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.source, &other.source) && self.range == other.range
+    }
+}
+
+impl Eq for Fragment {}
+
 
 #[cfg(test)]
 mod tests {
