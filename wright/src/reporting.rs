@@ -6,12 +6,13 @@
 //! [ariadne]: https://crates.io/crates/ariadne
 
 use std::io;
-
 use self::{owned_string::OwnedString, severity::Severity};
 use termcolor::{ColorChoice, ColorSpec, StandardStream, StandardStreamLock, WriteColor};
 
 pub mod severity;
 pub mod owned_string;
+pub mod label;
+pub mod draw;
 
 /// A diagnostic to help the user to understand details of their interactions with the Wright compiler.
 #[derive(Debug)]
@@ -19,16 +20,11 @@ pub struct Diagnostic {
     /// The severity of this diagnostic, helps determine coloration when shown to the user. 
     pub severity: Severity,
 
-    /// Info about wether to use color when rendering errors. Defaults to [ColorChoice::Auto]. 
-    pub color_choice: ColorChoice,
-
     /// An optional error code, that identifies this type of diagnostic. 
     pub code: Option<OwnedString>,
 
     /// The main message of the diagnostic. This should be short enough to display on one terminal line in most cases.
     pub message: OwnedString,
-
-    // TODO
 }
 
 
@@ -36,12 +32,10 @@ impl Diagnostic {
     /// Construct a new [Diagnostic]. 
     /// Use the arguments to fill their corresponding fields,
     /// then fill the rest with the following defaults: 
-    /// - [Diagnostic::color_choice] defaults to [ColorChoice::Auto]. 
     /// - [Diagnostic::code] defaults to [None].
     pub fn new<M: Into<OwnedString>>(severity: Severity, message: M) -> Self {
         Diagnostic {
             severity,
-            color_choice: ColorChoice::Auto,
             code: None,
             message: message.into()
         }
@@ -71,40 +65,55 @@ impl Diagnostic {
         Diagnostic::new(Severity::Info, message)
     }
 
+    /// Add a [Diagnostic::code] to this [Diagnostic].
+    pub fn with_code(mut self, c: impl Into<OwnedString>) -> Self {
+        self.code = Some(c.into());
+        self
+    }
+
     /// Print this diagnostic to the standard output. 
     /// 
-    /// Use [Diagnostic::color_choice] to determine whether to print with color. 
-    pub fn print(&self) -> io::Result<()> {
+    /// Uses [supports_unicode] to determine whether to print unicode characters.
+    pub fn print(&self, color_choice: ColorChoice) -> io::Result<()> {
+        // Check if the standard output supports unicode.
+        let write_unicode: bool = supports_unicode::on(supports_unicode::Stream::Stdout);
         // Get the standard output stream.
-        let stdout: StandardStream = StandardStream::stdout(self.color_choice);
+        let stdout: StandardStream = StandardStream::stdout(color_choice);
         // Lock it to make sure we can write without interruption.
         let mut stdout_lock: StandardStreamLock = stdout.lock();
         // Write to the locked stream.
-        self.write(&mut stdout_lock)
+        self.write(&mut stdout_lock, write_unicode)
     }
 
     /// Print this diagnostic to the standard error. 
     /// 
-    /// Use [Diagnostic::color_choice] to determine whether to print with color. 
-    pub fn eprint(&self) -> io::Result<()> {
+    /// Uses [supports_unicode] to determine whether to print unicode characters.
+    pub fn eprint(&self, color_choice: ColorChoice) -> io::Result<()> {
+        // Check if the standard error supports unicode.
+        let write_unicode: bool = supports_unicode::on(supports_unicode::Stream::Stderr);
         // Get the standard error stream.
-        let stderr: StandardStream = StandardStream::stderr(self.color_choice);
+        let stderr: StandardStream = StandardStream::stderr(color_choice);
         // Lock it to make sure we can write without interruption.
         let mut stderr_lock: StandardStreamLock = stderr.lock();
         // Write to the locked stream.
-        self.write(&mut stderr_lock)
+        self.write(&mut stderr_lock, write_unicode)
     }
 
     /// Write this [Diagnostic] to the given writer. 
     /// 
     /// [Diagnostic::color_choice] will be ignored by this function. It is only used as a default
     /// to designate the color used when writing to [StandardStream]s. 
-    pub fn write<W: WriteColor>(&self, w: &mut W) -> io::Result<()> {
+    /// 
+    /// It is suggested to use [supports_unicode] to determine a good value for `write_unicode` when writing to 
+    /// standard streams. That is what this crate does in functions like [Diagnostic::print].
+    pub fn write<W: WriteColor>(&self, w: &mut W, write_unicode: bool) -> io::Result<()> {
         // Create a color spec to use as we write to the writer.
         let mut spec: ColorSpec = ColorSpec::new();
         // Set the color spec for the severity and code. 
         spec.set_intense(true).set_fg(Some(self.severity.color()));
         w.set_color(&spec)?;
+
+
 
         // Write the severity and code.
         write!(w, "{}", self.severity)?;
@@ -137,7 +146,7 @@ mod tests {
         // Create a test diagnostic.
         let d: Diagnostic = Diagnostic::error("test error");
         // Write to buffer.
-        d.write(&mut buffer).unwrap();
+        d.write(&mut buffer, false).unwrap();
         // Convert the buffer to a string to compare.
         let output: &str = std::str::from_utf8(buffer.get_ref().as_slice()).unwrap();
 

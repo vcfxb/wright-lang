@@ -35,6 +35,9 @@ harness = false
 [badges.maintenance]
 status = "actively-developed"
 
+[dependencies]
+supports-unicode = "3.0.0"
+
 # DEPENDENCIES: 
 
 # For determining the size of the terminal we're writing to. 
