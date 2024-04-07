@@ -53,7 +53,7 @@ impl ImmutableString {
         Self::from_inner(ImmutableStringInner::Static(str_ref))
     }
 
-    /// Get an iterator over the byte indices into this string of the start of every line.  
+    /// Get a list of byte indices into this [ImmutableString] of the start of every line. 
     pub fn line_starts(&self) -> Vec<usize> {
         // Make a iterator over this string's characters and their byte indices. 
         let mut char_indices: CharIndices = self.as_ref().char_indices();

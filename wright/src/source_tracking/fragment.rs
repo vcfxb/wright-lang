@@ -43,13 +43,15 @@ impl Fragment {
     }
  
     /// Get the length (in bytes) of this [Fragment].
+    /// Does not check this [Fragment] for validity.
     pub const fn len(&self) -> usize {
         self.range.end.saturating_sub(self.range.start)
     }
 
-    /// Check if this fragment has a [Fragment::len] == 0.
+    /// Check if this fragment has a [`Fragment::len`] `== 0`.
+    /// Does not check this [Fragment] for validity.
     pub const fn is_empty(&self) -> bool {
-        self.len() == 0
+        self.range.start == self.range.end
     }
 
     /// Return true if this [Fragment] overlaps at all with the other (either one contains the start of the other).
@@ -80,6 +82,13 @@ impl Fragment {
         }
 
         self.range.start - origin.range.start
+    }
+
+    /// Return true if `self` is a valid empty ([`Fragment::len`] `== 0`) [Fragment] at the end of `origin`. 
+    pub fn is_at_end_of(&self, origin: &Self) -> bool {
+        Arc::ptr_eq(&self.source, &origin.source) &&
+        self.is_empty() &&
+        self.range.start == origin.range.end
     }
     
     /// Get a [Chars] [Iterator] over the [char]acters in this [Fragment].
@@ -158,6 +167,26 @@ impl Fragment {
     pub fn advance_by_unchecked(&mut self, bytes: usize) {
         self.range.start += bytes;
     }
+
+    /// Retain up to `bytes` bytes of this [Fragment]. 
+    /// 
+    /// # Panics
+    /// - Panics if the updated [Fragment] would be invalid. 
+    pub fn retain(&mut self, bytes: usize) {
+        // Bounds check. 
+        if !self.as_str().is_char_boundary(bytes) {
+            panic!("Retaining to {bytes} bytes would create an invalid fragment.");
+        }
+
+        self.retain_unchecked(bytes);
+    }
+
+    /// This is the same as [Fragment::retain] except without the bounds checking. Use carefully or the created 
+    /// [Fragment]s will be invalid. 
+    #[inline]
+    pub fn retain_unchecked(&mut self, bytes: usize) {
+        self.range.end = self.range.start + bytes;
+    }
 }
 
 impl PartialEq for Fragment {
@@ -173,25 +202,29 @@ impl Eq for Fragment {}
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+    use crate::source_tracking::{filename::FileName, source::Source};
     use super::Fragment;
+
+    /// Utility function to create a one-off fragment over a static string.
+    fn from_static(s: &'static str) -> Fragment {
+        let source = Source::new_from_static_str(FileName::None, s);
+        let arc = Arc::new(source);
+        
+        Fragment { range: 0..arc.source().as_ref().len(), source: arc }
+    }
 
     #[test]
     fn test_overlap() {
-        let a = Fragment {
-            inner: "Test string",
-        };
+        let a = from_static("Test string");
 
-        let b = Fragment {
-            inner: &a.inner[3..],
-        };
+        let mut b = a.clone();
+        b.advance_by(3);
 
-        let c = Fragment {
-            inner: &a.inner[..a.len() - 3],
-        };
+        let mut c = a.clone();
+        c.retain(a.len() - 3);
 
-        let d = Fragment {
-            inner: "other string",
-        };
+        let d = from_static("other string");
 
         assert!(a.overlaps(&b));
         assert!(b.overlaps(&c));
@@ -201,15 +234,15 @@ mod tests {
 
     #[test]
     fn test_split_single() {
-        let a = Fragment { inner: "+" };
+        let a = from_static("+");
         let (left, right) = a.split_at(1);
-        assert_eq!(left.inner, "+");
-        assert_eq!(right.inner, "");
+        assert_eq!(left.as_str(), "+");
+        assert_eq!(right.as_str(), "");
     }
 
     #[test]
     fn test_offset_from() {
-        let a = Fragment { inner: "abcde" };
+        let a = from_static("abcde");
         let (b, c) = a.split_at(2);
         assert_eq!(b.offset_from(&a), 0);
         assert_eq!(c.offset_from(&a), 2);
@@ -218,17 +251,18 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_offset_panics() {
-        let a = Fragment { inner: "abc" };
-        let b = Fragment { inner: "def" };
+        let a = from_static("abc");
+        let b = from_static("def");
         a.offset_from(&b);
     }
 
     #[test]
     fn test_is_at_end_of() {
-        let a = Fragment { inner: "abc" };
+        let a = from_static("abc");
         let b = a.split_at(a.len()).1;
         let c = Fragment {
-            inner: &a.inner[a.len()..],
+            source: Arc::clone(&a.source),
+            range: 3..3,
         };
 
         assert!(b.is_at_end_of(&a));
@@ -237,22 +271,23 @@ mod tests {
 
     #[test]
     fn test_trimmed_is_contained() {
-        let a = Fragment { inner: "  aa aa  " };
-        let b = a.trimmed();
+        let a = from_static("  aa aa  ");
+        let b = a.clone().trimmed();
         assert!(a.contains(&b));
+        assert_eq!(b.len(), 5);
     }
 
     #[test]
     fn trimmed_empty() {
-        let empty = Fragment { inner: "" };
-        assert!(empty.trimmed().ptr_eq(&empty));
+        let empty = from_static("");
+        assert_eq!(empty.clone().trimmed(), empty);
     }
 
     #[test]
     fn trimmed_whitespace() {
-        let w = Fragment { inner: "  " };
-        assert!(w.contains(&w.trimmed()));
-        assert!(w.trimmed().is_empty());
-        assert!(w.overlaps(&w.trimmed()));
+        let w = from_static("  ");
+        assert!(w.contains(&w.clone().trimmed()));
+        assert!(w.clone().trimmed().is_empty());
+        assert!(w.overlaps(&w.clone().trimmed()));
     }
 }
