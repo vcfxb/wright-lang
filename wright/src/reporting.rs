@@ -101,9 +101,6 @@ impl Diagnostic {
 
     /// Write this [Diagnostic] to the given writer. 
     /// 
-    /// [Diagnostic::color_choice] will be ignored by this function. It is only used as a default
-    /// to designate the color used when writing to [StandardStream]s. 
-    /// 
     /// It is suggested to use [supports_unicode] to determine a good value for `write_unicode` when writing to 
     /// standard streams. That is what this crate does in functions like [Diagnostic::print].
     pub fn write<W: WriteColor>(&self, w: &mut W, write_unicode: bool) -> io::Result<()> {
