@@ -13,6 +13,7 @@ use std::sync::mpsc;
 use std::path::PathBuf;
 use fs4::FileExt;
 use memmap2::Mmap;
+use termcolor::ColorChoice;
 
 /// Amount of time before we should warn the user about locking the file taking too long.
 pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
@@ -97,7 +98,7 @@ impl Source {
                     );
 
                     // Wrap the message in a warning diagnostic and print it. 
-                    Diagnostic::warning(message).print()?;
+                    Diagnostic::warning(message).print(ColorChoice::Auto)?;
                 }
 
                 // Handle any io errors locking the file by returning them.
