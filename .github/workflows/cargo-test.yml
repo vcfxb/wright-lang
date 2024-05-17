@@ -73,19 +73,22 @@ jobs:
 
       - name: Get the LLVM version (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
+        # run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
+        run: llvm-config --version
+        # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
+        continue-on-error: true
         
       - name: Get the LLVM version (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: llvm-config --version
-        # For some reason, this seems to error even when the build checks successfully. Leaving it in for now. 
+        # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
         continue-on-error: true
 
       - name: Run cargo test (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
         run: cargo test
-        env:
-          LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
+        # env:
+        #   LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
         
       - name: Run cargo test (Ubuntu & Windows)
         if: ${{ matrix.os != 'macos-latest' }}
