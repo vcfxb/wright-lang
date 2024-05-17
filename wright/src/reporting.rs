@@ -7,12 +7,12 @@
 
 use std::io;
 use self::{owned_string::OwnedString, severity::Severity};
-use termcolor::{ColorChoice, ColorSpec, StandardStream, StandardStreamLock, WriteColor};
+use termcolor::{ColorChoice, StandardStream, StandardStreamLock, WriteColor};
 
 pub mod severity;
 pub mod owned_string;
 pub mod label;
-pub mod draw;
+mod draw;
 
 /// A diagnostic to help the user to understand details of their interactions with the Wright compiler.
 #[derive(Debug)]
@@ -104,49 +104,11 @@ impl Diagnostic {
     /// It is suggested to use [supports_unicode] to determine a good value for `write_unicode` when writing to 
     /// standard streams. That is what this crate does in functions like [Diagnostic::print].
     pub fn write<W: WriteColor>(&self, w: &mut W, write_unicode: bool) -> io::Result<()> {
-        // Create a color spec to use as we write to the writer.
-        let mut spec: ColorSpec = ColorSpec::new();
-        // Set the color spec for the severity and code. 
-        spec.set_intense(true).set_fg(Some(self.severity.color()));
-        w.set_color(&spec)?;
-
-
-
-        // Write the severity and code.
-        write!(w, "{}", self.severity)?;
-
-        if let Some(code) = self.code.as_ref() {
-            write!(w, " [{code}]")?;
-        }
-
-        // Reset the color to write the message. 
-        spec.set_fg(None);
-        w.set_color(&spec)?;
-
-        // Write the message and a new line.
-        writeln!(w, ": {}", self.message)?;
-
-        Ok(())
+        draw::draw(self, w, write_unicode)
     }
 }
 
 #[cfg(test)] 
 mod tests {
-    use termcolor::NoColor;
-
-    use super::Diagnostic;
-
-    #[test]
-    fn test_basic_error() {
-        // Use a byte vec as a test buffer to write to without color. 
-        let mut buffer: NoColor<Vec<u8>> = NoColor::new(Vec::new());
-        // Create a test diagnostic.
-        let d: Diagnostic = Diagnostic::error("test error");
-        // Write to buffer.
-        d.write(&mut buffer, false).unwrap();
-        // Convert the buffer to a string to compare.
-        let output: &str = std::str::from_utf8(buffer.get_ref().as_slice()).unwrap();
-
-        assert_eq!(output, "error: test error\n");
-    }
+    // Drawing tests currently covered in [super::draw].
 }
