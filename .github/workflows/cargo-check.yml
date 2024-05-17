@@ -19,7 +19,7 @@ jobs:
           - os: windows-latest
             shell: 'msys2 {0}'
           - os: macos-latest
-            llvm-install-dir: /usr/local/opt/llvm
+            llvm-install-dir: /opt/homebrew/opt/llvm
         exclude: 
           - os: windows-latest
             shell: bash

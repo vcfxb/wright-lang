@@ -19,9 +19,7 @@ jobs:
           - os: windows-latest
             shell: 'msys2 {0}'
           - os: macos-latest
-            llvm-install-dir: /usr/local/opt/llvm
-            # Temporarily allow mac to fail until the homebrew package for llvm is updated.
-            allow-failure: true
+            llvm-install-dir: /opt/homebrew/opt/llvm
         exclude: 
           - os: windows-latest
             shell: bash
