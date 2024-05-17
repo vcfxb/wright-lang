@@ -87,6 +87,6 @@
 //     Ok(())
 // }
 
-fn main() { 
+fn main() {
     todo!("Wright frontend undergoing overhaul");
 }

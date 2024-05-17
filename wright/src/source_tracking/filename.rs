@@ -1,7 +1,7 @@
-//! Structure and implementation relating to file names used throughout the wright compiler and tooling. 
+//! Structure and implementation relating to file names used throughout the wright compiler and tooling.
 
-use std::path::PathBuf;
 use derive_more::Display;
+use std::path::PathBuf;
 
 /// Used to represent different file names used throughout this crate.
 #[derive(Debug, Display, Clone)]

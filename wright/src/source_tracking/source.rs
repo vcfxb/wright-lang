@@ -1,18 +1,18 @@
-//! Structure and implementation for storing source code items used by the wright compiler, including 
-//! source files from disk, source strings used in test cases, and source strings created at 
+//! Structure and implementation for storing source code items used by the wright compiler, including
+//! source files from disk, source strings used in test cases, and source strings created at
 //! run-time by an API consumer.
 
 use crate::reporting::Diagnostic;
 
 use super::{filename::FileName, immutable_string::ImmutableString};
-use std::time::Duration;
-use std::fs::File;
-use std::io;
-use std::thread;
-use std::sync::mpsc;
-use std::path::PathBuf;
 use fs4::FileExt;
 use memmap2::Mmap;
+use std::fs::File;
+use std::io;
+use std::path::PathBuf;
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 use termcolor::ColorChoice;
 
 /// Amount of time before we should warn the user about locking the file taking too long.
@@ -21,14 +21,14 @@ pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
 /// A full source. This is usually a file, but may also be passed in the form of a string for testing.  
 #[derive(Debug)]
 pub struct Source {
-    /// The name of this source file. 
+    /// The name of this source file.
     name: FileName,
 
-    /// The content of this source file. 
+    /// The content of this source file.
     source: ImmutableString,
 
-    /// A list of byte indicies into the [Source::source] indicating where lines starts. 
-    line_starts: Vec<usize>
+    /// A list of byte indicies into the [Source::source] indicating where lines starts.
+    line_starts: Vec<usize>,
 }
 
 impl Source {
@@ -37,7 +37,7 @@ impl Source {
         Source {
             name,
             line_starts: source.line_starts(),
-            source
+            source,
         }
     }
 
@@ -47,7 +47,7 @@ impl Source {
     }
 
     /// Create a [Source] from a [`&'static str`].
-    /// 
+    ///
     /// [`&'static str`]: str
     pub fn new_from_static_str(name: FileName, source: &'static str) -> Self {
         Source::new(name, ImmutableString::new_static(source))
@@ -97,7 +97,7 @@ impl Source {
                         FILE_LOCK_WARNING_TIME.as_secs()
                     );
 
-                    // Wrap the message in a warning diagnostic and print it. 
+                    // Wrap the message in a warning diagnostic and print it.
                     Diagnostic::warning(message).print(ColorChoice::Auto)?;
                 }
 
@@ -122,7 +122,7 @@ impl Source {
 
                     // Double check that the file is valid utf-8. If not, return an IO error.
                     let raw_data: &[u8] = mem_map.as_ref();
-                    
+
                     if let Err(utf8_error) = std::str::from_utf8(raw_data) {
                         // The file is not valid for us so we should unlock it and return an error.
                         file.unlock()
@@ -132,8 +132,11 @@ impl Source {
                         return Err(io::Error::new(io::ErrorKind::InvalidData, utf8_error));
                     }
 
-                    // If we get here, the file is valid UTF-8 -- put the memory mapped file in an Immutable string object. 
-                    return Ok(Source::new(FileName::Real(path), ImmutableString::new_locked_file(file, mem_map)));
+                    // If we get here, the file is valid UTF-8 -- put the memory mapped file in an Immutable string object.
+                    return Ok(Source::new(
+                        FileName::Real(path),
+                        ImmutableString::new_locked_file(file, mem_map),
+                    ));
                 }
 
                 Err(_) => unreachable!(
@@ -153,7 +156,7 @@ impl Source {
         &self.source
     }
 
-    /// Get the name of this [Source]. 
+    /// Get the name of this [Source].
     pub const fn name(&self) -> &FileName {
         &self.name
     }
