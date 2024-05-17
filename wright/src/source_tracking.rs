@@ -44,3 +44,9 @@ impl SourceMap {
         source
     }
 }
+
+impl Default for SourceMap {
+    fn default() -> Self {
+        SourceMap::new()
+    }
+}
