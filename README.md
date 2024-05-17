@@ -6,6 +6,7 @@
 Pulling from all three of these excellent languages, Wright intends to offer a combination of speed, ergonomics, and precision.*
 
 ### Badges
+*Wright is automatically checked and tested using the latest available github runners for Ubuntu, MacOS, and Windows*
 | Service | Badge |
 |:---:|:---:|
 | Cargo Check Status | ![Cargo Check status](https://github.com/vcfxb/wright-lang/actions/workflows/cargo-check.yml/badge.svg?branch=main) |
@@ -64,7 +65,7 @@ func main() {
     documented.
 * __Robustness__ -- Wright's type system should be expressive enough to appropriately capture the domain, representation, 
     and functionality of every symbol the programmer interacts with. 
-* __Speed__ -- Wright leverages the newest version of LLVM (at the time of writing, LLVM 18), to compile code 
+* __Speed__ -- Wright leverages the newest major version of LLVM (at the time of writing, LLVM 18), to compile code 
     directly to assembly, avoiding the overhead of an interpreter, garbage collector, and other associated tools 
     by default. 
 * __Memory Safety__ -- Wright pulls significant inspiration from Rust's lifetime system, with some modifications. 
