@@ -4,7 +4,30 @@
 
 use std::io;
 use termcolor::{ColorSpec, WriteColor};
-use super::Diagnostic;
+use super::{Diagnostic, Highlight};
+
+/// Prefix added to the beginning of every line in a section (such as a [Highlight] or [Diagnostic::note])
+/// when unicode is not available. 
+const ASCII_SECTION_PREFIX: char = '|';
+
+/// Prefix added to the beginning of every line in a section (such as a [Highlight] or [Diagnostic::note])
+/// when unicode is available.
+const UNICODE_SECTION_PREFIX: char = '\u{2503}';
+
+/// Character to print on the first/header line of a section that connects to the prefix characters on following lines. 
+const UNICODE_SECTION_OPENER: char = '\u{250F}';
+
+/// Character to print on the first/header line of a section that connects to the prefix characters on following lines. 
+const ASCII_SECTION_OPENER: char = '=';
+
+/// Character to print after the last line of a section that connects to the prefix characters on previous lines. 
+const UNICODE_SECTION_CLOSER: char = '\u{2579}';
+
+/// Character to print after the last line of a section that connects to the prefix characters on previous lines. 
+/// 
+/// This is just a space for ASCII as there is not a great way to close sections otherwise. 
+const ASCII_SECTION_CLOSER: char = ' ';
+
 
 /// Draw a [Diagnostic] to a [WriteColor] reciever, optionally using unicode. 
 pub fn draw<W: WriteColor>(diagnostic: &Diagnostic, w: &mut W, write_unicode: bool) -> io::Result<()> {
@@ -77,6 +100,21 @@ mod tests {
 
         assert_eq!(without_unicode, "error [TEST_001]: test error\n");
         assert_eq!(without_unicode, with_unicode);
+    }
+
+    // Run this with `cargo test test_unicode_vs_ascii -- --include-ignored --nocapture` to print the constants \
+    // used in this module.
+    #[test]
+    #[ignore = "print-debugging tests ignored by default"]
+    fn test_unicode_vs_ascii() {
+        use super::{UNICODE_SECTION_CLOSER, UNICODE_SECTION_OPENER, UNICODE_SECTION_PREFIX};
+
+        // Print unicode section: 
+        println!("{UNICODE_SECTION_OPENER} Note: \
+                \n{UNICODE_SECTION_PREFIX} Test note \
+                \n{UNICODE_SECTION_PREFIX} \
+                \n{UNICODE_SECTION_CLOSER}");
+
     }
 }
 
