@@ -5,8 +5,8 @@
 //! [codespan-reporting]: https://crates.io/crates/codespan-reporting
 //! [ariadne]: https://crates.io/crates/ariadne
 
-use crate::source_tracking::fragment::Fragment;
 use self::{owned_string::OwnedString, severity::Severity};
+use crate::source_tracking::fragment::Fragment;
 use std::io;
 use termcolor::{ColorChoice, StandardStream, StandardStreamLock, WriteColor};
 
@@ -30,22 +30,22 @@ pub struct Diagnostic {
     /// error/warning lies.
     pub primary_highlight: Option<Highlight>,
 
-    /// Any secondary [Highlight]s that help the reader understand this diagnostic. 
+    /// Any secondary [Highlight]s that help the reader understand this diagnostic.
     pub secondary_highlights: Vec<Highlight>,
 
-    /// Optionally a note giving extra context or re-stating this diagnostic. 
+    /// Optionally a note giving extra context or re-stating this diagnostic.
     pub note: Option<OwnedString>,
 }
 
 /// Some highlighted source code that can be printed with a [Diagnostic], usually with its own message(s).
-#[derive(Debug)] 
+#[derive(Debug)]
 pub struct Highlight {
     /// A valid [Fragment] representing the source where the error occurred.
     /// The surrounding source will be printed to the best of the ability of this
     /// implementation, which may be modified or updated to better draw [Diagnostic]s.
     pub fragment: Fragment,
 
-    /// Optionally a message to display with the highlighted region. 
+    /// Optionally a message to display with the highlighted region.
     pub message: Option<OwnedString>,
 }
 
@@ -61,7 +61,7 @@ impl Diagnostic {
             message: message.into(),
             primary_highlight: None,
             secondary_highlights: Vec::new(),
-            note: None
+            note: None,
         }
     }
 
