@@ -107,7 +107,7 @@ mod tests {
     #[test]
     #[ignore = "print-debugging tests ignored by default"]
     fn test_unicode_vs_ascii() {
-        use super::{UNICODE_SECTION_CLOSER, UNICODE_SECTION_OPENER, UNICODE_SECTION_PREFIX};
+        use super::{ASCII_SECTION_CLOSER, ASCII_SECTION_OPENER, ASCII_SECTION_PREFIX, UNICODE_SECTION_CLOSER, UNICODE_SECTION_OPENER, UNICODE_SECTION_PREFIX};
 
         // Print unicode section: 
         println!("{UNICODE_SECTION_OPENER} Note: \
@@ -115,6 +115,12 @@ mod tests {
                 \n{UNICODE_SECTION_PREFIX} \
                 \n{UNICODE_SECTION_CLOSER}");
 
+        
+        // Print ASCII section: 
+        println!("{ASCII_SECTION_OPENER} Note: \
+                \n{ASCII_SECTION_PREFIX} Test note \
+                \n{ASCII_SECTION_PREFIX} \
+                \n{ASCII_SECTION_CLOSER}");
     }
 }
 

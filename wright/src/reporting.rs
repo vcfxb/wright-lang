@@ -11,7 +11,6 @@ use std::io;
 use termcolor::{ColorChoice, StandardStream, StandardStreamLock, WriteColor};
 
 mod draw;
-pub mod label;
 pub mod owned_string;
 pub mod severity;
 
