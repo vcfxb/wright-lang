@@ -144,7 +144,7 @@ impl AsRef<str> for ImmutableStringInner {
         match self {
             ImmutableStringInner::Static(str) => str,
             ImmutableStringInner::Owned(str) => str,
-            
+
             #[cfg(feature = "file_memmap")]
             ImmutableStringInner::LockedFile { mem_map, .. } => {
                 // Get a direct reference to the data that is in the memory map.

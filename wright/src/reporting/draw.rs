@@ -59,8 +59,6 @@ pub fn draw<W: WriteColor>(
     Ok(())
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use crate::reporting::Diagnostic;

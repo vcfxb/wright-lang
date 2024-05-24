@@ -8,11 +8,7 @@ use std::io;
 use std::path::PathBuf;
 
 #[cfg(feature = "file_memmap")]
-use std::{
-    sync::mpsc,
-    thread,
-    time::Duration
-};
+use std::{sync::mpsc, thread, time::Duration};
 
 #[cfg(feature = "file_memmap")]
 use fs4::FileExt;
@@ -67,8 +63,8 @@ impl Source {
 
     /// Attempt to memory map a file from the disk into a [Source].
     /// This will likely be faster than reading the file in some cases, and almost always more memory efficient.
-    /// 
-    /// This requires the "file_memmap" feature. 
+    ///
+    /// This requires the "file_memmap" feature.
     #[cfg(feature = "file_memmap")]
     pub fn new_mapped_from_disk(path: PathBuf) -> io::Result<Self> {
         // Make a one-off enum here to use for channel messages.
@@ -163,19 +159,22 @@ impl Source {
     }
 
     /// Read a file from the disk into a source. This reads the file, which may take longer than memory mapping it
-    /// as done in [Self::new_mapped_from_disk]. This does not require the same features and dependencies as memory 
-    /// mapped operations though. This stores the whole file in memory, rather than mapping virtual memory to the disk. 
-    /// That makes this less memory efficient than [Self::new_mapped_from_disk], which may be important on systems 
-    /// where ram is constrained. 
-    /// 
-    /// Use this if the "file_memmap" is not available for some reason. 
+    /// as done in [Self::new_mapped_from_disk]. This does not require the same features and dependencies as memory
+    /// mapped operations though. This stores the whole file in memory, rather than mapping virtual memory to the disk.
+    /// That makes this less memory efficient than [Self::new_mapped_from_disk], which may be important on systems
+    /// where ram is constrained.
+    ///
+    /// Use this if the "file_memmap" is not available for some reason.
     pub fn new_read_from_disk(path: PathBuf) -> io::Result<Self> {
         // Open the file for reading.
         let file: File = File::open(&path)?;
         // Read the file to a string.
         let content: String = io::read_to_string(&file)?;
-        // Turn that into a Source. 
-        Ok(Self::new(FileName::Real(path), ImmutableString::new_owned(content.into_boxed_str())))
+        // Turn that into a Source.
+        Ok(Self::new(
+            FileName::Real(path),
+            ImmutableString::new_owned(content.into_boxed_str()),
+        ))
     }
 
     /// Get byte indices of where lines start in this [Source].
