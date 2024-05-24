@@ -46,7 +46,7 @@ pub struct Highlight {
     pub fragment: Fragment,
 
     /// Optionally a message to display with the highlighted region.
-    pub message: Option<OwnedString>,
+    pub message: OwnedString,
 }
 
 impl Diagnostic {
