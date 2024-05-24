@@ -12,6 +12,15 @@ keywords = ["wright", "language", "bytecode", "compiler", "interpreter"]
 edition.workspace = true
 rust-version.workspace = true
 
+# DOC.RS SPECIFIC METADATA
+[package.metadata.docs.rs]
+# document all features
+all-features = true
+
+# CRATES.IO BADGES
+[badges]
+maintenance = {status = "actively-developed"}
+
 # LIBRARY METADATA
 [lib]
 name = "wright"
@@ -25,62 +34,95 @@ name = "wright"
 test = false
 doc = false
 doctest = false
+required-features = []
 
 # BENCHMARKS
 [[bench]]
 name = "lexer"
 harness = false
 
-# CRATES.IO BADGES
-[badges.maintenance]
-status = "actively-developed"
+# FEATURE FLAGS
+# These are used to determine which parts of the crate are compiled/available.
+[features]
 
+# By default include everything required for building the wright binary, which includes everything used for building 
+# wright as a library.  
+default = ["wright_binary"]
+
+# Features and dependencies required for the wright binary. These are built by default. 
+wright_binary = ["file_memmap", "dep:clap"]
+
+# Features and dependencies useful when the wright binary is not being built or used. 
+wright_library_defaults = ["file_memmap"]
+
+# Source tracking requires just the base set of dependencies and standard library. 
+source_tracking = []
+
+# Reporting errors requires soruce tracking and the ariadne dependency to generate colors for the terminal. 
+reporting = ["source_tracking", "dep:ariadne", "dep:termcolor", "dep:supports-unicode"]
+
+# Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
+# read from disk. 
+file_memmap = ["dep:memmap2", "dep:fs4", "reporting"]
+
+
+# SIMPLE DEPENDENCIES: 
 [dependencies]
-supports-unicode = "3.0.0"
-
-# DEPENDENCIES: 
-
-# For determining the size of the terminal we're writing to. 
-[dependencies.terminal_size]
-version = "0.3.0"
-
-# For getting the displayed width of unicode characters. 
-[dependencies.unicode-width]
-version = "0.1.11"
-
-# Comand-line interface generator
-[dependencies.clap]
-version = "4"
-features = ["derive"]
-
-# Error handling glue code
-# [dependencies.anyhow]
-# version = "1"
 
 # Derives for various traits
-[dependencies.derive_more]
-version = "0.99.17"
+derive_more = "0.99.17"
+
+# For determining the size of the terminal we're writing to. 
+# terminal_size = "0.3.0"
+
+# For getting the displayed width of unicode characters and strings. 
+# unicode-width = "0.1.11"
 
 # Unicode identifier functions
-[dependencies.unicode-ident]
-version = "1.0"
-
-# Terminal output colors
-[dependencies.termcolor]
-version = "1.4.1"
+# unicode-ident = "1.0"
 
 # Big Integers
-[dependencies.num] 
-version = "0.4"
+# num = "0.4"
+
+# DEPENDENCIES WITH/AS FEATURES:
+
+# Used just for generating colors to highlight code with in diagnostics.
+# Optional: Only required for reporting. 
+[dependencies.ariadne]
+version = "0.4.1"
+optional = true
+
+# Used to check if the output terminal supports unicode.
+# Optional: Only required for reporting. 
+[dependencies.supports-unicode]
+version = "3.0.0"
+optional = true
+
+# Terminal output colors
+# Optional: Required for reporting.
+[dependencies.termcolor]
+version = "1.4.1"
+optional = true
+
+# Memory mapped files. 
+# Optional: Required for memmory mapped file access. 
+[dependencies.memmap2]
+version = "0.9.3"
+optional = true
 
 # Portable (windows, mac, linux) file locking
+# Optional: Required for memmory mapped file access. 
 [dependencies.fs4] 
 version = "0.7.0"
 features = ["sync"]
+optional = true
 
-# Memory mapped files. 
-[dependencies.memmap2]
-version = "0.9.3"
+# Comand-line interface generator
+# Optional: Used only by the wright binary. 
+[dependencies.clap]
+version = "4"
+features = ["derive"]
+optional = true
 
 # Unsafe bindings to LLVM 
 # See https://llvm.org/.
@@ -89,11 +131,10 @@ version = "180"
 features = ["force-static"]
 
 # TEST DEPENDENCIES
+[dev-dependencies]
 
 # Criterion is used for benchmarking. 
-[dev-dependencies.criterion] 
-version = "0.5.1"
+criterion = "0.5.1"
 
 # Rayon is used to do various brute-force tests in parallel
-[dev-dependencies.rayon]
-version = "1.8.0"
+rayon = "1.8.0"

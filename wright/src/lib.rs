@@ -8,7 +8,10 @@
 /// The version of this copy of Wright.
 pub const WRIGHT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+#[cfg(feature = "reporting")]
 pub mod reporting;
+
+#[cfg(feature = "source_tracking")]
 pub mod source_tracking;
 // pub mod parser;
 // pub mod repl;

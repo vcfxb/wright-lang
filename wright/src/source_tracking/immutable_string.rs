@@ -1,9 +1,16 @@
 //! Structure and implementation relating to the representation of source files (as immutable strings) throughout
 //! the Wright compiler and tooling.
 
+use std::str::CharIndices;
+
+#[cfg(feature = "file_memmap")]
 use fs4::FileExt;
+
+#[cfg(feature = "file_memmap")]
 use memmap2::Mmap;
-use std::{fs::File, io, str::CharIndices};
+
+#[cfg(feature = "file_memmap")]
+use std::{fs::File, io};
 
 /// An immutable string that either
 /// - References a source string in memory using a `'static` reference,
@@ -34,6 +41,7 @@ impl ImmutableString {
     ///
     /// This function requires that the memory mapped by the given
     /// [Mmap] is valid UTF-8 using [std::str::from_utf8].
+    #[cfg(feature = "file_memmap")]
     pub(super) fn new_locked_file(file: File, mem_map: Mmap) -> Self {
         Self::from_inner(ImmutableStringInner::LockedFile {
             locked_file: file,
@@ -92,6 +100,7 @@ enum ImmutableStringInner {
     Owned(Box<str>),
 
     /// A locked, memory mapped file from the disk.
+    #[cfg(feature = "file_memmap")]
     LockedFile {
         /// The locked file that gets unlocked when this struct is dropped.
         locked_file: File,
@@ -110,6 +119,7 @@ enum ImmutableStringInner {
 }
 
 /// Implement [Drop] to make sure that the files from disk get unlocked as they go out of scope/use.
+#[cfg(feature = "file_memmap")]
 impl Drop for ImmutableStringInner {
     fn drop(&mut self) {
         match self {
@@ -134,6 +144,8 @@ impl AsRef<str> for ImmutableStringInner {
         match self {
             ImmutableStringInner::Static(str) => str,
             ImmutableStringInner::Owned(str) => str,
+            
+            #[cfg(feature = "file_memmap")]
             ImmutableStringInner::LockedFile { mem_map, .. } => {
                 // Get a direct reference to the data that is in the memory map.
                 let raw_data: &[u8] = mem_map.as_ref();

@@ -13,6 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Different features to check against on all platforms. Currently each group is one feature, since each
+        # depends on the previous, but more combinations could be added in the future. 
+        features: ["source_tracking", "reporting", "file_memmap", "wright_library_defaults", "wright_binary"]
         os: [ubuntu-latest, windows-latest, macos-latest]
         shell: [bash]
         include: 
@@ -83,10 +86,10 @@ jobs:
 
       - name: Run cargo test (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cargo test
+        run: cargo test --no-default-features -F ${{ matrix.features }}
         env:
           LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
         
       - name: Run cargo test (Ubuntu & Windows)
         if: ${{ matrix.os != 'macos-latest' }}
-        run: cargo test
+        run: cargo test --no-default-features -F ${{ matrix.features }}
