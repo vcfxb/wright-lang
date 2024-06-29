@@ -59,12 +59,19 @@ wright_library_defaults = ["file_memmap"]
 source_tracking = []
 
 # Reporting errors requires soruce tracking and the ariadne dependency to generate colors for the terminal. 
-reporting = ["source_tracking", "dep:ariadne", "dep:termcolor", "dep:supports-unicode"]
+reporting = [
+    "source_tracking", 
+    "dep:termcolor", 
+    "dep:supports-unicode", 
+    "dep:syntect", 
+    "dep:terminal_size",
+    "dep:supports-hyperlinks",
+    "dep:terminal-link"
+]
 
 # Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
 # read from disk. 
 file_memmap = ["dep:memmap2", "dep:fs4", "reporting"]
-
 
 # SIMPLE DEPENDENCIES: 
 [dependencies]
@@ -72,11 +79,8 @@ file_memmap = ["dep:memmap2", "dep:fs4", "reporting"]
 # Derives for various traits
 derive_more = "0.99.17"
 
-# For determining the size of the terminal we're writing to. 
-# terminal_size = "0.3.0"
-
 # For getting the displayed width of unicode characters and strings. 
-# unicode-width = "0.1.11"
+# unicode-width = "0.1.13"
 
 # Unicode identifier functions
 # unicode-ident = "1.0"
@@ -86,10 +90,26 @@ derive_more = "0.99.17"
 
 # DEPENDENCIES WITH/AS FEATURES:
 
-# Used just for generating colors to highlight code with in diagnostics.
-# Optional: Only required for reporting. 
-[dependencies.ariadne]
-version = "0.4.1"
+# Syntect for syntax highlighting in diagnostics/error reporting. 
+# Optional since it's only used when error reporting is required. 
+[dependencies.syntect]
+version = "5.2"
+optional = true
+
+# For determining the size of the terminal we're writing to. 
+# Optional since it's only used when error reporting is required. 
+[dependencies.terminal_size]
+version = "0.3.0"
+optional = true
+
+# Check if the terminal supports hyper links. 
+[dependencies.supports-hyperlinks]
+version = "3.0.0"
+optional = true
+
+# Create/format a link for a terminal/terminal emulator. 
+[dependencies.terminal-link]
+version = "0.1.0"
 optional = true
 
 # Used to check if the output terminal supports unicode.
@@ -138,3 +158,6 @@ criterion = "0.5.1"
 
 # Rayon is used to do various brute-force tests in parallel
 rayon = "1.8.0"
+
+# indoc is used for indentation in tests
+indoc = "2.0.5"

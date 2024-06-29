@@ -5,14 +5,17 @@
 //! [codespan-reporting]: https://crates.io/crates/codespan-reporting
 //! [ariadne]: https://crates.io/crates/ariadne
 
-use self::{owned_string::OwnedString, severity::Severity};
+use self::{owned_string::OwnedString, severity::Severity, style::Style};
 use crate::source_tracking::fragment::Fragment;
 use std::io;
+use supports_unicode::Stream;
 use termcolor::{ColorChoice, StandardStream, StandardStreamLock, WriteColor};
 
 mod draw;
+pub mod style;
 pub mod owned_string;
 pub mod severity;
+pub mod box_drawing;
 
 /// A diagnostic to help the user to understand details of their interactions with the Wright compiler.
 #[derive(Debug)]
@@ -117,36 +120,39 @@ impl Diagnostic {
     ///
     /// Uses [supports_unicode] to determine whether to print unicode characters.
     pub fn print(&self, color_choice: ColorChoice) -> io::Result<()> {
-        // Check if the standard output supports unicode.
-        let write_unicode: bool = supports_unicode::on(supports_unicode::Stream::Stdout);
         // Get the standard output stream.
         let stdout: StandardStream = StandardStream::stdout(color_choice);
         // Lock it to make sure we can write without interruption.
         let mut stdout_lock: StandardStreamLock = stdout.lock();
         // Write to the locked stream.
-        self.write(&mut stdout_lock, write_unicode)
+        self.write(&mut stdout_lock, Style::for_stream(Stream::Stdout))
     }
 
     /// Print this diagnostic to the standard error.
     ///
     /// Uses [supports_unicode] to determine whether to print unicode characters.
     pub fn eprint(&self, color_choice: ColorChoice) -> io::Result<()> {
-        // Check if the standard error supports unicode.
-        let write_unicode: bool = supports_unicode::on(supports_unicode::Stream::Stderr);
         // Get the standard error stream.
         let stderr: StandardStream = StandardStream::stderr(color_choice);
         // Lock it to make sure we can write without interruption.
         let mut stderr_lock: StandardStreamLock = stderr.lock();
         // Write to the locked stream.
-        self.write(&mut stderr_lock, write_unicode)
+        self.write(&mut stderr_lock, Style::for_stream(Stream::Stderr))
     }
 
     /// Write this [Diagnostic] to the given writer.
     ///
-    /// It is suggested to use [supports_unicode] to determine a good value for `write_unicode` when writing to
-    /// standard streams. That is what this crate does in functions like [Diagnostic::print].
-    pub fn write<W: WriteColor>(&self, w: &mut W, write_unicode: bool) -> io::Result<()> {
-        draw::draw(self, w, write_unicode)
+    /// Generally using one of the constants from the [style] module is reasonable, but if you have a custom 
+    /// style, you may use it here. [`supports_unicode`] may be used to determine if the terminal supports unicode. 
+    pub fn write<W: WriteColor>(&self, w: &mut W, style: Style) -> io::Result<()> {
+        draw::draw(self, w, style)
+    }
+}
+
+impl Highlight {
+    /// Construct a new [Highlight]. 
+    pub fn new(frag: Fragment, message: impl Into<OwnedString>) -> Self {
+        Self { fragment: frag, message: message.into() }
     }
 }
 

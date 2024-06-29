@@ -2,8 +2,9 @@
 //! source files from disk, source strings used in test cases, and source strings created at
 //! run-time by an API consumer.
 
-use super::{filename::FileName, immutable_string::ImmutableString};
-use std::fs::File;
+use super::SourceRef;
+use super::{filename::FileName, fragment::Fragment, immutable_string::ImmutableString};
+use std::{fs::File, sync::Arc};
 use std::io;
 use std::path::PathBuf;
 
@@ -110,7 +111,10 @@ impl Source {
                     );
 
                     // Wrap the message in a warning diagnostic and print it.
-                    Diagnostic::warning(message).print(ColorChoice::Auto)?;
+                    // Add a note to describe what is going on.
+                    Diagnostic::warning(message)
+                        .with_note("This may be caused by another process holding or failing to release a lock on this file.")
+                        .print(ColorChoice::Auto)?;
                 }
 
                 // Handle any io errors locking the file by returning them.
@@ -180,6 +184,55 @@ impl Source {
     /// Get byte indices of where lines start in this [Source].
     pub fn line_starts(&self) -> &[usize] {
         self.line_starts.as_slice()
+    }
+
+    /// Get the number of lines in this [Source]. This is identical to [`Self::line_starts`] length. 
+    pub fn count_lines(&self) -> usize {
+        self.line_starts.len()
+    }
+
+    /// Get a line of this [Source] as a [Fragment]. 
+    /// The returned [Fragment] will contain the line terminating characters at the end of it. If you don't want those,
+    /// use [Fragment::trim_end]. 
+    /// 
+    /// *Note* that this uses `line_index` which is considered 0-indexed -- when displaying line numbers to the user, 
+    /// remember to add 1. 
+    /// 
+    /// # Panics
+    /// - This will panic if you ask for a line index that's higher than or equal to the number returned 
+    ///     by [`Self::count_lines`].
+    pub fn get_line(self: &SourceRef, line_index: usize) -> Fragment {
+        if line_index >= self.count_lines() {
+            panic!("{} is greater than the number of lines in {}", line_index, self.name);
+        }
+
+        // Get the starting byte index of the line. 
+        let start_byte_index: usize = self.line_starts[line_index];
+        
+        // Get the ending byte index of the line / the starting index of the next line/the index of the end of the file.
+        let end_byte_index: usize = if line_index + 1 == self.count_lines() {
+            self.source.len()
+        } else {
+            self.line_starts[line_index + 1]
+        };
+
+        // Construct the resultant fragment. 
+        let frag = Fragment { source: Arc::clone(self), range: start_byte_index..end_byte_index };
+        // Debug assert that the fragment is valid. This should always be true but might be useful for testing. 
+        debug_assert!(frag.is_valid());
+        // Return constructed fragment. 
+        return frag;
+    }
+
+    /// Get an iterator over all the lines of this [Source]. This calls [Source::get_line] for each element of
+    /// the returned iterator.
+    /// 
+    /// The returned [Fragment]s will contain the line terminating characters at the end of them. If you don't want 
+    /// those, use [Iterator::map] and [Fragment::trim_end].
+    pub fn lines(self: SourceRef) -> impl Iterator<Item = Fragment> {
+        (0..self.count_lines())
+            .into_iter()
+            .map(move |line_index| Arc::clone(&self).get_line(line_index))
     }
 
     /// Get the the source code stored.

@@ -5,6 +5,10 @@
 #![deny(rustdoc::broken_intra_doc_links)]
 #![warn(missing_docs)]
 
+// We cannot use memory mapped files on architectures that do not support memmap2. 
+#[cfg(all(feature = "file_memmap", any(target_arch = "wasm32", target_arch = "wasm64")))]
+compile_error!("Memory mapped files not available on WASM targets");
+
 /// The version of this copy of Wright.
 pub const WRIGHT_VERSION: &str = env!("CARGO_PKG_VERSION");
 

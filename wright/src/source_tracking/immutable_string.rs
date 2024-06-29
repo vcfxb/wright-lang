@@ -88,6 +88,18 @@ impl ImmutableString {
 
         iter.flatten().collect()
     }
+
+    /// Get this [ImmutableString] as a [str] reference. 
+    /// This just calls [AsRef::as_ref]. 
+    pub fn as_str(&self) -> &str {
+        self.as_ref()
+    }
+ 
+    /// Get the length of this [ImmutableString] in bytes. 
+    /// See [str::len].
+    pub fn len(&self) -> usize {
+        self.as_str().len()
+    }
 }
 
 /// The internal enum representation of the immutable string.

@@ -25,7 +25,7 @@ impl Fragment {
     /// the [Fragment::source].
     pub fn is_valid(&self) -> bool {
         // Get a string reference to the whole source.
-        let source_as_str: &str = self.source.as_ref().source().as_ref();
+        let source_as_str: &str = self.source.source().as_ref();
 
         // Check validity.
         self.range.end >= self.range.start
@@ -39,7 +39,7 @@ impl Fragment {
     /// - This will [panic] in the unlikely event that [Fragment::range] is out of bounds or lands between char
     ///     boundaries for [Fragment::source].
     pub fn as_str(&self) -> &str {
-        &self.source.as_ref().source().as_ref()[self.range.clone()]
+        &self.source.source().as_str()[self.range.clone()]
     }
 
     /// Get the length (in bytes) of this [Fragment].
@@ -51,22 +51,19 @@ impl Fragment {
     /// Check if this fragment has a [`Fragment::len`] `== 0`.
     /// Does not check this [Fragment] for validity.
     pub const fn is_empty(&self) -> bool {
-        self.range.start == self.range.end
-    }
-
-    /// Return true if this [Fragment] overlaps at all with the other (either one contains the start of the other).
-    ///
-    /// This will return false if the [Fragment]s reference different [Source]s.
-    pub fn overlaps(&self, other: &Self) -> bool {
-        // Check source equality.
-        Arc::ptr_eq(&self.source, &other.source)
-            && (self.range.start <= other.range.start && other.range.start < self.range.end
-                || other.range.start <= self.range.start && self.range.start < other.range.end)
+        self.len() == 0
     }
 
     /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source].
+    /// 
+    /// # Panics
+    /// - Panics if `other`'s [Fragment::len] `== 0`, due to the ambiguity. 
     pub fn contains(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.source, &other.source)
+        if other.len() == 0 {
+            panic!("Containing an empty fragment is ambiguous");
+        }
+
+        self.source == other.source
             && self.range.start <= other.range.start
             && self.range.end >= other.range.end
     }
@@ -83,13 +80,6 @@ impl Fragment {
         self.range.start - origin.range.start
     }
 
-    /// Return true if `self` is a valid empty ([`Fragment::len`] `== 0`) [Fragment] at the end of `origin`.
-    pub fn is_at_end_of(&self, origin: &Self) -> bool {
-        Arc::ptr_eq(&self.source, &origin.source)
-            && self.is_empty()
-            && self.range.start == origin.range.end
-    }
-
     /// Get a [Chars] [Iterator] over the [char]acters in this [Fragment].
     pub fn chars(&self) -> Chars<'_> {
         self.as_str().chars()
@@ -98,21 +88,44 @@ impl Fragment {
     /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace at either end trimmed off.
     /// This will return the fragment unchanged if it is empty.
     ///
-    /// See [str::trim] for exact behaviors.
-    pub fn trimmed(mut self) -> Self {
+    /// This calls [Fragment::trim_start] and then [Fragment::trim_end] internally and should match the behavior of 
+    /// [str::trim].
+    /// 
+    /// If this returns an empty [Fragment] it will be at the end of the parent [Fragment]. 
+    pub fn trimmed(self) -> Self {
+        self.trim_start().trim_end()
+    }
+
+    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace trimmed off the end. 
+    /// This will return it unchanged if empty. 
+    /// 
+    /// See [str::trim_end] for exact behaviors. 
+    pub fn trim_end(mut self) -> Self {
         // Get the string representation of this fragment.
         let original_str: &str = self.as_str();
         // Trim it.
-        let trimmed_str: &str = original_str.trim();
-        // Get the offset as the byte difference between the start of the two pointers.
-        // SAFETY: The requirements for offset_from are trivially satisfied when using substrings.
-        let offset: isize = unsafe { trimmed_str.as_ptr().offset_from(original_str.as_ptr()) };
-        // Calculate the new start of the range.
-        let new_start: usize = self.range.start + offset as usize;
+        let trimmed_str: &str = original_str.trim_end();
         // Calculate the new end of the range.
-        let new_end: usize = new_start + trimmed_str.len();
+        let new_end: usize = self.range.start + trimmed_str.len();
         // Update self.
-        self.range = new_start..new_end;
+        self.range = self.range.start..new_end;
+        // Return the updated self.
+        self
+    }
+
+    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace trimmed off the start. 
+    /// This will return it unchanged if empty. 
+    /// 
+    /// See [str::trim_start] for exact behaviors. 
+    pub fn trim_start(mut self) -> Self {
+        // Get the string representation of this fragment.
+        let original_str: &str = self.as_str();
+        // Trim it.
+        let trimmed_str: &str = original_str.trim_start();
+        // Calculate the new start of the range.
+        let new_start: usize = self.range.end - trimmed_str.len();
+        // Update self.
+        self.range = new_start..self.range.end;
         // Return the updated self.
         self
     }
@@ -143,11 +156,11 @@ impl Fragment {
         // Construct fragments.
         (
             Fragment {
-                source: Arc::clone(&self.source),
+                source: self.source.clone(),
                 range: left_range,
             },
             Fragment {
-                source: Arc::clone(&self.source),
+                source: self.source.clone(),
                 range: right_range,
             },
         )
@@ -192,22 +205,56 @@ impl Fragment {
     pub fn retain_unchecked(&mut self, bytes: usize) {
         self.range.end = self.range.start + bytes;
     }
+
+    /// Get a [Range] of line indices (0-indexed, see [Source::get_line]) that this fragment overlaps. 
+    pub fn line_indices(&self) -> Range<usize> {
+        // Get a list of the byte indices that lines start on in the original source.
+        let line_starts: &[usize] = self.source.line_starts();
+
+        // We just want the exact line index if this fragment starts at the beginning of a line, otherwise, give us the
+        // index of the line start before it (the line it started on). 
+        let start_line_index: usize = line_starts
+            .binary_search(&self.range.start)
+            // Subtract 1 here to make sure we get the index of the line start before the starting index instead of 
+            // after.
+            .unwrap_or_else(|not_found_index| not_found_index.saturating_sub(1));
+
+        // Do the same for the end of the fragment. Remember that in a range, the end is exclusive, so we would consider
+        // the line referenced before this index as the last line that this fragment overlaps. 
+        let ending_line_index: usize = line_starts
+            .binary_search(&self.range.end)
+            // We don't subtract 1 here since we're looking for an exclusive upper bound. 
+            .unwrap_or_else(|not_found_index| not_found_index);
+
+        // Return the range. 
+        start_line_index..ending_line_index
+    }
+
+    /// Get the line number (not index) that this line starts on.
+    /// 
+    /// This re-calculates [Fragment::line_indices], which may be expensive on very large files, so use with care. 
+    pub fn starts_on_line(&self) -> usize {
+        self.line_indices().start + 1
+    }
+
+
 }
 
 impl PartialEq for Fragment {
     /// Fragment equality is based on referencing the same [Source] using [Arc::ptr_eq] and having the same
     /// [Fragment::range].
     fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.source, &other.source) && self.range == other.range
+        self.source == other.source && self.range == other.range
     }
 }
 
 impl Eq for Fragment {}
 
+
 #[cfg(test)]
 mod tests {
     use super::Fragment;
-    use crate::source_tracking::{filename::FileName, source::Source};
+    use crate::source_tracking::{filename::FileName, source::Source, SourceRef};
     use std::sync::Arc;
 
     /// Utility function to create a one-off fragment over a static string.
@@ -217,26 +264,8 @@ mod tests {
 
         Fragment {
             range: 0..arc.source().as_ref().len(),
-            source: arc,
+            source: SourceRef(arc),
         }
-    }
-
-    #[test]
-    fn test_overlap() {
-        let a = from_static("Test string");
-
-        let mut b = a.clone();
-        b.advance_by(3);
-
-        let mut c = a.clone();
-        c.retain(a.len() - 3);
-
-        let d = from_static("other string");
-
-        assert!(a.overlaps(&b));
-        assert!(b.overlaps(&c));
-        assert!(c.overlaps(&a));
-        assert!(!a.overlaps(&d));
     }
 
     #[test]
@@ -264,19 +293,6 @@ mod tests {
     }
 
     #[test]
-    fn test_is_at_end_of() {
-        let a = from_static("abc");
-        let b = a.split_at(a.len()).1;
-        let c = Fragment {
-            source: Arc::clone(&a.source),
-            range: 3..3,
-        };
-
-        assert!(b.is_at_end_of(&a));
-        assert!(c.is_at_end_of(&a));
-    }
-
-    #[test]
     fn test_trimmed_is_contained() {
         let a = from_static("  aa aa  ");
         let b = a.clone().trimmed();
@@ -293,8 +309,6 @@ mod tests {
     #[test]
     fn trimmed_whitespace() {
         let w = from_static("  ");
-        assert!(w.contains(&w.clone().trimmed()));
         assert!(w.clone().trimmed().is_empty());
-        assert!(w.overlaps(&w.clone().trimmed()));
     }
 }

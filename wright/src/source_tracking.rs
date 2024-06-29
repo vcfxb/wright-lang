@@ -1,7 +1,7 @@
 //! Types and traits for tracking source code fed to the wright compiler.
 
 use self::source::Source;
-use std::sync::{Arc, RwLock};
+use std::{ops::Deref, sync::{Arc, RwLock}};
 
 pub mod filename;
 pub mod fragment;
@@ -18,7 +18,13 @@ pub struct SourceMap {
 }
 
 /// A reference to a [Source] in a [SourceMap].
-pub type SourceRef = Arc<Source>;
+/// 
+/// This is cheap to [Clone] since it uses an [Arc] internally. 
+/// 
+/// Equality on this struct is checked using [Arc::ptr_eq] -- this cannot be used for checking if 
+/// two [Source]s contain identical content. 
+#[derive(Debug)]
+pub struct SourceRef(pub(crate) Arc<Source>);
 
 impl SourceMap {
     /// Construct a new empty [SourceMap].
@@ -44,7 +50,7 @@ impl SourceMap {
         // Drop the write guard -- make sure other functions can access this source map.
         drop(write_guard);
         // Return the now-Arc'd source.
-        source
+        SourceRef(source)
     }
 }
 
@@ -53,3 +59,25 @@ impl Default for SourceMap {
         SourceMap::new()
     }
 }
+
+impl Clone for SourceRef {
+    fn clone(&self) -> Self {
+        Self(Arc::clone(&self.0))
+    }
+}
+
+impl Deref for SourceRef {
+    type Target = Source;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.0
+    }
+}
+
+impl PartialEq for SourceRef {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0)
+    }
+}
+
+impl Eq for SourceRef {}
