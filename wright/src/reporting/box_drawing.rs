@@ -1,6 +1,6 @@
 //! Box drawing unicode characters.
 //!
-//! This is adapted from https://gitlab.com/chronos.alfa/box_drawing.
+//! This is adapted from <https://gitlab.com/chronos.alfa/box_drawing>.
 
 /// Light unicode box drawing characters.
 #[allow(missing_docs)]

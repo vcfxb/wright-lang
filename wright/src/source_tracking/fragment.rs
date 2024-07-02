@@ -6,6 +6,9 @@ use std::{ops::Range, str::Chars};
 #[cfg(doc)]
 use super::Source;
 
+#[cfg(doc)]
+use std::sync::Arc;
+
 /// A fragment of source code.
 ///
 /// This can be part of (or all of) a [Source].
@@ -248,7 +251,7 @@ impl PartialEq for Fragment {
     /// Fragment equality is based on referencing the same [Source] using [Arc::ptr_eq] and having the same
     /// [Fragment::range].
     fn eq(&self, other: &Self) -> bool {
-        self.source == other.source && self.range == other.range
+        self.source.gid() == other.source.gid() && self.range == other.range
     }
 }
 

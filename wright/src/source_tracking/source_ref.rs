@@ -4,6 +4,9 @@
 use super::{fragment::Fragment, source::Source};
 use std::{ops::Deref, sync::Arc};
 
+#[cfg(doc)]
+use super::SourceMap;
+
 /// A reference to a [Source] in a [SourceMap].
 ///
 /// This is cheap to [Clone] since it uses an [Arc] internally.
