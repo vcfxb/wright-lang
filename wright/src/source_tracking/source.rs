@@ -241,7 +241,7 @@ impl Source {
         // Debug assert that the fragment is valid. This should always be true but might be useful for testing. 
         debug_assert!(frag.is_valid());
         // Return constructed fragment. 
-        return frag;
+        frag
     }
 
     /// Get an iterator over all the lines of this [Source]. This calls [Source::get_line] for each element of
@@ -251,7 +251,6 @@ impl Source {
     /// those, use [Iterator::map] and [Fragment::trim_end].
     pub fn lines(self: Arc<Source>) -> impl Iterator<Item = Fragment> {
         (0..self.count_lines())
-            .into_iter()
             .map(move |line_index| self.clone().get_line(line_index))
     }
 
@@ -303,8 +302,8 @@ mod tests {
             .collect::<Vec<_>>();
 
         let original_len = gids.len();
-        gids.sort();
         println!("{gids:?}");
+        gids.sort();
         gids.dedup();
         let dedup_len = gids.len();
 

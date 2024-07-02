@@ -187,7 +187,7 @@ impl<W: WriteColor> Renderer<W> {
         // Write our location at the top of the code colum under the horizontal divider. 
         write!(&mut self.writer, "{vertical}{skip_line_nums}{vertical} ")?;
         // Write the location in bold.  
-        self.writer.set_color(&ColorSpec::new().set_bold(true))?;
+        self.writer.set_color(ColorSpec::new().set_bold(true))?;
         writeln!(self.writer, "[{primary_location}]:")?;
 
         // Categorize highlights by source file -- use gids to identify sources. 

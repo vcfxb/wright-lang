@@ -59,7 +59,7 @@ impl Fragment {
     /// # Panics
     /// - Panics if `other`'s [Fragment::len] `== 0`, due to the ambiguity. 
     pub fn contains(&self, other: &Self) -> bool {
-        if other.len() == 0 {
+        if other.is_empty() {
             panic!("Containing an empty fragment is ambiguous");
         }
 

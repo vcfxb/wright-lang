@@ -96,6 +96,12 @@ impl ImmutableString {
     pub fn len(&self) -> usize {
         self.as_str().len()
     }
+
+    /// Check if this [ImmutableString] is empty. 
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 impl AsRef<str> for ImmutableString {

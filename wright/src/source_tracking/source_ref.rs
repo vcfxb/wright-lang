@@ -32,7 +32,7 @@ impl Deref for SourceRef {
     type Target = Source;
 
     fn deref(&self) -> &Self::Target {
-        &*self.0
+        &self.0
     }
 }
 
