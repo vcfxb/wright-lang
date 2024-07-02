@@ -61,6 +61,24 @@ impl Style {
         }
     }
 
+    /// Get a character to use while drawing dashed horizontal lines. 
+    pub const fn horizontal_dashed_char(self) -> Option<char> {
+        match self {
+            Style::UnicodeHeavy => Some(box_drawing::heavy::HORIZONTAL_DASHED),
+            Style::UnicodeLight => Some(box_drawing::light::HORIZONTAL_DASHED),
+            Style::Ascii => None,
+        }
+    }
+
+    /// Get a horizontal character with a downward branch if available. 
+    pub const fn down_horizontal_char(self) -> Option<char> {
+        match self {
+            Style::UnicodeHeavy => Some(box_drawing::heavy::DOWN_HORIZONTAL),
+            Style::UnicodeLight => Some(box_drawing::light::DOWN_HORIZONTAL),
+            Style::Ascii => None,
+        } 
+    }
+
     /// Check if this style is a unicode style. This includes [Style::UnicodeHeavy] and [Style::UnicodeLight].
     pub const fn is_unicode(self) -> bool {
         // Use usize cast to make this possible in const contexts. 

@@ -1,7 +1,7 @@
 //! [Fragment] struct and implementation for dealing with fragments of source code.
 
 use super::SourceRef;
-use std::{ops::Range, str::Chars, sync::Arc};
+use std::{ops::Range, str::Chars};
 
 #[cfg(doc)]
 use super::Source;
@@ -237,7 +237,11 @@ impl Fragment {
         self.line_indices().start + 1
     }
 
-
+    /// Get the number of bytes between the start of the line that this [Fragment] starts on and the start of this
+    /// [Fragment]
+    pub fn starting_col_index(&self) -> usize {
+        self.range.start - self.source.get_line(self.line_indices().start).range.start
+    }
 }
 
 impl PartialEq for Fragment {

@@ -2,10 +2,10 @@
 //!
 //! [Diagnostic]: super::Diagnostic
 
-use crate::source_tracking::{filename::FileName, fragment::Fragment, SourceRef};
-use super::{box_drawing, owned_string::OwnedString, style::{self, Style}, Diagnostic, Highlight};
-use std::{borrow::Cow, io, sync::Arc};
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, StandardStreamLock, WriteColor};
+use crate::source_tracking::filename::FileName;
+use super::{owned_string::OwnedString, style::Style, Diagnostic, Highlight};
+use std::{collections::HashMap, io, ops::Range};
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use terminal_link::Link;
 use terminal_size::Width;
 
@@ -54,6 +54,36 @@ pub fn for_stderr(color_choice: ColorChoice, style: Style) -> Renderer<StandardS
 impl<W: WriteColor> Renderer<W> {
     /// Draw a [Diagnostic].
     pub fn draw_diagnostic(&mut self, diagnostic: &Diagnostic) -> io::Result<()> {
+        // Draw the header line at the top of the diagnostic. 
+        self.draw_diagnostic_header(diagnostic)?;
+
+        // Draw the section with all the highlights. 
+        if diagnostic.primary_highlight.is_some() {
+            self.draw_code_section(diagnostic)?;
+        }
+
+        // Draw the note. Add an extra blank line between the fragment/title and the note.
+        if let Some(note) = diagnostic.note.as_ref() {
+            // Draw a single blank (just vertical char) separating the highlight section from the note section. 
+            writeln!(self.writer, "{}", self.style.vertical_char())?;
+            self.draw_note(note)?;
+        }
+
+        // Write an extra newline at the end to provide space between diagnostics. 
+        writeln!(self.writer)?;
+
+        // If there was no error writing the diagnostic, return Ok.
+        Ok(())
+    }
+
+
+    /// Draw the header a the top of a [Diagnostic]. 
+    /// 
+    /// i.e.
+    /// ```text
+    /// | error[code]: Message goes here.\n
+    /// ```
+    fn draw_diagnostic_header(&mut self, diagnostic: &Diagnostic) -> io::Result<()> {
         // Create a color spec to use as we write to the writer.
         let mut spec: ColorSpec = ColorSpec::new();
         
@@ -78,30 +108,114 @@ impl<W: WriteColor> Renderer<W> {
         self.writer.set_color(&spec)?;
 
         // Write the message and a new line.
-        writeln!(self.writer, ": {}", diagnostic.message)?;
+        writeln!(self.writer, ": {}", diagnostic.message)
+    }
 
-        // Draw the primary highlight if there is one. 
-        if let Some(highlight) = diagnostic.primary_highlight.as_ref() {
-            self.draw_highlight(highlight, diagnostic.severity.color())?;
+    /// Draw the code section of a [Diagnostic] -- the section that displays highlighted fragments. 
+    /// 
+    /// This is pretty complex, and contains most of the core logic for rendering code fragments. 
+    /// 
+    /// Assumes that [Diagnostic::primary_highlight] is [Some]. 
+    fn draw_code_section(&mut self, diagnostic: &Diagnostic) -> io::Result<()> {
+        // Get a reference to the primary highlight. 
+        let primary_highlight: &Highlight = diagnostic.primary_highlight
+            .as_ref()
+            .expect("diagnostic has primary highlight");
+        
+        // Get the vertical char for the style.
+        let vertical = self.style.vertical_char();
+        // Get the line number and column number to print. 
+        let primary_line_range = primary_highlight.fragment.line_indices();
+        let primary_line_num  = primary_line_range.start + 1;
+        // Get the column on that line that the fragment starts on. Add 1 to make this 1-indexed. 
+        let primary_col_num = primary_highlight.fragment.starting_col_index() + 1;
+
+        // Write the file name where this diagnostic originated -- this is considered to be the file
+        // that the primary highlight is from.
+
+        // Create a string that represents the location. 
+        let primary_location = match (primary_highlight.fragment.source.name(), self.supports_hyperlinks) {
+            // In cases of real files printing to terminals that support hyperlinks, create a hyperlink. 
+            (name @ FileName::Real(path), true) => {
+                let link_text = format!("{name}:{primary_line_num}:{primary_col_num}");
+                let link_url = format!("file://localhost{}", path.canonicalize()?.display());
+                Link::new(&link_text, &link_url).to_string()
+            }
+
+            (name , _) => format!("{name}:{primary_line_num}:{primary_col_num}"),
+        };
+
+        // Use '.' for a horizontal dashed char when using ascii. 
+        let horizontal_dashed = self.style.horizontal_dashed_char().unwrap_or('.');
+        // Get a vertical-right branch character, or just a vertical character on ascii. 
+        let vertical_right_branch = self.style.vertical_right_char().unwrap_or(self.style.vertical_char());
+        // Get a horizontal char with a down branch for above the start of the code colunm (after the line numbers column).
+        // Use '.' on ascii once again.
+        let horizontal_down_branch = self.style.down_horizontal_char().unwrap_or('.');
+
+        // We need to know the maximum line index and minimum line index. 
+        // By default these will be the ones for the primary highlight. 
+        let mut max_line_index: usize = primary_highlight.fragment.line_indices().end;
+        let mut min_line_index: usize = primary_highlight.fragment.line_indices().start;
+        
+        // Iterate through all the secondary highlights to determine if there are any lower or higher than 
+        // the indices for the primary highlight. 
+        for secondary_highlight in diagnostic.secondary_highlights.iter() {
+            let Range { start, end } = secondary_highlight.fragment.line_indices();
+
+            max_line_index = std::cmp::max(max_line_index, end);
+            min_line_index = std::cmp::min(min_line_index, start);
         }
 
-        // Draw all secondary highlights. Use green as the color for secondary highlights.
+        // Get the width of the highest line number we'll need to write.
+        let line_num_width = f64::log10((max_line_index + 1) as f64).ceil() as usize;
+        // Use this to write spaces in the line number column for lines that get skipped.
+        let skip_line_nums = " ".repeat(line_num_width + 2);
+
+        // Reset the colorspec.
+        self.writer.set_color(&ColorSpec::new())?;
+
+        // Write our dashed divider. 
+        writeln!(&mut self.writer, "{vertical_right_branch}{a}{horizontal_down_branch}{b}",
+            // Add two for spaces.
+            a = horizontal_dashed.to_string().repeat(line_num_width + 2),
+            // Default to 60 char term width if unknown.
+            // Do subtraction to make sure we get the right length. 
+            b = horizontal_dashed.to_string().repeat(self.width.unwrap_or(60) as usize - (line_num_width + 4))
+        )?;
+
+        // Write our location at the top of the code colum under the horizontal divider. 
+        write!(&mut self.writer, "{vertical}{skip_line_nums}{vertical} ")?;
+        // Write the location in bold.  
+        self.writer.set_color(&ColorSpec::new().set_bold(true))?;
+        writeln!(self.writer, "[{primary_location}]:")?;
+
+        // Categorize highlights by source file -- use gids to identify sources. 
+        let mut highlights_by_source: HashMap<u64, Vec<&Highlight>> = HashMap::with_capacity(diagnostic.secondary_highlights.len() + 1);
+
+        // Start with the primary highlight. 
+        highlights_by_source
+            .entry(primary_highlight.fragment.source.gid())
+            .or_default()
+            .push(primary_highlight);
+
+        // Go through all of the secondary highlights.
         for highlight in diagnostic.secondary_highlights.iter() {
-            self.draw_highlight(highlight, Color::Green)?;
+            highlights_by_source
+                .entry(highlight.fragment.source.gid())
+                .or_default()
+                .push(highlight);
         }
 
-        // Draw the note. Add an extra blank line between the fragment/title and the note.
-        if let Some(note) = diagnostic.note.as_ref() {
-            writeln!(self.writer, "{}", self.style.vertical_char())?;
-            self.draw_note(note)?;
+        // Now that we've categorized all the highlights by source (using source gids) we can handle the sources one
+        // at a time starting with the one for the primary highlight. 
+        // TODO: 
+
+        for line_indice in min_line_index..max_line_index {
+            writeln!(&mut self.writer, "{vertical} {line_num:>line_num_width$} {vertical}", line_num = line_indice + 1)?;
         }
 
-        // Write an extra newline at the end to provide space between diagnostics. 
-        spec.clear();
-        self.writer.set_color(&spec)?;
-        writeln!(self.writer)?;
 
-        // If there was no error writing the diagnostic, return Ok.
         Ok(())
     }
 
@@ -217,7 +331,7 @@ impl<W: WriteColor> Renderer<W> {
 mod tests {
     use std::{io, sync::Arc};
 
-    use crate::{reporting::{style::Style, Diagnostic, Highlight}, source_tracking::{filename::FileName, fragment::Fragment, source::Source, SourceRef}};
+    use crate::{reporting::{style::Style, Diagnostic, Highlight}, source_tracking::{filename::FileName, fragment::Fragment, source::Source, source_ref::SourceRef}};
     use indoc::indoc;
     use termcolor::{ColorChoice, NoColor};
 
@@ -270,22 +384,22 @@ mod tests {
     // }
 
     
-    // #[test]
-    // fn print_with_highlight_and_note() -> io::Result<()> {
+    #[test]
+    fn print_with_highlight_and_note() -> io::Result<()> {
 
-    //     let source = Source::new_from_static_str(FileName::Test("test.wr"), indoc! {"
-    //         func main() {
-    //             wright::println(\"Hello World!\");
-    //         }
-    //     "});
+        let source = Source::new_from_static_str(FileName::Test("test.wr"), indoc! {"
+            func main() {
+                wright::println(\"Hello World!\");
+            }
+        "});
 
-    //     let frag = Fragment { source: SourceRef(Arc::new(source)), range: 0..12 };
+        let frag = Fragment { source: SourceRef(Arc::new(source)), range: 0..12 };
 
-    //     let d = Diagnostic::error("test")
-    //         .with_code("TEST001")
-    //         .with_primary_highlight(Highlight::new(frag, "main() defined here"))
-    //         .with_note("This is a sample note.");
+        let d = Diagnostic::error("test")
+            .with_code("TEST001")
+            .with_primary_highlight(Highlight::new(frag, "main() defined here"))
+            .with_note("This is a sample note.");
 
-    //     d.print(ColorChoice::Auto)
-    // }
+        d.print(ColorChoice::Auto)
+    }
 }

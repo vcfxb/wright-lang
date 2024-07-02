@@ -8,9 +8,8 @@
 use self::{owned_string::OwnedString, severity::Severity, style::Style};
 use crate::source_tracking::fragment::Fragment;
 use std::io;
-use render::Renderer;
 use supports_unicode::Stream;
-use termcolor::{ColorChoice, StandardStream, StandardStreamLock, WriteColor};
+use termcolor::ColorChoice;
 
 pub mod render;
 pub mod style;

@@ -4,6 +4,7 @@
 
 use super::SourceRef;
 use super::{filename::FileName, fragment::Fragment, immutable_string::ImmutableString};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::{fs::File, sync::Arc};
 use std::io;
 use std::path::PathBuf;
@@ -27,9 +28,24 @@ use termcolor::ColorChoice;
 #[cfg(feature = "file_memmap")]
 pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
 
+/// The global [Source::gid] generator. 
+/// 
+/// This is just a global [u64] that gets incremented everytime a new source is instantiated. 
+static SOURCE_GID_GENERATOR: AtomicU64 = AtomicU64::new(1);
+
 /// A full source. This is usually a file, but may also be passed in the form of a string for testing.  
 #[derive(Debug)]
 pub struct Source {
+    /// Globally unique [Source] ID. 
+    /// 
+    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources. 
+    /// This cannot be done with the [Source::name] since that can be [FileName::None], and checking for equality
+    /// of content can be an expensive process.
+    /// 
+    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to 
+    /// the [Source] when it is instantiated. 
+    gid: u64,
+
     /// The name of this source file.
     name: FileName,
 
@@ -44,6 +60,10 @@ impl Source {
     /// Construct a new [Source].
     fn new(name: FileName, source: ImmutableString) -> Self {
         Source {
+            // I believe we can use relaxed ordering here, since as long as all operations are atomic,
+            // we're not really worried about another thread's `fetch_add` being re-ordered before this one, since
+            // neither will get the same number.
+            gid: SOURCE_GID_GENERATOR.fetch_add(1, Ordering::Relaxed),
             name,
             line_starts: source.line_starts(),
             source,
@@ -201,7 +221,7 @@ impl Source {
     /// # Panics
     /// - This will panic if you ask for a line index that's higher than or equal to the number returned 
     ///     by [`Self::count_lines`].
-    pub fn get_line(self: &Arc<Source>, line_index: usize) -> Fragment {
+    pub fn get_line(self: Arc<Source>, line_index: usize) -> Fragment {
         if line_index >= self.count_lines() {
             panic!("{} is greater than the number of lines in {}", line_index, self.name);
         }
@@ -217,7 +237,7 @@ impl Source {
         };
 
         // Construct the resultant fragment. 
-        let frag = Fragment { source: SourceRef(Arc::clone(self)), range: start_byte_index..end_byte_index };
+        let frag = Fragment { source: SourceRef(Arc::clone(&self)), range: start_byte_index..end_byte_index };
         // Debug assert that the fragment is valid. This should always be true but might be useful for testing. 
         debug_assert!(frag.is_valid());
         // Return constructed fragment. 
@@ -232,7 +252,7 @@ impl Source {
     pub fn lines(self: Arc<Source>) -> impl Iterator<Item = Fragment> {
         (0..self.count_lines())
             .into_iter()
-            .map(move |line_index| self.get_line(line_index))
+            .map(move |line_index| self.clone().get_line(line_index))
     }
 
     /// Get the the source code stored.
@@ -243,5 +263,51 @@ impl Source {
     /// Get the name of this [Source].
     pub const fn name(&self) -> &FileName {
         &self.name
+    }
+
+    /// Globally unique [Source] ID. 
+    /// 
+    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources. 
+    /// This cannot be done with the [Source::name] since that can be [FileName::None], and checking for equality
+    /// of content can be an expensive process.
+    /// 
+    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to 
+    /// the [Source] when it is instantiated. 
+    pub const fn gid(&self) -> u64 {
+        self.gid
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{sync::mpsc, thread};
+
+    use crate::source_tracking::filename::FileName;
+
+    use super::Source;
+
+    #[test]
+    fn dozen_threads_dont_share_gids() {
+        let (tx, rx) = mpsc::channel();
+
+        for i in 0..12 {
+            let tx = tx.clone();
+            thread::spawn(move || {
+                let source = Source::new_from_string(FileName::None, format!("{i}"));
+                tx.send(source.gid()).unwrap();
+            });
+        }
+
+        let mut gids = (0..12)
+            .map(|_| rx.recv().unwrap())
+            .collect::<Vec<_>>();
+
+        let original_len = gids.len();
+        gids.sort();
+        println!("{gids:?}");
+        gids.dedup();
+        let dedup_len = gids.len();
+
+        assert_eq!(original_len, dedup_len, "global ids are not duplicated");
     }
 }

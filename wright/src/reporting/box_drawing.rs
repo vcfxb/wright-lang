@@ -6,6 +6,7 @@
 #[allow(missing_docs)]
 pub mod light {
     pub const HORIZONTAL: char = '─';
+    pub const HORIZONTAL_DASHED: char = '\u{254C}';
     pub const VERTICAL: char = '│';
     pub const DOWN_RIGHT: char = '┌';
     pub const DOWN_LEFT: char = '┐';
@@ -25,6 +26,7 @@ pub mod light {
 #[allow(missing_docs)]
 pub mod heavy {
     pub const HORIZONTAL: char = '━';
+    pub const HORIZONTAL_DASHED: char = '\u{254D}';
     pub const VERTICAL: char = '┃';
     pub const DOWN_RIGHT: char = '┏';
     pub const DOWN_LEFT: char = '┓';
