@@ -65,7 +65,6 @@ reporting = [
     "dep:supports-unicode", 
     "dep:syntect", 
     "dep:terminal_size",
-    "dep:supports-hyperlinks",
     "dep:terminal-link"
 ]
 
@@ -100,11 +99,6 @@ optional = true
 # Optional since it's only used when error reporting is required. 
 [dependencies.terminal_size]
 version = "0.3.0"
-optional = true
-
-# Check if the terminal supports hyper links. 
-[dependencies.supports-hyperlinks]
-version = "3.0.0"
 optional = true
 
 # Create/format a link for a terminal/terminal emulator. 
@@ -161,3 +155,8 @@ rayon = "1.8.0"
 
 # indoc is used for indentation in tests
 indoc = "2.0.5"
+
+# BUILD DEPENDENCIES
+[build-dependencies]
+# Used for showing feature/cfg info on rustdoc/docs.rs. 
+rustc_version = "0.4.0"
