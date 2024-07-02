@@ -4,10 +4,10 @@
 
 use super::SourceRef;
 use super::{filename::FileName, fragment::Fragment, immutable_string::ImmutableString};
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::{fs::File, sync::Arc};
 use std::io;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::{fs::File, sync::Arc};
 
 #[cfg(feature = "file_memmap")]
 use std::{sync::mpsc, thread, time::Duration};
@@ -28,22 +28,22 @@ use termcolor::ColorChoice;
 #[cfg(feature = "file_memmap")]
 pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
 
-/// The global [Source::gid] generator. 
-/// 
-/// This is just a global [u64] that gets incremented everytime a new source is instantiated. 
+/// The global [Source::gid] generator.
+///
+/// This is just a global [u64] that gets incremented everytime a new source is instantiated.
 static SOURCE_GID_GENERATOR: AtomicU64 = AtomicU64::new(1);
 
 /// A full source. This is usually a file, but may also be passed in the form of a string for testing.  
 #[derive(Debug)]
 pub struct Source {
-    /// Globally unique [Source] ID. 
-    /// 
-    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources. 
+    /// Globally unique [Source] ID.
+    ///
+    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources.
     /// This cannot be done with the [Source::name] since that can be [FileName::None], and checking for equality
     /// of content can be an expensive process.
-    /// 
-    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to 
-    /// the [Source] when it is instantiated. 
+    ///
+    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to
+    /// the [Source] when it is instantiated.
     gid: u64,
 
     /// The name of this source file.
@@ -206,29 +206,29 @@ impl Source {
         self.line_starts.as_slice()
     }
 
-    /// Get the number of lines in this [Source]. This is identical to [`Self::line_starts`] length. 
+    /// Get the number of lines in this [Source]. This is identical to [`Self::line_starts`] length.
     pub fn count_lines(&self) -> usize {
         self.line_starts.len()
     }
 
-    /// Get a line of this [Source] as a [Fragment]. 
+    /// Get a line of this [Source] as a [Fragment].
     /// The returned [Fragment] will contain the line terminating characters at the end of it. If you don't want those,
-    /// use [Fragment::trim_end]. 
-    /// 
-    /// *Note* that this uses `line_index` which is considered 0-indexed -- when displaying line numbers to the user, 
-    /// remember to add 1. 
-    /// 
+    /// use [Fragment::trim_end].
+    ///
+    /// *Note* that this uses `line_index` which is considered 0-indexed -- when displaying line numbers to the user,
+    /// remember to add 1.
+    ///
     /// # Panics
-    /// - This will panic if you ask for a line index that's higher than or equal to the number returned 
+    /// - This will panic if you ask for a line index that's higher than or equal to the number returned
     ///     by [`Self::count_lines`].
     pub fn get_line(self: Arc<Source>, line_index: usize) -> Fragment {
         if line_index >= self.count_lines() {
             panic!("{} is greater than the number of lines in {}", line_index, self.name);
         }
 
-        // Get the starting byte index of the line. 
+        // Get the starting byte index of the line.
         let start_byte_index: usize = self.line_starts[line_index];
-        
+
         // Get the ending byte index of the line / the starting index of the next line/the index of the end of the file.
         let end_byte_index: usize = if line_index + 1 == self.count_lines() {
             self.source.len()
@@ -236,22 +236,25 @@ impl Source {
             self.line_starts[line_index + 1]
         };
 
-        // Construct the resultant fragment. 
-        let frag = Fragment { source: SourceRef(Arc::clone(&self)), range: start_byte_index..end_byte_index };
-        // Debug assert that the fragment is valid. This should always be true but might be useful for testing. 
+        // Construct the resultant fragment.
+        let frag = Fragment {
+            source: SourceRef(Arc::clone(&self)),
+            range: start_byte_index..end_byte_index,
+        };
+
+        // Debug assert that the fragment is valid. This should always be true but might be useful for testing.
         debug_assert!(frag.is_valid());
-        // Return constructed fragment. 
+        // Return constructed fragment.
         frag
     }
 
     /// Get an iterator over all the lines of this [Source]. This calls [Source::get_line] for each element of
     /// the returned iterator.
-    /// 
-    /// The returned [Fragment]s will contain the line terminating characters at the end of them. If you don't want 
+    ///
+    /// The returned [Fragment]s will contain the line terminating characters at the end of them. If you don't want
     /// those, use [Iterator::map] and [Fragment::trim_end].
     pub fn lines(self: Arc<Source>) -> impl Iterator<Item = Fragment> {
-        (0..self.count_lines())
-            .map(move |line_index| self.clone().get_line(line_index))
+        (0..self.count_lines()).map(move |line_index| self.clone().get_line(line_index))
     }
 
     /// Get the the source code stored.
@@ -264,14 +267,14 @@ impl Source {
         &self.name
     }
 
-    /// Globally unique [Source] ID. 
-    /// 
-    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources. 
+    /// Globally unique [Source] ID.
+    ///
+    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources.
     /// This cannot be done with the [Source::name] since that can be [FileName::None], and checking for equality
     /// of content can be an expensive process.
-    /// 
-    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to 
-    /// the [Source] when it is instantiated. 
+    ///
+    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to
+    /// the [Source] when it is instantiated.
     pub const fn gid(&self) -> u64 {
         self.gid
     }
@@ -297,9 +300,7 @@ mod tests {
             });
         }
 
-        let mut gids = (0..12)
-            .map(|_| rx.recv().unwrap())
-            .collect::<Vec<_>>();
+        let mut gids = (0..12).map(|_| rx.recv().unwrap()).collect::<Vec<_>>();
 
         let original_len = gids.len();
         println!("{gids:?}");

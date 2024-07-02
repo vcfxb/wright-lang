@@ -1,6 +1,6 @@
-//! Build script for wright. Currently this is just used to get docs.rs to show feature/cfg info. 
-//! 
-//! See: https://stackoverflow.com/a/70914430. 
+//! Build script for wright. Currently this is just used to get docs.rs to show feature/cfg info.
+//!
+//! See: https://stackoverflow.com/a/70914430.
 
 use rustc_version::{version_meta, Channel};
 

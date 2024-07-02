@@ -55,9 +55,9 @@ impl Fragment {
     }
 
     /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source].
-    /// 
+    ///
     /// # Panics
-    /// - Panics if `other`'s [Fragment::len] `== 0`, due to the ambiguity. 
+    /// - Panics if `other`'s [Fragment::len] `== 0`, due to the ambiguity.
     pub fn contains(&self, other: &Self) -> bool {
         if other.is_empty() {
             panic!("Containing an empty fragment is ambiguous");
@@ -88,18 +88,18 @@ impl Fragment {
     /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace at either end trimmed off.
     /// This will return the fragment unchanged if it is empty.
     ///
-    /// This calls [Fragment::trim_start] and then [Fragment::trim_end] internally and should match the behavior of 
+    /// This calls [Fragment::trim_start] and then [Fragment::trim_end] internally and should match the behavior of
     /// [str::trim].
-    /// 
-    /// If this returns an empty [Fragment] it will be at the end of the parent [Fragment]. 
+    ///
+    /// If this returns an empty [Fragment] it will be at the end of the parent [Fragment].
     pub fn trimmed(self) -> Self {
         self.trim_start().trim_end()
     }
 
-    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace trimmed off the end. 
-    /// This will return it unchanged if empty. 
-    /// 
-    /// See [str::trim_end] for exact behaviors. 
+    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace trimmed off the end.
+    /// This will return it unchanged if empty.
+    ///
+    /// See [str::trim_end] for exact behaviors.
     pub fn trim_end(mut self) -> Self {
         // Get the string representation of this fragment.
         let original_str: &str = self.as_str();
@@ -113,10 +113,10 @@ impl Fragment {
         self
     }
 
-    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace trimmed off the start. 
-    /// This will return it unchanged if empty. 
-    /// 
-    /// See [str::trim_start] for exact behaviors. 
+    /// Get a sub-fragment of this fragment (see [Fragment::contains]) with the whitespace trimmed off the start.
+    /// This will return it unchanged if empty.
+    ///
+    /// See [str::trim_start] for exact behaviors.
     pub fn trim_start(mut self) -> Self {
         // Get the string representation of this fragment.
         let original_str: &str = self.as_str();
@@ -206,33 +206,33 @@ impl Fragment {
         self.range.end = self.range.start + bytes;
     }
 
-    /// Get a [Range] of line indices (0-indexed, see [Source::get_line]) that this fragment overlaps. 
+    /// Get a [Range] of line indices (0-indexed, see [Source::get_line]) that this fragment overlaps.
     pub fn line_indices(&self) -> Range<usize> {
         // Get a list of the byte indices that lines start on in the original source.
         let line_starts: &[usize] = self.source.line_starts();
 
         // We just want the exact line index if this fragment starts at the beginning of a line, otherwise, give us the
-        // index of the line start before it (the line it started on). 
+        // index of the line start before it (the line it started on).
         let start_line_index: usize = line_starts
             .binary_search(&self.range.start)
-            // Subtract 1 here to make sure we get the index of the line start before the starting index instead of 
+            // Subtract 1 here to make sure we get the index of the line start before the starting index instead of
             // after.
             .unwrap_or_else(|not_found_index| not_found_index.saturating_sub(1));
 
         // Do the same for the end of the fragment. Remember that in a range, the end is exclusive, so we would consider
-        // the line referenced before this index as the last line that this fragment overlaps. 
+        // the line referenced before this index as the last line that this fragment overlaps.
         let ending_line_index: usize = line_starts
             .binary_search(&self.range.end)
-            // We don't subtract 1 here since we're looking for an exclusive upper bound. 
+            // We don't subtract 1 here since we're looking for an exclusive upper bound.
             .unwrap_or_else(|not_found_index| not_found_index);
 
-        // Return the range. 
+        // Return the range.
         start_line_index..ending_line_index
     }
 
     /// Get the line number (not index) that this line starts on.
-    /// 
-    /// This re-calculates [Fragment::line_indices], which may be expensive on very large files, so use with care. 
+    ///
+    /// This re-calculates [Fragment::line_indices], which may be expensive on very large files, so use with care.
     pub fn starts_on_line(&self) -> usize {
         self.line_indices().start + 1
     }
@@ -253,7 +253,6 @@ impl PartialEq for Fragment {
 }
 
 impl Eq for Fragment {}
-
 
 #[cfg(test)]
 mod tests {

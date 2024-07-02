@@ -11,11 +11,11 @@ use std::io;
 use supports_unicode::Stream;
 use termcolor::ColorChoice;
 
-pub mod render;
-pub mod style;
-pub mod owned_string;
-pub mod severity;
 pub mod box_drawing;
+pub mod owned_string;
+pub mod render;
+pub mod severity;
+pub mod style;
 
 /// A diagnostic to help the user to understand details of their interactions with the Wright compiler.
 #[derive(Debug)]
@@ -120,9 +120,9 @@ impl Diagnostic {
     ///
     /// Uses [supports_unicode] to determine whether to print unicode characters.
     pub fn print(&self, color_choice: ColorChoice) -> io::Result<()> {
-        // Construct a renderer for the standard output. 
+        // Construct a renderer for the standard output.
         let mut renderer = render::for_stdout(color_choice, Style::for_stream(Stream::Stdout));
-        // Use the renderer to draw this diagnostic. 
+        // Use the renderer to draw this diagnostic.
         renderer.draw_diagnostic(self)
     }
 
@@ -130,17 +130,20 @@ impl Diagnostic {
     ///
     /// Uses [supports_unicode] to determine whether to print unicode characters.
     pub fn eprint(&self, color_choice: ColorChoice) -> io::Result<()> {
-        // Construct a renderer for the standard error. 
+        // Construct a renderer for the standard error.
         let mut renderer = render::for_stderr(color_choice, Style::for_stream(Stream::Stderr));
-        // Use the renderer to draw this diagnostic. 
+        // Use the renderer to draw this diagnostic.
         renderer.draw_diagnostic(self)
     }
 }
 
 impl Highlight {
-    /// Construct a new [Highlight]. 
+    /// Construct a new [Highlight].
     pub fn new(frag: Fragment, message: impl Into<OwnedString>) -> Self {
-        Self { fragment: frag, message: message.into() }
+        Self {
+            fragment: frag,
+            message: message.into(),
+        }
     }
 }
 

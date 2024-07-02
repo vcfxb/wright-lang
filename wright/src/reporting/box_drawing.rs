@@ -1,5 +1,5 @@
 //! Box drawing unicode characters.
-//! 
+//!
 //! This is adapted from https://gitlab.com/chronos.alfa/box_drawing.
 
 /// Light unicode box drawing characters.
@@ -42,11 +42,10 @@ pub mod heavy {
     pub const RIGHT: char = '\u{257A}';
 }
 
-/// Unicode characters that can be used to combine for a desired effect. 
+/// Unicode characters that can be used to combine for a desired effect.
 #[allow(missing_docs)]
 pub mod combining {
-    pub const COMBINING_ENCLOSING_CIRCLE: char = '\u{20DD}'; 
+    pub const COMBINING_ENCLOSING_CIRCLE: char = '\u{20DD}';
     pub const COMBINING_ENCLOSING_CIRCLE_WITH_SLASH: char = '\u{20E0}';
     pub const COMBINING_TRIPLE_UNDERDOT: char = '\u{20E8}';
 }
-

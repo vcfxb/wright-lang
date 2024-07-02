@@ -16,8 +16,8 @@ use std::{fs::File, io};
 /// - References a source string in memory using a `'static` reference,
 /// - Owns a source string in memory.
 /// - Owns a locked and memory mapped file from the disk.
-/// 
-/// This uses an [Arc] internally to make cloning cheap. 
+///
+/// This uses an [Arc] internally to make cloning cheap.
 #[derive(Debug, Clone)]
 pub struct ImmutableString {
     /// Wrap the internal enum representation. This is to avoid exposing the API for a user to construct an
@@ -29,7 +29,9 @@ impl ImmutableString {
     /// Wrap the inner representation in this type.
     #[inline]
     fn from_inner(inner: ImmutableStringInner) -> Self {
-        ImmutableString { inner: Arc::new(inner) }
+        ImmutableString {
+            inner: Arc::new(inner),
+        }
     }
 
     /// Create a new [ImmutableString] holding the given [File] (assumed to be locked with [fs4])
@@ -85,19 +87,19 @@ impl ImmutableString {
         iter.flatten().collect()
     }
 
-    /// Get this [ImmutableString] as a [str] reference. 
-    /// This just calls [AsRef::as_ref]. 
+    /// Get this [ImmutableString] as a [str] reference.
+    /// This just calls [AsRef::as_ref].
     pub fn as_str(&self) -> &str {
         self.as_ref()
     }
- 
-    /// Get the length of this [ImmutableString] in bytes. 
+
+    /// Get the length of this [ImmutableString] in bytes.
     /// See [str::len].
     pub fn len(&self) -> usize {
         self.as_str().len()
     }
 
-    /// Check if this [ImmutableString] is empty. 
+    /// Check if this [ImmutableString] is empty.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
