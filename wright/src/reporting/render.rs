@@ -3,28 +3,55 @@
 //! [Diagnostic]: super::Diagnostic
 
 use crate::source_tracking::{filename::FileName, fragment::Fragment, SourceRef};
-use super::{box_drawing, owned_string::OwnedString, style::Style, Diagnostic, Highlight};
-use std::{io, sync::Arc};
-use termcolor::{Color, ColorSpec, WriteColor};
+use super::{box_drawing, owned_string::OwnedString, style::{self, Style}, Diagnostic, Highlight};
+use std::{borrow::Cow, io, sync::Arc};
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, StandardStreamLock, WriteColor};
 use terminal_link::Link;
 use terminal_size::Width;
 
 /// The color used to write notes at the end of diagnostics. 
 pub const NOTE_COLOR: Color = Color::Cyan;
 
-/// A struct to hold information used in drawing of diagnostics. 
-pub struct Draw<'w, W: WriteColor> {
+/// A struct to hold information used in the rendering of diagnostics. 
+#[allow(missing_debug_implementations)]
+pub struct Renderer<W: WriteColor> {
     /// The writer being written to. 
-    writer: &'w mut W,
+    pub writer: W,
     /// The style being used. 
-    style: Style,
+    pub style: Style,
     /// Whether the write target supports terminal emulator hyperlink escapes. 
-    supports_hyperlinks: bool,
+    pub supports_hyperlinks: bool,
     /// The width of the terminal/terminal emulator being written to, if known. 
-    width: Option<u16>
+    pub width: Option<u16>
 }
 
-impl<'w, W: WriteColor> Draw<'w, W> {
+/// Create a [Renderer] for the standard output. 
+pub fn for_stdout(color_choice: ColorChoice, style: Style) -> Renderer<StandardStream> {
+    let stream = StandardStream::stdout(color_choice);
+    let supports_hyperlinks = stream.supports_hyperlinks();
+
+    Renderer {
+        writer: stream,
+        style,
+        supports_hyperlinks,
+        width: terminal_size::terminal_size().map(|(Width(w), _)| w),
+    }
+}
+
+/// Create a [Renderer] for the standard error. 
+pub fn for_stderr(color_choice: ColorChoice, style: Style) -> Renderer<StandardStream> {
+    let stream = StandardStream::stderr(color_choice);
+    let supports_hyperlinks = stream.supports_hyperlinks();
+
+    Renderer {
+        writer: stream,
+        style,
+        supports_hyperlinks,
+        width: terminal_size::terminal_size().map(|(Width(w), _)| w),
+    }
+}
+
+impl<W: WriteColor> Renderer<W> {
     /// Draw a [Diagnostic].
     pub fn draw_diagnostic(&mut self, diagnostic: &Diagnostic) -> io::Result<()> {
         // Create a color spec to use as we write to the writer.
@@ -81,72 +108,73 @@ impl<'w, W: WriteColor> Draw<'w, W> {
     
     /// Draw a code [Highlight]. 
     fn draw_highlight(&self, highlight: &Highlight, highlight_color: Color) -> io::Result<()> {
-        // Create a color spec to use while drawing this Highlight. 
-        let mut spec = ColorSpec::new();
-        // Get a reference to the fragment that we're printing.
-        let fragment: &Fragment = &highlight.fragment;
-        // Get a reference to the source that the fragment is from.
-        let source: &SourceRef = &fragment.source;
-        // Calculate the line indices of the fragment in it's parent source.
-        let line_indices = fragment.line_indices();
-        // Get the column on that line that the fragment starts on. Add 1 to make this 1-indexed. 
-        let col_num = fragment.range.start - source.get_line(line_indices.start).range.start + 1;
-        // Get the display width of the highest line number. 
-        let line_nums_width = f64::log10(line_indices.end as f64).ceil() as usize;
+        unimplemented!()
+        // // Create a color spec to use while drawing this Highlight. 
+        // let mut spec = ColorSpec::new();
+        // // Get a reference to the fragment that we're printing.
+        // let fragment: &Fragment = &highlight.fragment;
+        // // Get a reference to the source that the fragment is from.
+        // let source: &SourceRef = &fragment.source;
+        // // Calculate the line indices of the fragment in it's parent source.
+        // let line_indices = fragment.line_indices();
+        // // Get the column on that line that the fragment starts on. Add 1 to make this 1-indexed. 
+        // let col_num = fragment.range.start - source.get_line(line_indices.start).range.start + 1;
+        // // Get the display width of the highest line number. 
+        // let line_nums_width = f64::log10(line_indices.end as f64).ceil() as usize;
 
-        // Set the color . 
-        spec.set_fg(Some(highlight_color));
-        w.set_color(&spec)?;
+        // // Set the color . 
+        // spec.set_fg(Some(highlight_color));
+        // w.set_color(&spec)?;
         
-        // Write a horizontal bar above the highlight. 
-        let divider_width = terminal_size::terminal_size()
-            // Subrtact 1 here because we also print a branch character first. 
-            .map(|(Width(w), _)| w - 1)
-            .unwrap_or(40);
+        // // Write a horizontal bar above the highlight. 
+        // let divider_width = terminal_size::terminal_size()
+        //     // Subrtact 1 here because we also print a branch character first. 
+        //     .map(|(Width(w), _)| w - 1)
+        //     .unwrap_or(40);
 
-        let divider = style.horizontal_char()
-            .unwrap_or('=')
-            .to_string()
-            .repeat(divider_width as usize);
+        // let divider = style.horizontal_char()
+        //     .unwrap_or('=')
+        //     .to_string()
+        //     .repeat(divider_width as usize);
 
-        writeln!(w, "{}{}", style.vertical_right_char().or(style.horizontal_char()).unwrap_or('='), divider)?;
+        // writeln!(w, "{}{}", style.vertical_right_char().or(style.horizontal_char()).unwrap_or('='), divider)?;
 
-        // and print the file name we're pulling from with a vertical bar preceding it.
-        write!(w, "{} ", style.vertical_char())?;
-        // Clear out the spec for the file name itself. If possible, write it as a hyperlink. 
-        spec.clear();
-        w.set_color(&spec)?;
+        // // and print the file name we're pulling from with a vertical bar preceding it.
+        // write!(w, "{} ", style.vertical_char())?;
+        // // Clear out the spec for the file name itself. If possible, write it as a hyperlink. 
+        // spec.clear();
+        // w.set_color(&spec)?;
 
-        // Create a string that represents the location. 
-        let location = match (source.name(), supports_hyperlinks) {
-            // In cases of real files printing to terminals that support hyperlinks, create a hyperlink. 
-            (FileName::Real(path), true) => {
-                let link_text = format!("{}:{}:{col_num}", source.name(), line_indices.start + 1);
-                let link_url = format!("file://localhost{}", path.canonicalize()?.display());
-                Link::new(&link_text, &link_url).to_string()
-            }
+        // // Create a string that represents the location. 
+        // let location = match (source.name(), supports_hyperlinks) {
+        //     // In cases of real files printing to terminals that support hyperlinks, create a hyperlink. 
+        //     (FileName::Real(path), true) => {
+        //         let link_text = format!("{}:{}:{col_num}", source.name(), line_indices.start + 1);
+        //         let link_url = format!("file://localhost{}", path.canonicalize()?.display());
+        //         Link::new(&link_text, &link_url).to_string()
+        //     }
 
-            _ => format!("{}:{}:{col_num}", source.name(), line_indices.start + 1),
-        };
+        //     _ => format!("{}:{}:{col_num}", source.name(), line_indices.start + 1),
+        // };
 
-        // Write the location and the message. 
-        writeln!(w, "[{location}]: {}", highlight.message)?;
-        // Write a small horizontal bar above the line numbers.
-        writeln!(w, "{}", style.vertical_right_char().unwrap_or(style.vertical_char()))?;
+        // // Write the location and the message. 
+        // writeln!(w, "[{location}]: {}", highlight.message)?;
+        // // Write a small horizontal bar above the line numbers.
+        // writeln!(w, "{}", style.vertical_right_char().unwrap_or(style.vertical_char()))?;
 
-        // Print each line. Use 
-        for line_index in line_indices {
-            // Get the source fragment with any extra whitespace at the end trimmed off. 
-            let line = source.get_line(line_index).trim_end();
-            // Write the line number. 
-            write!(w, "{0} {1:>2$} {0} ", style.vertical_char(), line_index + 1, line_nums_width)?;
+        // // Print each line. Use 
+        // for line_index in line_indices {
+        //     // Get the source fragment with any extra whitespace at the end trimmed off. 
+        //     let line = source.get_line(line_index).trim_end();
+        //     // Write the line number. 
+        //     write!(w, "{0} {1:>2$} {0} ", style.vertical_char(), line_index + 1, line_nums_width)?;
 
-        }
+        // }
 
-        // Write an extra line at the end so that whatever comes next starts at the begining of a fresh line. 
-        writeln!(w)?;
+        // // Write an extra line at the end so that whatever comes next starts at the begining of a fresh line. 
+        // writeln!(w)?;
         
-        Ok(())
+        // Ok(())
     }
 
     /// Draw a [Diagnostic::note].
@@ -189,9 +217,11 @@ impl<'w, W: WriteColor> Draw<'w, W> {
 mod tests {
     use std::{io, sync::Arc};
 
-    use crate::{reporting::{style::Style, Diagnostic, Highlight}, source_tracking::{filename::FileName, fragment::Fragment, source::Source}};
+    use crate::{reporting::{style::Style, Diagnostic, Highlight}, source_tracking::{filename::FileName, fragment::Fragment, source::Source, SourceRef}};
     use indoc::indoc;
     use termcolor::{ColorChoice, NoColor};
+
+    use super::Renderer;
 
     /// Create a buffer with no colors to write the diagnostic to, write the diagnostic, and then return the string
     /// in the buffer after writing.
@@ -200,7 +230,8 @@ mod tests {
         let mut buffer: NoColor<Vec<u8>> = NoColor::new(Vec::new());
 
         // Write to buffer.
-        super::draw(d, &mut buffer, style).expect("Wrote diagnostic to buffer");
+        let mut renderer = Renderer { writer: &mut buffer, style, supports_hyperlinks: false, width: None };
+        renderer.draw_diagnostic(d).expect("Wrote diagnostic to buffer");
 
         return String::from_utf8(buffer.into_inner()).expect("Buffer contained valid UTF-8");
     }
@@ -248,7 +279,7 @@ mod tests {
             }
         "});
 
-        let frag = Fragment { source: Arc::new(source), range: 0..12 };
+        let frag = Fragment { source: SourceRef(Arc::new(source)), range: 0..12 };
 
         let d = Diagnostic::error("test")
             .with_code("TEST001")

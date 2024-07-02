@@ -8,10 +8,11 @@
 use self::{owned_string::OwnedString, severity::Severity, style::Style};
 use crate::source_tracking::fragment::Fragment;
 use std::io;
+use render::Renderer;
 use supports_unicode::Stream;
 use termcolor::{ColorChoice, StandardStream, StandardStreamLock, WriteColor};
 
-mod draw;
+pub mod render;
 pub mod style;
 pub mod owned_string;
 pub mod severity;
@@ -120,32 +121,20 @@ impl Diagnostic {
     ///
     /// Uses [supports_unicode] to determine whether to print unicode characters.
     pub fn print(&self, color_choice: ColorChoice) -> io::Result<()> {
-        // Get the standard output stream.
-        let stdout: StandardStream = StandardStream::stdout(color_choice);
-        // Lock it to make sure we can write without interruption.
-        let mut stdout_lock: StandardStreamLock = stdout.lock();
-        // Write to the locked stream.
-        self.write(&mut stdout_lock, Style::for_stream(Stream::Stdout))
+        // Construct a renderer for the standard output. 
+        let mut renderer = render::for_stdout(color_choice, Style::for_stream(Stream::Stdout));
+        // Use the renderer to draw this diagnostic. 
+        renderer.draw_diagnostic(self)
     }
 
     /// Print this diagnostic to the standard error.
     ///
     /// Uses [supports_unicode] to determine whether to print unicode characters.
     pub fn eprint(&self, color_choice: ColorChoice) -> io::Result<()> {
-        // Get the standard error stream.
-        let stderr: StandardStream = StandardStream::stderr(color_choice);
-        // Lock it to make sure we can write without interruption.
-        let mut stderr_lock: StandardStreamLock = stderr.lock();
-        // Write to the locked stream.
-        self.write(&mut stderr_lock, Style::for_stream(Stream::Stderr))
-    }
-
-    /// Write this [Diagnostic] to the given writer.
-    ///
-    /// Generally using one of the constants from the [style] module is reasonable, but if you have a custom 
-    /// style, you may use it here. [`supports_unicode`] may be used to determine if the terminal supports unicode. 
-    pub fn write<W: WriteColor>(&self, w: &mut W, style: Style) -> io::Result<()> {
-        draw::draw(self, w, style)
+        // Construct a renderer for the standard error. 
+        let mut renderer = render::for_stderr(color_choice, Style::for_stream(Stream::Stderr));
+        // Use the renderer to draw this diagnostic. 
+        renderer.draw_diagnostic(self)
     }
 }
 

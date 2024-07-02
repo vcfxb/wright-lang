@@ -201,7 +201,7 @@ impl Source {
     /// # Panics
     /// - This will panic if you ask for a line index that's higher than or equal to the number returned 
     ///     by [`Self::count_lines`].
-    pub fn get_line(self: &SourceRef, line_index: usize) -> Fragment {
+    pub fn get_line(self: &Arc<Source>, line_index: usize) -> Fragment {
         if line_index >= self.count_lines() {
             panic!("{} is greater than the number of lines in {}", line_index, self.name);
         }
@@ -217,7 +217,7 @@ impl Source {
         };
 
         // Construct the resultant fragment. 
-        let frag = Fragment { source: Arc::clone(self), range: start_byte_index..end_byte_index };
+        let frag = Fragment { source: SourceRef(Arc::clone(self)), range: start_byte_index..end_byte_index };
         // Debug assert that the fragment is valid. This should always be true but might be useful for testing. 
         debug_assert!(frag.is_valid());
         // Return constructed fragment. 
@@ -229,10 +229,10 @@ impl Source {
     /// 
     /// The returned [Fragment]s will contain the line terminating characters at the end of them. If you don't want 
     /// those, use [Iterator::map] and [Fragment::trim_end].
-    pub fn lines(self: SourceRef) -> impl Iterator<Item = Fragment> {
+    pub fn lines(self: Arc<Source>) -> impl Iterator<Item = Fragment> {
         (0..self.count_lines())
             .into_iter()
-            .map(move |line_index| Arc::clone(&self).get_line(line_index))
+            .map(move |line_index| self.get_line(line_index))
     }
 
     /// Get the the source code stored.
