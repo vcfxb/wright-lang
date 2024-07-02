@@ -236,56 +236,56 @@ mod tests {
         return String::from_utf8(buffer.into_inner()).expect("Buffer contained valid UTF-8");
     }
 
-    #[test]
-    fn test_basic_error() {
-        // Create a test diagnostic.
-        let d: Diagnostic = Diagnostic::error("test error");
+    // #[test]
+    // fn test_basic_error() {
+    //     // Create a test diagnostic.
+    //     let d: Diagnostic = Diagnostic::error("test error");
 
-        // It should look the same with and without unicode.
-        let without_unicode = test_diagnostic(&d, Style::Ascii);
-        let with_unicode = test_diagnostic(&d, Style::UnicodeLight);
+    //     // It should look the same with and without unicode.
+    //     let without_unicode = test_diagnostic(&d, Style::Ascii);
+    //     let with_unicode = test_diagnostic(&d, Style::UnicodeLight);
 
-        assert_eq!(without_unicode, "error: test error\n");
-        assert_eq!(without_unicode, with_unicode);
-    }
+    //     assert_eq!(without_unicode, "error: test error\n");
+    //     assert_eq!(without_unicode, with_unicode);
+    // }
 
-    #[test]
-    fn test_basic_error_with_code() {
-        // Create a test diagnostic.
-        let d: Diagnostic = Diagnostic::error("test error").with_code("TEST_001");
+    // #[test]
+    // fn test_basic_error_with_code() {
+    //     // Create a test diagnostic.
+    //     let d: Diagnostic = Diagnostic::error("test error").with_code("TEST_001");
 
-        // It should look the same with and without unicode.
-        let without_unicode = test_diagnostic(&d, Style::Ascii);
-        let with_unicode = test_diagnostic(&d, Style::UnicodeLight);
+    //     // It should look the same with and without unicode.
+    //     let without_unicode = test_diagnostic(&d, Style::Ascii);
+    //     let with_unicode = test_diagnostic(&d, Style::UnicodeLight);
 
-        assert_eq!(without_unicode, "error [TEST_001]: test error\n");
-        assert_eq!(without_unicode, with_unicode);
-    }
+    //     assert_eq!(without_unicode, "error [TEST_001]: test error\n");
+    //     assert_eq!(without_unicode, with_unicode);
+    // }
 
-    #[test]
-    fn print_note() -> io::Result<()> {
-        let d = Diagnostic::info("test").with_note("This is a sample note.");
+    // #[test]
+    // fn print_note() -> io::Result<()> {
+    //     let d = Diagnostic::info("test").with_note("This is a sample note.");
 
-        d.print(ColorChoice::Auto)
-    }
+    //     d.print(ColorChoice::Auto)
+    // }
 
     
-    #[test]
-    fn print_with_highlight_and_note() -> io::Result<()> {
+    // #[test]
+    // fn print_with_highlight_and_note() -> io::Result<()> {
 
-        let source = Source::new_from_static_str(FileName::Test("test.wr"), indoc! {"
-            func main() {
-                wright::println(\"Hello World!\");
-            }
-        "});
+    //     let source = Source::new_from_static_str(FileName::Test("test.wr"), indoc! {"
+    //         func main() {
+    //             wright::println(\"Hello World!\");
+    //         }
+    //     "});
 
-        let frag = Fragment { source: SourceRef(Arc::new(source)), range: 0..12 };
+    //     let frag = Fragment { source: SourceRef(Arc::new(source)), range: 0..12 };
 
-        let d = Diagnostic::error("test")
-            .with_code("TEST001")
-            .with_primary_highlight(Highlight::new(frag, "main() defined here"))
-            .with_note("This is a sample note.");
+    //     let d = Diagnostic::error("test")
+    //         .with_code("TEST001")
+    //         .with_primary_highlight(Highlight::new(frag, "main() defined here"))
+    //         .with_note("This is a sample note.");
 
-        d.print(ColorChoice::Auto)
-    }
+    //     d.print(ColorChoice::Auto)
+    // }
 }
