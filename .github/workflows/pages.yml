@@ -47,7 +47,7 @@ jobs:
       - name: Build rust docs
         run: |
           mkdir tmp
-          cargo doc
+          cargo +nightly doc
           cp -rv target/doc tmp
       - name: Build mdBook
         run: | 
