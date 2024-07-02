@@ -1,7 +1,7 @@
 //! Structure and implementation relating to the representation of source files (as immutable strings) throughout
 //! the Wright compiler and tooling.
 
-use std::str::CharIndices;
+use std::{str::CharIndices, sync::Arc};
 
 #[cfg(feature = "file_memmap")]
 use fs4::FileExt;
@@ -16,24 +16,20 @@ use std::{fs::File, io};
 /// - References a source string in memory using a `'static` reference,
 /// - Owns a source string in memory.
 /// - Owns a locked and memory mapped file from the disk.
-#[derive(Debug)]
+/// 
+/// This uses an [Arc] internally to make cloning cheap. 
+#[derive(Debug, Clone)]
 pub struct ImmutableString {
     /// Wrap the internal enum representation. This is to avoid exposing the API for a user to construct an
     /// [ImmutableStringInner] without satisfying certain invariants.
-    inner: ImmutableStringInner,
-}
-
-impl AsRef<str> for ImmutableString {
-    fn as_ref(&self) -> &str {
-        self.inner.as_ref()
-    }
+    inner: Arc<ImmutableStringInner>,
 }
 
 impl ImmutableString {
     /// Wrap the inner representation in this type.
     #[inline]
     fn from_inner(inner: ImmutableStringInner) -> Self {
-        ImmutableString { inner }
+        ImmutableString { inner: Arc::new(inner) }
     }
 
     /// Create a new [ImmutableString] holding the given [File] (assumed to be locked with [fs4])
@@ -99,6 +95,12 @@ impl ImmutableString {
     /// See [str::len].
     pub fn len(&self) -> usize {
         self.as_str().len()
+    }
+}
+
+impl AsRef<str> for ImmutableString {
+    fn as_ref(&self) -> &str {
+        (*self.inner).as_ref()
     }
 }
 
