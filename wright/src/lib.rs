@@ -1,6 +1,6 @@
 //! The wright programming language crate. This is being re-written from the ground up as of September 2022.
 
-// If complile without the standard library if the user chooses to do so.
+// Compile without the standard library if the user chooses to do so.
 #![cfg_attr(not(any(feature = "std", test)), no_std)]
 // We want to enforce good stuff by default.
 #![deny(missing_copy_implementations, missing_debug_implementations)]
