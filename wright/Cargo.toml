@@ -60,7 +60,6 @@ source_tracking = [
     "std",
     "dep:dashmap",
     "derive_more/display",
-
 ]
 
 # Reporting errors requires soruce tracking and the ariadne dependency to generate colors for the terminal. 
