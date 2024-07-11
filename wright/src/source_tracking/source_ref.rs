@@ -24,25 +24,3 @@ impl SourceRef {
         Source::get_line(self.0.clone(), line_index)
     }
 }
-
-impl Clone for SourceRef {
-    fn clone(&self) -> Self {
-        Self(Arc::clone(&self.0))
-    }
-}
-
-impl Deref for SourceRef {
-    type Target = Source;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl PartialEq for SourceRef {
-    fn eq(&self, other: &Self) -> bool {
-        Arc::ptr_eq(&self.0, &other.0)
-    }
-}
-
-impl Eq for SourceRef {}

@@ -1,55 +1,89 @@
 //! Types and traits for tracking source code fed to the wright compiler.
 
-use source_ref::SourceRef;
-
+use filename::FileName;
+use immutable_string::ImmutableString;
+use source::SourceId;
+use dashmap::DashMap;
 use self::source::Source;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+
+#[cfg(feature = "reporting")]
+use codespan_reporting::files::Error;
 
 pub mod filename;
 pub mod fragment;
 pub mod immutable_string;
 pub mod source;
-pub mod source_ref;
+// pub mod source_ref;
 
-/// Storage for a list of [Source]s used and reference in compiling a wright project.
-#[derive(Debug)]
+/// A reference to a [Source] in a [SourceMap].
+pub type SourceRef = Arc<Source>;
+
+/// Storage for [Source]s used and referenced in compiling a wright project.
+#[derive(Debug, Default)]
 pub struct SourceMap {
-    /// Internally, we use an [Arc] [RwLock] [Vec] to create a concurrent mutable list.
+    /// Internally, we use [DashMap] for a concurrent hashmap from [Source::id]s to their [Arc]'d 
     ///
-    /// Each source is wrapped in an [Arc] to make them all accessible without needing to use [RwLock::read].
-    inner: Arc<RwLock<Vec<Arc<Source>>>>,
+    /// Each source is wrapped in an [Arc] to make them all accessible without holding a reference to this map 
+    /// directly. 
+    inner: DashMap<SourceId, SourceRef>,
 }
 
 impl SourceMap {
     /// Construct a new empty [SourceMap].
     pub fn new() -> Self {
-        SourceMap {
-            inner: Arc::new(RwLock::new(Vec::new())),
-        }
+        Default::default()
     }
 
     /// Add a [Source] to this [SourceMap] and get a [SourceRef] to it after it's added.
     pub fn add(&self, source: Source) -> SourceRef {
         // Put the source in an Arc.
-        let source: Arc<Source> = Arc::new(source);
-
-        // Get a write guard to the internal list.
-        let mut write_guard = self
-            .inner
-            .write()
-            .expect("Should be able to acquire write guard");
-
+        let source: SourceRef = Arc::new(source);
         // Push the souce to the internal Vec.
-        write_guard.push(Arc::clone(&source));
-        // Drop the write guard -- make sure other functions can access this source map.
-        drop(write_guard);
+        self.inner.insert(source.id, Arc::clone(&source));
         // Return the now-Arc'd source.
-        SourceRef(source)
+        source
+    }
+
+
+    /// Get a reference to a [Source] stored in this [SourceMap] using it's [Source::id].
+    /// 
+    /// This is currently `O(1)` since [SourceMap] uses a [DashMap] internally. 
+    /// 
+    /// Returns [None] if the [Source] with the given [Source::id] is not in this [SourceMap].
+    pub fn get(&self, id: SourceId) -> Option<SourceRef> {
+        self.inner
+            .get(&id)
+            .map(|source| Arc::clone(&source))
     }
 }
 
-impl Default for SourceMap {
-    fn default() -> Self {
-        SourceMap::new()
+#[cfg(feature = "reporting")]
+impl<'f> codespan_reporting::files::Files<'f> for SourceMap {
+    type FileId = SourceId; 
+
+    type Name = FileName;
+
+    type Source = ImmutableString;
+
+    fn name(&'f self, id: Self::FileId) -> Result<Self::Name, codespan_reporting::files::Error> {
+        self.get(id)
+            .map(|source| source.name().clone())
+            .ok_or(Error::FileMissing)
+    }
+
+    fn source(&'f self, id: Self::FileId) -> Result<Self::Source, codespan_reporting::files::Error> {
+        self.get(id)
+            .map(|source| source.source().clone())
+            .ok_or(Error::FileMissing)
+    }
+
+    fn line_index(&'f self, id: Self::FileId, byte_index: usize) -> Result<usize, codespan_reporting::files::Error> {
+        Ok(self.get(id).ok_or(Error::FileMissing)?.line_index(byte_index))
+            
+    }
+
+    fn line_range(&'f self, id: Self::FileId, line_index: usize) -> Result<std::ops::Range<usize>, codespan_reporting::files::Error> {
+        Ok(self.get(id).ok_or(Error::FileMissing)?.get_line(line_index).range)
     }
 }

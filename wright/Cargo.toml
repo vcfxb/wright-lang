@@ -50,36 +50,47 @@ harness = false
 default = ["wright_binary"]
 
 # Features and dependencies required for the wright binary. These are built by default. 
-wright_binary = ["file_memmap", "dep:clap"]
+wright_binary = ["wright_library_defaults", "dep:clap"]
 
 # Features and dependencies useful when the wright binary is not being built or used. 
 wright_library_defaults = ["file_memmap"]
 
 # Source tracking requires just the base set of dependencies and standard library. 
-source_tracking = []
+source_tracking = [
+    "std",
+    "dep:dashmap",
+    "derive_more/display",
+
+]
 
 # Reporting errors requires soruce tracking and the ariadne dependency to generate colors for the terminal. 
 reporting = [
     "source_tracking", 
-    "dep:termcolor", 
-    "dep:supports-unicode", 
-    "dep:syntect", 
-    "dep:terminal_size",
-    "dep:terminal-link"
+    "dep:termcolor",
+    "dep:codespan-reporting"
 ]
 
 # Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
 # read from disk. 
-file_memmap = ["dep:memmap2", "dep:fs4", "reporting"]
+file_memmap = [
+    "reporting",
+    "dep:memmap2",
+    "dep:fs4",
+    "dep:anyhow"
+]
+
+# Feature flag to indicate use of the standard library.
+std = [
+    # The "std" feature is not yet out for derive_more -- todo for the next version released.
+    # "derive_more?/std", 
+    "anyhow?/std"
+]
+
+# Feature flag indicating no features are enabled. 
+none = []
 
 # SIMPLE DEPENDENCIES: 
 [dependencies]
-
-# Derives for various traits
-derive_more = "0.99.17"
-
-# For getting the displayed width of unicode characters and strings. 
-# unicode-width = "0.1.13"
 
 # Unicode identifier functions
 # unicode-ident = "1.0"
@@ -89,27 +100,31 @@ derive_more = "0.99.17"
 
 # DEPENDENCIES WITH/AS FEATURES:
 
-# Syntect for syntax highlighting in diagnostics/error reporting. 
+# derive_more is used for allowing us to derive additional traits like From and Display.
+# Currently used by features: 
+# - "source_tracking"
+[dependencies.derive_more]
+version = "0.99.18"
+default-features = false
+optional = true
+
+# Anyhow is used to make error handling easier. 
+[dependencies.anyhow]
+version = "1.0.86"
+default-features = false
+optional = true
+
+# dashmap is used as a fast, concurrent hash map implementation 
+# Optional since it's used for source tracking, which can be turned off. 
+[dependencies.dashmap]
+version = "6.0.1"
+features = ["rayon"]
+optional = true
+
+# codespan-reporting is the internal engine used to render diagnostics.
 # Optional since it's only used when error reporting is required. 
-[dependencies.syntect]
-version = "5.2"
-optional = true
-
-# For determining the size of the terminal we're writing to. 
-# Optional since it's only used when error reporting is required. 
-[dependencies.terminal_size]
-version = "0.3.0"
-optional = true
-
-# Create/format a link for a terminal/terminal emulator. 
-[dependencies.terminal-link]
-version = "0.1.0"
-optional = true
-
-# Used to check if the output terminal supports unicode.
-# Optional: Only required for reporting. 
-[dependencies.supports-unicode]
-version = "3.0.0"
+[dependencies.codespan-reporting]
+version = "0.11.1"
 optional = true
 
 # Terminal output colors
@@ -158,5 +173,9 @@ indoc = "2.0.5"
 
 # BUILD DEPENDENCIES
 [build-dependencies]
+
 # Used for showing feature/cfg info on rustdoc/docs.rs. 
 rustc_version = "0.4.0"
+
+# Used for capturing build time and platform information and making it available at runtime. 
+built = "0.7"

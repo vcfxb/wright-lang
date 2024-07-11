@@ -1,13 +1,10 @@
 //! [Fragment] struct and implementation for dealing with fragments of source code.
 
 use super::SourceRef;
-use std::{ops::Range, str::Chars};
+use std::{ops::Range, str::Chars, sync::Arc};
 
 #[cfg(doc)]
 use super::Source;
-
-#[cfg(doc)]
-use std::sync::Arc;
 
 /// A fragment of source code.
 ///
@@ -66,7 +63,7 @@ impl Fragment {
             panic!("Containing an empty fragment is ambiguous");
         }
 
-        self.source == other.source
+        self.source.id == other.source.id
             && self.range.start <= other.range.start
             && self.range.end >= other.range.end
     }
@@ -211,23 +208,11 @@ impl Fragment {
 
     /// Get a [Range] of line indices (0-indexed, see [Source::get_line]) that this fragment overlaps.
     pub fn line_indices(&self) -> Range<usize> {
-        // Get a list of the byte indices that lines start on in the original source.
-        let line_starts: &[usize] = self.source.line_starts();
+        let start_line_index: usize = self.source.line_index(self.range.start);
 
-        // We just want the exact line index if this fragment starts at the beginning of a line, otherwise, give us the
-        // index of the line start before it (the line it started on).
-        let start_line_index: usize = line_starts
-            .binary_search(&self.range.start)
-            // Subtract 1 here to make sure we get the index of the line start before the starting index instead of
-            // after.
-            .unwrap_or_else(|not_found_index| not_found_index.saturating_sub(1));
-
-        // Do the same for the end of the fragment. Remember that in a range, the end is exclusive, so we would consider
-        // the line referenced before this index as the last line that this fragment overlaps.
-        let ending_line_index: usize = line_starts
-            .binary_search(&self.range.end)
-            // We don't subtract 1 here since we're looking for an exclusive upper bound.
-            .unwrap_or_else(|not_found_index| not_found_index);
+        // Subtract one when doing the end because if this fragment ends at the end of a line, we don't want to include
+        // the next line (obo -- range is exclusive).
+        let ending_line_index: usize = self.source.line_index(self.range.end - 1);
 
         // Return the range.
         start_line_index..ending_line_index
@@ -243,7 +228,7 @@ impl Fragment {
     /// Get the number of bytes between the start of the line that this [Fragment] starts on and the start of this
     /// [Fragment]
     pub fn starting_col_index(&self) -> usize {
-        self.range.start - self.source.get_line(self.line_indices().start).range.start
+        self.range.start - Arc::clone(&self.source).get_line(self.line_indices().start).range.start
     }
 }
 
@@ -251,7 +236,7 @@ impl PartialEq for Fragment {
     /// Fragment equality is based on referencing the same [Source] using [Arc::ptr_eq] and having the same
     /// [Fragment::range].
     fn eq(&self, other: &Self) -> bool {
-        self.source.gid() == other.source.gid() && self.range == other.range
+        self.source.id == other.source.id && self.range == other.range
     }
 }
 
@@ -260,7 +245,7 @@ impl Eq for Fragment {}
 #[cfg(test)]
 mod tests {
     use super::Fragment;
-    use crate::source_tracking::{filename::FileName, source::Source, SourceRef};
+    use crate::source_tracking::{filename::FileName, source::Source};
     use std::sync::Arc;
 
     /// Utility function to create a one-off fragment over a static string.
@@ -270,7 +255,7 @@ mod tests {
 
         Fragment {
             range: 0..arc.source().as_ref().len(),
-            source: SourceRef(arc),
+            source: arc,
         }
     }
 

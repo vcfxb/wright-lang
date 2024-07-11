@@ -2,7 +2,6 @@
 //! source files from disk, source strings used in test cases, and source strings created at
 //! run-time by an API consumer.
 
-use super::SourceRef;
 use super::{filename::FileName, fragment::Fragment, immutable_string::ImmutableString};
 use std::io;
 use std::path::PathBuf;
@@ -21,30 +20,31 @@ use memmap2::Mmap;
 #[cfg(feature = "file_memmap")]
 use crate::reporting::Diagnostic;
 
-#[cfg(feature = "file_memmap")]
-use termcolor::ColorChoice;
-
 /// Amount of time before we should warn the user about locking the file taking too long.
 #[cfg(feature = "file_memmap")]
 pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
 
-/// The global [Source::gid] generator.
+/// The global [Source::id] generator.
 ///
 /// This is just a global [u64] that gets incremented everytime a new source is instantiated.
-static SOURCE_GID_GENERATOR: AtomicU64 = AtomicU64::new(1);
+static SOURCE_ID_GENERATOR: AtomicU64 = AtomicU64::new(1);
+
+/// A process-unique source id, that is atomically generated and assigned to each [Source] on creation. 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SourceId(u64);
 
 /// A full source. This is usually a file, but may also be passed in the form of a string for testing.  
 #[derive(Debug)]
 pub struct Source {
-    /// Globally unique [Source] ID.
+    /// Globally (process-wide) unique [Source] ID.
     ///
     /// It is fequently useful to have a consistient way to sort sources and check for equality between sources.
     /// This cannot be done with the [Source::name] since that can be [FileName::None], and checking for equality
     /// of content can be an expensive process.
     ///
-    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to
+    /// The id of a [Source] is an identifier that's globally unique for the runtime of the program, and is assigned to
     /// the [Source] when it is instantiated.
-    gid: u64,
+    pub id: SourceId,
 
     /// The name of this source file.
     name: FileName,
@@ -63,7 +63,7 @@ impl Source {
             // I believe we can use relaxed ordering here, since as long as all operations are atomic,
             // we're not really worried about another thread's `fetch_add` being re-ordered before this one, since
             // neither will get the same number.
-            gid: SOURCE_GID_GENERATOR.fetch_add(1, Ordering::Relaxed),
+            id: SourceId(SOURCE_ID_GENERATOR.fetch_add(1, Ordering::Relaxed)),
             name,
             line_starts: source.line_starts(),
             source,
@@ -87,7 +87,9 @@ impl Source {
     ///
     /// This requires the "file_memmap" feature.
     #[cfg(feature = "file_memmap")]
-    pub fn new_mapped_from_disk(path: PathBuf) -> io::Result<Self> {
+    pub fn new_mapped_from_disk(path: PathBuf) -> anyhow::Result<Self> {
+        use crate::source_tracking::SourceMap;
+
         // Make a one-off enum here to use for channel messages.
         enum ChannelMessage {
             /// The file was successfully locked.
@@ -132,13 +134,15 @@ impl Source {
 
                     // Wrap the message in a warning diagnostic and print it.
                     // Add a note to describe what is going on.
-                    Diagnostic::warning(message)
-                        .with_note("This may be caused by another process holding or failing to release a lock on this file.")
-                        .print(ColorChoice::Auto)?;
+                    Diagnostic::warning()
+                        .with_message(message)
+                        .with_notes(["This may be caused by another process holding or failing to release a lock on this file."])
+                        // Create a dummy empty source map here, since this diagnostic does not have any highlights.
+                        .print(&SourceMap::new())?;
                 }
 
                 // Handle any io errors locking the file by returning them.
-                Ok(ChannelMessage::LockingError(io_err)) => return Err(io_err),
+                Ok(ChannelMessage::LockingError(io_err)) => Err(io_err)?,
 
                 // Handle success by finishing adding the file to the FileMap.
                 Ok(ChannelMessage::FileLocked(file)) => {
@@ -165,7 +169,7 @@ impl Source {
                             .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
                             .ok();
 
-                        return Err(io::Error::new(io::ErrorKind::InvalidData, utf8_error));
+                        Err(io::Error::new(io::ErrorKind::InvalidData, utf8_error))?;
                     }
 
                     // If we get here, the file is valid UTF-8 -- put the memory mapped file in an Immutable string object.
@@ -210,6 +214,22 @@ impl Source {
     pub fn count_lines(&self) -> usize {
         self.line_starts.len()
     }
+    
+    /// Get the line index that a byte index is on in this [Source]. 
+    /// 
+    /// If the byte index is greater than the length of the [Source] then the highest possible index will be returned. 
+    pub fn line_index(&self, byte_index: usize) -> usize {
+        // Get a list of the byte indices that lines start on.
+        let line_starts: &[usize] = self.line_starts();
+
+        // We just want the exact line index if the byte index is at the beginning of a line, otherwise, give us the
+        // index of the line-start before it.
+        line_starts
+            .binary_search(&byte_index)
+            // Subtract 1 here to make sure we get the index of the line start before the byte index instead of
+            // after.
+            .unwrap_or_else(|not_found_index| not_found_index.saturating_sub(1))
+    }
 
     /// Get a line of this [Source] as a [Fragment].
     /// The returned [Fragment] will contain the line terminating characters at the end of it. If you don't want those,
@@ -238,7 +258,7 @@ impl Source {
 
         // Construct the resultant fragment.
         let frag = Fragment {
-            source: SourceRef(Arc::clone(&self)),
+            source: Arc::clone(&self),
             range: start_byte_index..end_byte_index,
         };
 
@@ -266,18 +286,6 @@ impl Source {
     pub const fn name(&self) -> &FileName {
         &self.name
     }
-
-    /// Globally unique [Source] ID.
-    ///
-    /// It is fequently useful to have a consistient way to sort sources and check for equality between sources.
-    /// This cannot be done with the [Source::name] since that can be [FileName::None], and checking for equality
-    /// of content can be an expensive process.
-    ///
-    /// The gid of a source is an identifier that's globally unique for the runtime of the program, and is assigned to
-    /// the [Source] when it is instantiated.
-    pub const fn gid(&self) -> u64 {
-        self.gid
-    }
 }
 
 #[cfg(test)]
@@ -296,7 +304,7 @@ mod tests {
             let tx = tx.clone();
             thread::spawn(move || {
                 let source = Source::new_from_string(FileName::None, format!("{i}"));
-                tx.send(source.gid()).unwrap();
+                tx.send(source.id).unwrap();
             });
         }
 
