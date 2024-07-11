@@ -1,5 +1,5 @@
 //! Build script for wright.
-//! This is used for capturing build environment info which is used at runtime. 
+//! This is used for capturing build environment info which is used at runtime.
 
 use rustc_version::{version_meta, Channel};
 

@@ -29,7 +29,7 @@ pub const FILE_LOCK_WARNING_TIME: Duration = Duration::from_secs(5);
 /// This is just a global [u64] that gets incremented everytime a new source is instantiated.
 static SOURCE_ID_GENERATOR: AtomicU64 = AtomicU64::new(1);
 
-/// A process-unique source id, that is atomically generated and assigned to each [Source] on creation. 
+/// A process-unique source id, that is atomically generated and assigned to each [Source] on creation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SourceId(u64);
 
@@ -214,10 +214,10 @@ impl Source {
     pub fn count_lines(&self) -> usize {
         self.line_starts.len()
     }
-    
-    /// Get the line index that a byte index is on in this [Source]. 
-    /// 
-    /// If the byte index is greater than the length of the [Source] then the highest possible index will be returned. 
+
+    /// Get the line index that a byte index is on in this [Source].
+    ///
+    /// If the byte index is greater than the length of the [Source] then the highest possible index will be returned.
     pub fn line_index(&self, byte_index: usize) -> usize {
         // Get a list of the byte indices that lines start on.
         let line_starts: &[usize] = self.line_starts();

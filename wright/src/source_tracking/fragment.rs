@@ -228,7 +228,12 @@ impl Fragment {
     /// Get the number of bytes between the start of the line that this [Fragment] starts on and the start of this
     /// [Fragment]
     pub fn starting_col_index(&self) -> usize {
-        self.range.start - Arc::clone(&self.source).get_line(self.line_indices().start).range.start
+        let line_start_index = Arc::clone(&self.source)
+            .get_line(self.line_indices().start)
+            .range
+            .start;
+
+        self.range.start - line_start_index
     }
 }
 
