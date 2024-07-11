@@ -14,7 +14,6 @@ pub mod filename;
 pub mod fragment;
 pub mod immutable_string;
 pub mod source;
-// pub mod source_ref;
 
 /// A reference to a [Source] in a [SourceMap].
 pub type SourceRef = Arc<Source>;
