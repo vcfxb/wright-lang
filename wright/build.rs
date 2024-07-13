@@ -14,6 +14,7 @@ fn main() {
     };
 
     println!("cargo:rustc-cfg={}", channel);
+    println!("cargo::rustc-check-cfg=cfg({})", channel);
 
     // Save build info.
     // See https://docs.rs/built/0.7.4/built/index.html.
