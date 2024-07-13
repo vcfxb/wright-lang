@@ -40,22 +40,22 @@ impl Lexer {
         }
     }
 
-    /// Available in test cases, creates a new [Lexer] over a given static [str]ing. 
-    /// 
+    /// Available in test cases, creates a new [Lexer] over a given static [str]ing.
+    ///
     /// The instantiated [Source] in this [Lexer] has its name set to [FileName::None].
-    /// 
+    ///
     /// [Source]: crate::source_tracking::source::Source
     /// [FileName::None]: crate::source_tracking::filename::FileName::None
     #[cfg(test)]
     pub(crate) fn new_test(source: &'static str) -> Self {
-        use std::sync::Arc;
         use crate::source_tracking::{filename::FileName, source::Source};
+        use std::sync::Arc;
 
-        Lexer { 
-            remaining: Fragment { 
-                source: Arc::new(Source::new_from_static_str(FileName::None, source)), 
-                range: 0..source.len() 
-            } 
+        Lexer {
+            remaining: Fragment {
+                source: Arc::new(Source::new_from_static_str(FileName::None, source)),
+                range: 0..source.len(),
+            },
         }
     }
 

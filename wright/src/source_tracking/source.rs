@@ -288,10 +288,13 @@ impl Source {
         &self.name
     }
 
-    /// Get the entire content of this [Source] as a [Fragment]. 
+    /// Get the entire content of this [Source] as a [Fragment].
     pub fn as_fragment(self: SourceRef) -> Fragment {
         let len = self.source.len();
-        Fragment { source: self, range: 0..len }
+        Fragment {
+            source: self,
+            range: 0..len,
+        }
     }
 }
 

@@ -30,6 +30,7 @@ fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
 
         "if" => KwIf,
         "else" => KwElse,
+        "match" => KwMatch,
 
         "for" => KwFor,
         "in" => KwIn,
@@ -65,16 +66,15 @@ pub fn try_consume_keyword_or_identifier(lexer: &mut Lexer) -> Option<Token> {
     // Split the token and the new remaining fragment.
     // VALIDITY: The character iterator should guarantee that we land on a valid character boundary within the bounds
     // of the fragment.
-    let (token_fragment, new_remaining): (Fragment, Fragment) = lexer
-        .remaining
-        .split_at_unchecked(bytes_consumed);
+    let (token_fragment, new_remaining): (Fragment, Fragment) =
+        lexer.remaining.split_at_unchecked(bytes_consumed);
 
     // Get the variant of token to produce.
     let variant: TokenTy = identifier_or_keyword(token_fragment.clone());
 
     // Update the lexer's remaining fragment.
     lexer.remaining = new_remaining;
-    
+
     // Return the token.
     Some(Token {
         variant,

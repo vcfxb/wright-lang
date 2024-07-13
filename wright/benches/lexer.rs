@@ -3,7 +3,10 @@
 use std::sync::Arc;
 
 use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
-use wright::{parser::lexer::Lexer, source_tracking::{filename::FileName, source::Source}};
+use wright::{
+    parser::lexer::Lexer,
+    source_tracking::{filename::FileName, source::Source},
+};
 
 fn make_test_lexer(s: &str) -> Lexer {
     let source = Source::new_from_string(FileName::None, s.to_owned());

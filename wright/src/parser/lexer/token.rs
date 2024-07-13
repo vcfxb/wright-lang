@@ -77,6 +77,7 @@ pub enum TokenTy {
     KwMod,
     KwIf,
     KwElse,
+    KwMatch,
     KwFor,
     KwIn,
     KwWhile,

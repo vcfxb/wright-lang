@@ -54,7 +54,7 @@ impl Fragment {
         self.len() == 0
     }
 
-    /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source] by 
+    /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source] by
     /// [Source::id].
     ///
     /// If `other` is empty, it can still be considered to be contained in this [Fragment] if its
