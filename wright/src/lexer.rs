@@ -182,14 +182,16 @@ impl Lexer {
         {
             let remaining_str = self.remaining.as_str();
             let trimmed = remaining_str.trim_start().as_ptr();
-            
+
             // Calculate the delta by pointer offset.
             // SAFETY: In this case, all the requirements of pointer::offset_from are satisfied.
             let delta = unsafe { trimmed.offset_from(remaining_str.as_ptr()) };
-            
+
             if delta > 0 {
                 // SAFETY: trim_start should always return a valid string, and delta is just checked to be > 0.
-                return unsafe { Some(self.split_token_unchecked(delta as usize, TokenTy::Whitespace)) };
+                return unsafe {
+                    Some(self.split_token_unchecked(delta as usize, TokenTy::Whitespace))
+                };
             }
         }
 
