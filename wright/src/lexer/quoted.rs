@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn string_literal() {
-        let mut lexer = Lexer::new_test(r#" "Test string literal" "#);
+        let mut lexer = Lexer::new_test(r#""Test string literal""#);
         let token = lexer.next_token().unwrap();
         assert_eq!(token.variant, TokenTy::StringLiteral { terminated: true });
         assert_eq!(token.fragment.as_str(), "\"Test string literal\"");

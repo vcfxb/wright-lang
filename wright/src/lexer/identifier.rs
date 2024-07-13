@@ -91,6 +91,7 @@ mod tests {
         let mut lexer = Lexer::new_test("const TEST");
 
         assert_eq!(lexer.next_token().unwrap().variant, TokenTy::KwConst);
+        assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Whitespace);
         assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Identifier);
     }
 }

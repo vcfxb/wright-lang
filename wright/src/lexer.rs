@@ -104,17 +104,6 @@ impl Lexer {
         self.remaining.offset_from(&origin.remaining)
     }
 
-    /// Remove and ignore any whitespace at the start of the [Lexer::remaining] [Fragment].
-    pub fn ignore_whitespace(&mut self) {
-        // Get a reference to the slice of the string past any whitespace at the start.
-        let without_whitespace = self.remaining.clone().trim_start();
-
-        // If the references aren't equal, update the remaining fragment.
-        if self.remaining.range != without_whitespace.range {
-            self.remaining = without_whitespace;
-        }
-    }
-
     /// Check if a pattern matches at the start of the [Lexer::remaining] [Fragment].
     pub fn matches(&self, pattern: &str) -> bool {
         self.remaining.as_str().starts_with(pattern)
@@ -183,12 +172,25 @@ impl Lexer {
 
     /// Get the next token from the lexer.
     pub fn next_token(&mut self) -> Option<Token> {
-        // Ignore any whitespace at the start of the lexer.
-        self.ignore_whitespace();
-
         // If the remaining input is empty, there is no token.
         if self.remaining.is_empty() {
             return None;
+        }
+
+        // If there is whitespace, it becomes its own token.
+        // Use a little unsafe here since this check is done every time and needs to be fast.
+        {
+            let remaining_str = self.remaining.as_str();
+            let trimmed = remaining_str.trim_start().as_ptr();
+            
+            // Calculate the delta by pointer offset.
+            // SAFETY: In this case, all the requirements of pointer::offset_from are satisfied.
+            let delta = unsafe { trimmed.offset_from(remaining_str.as_ptr()) };
+            
+            if delta > 0 {
+                // SAFETY: trim_start should always return a valid string, and delta is just checked to be > 0.
+                return unsafe { Some(self.split_token_unchecked(delta as usize, TokenTy::Whitespace)) };
+            }
         }
 
         // Attempt to parse a single line comment and then attempt a multi-line comment.

@@ -91,6 +91,9 @@ pub enum TokenTy {
     FormatStringLiteral { terminated: bool },
     CharLiteral { terminated: bool },
 
+    /// Whitespace counts as a token.
+    Whitespace,
+
     /// Unknown character in lexer fragment. 
     Unknown
 }
