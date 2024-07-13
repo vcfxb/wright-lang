@@ -59,8 +59,7 @@ wright_library_defaults = ["file_memmap", "parser"]
 parser = [
     "reporting",
     "ast-model",
-    "lexer",
-    "dep:unicode-ident"
+    "lexer"
 ]
 
 # Wright's abstract syntax tree model is built on types from the "source_tracking" module.
@@ -71,7 +70,8 @@ ast-model = [
 
 # Wright's lexical analyzer is build using types from the "source_tracking" module.
 lexer = [
-    "source-tracking"
+    "source-tracking",
+    "dep:unicode-ident"
 ]
 
 # Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 

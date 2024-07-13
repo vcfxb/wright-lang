@@ -2,13 +2,8 @@
 
 use self::source::Source;
 use dashmap::DashMap;
-use filename::FileName;
-use immutable_string::ImmutableString;
 use source::SourceId;
 use std::sync::Arc;
-
-#[cfg(feature = "reporting")]
-use codespan_reporting::files::Error;
 
 pub mod filename;
 pub mod fragment;
@@ -56,49 +51,3 @@ impl SourceMap {
     }
 }
 
-#[cfg(feature = "reporting")]
-impl<'f> codespan_reporting::files::Files<'f> for SourceMap {
-    type FileId = SourceId;
-
-    type Name = FileName;
-
-    type Source = ImmutableString;
-
-    fn name(&'f self, id: Self::FileId) -> Result<Self::Name, codespan_reporting::files::Error> {
-        self.get(id)
-            .map(|source| source.name().clone())
-            .ok_or(Error::FileMissing)
-    }
-
-    fn source(
-        &'f self,
-        id: Self::FileId,
-    ) -> Result<Self::Source, codespan_reporting::files::Error> {
-        self.get(id)
-            .map(|source| source.source().clone())
-            .ok_or(Error::FileMissing)
-    }
-
-    fn line_index(
-        &'f self,
-        id: Self::FileId,
-        byte_index: usize,
-    ) -> Result<usize, codespan_reporting::files::Error> {
-        Ok(self
-            .get(id)
-            .ok_or(Error::FileMissing)?
-            .line_index(byte_index))
-    }
-
-    fn line_range(
-        &'f self,
-        id: Self::FileId,
-        line_index: usize,
-    ) -> Result<std::ops::Range<usize>, codespan_reporting::files::Error> {
-        Ok(self
-            .get(id)
-            .ok_or(Error::FileMissing)?
-            .get_line(line_index)
-            .range)
-    }
-}

@@ -5,11 +5,13 @@
 //! [codespan-reporting]: https://crates.io/crates/codespan-reporting
 //! [ariadne]: https://crates.io/crates/ariadne
 
+use crate::source_tracking::filename::FileName;
+use crate::source_tracking::immutable_string::ImmutableString;
 use crate::source_tracking::SourceMap;
 use crate::source_tracking::{fragment::Fragment, source::SourceId};
 use codespan_reporting::diagnostic::Diagnostic as CRDiagnostic;
 use codespan_reporting::diagnostic::Label;
-use codespan_reporting::files::Error as CRError;
+use codespan_reporting::files::{Error as CRError, Files};
 use codespan_reporting::term::Config;
 use std::sync::Mutex;
 use termcolor::{ColorChoice, StandardStream, WriteColor};
@@ -167,5 +169,51 @@ impl From<Highlight> for Label<SourceId> {
             range: value.fragment.range,
             message: value.message,
         }
+    }
+}
+
+impl<'f> Files<'f> for SourceMap {
+    type FileId = SourceId;
+
+    type Name = FileName;
+
+    type Source = ImmutableString;
+
+    fn name(&'f self, id: Self::FileId) -> Result<Self::Name, codespan_reporting::files::Error> {
+        self.get(id)
+            .map(|source| source.name().clone())
+            .ok_or(CRError::FileMissing)
+    }
+
+    fn source(
+        &'f self,
+        id: Self::FileId,
+    ) -> Result<Self::Source, codespan_reporting::files::Error> {
+        self.get(id)
+            .map(|source| source.source().clone())
+            .ok_or(CRError::FileMissing)
+    }
+
+    fn line_index(
+        &'f self,
+        id: Self::FileId,
+        byte_index: usize,
+    ) -> Result<usize, codespan_reporting::files::Error> {
+        Ok(self
+            .get(id)
+            .ok_or(CRError::FileMissing)?
+            .line_index(byte_index))
+    }
+
+    fn line_range(
+        &'f self,
+        id: Self::FileId,
+        line_index: usize,
+    ) -> Result<std::ops::Range<usize>, codespan_reporting::files::Error> {
+        Ok(self
+            .get(id)
+            .ok_or(CRError::FileMissing)?
+            .get_line(line_index)
+            .range)
     }
 }
