@@ -1,6 +1,7 @@
 //! [Fragment] struct and implementation for dealing with fragments of source code.
 
 use super::SourceRef;
+use derive_more::Display;
 use std::{ops::Range, str::Chars, sync::Arc};
 
 #[cfg(doc)]
@@ -9,7 +10,8 @@ use crate::source_tracking::source::Source;
 /// A fragment of source code.
 ///
 /// This can be part of (or all of) a [Source].
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Display)]
+#[display(fmt = "{}", "self.as_str()")]
 pub struct Fragment {
     /// The [Source] that this fragment is in.
     pub source: SourceRef,
