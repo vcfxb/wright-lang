@@ -5,7 +5,7 @@ use std::str::Chars;
 
 /// Attempt to parse a quoted literal. This includes [TokenTy::StringLiteral], [TokenTy::CharLiteral], and
 /// [TokenTy::FormatStringLiteral].
-pub fn try_consume_quoted_literal<'src>(lexer: &mut Lexer<'src>) -> Option<Token<'src>> {
+pub fn try_consume_quoted_literal(lexer: &mut Lexer) -> Option<Token> {
     // Make a chars iterator to lex from.
     let mut chars: Chars = lexer.remaining.chars();
     // Get the first char from the character iterator.
@@ -66,9 +66,9 @@ mod tests {
 
     #[test]
     fn string_literal() {
-        let mut lexer = Lexer::new(r#" "Test string literal" "#);
+        let mut lexer = Lexer::new_test(r#" "Test string literal" "#);
         let token = lexer.next_token().unwrap();
         assert_eq!(token.variant, TokenTy::StringLiteral { terminated: true });
-        assert_eq!(token.fragment.inner, "\"Test string literal\"");
+        assert_eq!(token.fragment.as_str(), "\"Test string literal\"");
     }
 }

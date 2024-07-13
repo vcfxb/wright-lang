@@ -1,21 +1,23 @@
 //! Token models.
 
-use crate::parser::fragment::Fragment;
+use crate::source_tracking::fragment::Fragment;
 use derive_more::Display;
 
 /// A token in wright source code.
 #[derive(Debug, Display)]
-#[display(fmt = "\"{}\" ({:?})", "fragment.inner", variant)]
-pub struct Token<'src> {
+#[display(fmt = "\"{}\" ({:?})", "fragment.as_str()", variant)]
+pub struct Token {
     /// What type of token this is.
     pub variant: TokenTy,
     /// The matching fragment of source code -- this contains the location and length data for the token.
-    pub fragment: Fragment<'src>,
+    pub fragment: Fragment,
 }
 
 /// The different types of tokens in wright source.
 #[rustfmt::skip] // Turn off auto reformat. 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+// Allow missing docs (most of these should be self-evident). 
+#[allow(missing_docs)]
 pub enum TokenTy {
     LeftCurly, RightCurly,
     LeftBracket, RightBracket,

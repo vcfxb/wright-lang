@@ -7,7 +7,7 @@ use super::{
 use std::{iter::Peekable, str::Chars};
 
 /// Attempt to lex and consume an [TokenTy::IntegerLiteral] from the lexer.
-pub fn try_consume_integer_literal<'src>(lexer: &mut Lexer<'src>) -> Option<Token<'src>> {
+pub fn try_consume_integer_literal(lexer: &mut Lexer) -> Option<Token> {
     // Make a peekable character iterator.
     let mut chars: Peekable<Chars> = lexer.remaining.chars().peekable();
     // Get the first character from the iterator. We can only continue lexing if one exists and is an ascii
@@ -49,11 +49,11 @@ mod tests {
 
     #[test]
     fn integer_literal() {
-        let mut lexer = Lexer::new("123_456_789.");
+        let mut lexer = Lexer::new_test("123_456_789.");
 
         let token = lexer.next_token().unwrap();
 
-        assert_eq!(token.fragment.inner, "123_456_789");
+        assert_eq!(token.fragment.as_str(), "123_456_789");
         assert_eq!(token.variant, TokenTy::IntegerLiteral);
     }
 }

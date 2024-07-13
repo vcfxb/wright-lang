@@ -1,7 +1,7 @@
 //! Implementation related to parsing keywords and identifiers.
 
 use super::{token::Token, token::TokenTy, Lexer};
-use crate::parser::fragment::Fragment;
+use crate::source_tracking::fragment::Fragment;
 use std::str::Chars;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
@@ -10,7 +10,7 @@ use unicode_ident::{is_xid_continue, is_xid_start};
 fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
     use TokenTy::*;
 
-    match fragment.inner {
+    match fragment.as_str() {
         "record" => KwRecord,
         "type" => KwType,
         "enum" => KwEnum,
@@ -46,7 +46,7 @@ fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
 }
 
 /// Attempt to consume a keyword/[identifier](TokenTy::Identifier)/[underscore](TokenTy::Underscore) from the lexer.
-pub fn try_consume_keyword_or_identifier<'src>(lexer: &mut Lexer<'src>) -> Option<Token<'src>> {
+pub fn try_consume_keyword_or_identifier(lexer: &mut Lexer) -> Option<Token> {
     // Get a character iterator that we can pull from.
     let mut chars: Chars = lexer.remaining.chars();
     // Get the next character from the iterator, consider it the first char of any potential match.
@@ -63,15 +63,18 @@ pub fn try_consume_keyword_or_identifier<'src>(lexer: &mut Lexer<'src>) -> Optio
         .sum::<usize>();
 
     // Split the token and the new remaining fragment.
-    // SAFETY: The character iterator should guaruntee that we land on a valid character boundary within the bounds
+    // VALIDITY: The character iterator should guarantee that we land on a valid character boundary within the bounds
     // of the fragment.
-    let (token_fragment, new_remaining): (Fragment, Fragment) =
-        unsafe { lexer.remaining.split_at_unchecked(bytes_consumed) };
+    let (token_fragment, new_remaining): (Fragment, Fragment) = lexer
+        .remaining
+        .split_at_unchecked(bytes_consumed);
 
     // Get the variant of token to produce.
-    let variant: TokenTy = identifier_or_keyword(token_fragment);
+    let variant: TokenTy = identifier_or_keyword(token_fragment.clone());
+
     // Update the lexer's remaining fragment.
     lexer.remaining = new_remaining;
+    
     // Return the token.
     Some(Token {
         variant,
@@ -85,7 +88,7 @@ mod tests {
 
     #[test]
     fn identifiers_and_keywords() {
-        let mut lexer = Lexer::new("const TEST");
+        let mut lexer = Lexer::new_test("const TEST");
 
         assert_eq!(lexer.next_token().unwrap().variant, TokenTy::KwConst);
         assert_eq!(lexer.next_token().unwrap().variant, TokenTy::Identifier);

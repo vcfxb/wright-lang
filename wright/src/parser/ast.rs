@@ -1,14 +1,10 @@
 //! Abstract syntax tree representation for Wright source code.
 
-use super::{
-    fragment::Fragment,
-    lexer::{
+use super::lexer::{
         token::{Token, TokenTy},
         Lexer,
-    },
-};
-use crate::filemap::{FileId, FileMap, immutable_string::ImmutableString};
-use codespan_reporting::files::Files;
+    };
+use crate::source_tracking::{fragment::Fragment, immutable_string::ImmutableString, source::SourceId, SourceMap};
 
 pub mod expression;
 pub mod identifier;
@@ -17,35 +13,35 @@ pub mod identifier;
 pub mod test_utils;
 
 /// The context needed to parse AST nodes and create errors when it doesn't work out.
-pub struct AstGeneratorContext<'src> {
-    /// The ID of the file in [AstGeneratorContext::file_map] being parsed.
+pub struct AstGeneratorContext<'map> {
+    /// The ID of the source in [AstGeneratorContext::source_map] being parsed.
     /// Useful for emitting parser errors.
-    file_id: FileId,
+    source_id: SourceId,
 
-    /// The [FileMap] containing the source file. This uses an [std::sync::Arc] internally, so really this is just 
-    /// a reference. Useful for emitting parser errors.
-    file_map: FileMap<'src>,
+    /// Reference to the [SourceMap] containing the source.
+    /// Useful for emitting errors.
+    source_map: &'map SourceMap,
 
     /// The full source code of the file being parsed.
-    full_source: Fragment<'src>,
+    full_source: Fragment,
 
     /// The lexer that's being operated on. Just about every parser should work by
     /// pulling/peeking tokens from this lexer.
-    pub lexer: Lexer<'src>,
+    lexer: Lexer,
 }
 
 /// Trait implemented by all AST node types.
-pub trait AstNode<'src> {
+pub trait AstNode {
     /// The type of the error that should be returned if a node of this type cannot be parsed.
-    type Error: 'src;
+    type Error;
 
     /// Get the associated fragment of source code. All [AstNode]s should have one of these.
-    fn fragment(&self) -> Fragment<'src>;
+    fn fragment(&self) -> Fragment;
 
     /// Parse a node of this type from an [AstGeneratorContext], pulling tokens from it as necessary.
     ///
     /// If parsing a node of this type is not possible, return an error with any necessary info.
-    fn try_parse(ctx: &mut AstGeneratorContext<'src>) -> Result<Self, Self::Error>
+    fn try_parse<'map>(ctx: &mut AstGeneratorContext<'map>) -> Result<Self, Self::Error>
     where
         Self: Sized;
 }

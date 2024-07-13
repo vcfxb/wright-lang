@@ -7,9 +7,9 @@ use self::comments::{try_match_block_comment, try_match_single_line_comment};
 use self::integer_literal::try_consume_integer_literal;
 use self::quoted::try_consume_quoted_literal;
 
-use super::fragment::Fragment;
+use crate::source_tracking::fragment::Fragment;
+use crate::source_tracking::SourceRef;
 use std::iter::FusedIterator;
-use std::ptr;
 use std::str::Chars;
 use token::{Token, TokenTy};
 
@@ -21,31 +21,50 @@ pub mod token;
 pub mod trivial;
 
 /// The lexical analyser for wright. This produces a series of tokens that make up the larger elements of the language.
-#[derive(Debug, Clone, Copy)]
-pub struct Lexer<'src> {
+#[derive(Debug, Clone)]
+pub struct Lexer {
     /// The remaining source code that has not been processed and returned as a token from the iterator yet.
-    pub remaining: Fragment<'src>,
+    pub remaining: Fragment,
 }
 
-impl<'src> Lexer<'src> {
+impl Lexer {
     /// Get the number of bytes remaining that we need to transform into tokens.
     pub const fn bytes_remaining(&self) -> usize {
         self.remaining.len()
     }
 
-    /// Construct a new lexer over a given reference to a source string.
-    pub const fn new(source: &'src str) -> Self {
+    /// Construct a new [Lexer] over a given source reference.
+    pub fn new(source: SourceRef) -> Self {
         Lexer {
-            remaining: Fragment { inner: source },
+            remaining: source.as_fragment(),
         }
     }
 
-    /// Make a token by splitting a given number of bytes off of the `self.remaining` fragment
+    /// Available in test cases, creates a new [Lexer] over a given static [str]ing. 
+    /// 
+    /// The instantiated [Source] in this [Lexer] has its name set to [FileName::None].
+    /// 
+    /// [Source]: crate::source_tracking::source::Source
+    /// [FileName::None]: crate::source_tracking::filename::FileName::None
+    #[cfg(test)]
+    pub(crate) fn new_test(source: &'static str) -> Self {
+        use std::sync::Arc;
+        use crate::source_tracking::{filename::FileName, source::Source};
+
+        Lexer { 
+            remaining: Fragment { 
+                source: Arc::new(Source::new_from_static_str(FileName::None, source)), 
+                range: 0..source.len() 
+            } 
+        }
+    }
+
+    /// Make a token by splitting a given number of bytes off of [Lexer::remaining]
     /// and labeling them with the given kind.
     ///
     /// # Panics:
     /// - Panics if the number of bytes lands out of bounds or in the middle of a character.
-    fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
+    fn split_token(&mut self, bytes: usize, kind: TokenTy) -> Token {
         let (token_fragment, new_remaining_fragment) = self.remaining.split_at(bytes);
         self.remaining = new_remaining_fragment;
 
@@ -59,7 +78,7 @@ impl<'src> Lexer<'src> {
     ///
     /// # Safety
     /// - This function matches the safety guarantees of [Fragment::split_at_unchecked].
-    unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token<'src> {
+    unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token {
         let (token_fragment, new_remaining_fragment) = self.remaining.split_at_unchecked(bytes);
         self.remaining = new_remaining_fragment;
 
@@ -71,8 +90,8 @@ impl<'src> Lexer<'src> {
 
     /// "Fork" this lexer, creating a new [`Lexer`] at the same position as this one that can be used for
     /// failable parsing. This can be compared to the original lexer it was forked from using [Lexer::offset_from].
-    pub const fn fork(&self) -> Self {
-        *self
+    pub fn fork(&self) -> Self {
+        self.clone()
     }
 
     /// Get the number of bytes between the origin's [remaining](Lexer::remaining) and
@@ -82,7 +101,6 @@ impl<'src> Lexer<'src> {
     /// - This function panics under the same conditions as [`Fragment::offset_from`].
     /// - Generally the best way to avoid panics is to only call this function on
     ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer.
-    #[inline]
     pub fn offset_from(&self, origin: &Self) -> usize {
         self.remaining.offset_from(&origin.remaining)
     }
@@ -90,24 +108,25 @@ impl<'src> Lexer<'src> {
     /// Remove and ignore any whitespace at the start of the [Lexer::remaining] [Fragment].
     pub fn ignore_whitespace(&mut self) {
         // Get a reference to the slice of the string past any whitespace at the start.
-        let without_whitespace: &str = self.remaining.inner.trim_start();
+        let without_whitespace = self.remaining.clone().trim_start();
 
         // If the references aren't equal, update the remaining fragment.
-        if !ptr::eq(without_whitespace, self.remaining.inner) {
-            self.remaining.inner = without_whitespace;
+        if self.remaining.range != without_whitespace.range {
+            self.remaining = without_whitespace;
         }
     }
 
     /// Check if a pattern matches at the start of the [Lexer::remaining] [Fragment].
     pub fn matches(&self, pattern: &str) -> bool {
-        self.remaining.inner.starts_with(pattern)
+        self.remaining.as_str().starts_with(pattern)
     }
 
     /// If the remaining fragment starts with the given `pattern`, strip it from the remaining fragment and return
     /// true. Otherwise return false.
     fn consume(&mut self, pattern: &str) -> bool {
-        if let Some(stripped) = self.remaining.inner.strip_prefix(pattern) {
-            self.remaining.inner = stripped;
+        if self.matches(pattern) {
+            // SAFETY: We just checked that the pattern matches.
+            self.remaining.advance_by_unchecked(pattern.len());
             true
         } else {
             false
@@ -125,7 +144,7 @@ impl<'src> Lexer<'src> {
             let char_bytes: usize = c.len_utf8();
             // SAFETY: we know that this is not on a char boundary and does not exceed the length of the slice,
             // since we just pulled it from a `Chars` iterator.
-            self.remaining.inner = unsafe { self.remaining.inner.get_unchecked(char_bytes..) };
+            unsafe { self.advance_unchecked(char_bytes) };
             // Return the character.
             Some(c)
         } else {
@@ -140,7 +159,15 @@ impl<'src> Lexer<'src> {
     /// - If the lexer is not on a unicode character boundary after advancing.
     /// - If the number of bytes is greater than the length of the [remaining](Lexer::remaining) fragment.
     fn advance(&mut self, bytes: usize) {
-        self.remaining.inner = &self.remaining.inner[bytes..];
+        if bytes > self.remaining.len() {
+            panic!("Cannot advance past end of lexer fragment");
+        }
+
+        if !self.remaining.as_str().is_char_boundary(bytes) {
+            panic!("Advancing {bytes} bytes does not land on a character boundary");
+        }
+
+        self.remaining.range.start += bytes;
     }
 
     /// Unsafe version of [Lexer::advance].
@@ -152,11 +179,11 @@ impl<'src> Lexer<'src> {
     /// - This lexer will be left in an invalid/undefined state if after advancing, the next byte in the
     ///     [Lexer::remaining] fragment is not the start of a unicode code point.
     unsafe fn advance_unchecked(&mut self, bytes: usize) {
-        self.remaining.inner = self.remaining.inner.get_unchecked(bytes..);
+        self.remaining.range.start += bytes;
     }
 
     /// Get the next token from the lexer.
-    pub fn next_token(&mut self) -> Option<Token<'src>> {
+    pub fn next_token(&mut self) -> Option<Token> {
         // Ignore any whitespace at the start of the lexer.
         self.ignore_whitespace();
 
@@ -217,8 +244,8 @@ impl<'src> Lexer<'src> {
 }
 
 /// Lexers can be considered token iterators.
-impl<'src> Iterator for Lexer<'src> {
-    type Item = Token<'src>;
+impl Iterator for Lexer {
+    type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.next_token()
@@ -231,4 +258,4 @@ impl<'src> Iterator for Lexer<'src> {
 }
 
 // Lexers are fused -- they cannot generate tokens infinitely.
-impl<'src> FusedIterator for Lexer<'src> {}
+impl FusedIterator for Lexer {}

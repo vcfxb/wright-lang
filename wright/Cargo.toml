@@ -49,33 +49,40 @@ harness = false
 # wright as a library.  
 default = ["wright_binary"]
 
-# Features and dependencies required for the wright binary. These are built by default. 
+# Features and dependencies required for the wright binary (currently just the library defaults and `clap`).
 wright_binary = ["wright_library_defaults", "dep:clap"]
 
 # Features and dependencies useful when the wright binary is not being built or used. 
-wright_library_defaults = ["file_memmap"]
+wright_library_defaults = ["file_memmap", "parser"]
 
-# Source tracking requires just the base set of dependencies and standard library. 
-source_tracking = [
-    "std",
-    "dep:dashmap",
-    "derive_more/display",
+# Wright's parser depends on the ability to report parsing errors.
+parser = [
+    "reporting",
+    "dep:unicode-ident"
 ]
 
-# Reporting errors requires soruce tracking and the ariadne dependency to generate colors for the terminal. 
+# Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
+# read from disk. We also use `anyhow` to make error handling easier.
+file_memmap = [
+    "reporting",
+    "dep:memmap2",
+    "dep:fs4",
+    "dep:anyhow"
+]
+
+# Reporting errors requires source tracking, codespan-reporting (for rendering diagnostics), and 
+# termcolor (for pretty output).
 reporting = [
     "source_tracking", 
     "dep:termcolor",
     "dep:codespan-reporting"
 ]
 
-# Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
-# read from disk. 
-file_memmap = [
-    "reporting",
-    "dep:memmap2",
-    "dep:fs4",
-    "dep:anyhow"
+# Source tracking requires just a few dependencies and standard library. 
+source_tracking = [
+    "std",
+    "dep:dashmap",
+    "derive_more/display",
 ]
 
 # Feature flag to indicate use of the standard library.
@@ -91,13 +98,17 @@ none = []
 # SIMPLE DEPENDENCIES: 
 [dependencies]
 
-# Unicode identifier functions
-# unicode-ident = "1.0"
-
 # Big Integers
 # num = "0.4"
 
-# DEPENDENCIES WITH/AS FEATURES:
+# DEPENDENCIES:
+
+# Unicode identifier functions.
+# Used by:
+# - "parser"
+[dependencies.unicode-ident]
+version = "1.0"
+optional = true
 
 # derive_more is used for allowing us to derive additional traits like From and Display.
 # Currently used by features: 

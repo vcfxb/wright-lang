@@ -42,5 +42,7 @@ pub mod reporting;
 #[cfg(feature = "source_tracking")]
 pub mod source_tracking;
 
-// pub mod parser;
+#[cfg(feature = "parser")]
+pub mod parser;
+
 // pub mod repl;

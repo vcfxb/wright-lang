@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn ignored_single_line_comment() {
-        let mut lexer = Lexer::new("// test comment ");
+        let mut lexer = Lexer::new_test("// test comment ");
         assert!(lexer.next_token().is_none());
         assert_eq!(lexer.remaining.len(), 0);
     }

@@ -63,8 +63,7 @@ pub const SINGLE_ASCII_CHAR_TRIVIAL_TOKENS: &[(u8, TokenTy)] = &[
 /// Attempt to consume a "trivial" token from the start of the [Lexer]'s [Lexer::remaining] fragment.
 ///
 /// Leave the lexer unmodified if one is not available.
-#[inline]
-pub fn try_consume_trivial_token<'src>(lexer: &mut Lexer<'src>) -> Option<Token<'src>> {
+pub fn try_consume_trivial_token<'src>(lexer: &mut Lexer) -> Option<Token> {
     // Get the number of bytes remaining, since we need at least 1 to parse anything.
     let bytes_remaining: usize = lexer.bytes_remaining();
 
@@ -78,7 +77,7 @@ pub fn try_consume_trivial_token<'src>(lexer: &mut Lexer<'src>) -> Option<Token<
     if bytes_remaining >= 2 {
         // Get the first two bytes of the remaining fragment.
         // SAFETY: We just checked length.
-        let bytes: &[u8] = unsafe { lexer.remaining.inner.as_bytes().get_unchecked(0..2) };
+        let bytes: &[u8] = unsafe { lexer.remaining.as_str().as_bytes().get_unchecked(0..2) };
 
         // Match against each possible token pattern.
         for (pattern, kind) in TWO_ASCII_TRIVIAL_TOKENS {
@@ -92,7 +91,7 @@ pub fn try_consume_trivial_token<'src>(lexer: &mut Lexer<'src>) -> Option<Token<
 
     // Do the same for single byte patterns.
     // SAFETY: We checked that the number of bytes remaining is not 0 above.
-    let byte: &u8 = unsafe { lexer.remaining.inner.as_bytes().get_unchecked(0) };
+    let byte: &u8 = unsafe { lexer.remaining.as_str().as_bytes().get_unchecked(0) };
 
     for (pattern, kind) in SINGLE_ASCII_CHAR_TRIVIAL_TOKENS {
         if byte == pattern {
@@ -112,8 +111,8 @@ mod tests {
 
     #[test]
     fn plus_and_plus_eq_tokens() {
-        let mut plus = Lexer::new("+");
-        let mut plus_eq = Lexer::new("+=");
+        let mut plus = Lexer::new_test("+");
+        let mut plus_eq = Lexer::new_test("+=");
 
         let plus_token = plus.next_token().unwrap();
         let plus_eq_token = plus_eq.next_token().unwrap();
@@ -126,7 +125,7 @@ mod tests {
 
     #[test]
     fn plus_one_token() {
-        let mut plus_one = Lexer::new("+1");
+        let mut plus_one = Lexer::new_test("+1");
         let plus_token = plus_one.next_token().unwrap();
         assert_eq!(plus_one.bytes_remaining(), 1);
         assert_eq!(plus_token.variant, TokenTy::Plus);

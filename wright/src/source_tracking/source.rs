@@ -2,6 +2,7 @@
 //! source files from disk, source strings used in test cases, and source strings created at
 //! run-time by an API consumer.
 
+use super::SourceRef;
 use super::{filename::FileName, fragment::Fragment, immutable_string::ImmutableString};
 use std::io;
 use std::path::PathBuf;
@@ -273,7 +274,7 @@ impl Source {
     ///
     /// The returned [Fragment]s will contain the line terminating characters at the end of them. If you don't want
     /// those, use [Iterator::map] and [Fragment::trim_end].
-    pub fn lines(self: Arc<Source>) -> impl Iterator<Item = Fragment> {
+    pub fn lines(self: SourceRef) -> impl Iterator<Item = Fragment> {
         (0..self.count_lines()).map(move |line_index| self.clone().get_line(line_index))
     }
 
@@ -285,6 +286,12 @@ impl Source {
     /// Get the name of this [Source].
     pub const fn name(&self) -> &FileName {
         &self.name
+    }
+
+    /// Get the entire content of this [Source] as a [Fragment]. 
+    pub fn as_fragment(self: SourceRef) -> Fragment {
+        let len = self.source.len();
+        Fragment { source: self, range: 0..len }
     }
 }
 

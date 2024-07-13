@@ -15,7 +15,16 @@ jobs:
       matrix:
         # Different features to check against on all platforms. Currently each group is one feature, since each
         # depends on the previous, but more combinations could be added in the future. 
-        features: ["none", "std", "source_tracking", "reporting", "file_memmap", "wright_library_defaults", "wright_binary"]
+        features:
+          - none
+          - std
+          - source_tracking
+          - reporting
+          - file_memmap
+          - parser
+          - wright_library_defaults
+          - wright_binary
+        
         os: [ubuntu-latest, windows-latest, macos-latest]
         shell: ["bash", "msys2 {0}"]
         include: 

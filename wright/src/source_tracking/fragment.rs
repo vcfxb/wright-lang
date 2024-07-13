@@ -4,7 +4,7 @@ use super::SourceRef;
 use std::{ops::Range, str::Chars, sync::Arc};
 
 #[cfg(doc)]
-use super::Source;
+use crate::source_tracking::source::Source;
 
 /// A fragment of source code.
 ///
@@ -54,15 +54,13 @@ impl Fragment {
         self.len() == 0
     }
 
-    /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source].
+    /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source] by 
+    /// [Source::id].
     ///
-    /// # Panics
-    /// - Panics if `other`'s [Fragment::len] `== 0`, due to the ambiguity.
+    /// If `other` is empty, it can still be considered to be contained in this [Fragment] if its
+    /// [Fragment::range] is entirely within `self`'s [Fragment::range] (basically whether the location of the empty
+    /// fragment is in this one).
     pub fn contains(&self, other: &Self) -> bool {
-        if other.is_empty() {
-            panic!("Containing an empty fragment is ambiguous");
-        }
-
         self.source.id == other.source.id
             && self.range.start <= other.range.start
             && self.range.end >= other.range.end
