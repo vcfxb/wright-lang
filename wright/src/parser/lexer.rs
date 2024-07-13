@@ -239,7 +239,7 @@ impl Lexer {
         // If we haven't matched at this point, produce a token marked as "Unknown".
         // The unsafe is fine -- we know from above that there are remaining characters.
         let unknown_char = unsafe { self.remaining.chars().next().unwrap_unchecked() };
-        return Some(self.split_token(unknown_char.len_utf8(), TokenTy::Unknown));
+        Some(self.split_token(unknown_char.len_utf8(), TokenTy::Unknown))
     }
 }
 

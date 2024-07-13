@@ -40,7 +40,7 @@ pub fn try_consume_integer_literal(lexer: &mut Lexer) -> Option<Token> {
         .map(char::len_utf8)
         .sum::<usize>();
 
-    return Some(lexer.split_token(bytes_consumed, TokenTy::IntegerLiteral));
+    Some(lexer.split_token(bytes_consumed, TokenTy::IntegerLiteral))
 }
 
 #[cfg(test)]

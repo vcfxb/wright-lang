@@ -63,7 +63,7 @@ pub const SINGLE_ASCII_CHAR_TRIVIAL_TOKENS: &[(u8, TokenTy)] = &[
 /// Attempt to consume a "trivial" token from the start of the [Lexer]'s [Lexer::remaining] fragment.
 ///
 /// Leave the lexer unmodified if one is not available.
-pub fn try_consume_trivial_token<'src>(lexer: &mut Lexer) -> Option<Token> {
+pub fn try_consume_trivial_token(lexer: &mut Lexer) -> Option<Token> {
     // Get the number of bytes remaining, since we need at least 1 to parse anything.
     let bytes_remaining: usize = lexer.bytes_remaining();
 
