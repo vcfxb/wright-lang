@@ -62,7 +62,7 @@ pub fn try_consume_quoted_literal(lexer: &mut Lexer) -> Option<Token> {
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::lexer::{token::TokenTy, Lexer};
+    use super::super::{token::TokenTy, Lexer};
 
     #[test]
     fn string_literal() {

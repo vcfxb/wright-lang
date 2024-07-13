@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
 use wright::{
-    parser::lexer::Lexer,
+    lexer::Lexer,
     source_tracking::{filename::FileName, source::Source},
 };
 

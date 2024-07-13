@@ -36,11 +36,17 @@ pub mod build_info {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
+#[cfg(feature = "source-tracking")]
+pub mod source_tracking;
+
 #[cfg(feature = "reporting")]
 pub mod reporting;
 
-#[cfg(feature = "source_tracking")]
-pub mod source_tracking;
+#[cfg(feature = "lexer")]
+pub mod lexer;
+
+#[cfg(feature = "ast-model")]
+pub mod ast;
 
 #[cfg(feature = "parser")]
 pub mod parser;

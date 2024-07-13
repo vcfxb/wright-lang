@@ -18,9 +18,11 @@ jobs:
         features:
           - none
           - std
-          - source_tracking
+          - source-tracking
           - reporting
           - file_memmap
+          - ast-model
+          - lexer
           - parser
           - wright_library_defaults
           - wright_binary

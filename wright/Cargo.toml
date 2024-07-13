@@ -55,10 +55,23 @@ wright_binary = ["wright_library_defaults", "dep:clap"]
 # Features and dependencies useful when the wright binary is not being built or used. 
 wright_library_defaults = ["file_memmap", "parser"]
 
-# Wright's parser depends on the ability to report parsing errors.
+# Wright's parser depends on the ability to report parsing errors and construct AST models.
 parser = [
     "reporting",
+    "ast-model",
+    "lexer",
     "dep:unicode-ident"
+]
+
+# Wright's abstract syntax tree model is built on types from the "source_tracking" module.
+ast-model = [
+    "source-tracking",
+    # "derive_more/from"
+]
+
+# Wright's lexical analyzer is build using types from the "source_tracking" module.
+lexer = [
+    "source-tracking"
 ]
 
 # Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
@@ -73,13 +86,13 @@ file_memmap = [
 # Reporting errors requires source tracking, codespan-reporting (for rendering diagnostics), and 
 # termcolor (for pretty output).
 reporting = [
-    "source_tracking", 
+    "source-tracking", 
     "dep:termcolor",
     "dep:codespan-reporting"
 ]
 
 # Source tracking requires just a few dependencies and standard library. 
-source_tracking = [
+source-tracking = [
     "std",
     "dep:dashmap",
     "derive_more/display",
@@ -112,7 +125,7 @@ optional = true
 
 # derive_more is used for allowing us to derive additional traits like From and Display.
 # Currently used by features: 
-# - "source_tracking"
+# - "source-tracking"
 [dependencies.derive_more]
 version = "0.99.18"
 default-features = false
