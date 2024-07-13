@@ -19,13 +19,15 @@ pub mod source;
 pub type SourceRef = Arc<Source>;
 
 /// Storage for [Source]s used and referenced in compiling a wright project.
-#[derive(Debug, Default)]
+///
+/// [Clone]ing is cheap, since this uses an [Arc] internally.
+#[derive(Debug, Default, Clone)]
 pub struct SourceMap {
     /// Internally, we use [DashMap] for a concurrent hashmap from [Source::id]s to their [Arc]'d
     ///
     /// Each source is wrapped in an [Arc] to make them all accessible without holding a reference to this map
     /// directly.
-    inner: DashMap<SourceId, SourceRef>,
+    inner: Arc<DashMap<SourceId, SourceRef>>,
 }
 
 impl SourceMap {
