@@ -50,4 +50,3 @@ impl SourceMap {
         self.inner.get(&id).map(|source| Arc::clone(&source))
     }
 }
-
