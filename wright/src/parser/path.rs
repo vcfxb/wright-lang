@@ -1,9 +1,9 @@
 //! [Parse] implementation for [Path].
 
-use super::{Parse, error::ParserError};
+use super::{error::ParserError, Parse};
 use crate::ast::identifier::Identifier;
-use crate::lexer::Lexer;
 use crate::ast::path::Path;
+use crate::lexer::Lexer;
 
 impl Parse for Path {
     fn parse(_lexer: &mut Lexer) -> Result<Self, ParserError> {
@@ -12,12 +12,12 @@ impl Parse for Path {
 }
 
 /// Parse the first (and possibly only) [Identifier] in the [Path].
-/// 
+///
 fn _parse_head() -> Result<Identifier, ParserError> {
     unimplemented!()
 }
 
-// /// Parse a path (`head::tail`) in source code.  
+// /// Parse a path (`head::tail`) in source code.
 // pub fn parse_path<'src>(parser_state: &mut ParserState<'src>) -> NodeParserResult<Path<'src>> {
 //     // Get the initial index to make metadata at the end.
 //     let initial_index = parser_state.index();

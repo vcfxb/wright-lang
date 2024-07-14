@@ -1,11 +1,10 @@
-
 #![cfg(feature = "lexer")]
 
 use std::sync::Arc;
-use wright::{lexer::{
-    token::TokenTy,
-    Lexer,
-}, source_tracking::{filename::FileName, source::Source}};
+use wright::{
+    lexer::{token::TokenTy, Lexer},
+    source_tracking::{filename::FileName, source::Source},
+};
 
 fn new_test_lexer(s: &'static str) -> Lexer {
     Lexer::new(Arc::new(Source::new_from_static_str(FileName::None, s)))
@@ -35,6 +34,6 @@ fn string_with_escape() {
     assert_eq!(token.variant, TokenTy::StringLiteral { terminated: true });
     assert_eq!(token.fragment.as_str(), lexer.remaining.source.source().as_str());
     assert_eq!(lexer.bytes_remaining(), 0);
-    
+
     assert!(lexer.next_token().is_none());
 }

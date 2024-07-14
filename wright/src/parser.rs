@@ -5,9 +5,9 @@
 use super::lexer::Lexer;
 use error::ParserError;
 
+pub mod error;
 mod identifier;
 mod path;
-pub mod error;
 
 /// Trait implemented by all AST nodes that can be parsed.
 pub trait Parse: Sized {

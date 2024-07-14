@@ -41,8 +41,8 @@ impl Lexer {
     /// Available in test cases, creates a new [Lexer] over a given static [str]ing.
     ///
     /// The instantiated [Source] in this [Lexer] has its name set to [FileName::None].
-    /// 
-    /// This function is limited to this crate because `#[cfg(test)]` items are not available 
+    ///
+    /// This function is limited to this crate because `#[cfg(test)]` items are not available
     /// externally, however it should be relatively easy to reproduce.
     ///
     /// [Source]: crate::source_tracking::source::Source

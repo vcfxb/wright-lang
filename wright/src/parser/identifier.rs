@@ -1,18 +1,27 @@
 //! [Parse] implementation for [Identifier].
 
-use super::{error::{ParserError, ParserErrorKind}, Parse};
+use super::{
+    error::{ParserError, ParserErrorKind},
+    Parse,
+};
 use crate::{
     ast::identifier::Identifier,
-    lexer::{token::{Token, TokenTy}, Lexer},
+    lexer::{
+        token::{Token, TokenTy},
+        Lexer,
+    },
 };
 
 impl Parse for Identifier {
     fn parse(lexer: &mut Lexer) -> Result<Self, ParserError> {
         let next_token = lexer.next_token();
 
-        // Get the fragment from the next token if it's the right type (or produce an error). 
+        // Get the fragment from the next token if it's the right type (or produce an error).
         let ident_fragment = match next_token {
-            Some(Token { variant: TokenTy::Identifier, fragment }) => Ok(fragment),
+            Some(Token {
+                variant: TokenTy::Identifier,
+                fragment,
+            }) => Ok(fragment),
 
             Some(Token { fragment, .. }) => Err(ParserError {
                 kind: ParserErrorKind::ExpectedIdentifier,
@@ -27,7 +36,9 @@ impl Parse for Identifier {
             }),
         }?;
 
-        Ok(Identifier { fragment: ident_fragment })
+        Ok(Identifier {
+            fragment: ident_fragment,
+        })
     }
 }
 
