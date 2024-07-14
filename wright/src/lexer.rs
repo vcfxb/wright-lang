@@ -8,7 +8,6 @@ use self::integer_literal::try_consume_integer_literal;
 use self::quoted::try_consume_quoted_literal;
 use crate::source_tracking::fragment::Fragment;
 use crate::source_tracking::SourceRef;
-use std::iter::FusedIterator;
 use std::str::Chars;
 use token::{Token, TokenTy};
 
@@ -42,6 +41,9 @@ impl Lexer {
     /// Available in test cases, creates a new [Lexer] over a given static [str]ing.
     ///
     /// The instantiated [Source] in this [Lexer] has its name set to [FileName::None].
+    /// 
+    /// This function is limited to this crate because `#[cfg(test)]` items are not available 
+    /// externally, however it should be relatively easy to reproduce.
     ///
     /// [Source]: crate::source_tracking::source::Source
     /// [FileName::None]: crate::source_tracking::filename::FileName::None
@@ -245,20 +247,3 @@ impl Lexer {
         Some(self.split_token(unknown_char.len_utf8(), TokenTy::Unknown))
     }
 }
-
-/// Lexers can be considered token iterators.
-impl Iterator for Lexer {
-    type Item = Token;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.next_token()
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        // Lexers should not return multiple tokens for a single byte.
-        (0, Some(self.bytes_remaining()))
-    }
-}
-
-// Lexers are fused -- they cannot generate tokens infinitely.
-impl FusedIterator for Lexer {}

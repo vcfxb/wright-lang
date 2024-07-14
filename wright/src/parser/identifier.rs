@@ -1,15 +1,33 @@
-use super::{Parse, ParseError};
+//! [Parse] implementation for [Identifier].
+
+use super::{error::{ParserError, ParserErrorKind}, Parse};
 use crate::{
     ast::identifier::Identifier,
-    lexer::{token::TokenTy, Lexer},
+    lexer::{token::{Token, TokenTy}, Lexer},
 };
 
 impl Parse for Identifier {
-    fn parse(lexer: &mut Lexer) -> Result<Self, ParseError> {
-        let ident_token = lexer.expect(TokenTy::Identifier)?;
-        Ok(Identifier {
-            fragment: ident_token.fragment,
-        })
+    fn parse(lexer: &mut Lexer) -> Result<Self, ParserError> {
+        let next_token = lexer.next_token();
+
+        // Get the fragment from the next token if it's the right type (or produce an error). 
+        let ident_fragment = match next_token {
+            Some(Token { variant: TokenTy::Identifier, fragment }) => Ok(fragment),
+
+            Some(Token { fragment, .. }) => Err(ParserError {
+                kind: ParserErrorKind::ExpectedIdentifier,
+                location: fragment,
+                help: None,
+            }),
+
+            None => Err(ParserError {
+                kind: ParserErrorKind::ExpectedIdentifier,
+                location: lexer.remaining.clone(),
+                help: Some("found end of source".into()),
+            }),
+        }?;
+
+        Ok(Identifier { fragment: ident_fragment })
     }
 }
 
@@ -17,8 +35,8 @@ impl Parse for Identifier {
 mod tests {
     use crate::{
         ast::identifier::Identifier,
-        lexer::{token::TokenTy, Lexer},
-        parser::{Parse, ParseError},
+        lexer::Lexer,
+        parser::{error::ParserErrorKind, Parse},
     };
 
     #[test]
@@ -34,13 +52,7 @@ mod tests {
         for fail in ["12", "+", " ", " test", "_", "record"] {
             let mut lexer = Lexer::new_test(&fail);
             let error = Identifier::parse(&mut lexer).unwrap_err();
-            assert!(matches!(
-                &error,
-                ParseError::Expected {
-                    expected: TokenTy::Identifier,
-                    ..
-                }
-            ));
+            assert_eq!(error.kind, ParserErrorKind::ExpectedIdentifier);
         }
     }
 }
