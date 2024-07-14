@@ -1,6 +1,7 @@
 //! This parser module is responsible for turning the stream of [Token]s from the [Lexer] into a tree of [AST] nodes.
 //!
 //! [AST]: crate::ast
+//! [Token]: crate::lexer::token::Token
 
 use super::lexer::Lexer;
 use error::ParserError;
