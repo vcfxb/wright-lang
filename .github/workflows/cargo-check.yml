@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  install-llvm:
+  check:
     strategy:
       fail-fast: false
       matrix:
@@ -46,11 +46,13 @@ jobs:
     defaults:
       run:
         shell: ${{ matrix.shell }}
-
+    
     steps:
+      - name: Checkout Wright source
+        uses: actions/checkout@v4
+      
       # Use MSYS2 on windows to install and check LLVM
-      - name: Install LLVM 18 (Windows Only)
-        uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@v2
         if: ${{ matrix.os == 'windows-latest' }}
         with: 
           update: true
@@ -60,6 +62,11 @@ jobs:
             mingw-w64-x86_64-llvm
             mingw-w64-x86_64-rust
       
+      # Use stable Rust toolchain 
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
       - name: Install LLVM (Ubuntu Only)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         # See: https://apt.llvm.org/
@@ -73,10 +80,7 @@ jobs:
       - name: Install LLVM 18 (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
         run: brew install llvm@18
-        
-  check-llvm-version:
-    needs: install-llvm
-    steps:
+      
       - name: Get the LLVM version (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
         run: llvm-config --version
@@ -92,16 +96,6 @@ jobs:
         run: llvm-config --version
         # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
         continue-on-error: true
-  
-  check:
-    steps:
-      - name: Checkout Wright source
-        uses: actions/checkout@v4
-      
-      # Use stable Rust toolchain 
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable      
 
       - name: Run cargo check (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
