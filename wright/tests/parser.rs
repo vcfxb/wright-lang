@@ -1,4 +1,4 @@
-#![cfg(all(feature = "reporting", feature = "parsing"))]
+#![cfg(all(feature = "reporting", feature = "parser"))]
 
 use termcolor::Buffer;
 use wright::{
@@ -23,7 +23,7 @@ fn test_parse_fail_identifier_to_diagnostic() -> anyhow::Result<()> {
     assert_eq!(
         std::str::from_utf8(buffer.as_slice())?,
         "\
-    error[WPE2]: expected identifier
+    error[WPE3]: expected identifier
   ┌─ <NO_NAME>:1:1
   │
 1 │ 12345

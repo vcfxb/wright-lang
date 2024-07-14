@@ -68,9 +68,9 @@ impl ParserErrorKind {
         None
     }
 
-    /// Return this [ParserErrorKind] cast to a [u64] preceded by the letters "WPE" standing for "Wright Parser Error".
+    /// Return this [ParserErrorKind] cast to a [u64], adding 1, preceded by the letters "WPE" standing for "Wright Parser Error".
     pub fn error_code_string(self) -> String {
-        format!("WPE{}", self as u64)
+        format!("WPE{}", self as u64 + 1)
     }
 }
 
