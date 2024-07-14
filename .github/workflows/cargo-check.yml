@@ -75,7 +75,14 @@ jobs:
         run: brew install llvm@18
         
   check-llvm-version:
-    needs: install-llvm
+    needs: install-llvm    
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow-failure || false }}
+    
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
     steps:
       - name: Get the LLVM version (Windows Only)
         if: ${{ matrix.os == 'windows-latest' }}
@@ -94,6 +101,13 @@ jobs:
         continue-on-error: true
   
   check:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow-failure || false }}
+    
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+
     steps:
       - name: Checkout Wright source
         uses: actions/checkout@v4
