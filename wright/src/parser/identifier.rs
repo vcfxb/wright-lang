@@ -2,43 +2,33 @@
 
 use super::{
     error::{ParserError, ParserErrorKind},
-    Parse,
+    Parse, Parser,
 };
 use crate::{
     ast::identifier::Identifier,
-    lexer::{
-        token::{Token, TokenTy},
-        Lexer,
-    },
+    lexer::token::{Token, TokenTy},
 };
 
 impl Parse for Identifier {
-    fn parse(lexer: &mut Lexer) -> Result<Self, ParserError> {
-        let next_token = lexer.next_token();
+    fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
+        match parser.next_if_is(TokenTy::Identifier) {
+            Some(Token { fragment, .. }) => Ok(Identifier { fragment }),
 
-        // Get the fragment from the next token if it's the right type (or produce an error).
-        let ident_fragment = match next_token {
-            Some(Token {
-                variant: TokenTy::Identifier,
-                fragment,
-            }) => Ok(fragment),
+            None => match parser.peek_fragment() {
+                Some(next_frag) => Err(ParserError {
+                    kind: ParserErrorKind::ExpectedIdentifier,
+                    location: next_frag.clone(),
+                    help: None,
+                }),
 
-            Some(Token { fragment, .. }) => Err(ParserError {
-                kind: ParserErrorKind::ExpectedIdentifier,
-                location: fragment,
-                help: None,
-            }),
+                None => Err(ParserError {
+                    kind: ParserErrorKind::ExpectedIdentifier,
+                    location: parser.lexer.remaining.clone(),
+                    help: Some("found end of source".into()),
+                })
 
-            None => Err(ParserError {
-                kind: ParserErrorKind::ExpectedIdentifier,
-                location: lexer.remaining.clone(),
-                help: Some("found end of source".into()),
-            }),
-        }?;
-
-        Ok(Identifier {
-            fragment: ident_fragment,
-        })
+            }
+        }
     }
 }
 
@@ -47,22 +37,22 @@ mod tests {
     use crate::{
         ast::identifier::Identifier,
         lexer::Lexer,
-        parser::{error::ParserErrorKind, Parse},
+        parser::{error::ParserErrorKind, Parse, Parser},
     };
 
     #[test]
     fn test_parse_ident() {
-        let mut lexer = Lexer::new_test("source");
-        let ident = Identifier::parse(&mut lexer).unwrap();
+        let mut parser = Parser::new(Lexer::new_test("source"));
+        let ident = Identifier::parse(&mut parser).unwrap();
         assert_eq!(ident.fragment.as_str(), "source");
-        assert_eq!(lexer.remaining.len(), 0);
+        assert_eq!(parser.lexer().remaining.len(), 0);
     }
 
     #[test]
     fn test_parse_ident_fail() {
         for fail in ["12", "+", " ", " test", "_", "record"] {
-            let mut lexer = Lexer::new_test(&fail);
-            let error = Identifier::parse(&mut lexer).unwrap_err();
+            let mut parser = Parser::new(Lexer::new_test(&fail));
+            let error = Identifier::parse(&mut parser).unwrap_err();
             assert_eq!(error.kind, ParserErrorKind::ExpectedIdentifier);
         }
     }

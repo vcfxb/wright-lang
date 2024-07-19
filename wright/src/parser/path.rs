@@ -1,21 +1,28 @@
 //! [Parse] implementation for [Path].
 
+use super::error::ParserErrorKind;
+use super::whitespace::optional_whitespace;
+use super::Parser;
 use super::{error::ParserError, Parse};
 use crate::ast::identifier::Identifier;
 use crate::ast::path::Path;
-use crate::lexer::Lexer;
+use crate::lexer::{self, Lexer};
 
 impl Parse for Path {
-    fn parse(_lexer: &mut Lexer) -> Result<Self, ParserError> {
+    fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
         unimplemented!()
     }
 }
 
 /// Parse the first (and possibly only) [Identifier] in the [Path].
-///
-fn _parse_head() -> Result<Identifier, ParserError> {
-    unimplemented!()
+fn parse_head(parser: &mut Parser) -> Result<Identifier, ParserError> {
+    Identifier::parse(parser)
+        .map_err(|mut err| {
+            err.kind = ParserErrorKind::ExpectedPath;
+            err
+        })
 }
+
 
 // /// Parse a path (`head::tail`) in source code.
 // pub fn parse_path<'src>(parser_state: &mut ParserState<'src>) -> NodeParserResult<Path<'src>> {

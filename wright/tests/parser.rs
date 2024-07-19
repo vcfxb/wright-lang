@@ -4,7 +4,7 @@ use termcolor::Buffer;
 use wright::{
     ast::identifier::Identifier,
     lexer::Lexer,
-    parser::Parse,
+    parser::{Parse, Parser},
     source_tracking::{filename::FileName, source::Source, SourceMap, SourceRef},
 };
 
@@ -12,8 +12,8 @@ use wright::{
 fn test_parse_fail_identifier_to_diagnostic() -> anyhow::Result<()> {
     let map: SourceMap = SourceMap::new();
     let source_ref: SourceRef = map.add(Source::new_from_static_str(FileName::None, "12345"));
-    let mut lexer = Lexer::new(source_ref);
-    let parse_error = Identifier::parse(&mut lexer).unwrap_err();
+    let mut parser = Parser::new(Lexer::new(source_ref));
+    let parse_error = Identifier::parse(&mut parser).unwrap_err();
     let mut buffer = Buffer::no_color();
 
     parse_error

@@ -12,60 +12,23 @@ use std::borrow::Cow;
 #[allow(missing_docs)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ParserErrorKind {
-    UnternminatedStringLiteralEncountered,
+    UnterminatedStringLiteralEncountered,
     UnterminatedMultilineCommentEncountered,
     ExpectedIdentifier,
     ExpectedPath,
 }
 
-/// Table of all the definition strings for v
-pub const ERROR_VARIANT_DESCRIPTION_TABLE: &[(ParserErrorKind, &str)] = &[
-    (
-        ParserErrorKind::UnternminatedStringLiteralEncountered,
-        "encountered unterminated string literal while parsing",
-    ),
-    (
-        ParserErrorKind::UnterminatedMultilineCommentEncountered,
-        "encountered unterminated multiline comment while parsing",
-    ),
-    (ParserErrorKind::ExpectedIdentifier, "expected identifier"),
-    (ParserErrorKind::ExpectedPath, "expected path or identifier"),
-];
-
 impl ParserErrorKind {
-    /// Check (at compile time) if this [ParserErrorKind] has a descrition in the [ERROR_VARIANT_DESCRIPTION_TABLE].
-    pub const fn has_descrition(self) -> bool {
-        let mut i = 0;
+    /// Get a short description of this kind of error.
+    pub const fn describe(self) -> &'static str {
+        use ParserErrorKind::*;
 
-        while i < ERROR_VARIANT_DESCRIPTION_TABLE.len() {
-            if ERROR_VARIANT_DESCRIPTION_TABLE[i].0 as u64 == self as u64 {
-                return true;
-            }
-
-            i += 1;
+        match self {
+            ExpectedIdentifier => "expected identifier",
+            ExpectedPath => "expected path or identifier",
+            UnterminatedMultilineCommentEncountered => "encountered unterminated multiline comment while parsing",
+            UnterminatedStringLiteralEncountered => "encountered unterminated string literal while parsing",
         }
-
-        false
-    }
-
-    /// Get the description string of this [ParserErrorKind], if one exists. Calls to this against literals
-    /// should be zero-cost since all the lookups are done at compile time. You can use a `const { }` block
-    /// to ensure this.
-    ///
-    /// Calls against variables might be a bit more expensive, since this does an iterative lookup against the
-    /// [ERROR_VARIANT_DESCRIPTION_TABLE].
-    pub const fn find_description(self) -> Option<&'static str> {
-        let mut i = 0;
-
-        while i < ERROR_VARIANT_DESCRIPTION_TABLE.len() {
-            if ERROR_VARIANT_DESCRIPTION_TABLE[i].0 as u64 == self as u64 {
-                return Some(ERROR_VARIANT_DESCRIPTION_TABLE[i].1);
-            }
-
-            i += 1;
-        }
-
-        None
     }
 
     /// Return this [ParserErrorKind] cast to a [u64], adding 1, preceded by the letters "WPE" standing for "Wright Parser Error".
@@ -94,9 +57,7 @@ impl ParserError {
     pub fn as_diagnostic(self) -> Diagnostic {
         let description = self
             .kind
-            .find_description()
-            .map(ToOwned::to_owned)
-            .unwrap_or(format!("parser error ({:?})", self.kind));
+            .describe();
 
         let mut diagnostic = Diagnostic::error()
             .with_code(self.kind.error_code_string())
