@@ -3,11 +3,14 @@
 //! [AST]: crate::ast
 //! [Token]: crate::lexer::token::Token
 
-use std::collections::VecDeque;
 use error::ParserError;
+use std::collections::VecDeque;
 
-use crate::{lexer::token::{Token, TokenTy}, source_tracking::fragment::Fragment};
 use super::lexer::Lexer;
+use crate::{
+    lexer::token::{Token, TokenTy},
+    source_tracking::fragment::Fragment,
+};
 
 pub mod error;
 mod identifier;
@@ -32,7 +35,9 @@ impl Parser {
 
     /// Get the next [Token] from this [Parser]. This may be a clone of a token that's already been peeked.
     pub fn next(&mut self) -> Option<Token> {
-        self.lookahead.pop_front().or_else(|| self.lexer.next_token())
+        self.lookahead
+            .pop_front()
+            .or_else(|| self.lexer.next_token())
     }
 
     /// Peek at the next token from the [Lexer] (cached in the lookahead queue if peeked before).
@@ -54,8 +59,8 @@ impl Parser {
         &self.lexer
     }
 
-    /// Lookahead `k` [Token]s. 
-    /// 
+    /// Lookahead `k` [Token]s.
+    ///
     /// If `k == 0` then this is effectively peeking at the next [Token] from the wrapped [Lexer].
     pub fn lookahead(&mut self, k: usize) -> Option<&Token> {
         while self.lookahead.len() <= k {
@@ -68,7 +73,8 @@ impl Parser {
     /// Get the next [Token] from this parser if its [Token::variant] is the given `token_ty`.
     pub fn next_if_is(&mut self, token_ty: TokenTy) -> Option<Token> {
         // Peeking successfully first means that the lookahead vec will never be empty here.
-        (self.peek()?.variant == token_ty).then(|| unsafe { self.lookahead.pop_front().unwrap_unchecked() })
+        (self.peek()?.variant == token_ty)
+            .then(|| unsafe { self.lookahead.pop_front().unwrap_unchecked() })
     }
 
     /// Peek at the next [Token], remove it if it's a [TokenTy::Whitespace].

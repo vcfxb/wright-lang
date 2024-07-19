@@ -26,8 +26,12 @@ impl ParserErrorKind {
         match self {
             ExpectedIdentifier => "expected identifier",
             ExpectedPath => "expected path or identifier",
-            UnterminatedMultilineCommentEncountered => "encountered unterminated multiline comment while parsing",
-            UnterminatedStringLiteralEncountered => "encountered unterminated string literal while parsing",
+            UnterminatedMultilineCommentEncountered => {
+                "encountered unterminated multiline comment while parsing"
+            }
+            UnterminatedStringLiteralEncountered => {
+                "encountered unterminated string literal while parsing"
+            }
         }
     }
 
@@ -55,9 +59,7 @@ pub struct ParserError {
 impl ParserError {
     /// Turn this parser error into a full blown compiler error.
     pub fn as_diagnostic(self) -> Diagnostic {
-        let description = self
-            .kind
-            .describe();
+        let description = self.kind.describe();
 
         let mut diagnostic = Diagnostic::error()
             .with_code(self.kind.error_code_string())

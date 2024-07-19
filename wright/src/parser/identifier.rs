@@ -25,9 +25,8 @@ impl Parse for Identifier {
                     kind: ParserErrorKind::ExpectedIdentifier,
                     location: parser.lexer.remaining.clone(),
                     help: Some("found end of source".into()),
-                })
-
-            }
+                }),
+            },
         }
     }
 }

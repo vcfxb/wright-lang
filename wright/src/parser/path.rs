@@ -16,13 +16,11 @@ impl Parse for Path {
 
 /// Parse the first (and possibly only) [Identifier] in the [Path].
 fn parse_head(parser: &mut Parser) -> Result<Identifier, ParserError> {
-    Identifier::parse(parser)
-        .map_err(|mut err| {
-            err.kind = ParserErrorKind::ExpectedPath;
-            err
-        })
+    Identifier::parse(parser).map_err(|mut err| {
+        err.kind = ParserErrorKind::ExpectedPath;
+        err
+    })
 }
-
 
 // /// Parse a path (`head::tail`) in source code.
 // pub fn parse_path<'src>(parser_state: &mut ParserState<'src>) -> NodeParserResult<Path<'src>> {
