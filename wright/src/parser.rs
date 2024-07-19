@@ -34,7 +34,7 @@ impl Parser {
     }
 
     /// Get the next [Token] from this [Parser]. This may be a clone of a token that's already been peeked.
-    pub fn next(&mut self) -> Option<Token> {
+    pub fn next_token(&mut self) -> Option<Token> {
         self.lookahead
             .pop_front()
             .or_else(|| self.lexer.next_token())
