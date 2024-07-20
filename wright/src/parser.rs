@@ -3,12 +3,12 @@
 //! [AST]: crate::ast
 //! [Token]: crate::lexer::token::Token
 
-use std::collections::VecDeque;
 use super::lexer::Lexer;
 use crate::{
     lexer::token::{Token, TokenTy},
     source_tracking::fragment::Fragment,
 };
+use std::collections::VecDeque;
 
 pub mod error;
 mod identifier;
@@ -39,22 +39,23 @@ impl Parser {
     }
 
     /// Advance this [Parser] by `n` [Token]s. If this [Parser] runs out of [Token]s, panic.
-    /// 
+    ///
     /// Panics
-    /// - If `n` is greater than the number of remaining tokens. 
+    /// - If `n` is greater than the number of remaining tokens.
     pub fn advance(&mut self, n: usize) {
-        // Add tokens to the lookahead buffer until we have enough to split off. 
+        // Add tokens to the lookahead buffer until we have enough to split off.
         while self.lookahead.len() < n {
-            let token = self.lexer
+            let token = self
+                .lexer
                 .next_token()
                 .expect("advance: `n` <= number of remaining tokens");
 
             self.lookahead.push_back(token);
         }
 
-        // Split them off. 
+        // Split them off.
         self.lookahead = self.lookahead.split_off(n);
-    } 
+    }
 
     /// Peek at the next token from the [Lexer] (cached in the lookahead queue if peeked before).
     pub fn peek(&mut self) -> Option<&Token> {
@@ -87,8 +88,8 @@ impl Parser {
     }
 
     /// Similar to [Parser::lookahead] but instead returns a slice of `n` [Token]s, starting with the next [Token].
-    /// 
-    /// Returns [None] if `n` is greater than the number of remaining [Token]s for this [Parser]. 
+    ///
+    /// Returns [None] if `n` is greater than the number of remaining [Token]s for this [Parser].
     pub fn lookahead_window(&mut self, n: usize) -> Option<&[Token]> {
         while self.lookahead.len() < n {
             self.lookahead.push_back(self.lexer.next_token()?);
@@ -109,10 +110,13 @@ impl Parser {
     /// sequence of [TokenTy]s.
     pub fn matches(&mut self, seq: &[TokenTy]) -> bool {
         // Use the rare let-else to ensure there are at minimum, the given number of tokens remaining.
-        let Some(lookahead_window) = self.lookahead_window(seq.len()) else { return false };
+        let Some(lookahead_window) = self.lookahead_window(seq.len()) else {
+            return false;
+        };
 
         // Use a zipped iterator to compare all the token variants.
-        lookahead_window.iter()
+        lookahead_window
+            .iter()
             .zip(seq.iter())
             .all(|(token, matches)| token.variant == *matches)
     }

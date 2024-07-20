@@ -1,6 +1,9 @@
 //! [Parse] implementation for [Identifier].
 
-use super::{error::{ParserError, ParserErrorKind}, Parser};
+use super::{
+    error::{ParserError, ParserErrorKind},
+    Parser,
+};
 use crate::{
     ast::identifier::Identifier,
     lexer::token::{Token, TokenTy},
