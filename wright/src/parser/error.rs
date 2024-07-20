@@ -16,6 +16,7 @@ pub enum ParserErrorKind {
     UnterminatedMultilineCommentEncountered,
     ExpectedIdentifier,
     ExpectedPath,
+    ExpectedWhitespace,
 }
 
 impl ParserErrorKind {
@@ -26,6 +27,7 @@ impl ParserErrorKind {
         match self {
             ExpectedIdentifier => "expected identifier",
             ExpectedPath => "expected path or identifier",
+            ExpectedWhitespace => "expected whitespace character(s)",
             UnterminatedMultilineCommentEncountered => {
                 "encountered unterminated multiline comment while parsing"
             }

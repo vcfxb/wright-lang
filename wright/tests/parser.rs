@@ -4,7 +4,7 @@ use termcolor::Buffer;
 use wright::{
     ast::identifier::Identifier,
     lexer::Lexer,
-    parser::{Parse, Parser},
+    parser::Parser,
     source_tracking::{filename::FileName, source::Source, SourceMap, SourceRef},
 };
 

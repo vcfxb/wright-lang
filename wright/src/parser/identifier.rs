@@ -1,16 +1,14 @@
 //! [Parse] implementation for [Identifier].
 
-use super::{
-    error::{ParserError, ParserErrorKind},
-    Parse, Parser,
-};
+use super::{error::{ParserError, ParserErrorKind}, Parser};
 use crate::{
     ast::identifier::Identifier,
     lexer::token::{Token, TokenTy},
 };
 
-impl Parse for Identifier {
-    fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
+impl Identifier {
+    /// Parse an [Identifier] from a [Parser]. Leave the [Parser] unadvanced otherwise.
+    pub fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
         match parser.next_if_is(TokenTy::Identifier) {
             Some(Token { fragment, .. }) => Ok(Identifier { fragment }),
 
@@ -36,7 +34,7 @@ mod tests {
     use crate::{
         ast::identifier::Identifier,
         lexer::Lexer,
-        parser::{error::ParserErrorKind, Parse, Parser},
+        parser::{error::ParserErrorKind, Parser},
     };
 
     #[test]

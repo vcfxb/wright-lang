@@ -16,5 +16,5 @@ pub struct Path {
     pub head: Identifier,
 
     /// The rest of the [Path], following the first separator.
-    pub tail: Option<Box<Path>>,
+    pub tail: Vec<Identifier>,
 }
