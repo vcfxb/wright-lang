@@ -13,7 +13,7 @@ pub fn optional_whitespace(parser: &mut Parser) {
 }
 
 /// Require a whitespace from the [Parser]. Do not advance if the next [Token] is not a whitespace.
-/// 
+///
 /// [Token]: crate::lexer::token::Token
 pub fn require_whitespace(parser: &mut Parser) -> Result<(), ParserError> {
     if parser.next_if_is(TokenTy::Whitespace).is_none() {
