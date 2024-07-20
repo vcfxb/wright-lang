@@ -8,7 +8,7 @@ use std::borrow::Cow;
 
 /// All the different errors that can be produced in the process of parsing.
 /// The names of these should be self-describing, but in cases when one of these needs to appear in a diagnostic,
-/// use [ParserErrorKind::find_description].
+/// use [ParserErrorKind::describe].
 #[allow(missing_docs)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ParserErrorKind {
