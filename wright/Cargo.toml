@@ -41,6 +41,10 @@ required-features = []
 name = "lexer"
 harness = false
 
+[[bench]]
+name = "parser"
+harness = false
+
 # FEATURE FLAGS
 # These are used to determine which parts of the crate are compiled/available.
 [features]
