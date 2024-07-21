@@ -23,7 +23,7 @@ concurrency:
 jobs:
   # Build job
   build:
-    runs-on: ubuntu-latest      
+    runs-on: ubuntu-24.04      
     steps:
       - uses: actions/checkout@v4
       # Use nightly Rust toolchain since that's what docs.rs uses and some docs for features/compiler flags
@@ -66,7 +66,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     steps:
       - name: Deploy to GitHub Pages

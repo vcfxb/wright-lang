@@ -27,7 +27,7 @@ jobs:
           - wright_library_defaults
           - wright_binary
         
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-24.04, windows-latest, macos-latest]
         shell: ["bash", "msys2 {0}"]
         include: 
           - os: macos-latest
@@ -37,7 +37,7 @@ jobs:
             shell: bash
           - os: macos-latest
             shell: 'msys2 {0}'
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             shell: 'msys2 {0}'
 
     runs-on: ${{ matrix.os }}
@@ -68,7 +68,7 @@ jobs:
           toolchain: stable
 
       - name: Install LLVM (Ubuntu Only)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         # See: https://apt.llvm.org/
         # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
         run: |
@@ -92,7 +92,7 @@ jobs:
         continue-on-error: true
         
       - name: Get the LLVM version (Ubuntu Only)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: llvm-config --version
         # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
         continue-on-error: true
