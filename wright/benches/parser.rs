@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
 use wright::{
-    ast::identifier::Identifier, lexer::Lexer, parser::Parser, source_tracking::{filename::FileName, source::Source, SourceMap}
+    ast::identifier::Identifier,
+    lexer::Lexer,
+    parser::Parser,
+    source_tracking::{filename::FileName, source::Source, SourceMap},
 };
 
 fn bench_parse_identifier(c: &mut Criterion) {

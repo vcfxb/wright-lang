@@ -4,8 +4,10 @@ use num::{BigUint, Num};
 
 use crate::{ast::literal::IntegerLiteral, lexer::token::TokenTy};
 
-use super::{error::{ParserError, ParserErrorKind}, Parser};
-
+use super::{
+    error::{ParserError, ParserErrorKind},
+    Parser,
+};
 
 impl IntegerLiteral {
     /// Parse an integer literal from the given [Parser].
@@ -23,7 +25,7 @@ impl IntegerLiteral {
                     kind: ParserErrorKind::ExpectedIntegerLiteral,
                     location: parser.lexer.remaining.clone(),
                     help: Some("found end of source".into()),
-                })
+                }),
             };
         };
 
@@ -32,7 +34,7 @@ impl IntegerLiteral {
         let mut chars = parse_str.chars();
 
         // Unwrap: Integer literals must be at minimum 1 character, enforced by the lexer.
-        // use null byte as a sentinel value for the second one, since we're just using the prefix to check for 
+        // use null byte as a sentinel value for the second one, since we're just using the prefix to check for
         // a radix to pass to num.
         let prefix: [char; 2] = [chars.next().unwrap(), chars.next().unwrap_or('\0')];
 
@@ -42,7 +44,7 @@ impl IntegerLiteral {
             ['0', 'x' | 'X'] => {
                 parse_str = &parse_str[2..];
                 16
-            },
+            }
 
             // Binary.
             ['0', 'b' | 'B'] => {
@@ -62,7 +64,7 @@ impl IntegerLiteral {
 
         // Pass the remainder of parsing off to num.
         let value = BigUint::from_str_radix(parse_str, radix)
-            // We can use expect here for now since we have validated the format of the string 
+            // We can use expect here for now since we have validated the format of the string
             // on our own before passing it off.
             .expect("num should successfully parse");
 

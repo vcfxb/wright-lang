@@ -14,8 +14,8 @@ use std::collections::VecDeque;
 
 pub mod error;
 mod identifier;
-mod path;
 mod literal;
+mod path;
 pub mod whitespace;
 
 /// The [Parser] struct wraps a [Lexer] and adds lookahead and functions that are useful for parsing.
@@ -37,12 +37,17 @@ impl Parser {
     /// Get the next [Token] from this [Parser]. This may be a token that's already been peeked.
     /// Return an error if a [Token] with [TokenTy::Unknown] is encountered.
     pub fn next_token(&mut self) -> Result<Option<Token>, ParserError> {
-        let token = self.lookahead
+        let token = self
+            .lookahead
             .pop_front()
             .or_else(|| self.lexer.next_token());
 
         // Check for unknown tokens, which should always convert to an error.
-        if let Some(Token { variant: TokenTy::Unknown, fragment }) = token {
+        if let Some(Token {
+            variant: TokenTy::Unknown,
+            fragment,
+        }) = token
+        {
             Err(ParserError {
                 kind: ParserErrorKind::EncounteredUnknownToken,
                 location: fragment,

@@ -4,7 +4,7 @@ use num::BigUint;
 
 use crate::source_tracking::fragment::Fragment;
 
-/// An integer literal from source. This only contains unsigned integers as writing negative numbers is considered 
+/// An integer literal from source. This only contains unsigned integers as writing negative numbers is considered
 /// to be a combination of an integer literal with a unary negation.
 #[derive(Debug)]
 pub struct IntegerLiteral {

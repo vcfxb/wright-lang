@@ -28,8 +28,12 @@ impl ParserErrorKind {
 
         match self {
             EncounteredUnknownToken => "encountered unknown token",
-            EncounteredUnterminatedComment => "encountered unterminated multiline comment while parsing",
-            EncounteredUnterminatedString => "encountered unterminated string literal while parsing",
+            EncounteredUnterminatedComment => {
+                "encountered unterminated multiline comment while parsing"
+            }
+            EncounteredUnterminatedString => {
+                "encountered unterminated string literal while parsing"
+            }
             ExpectedIdentifier => "expected identifier",
             ExpectedIntegerLiteral => "expected integer literal",
             ExpectedPath => "expected path or identifier",

@@ -6,8 +6,6 @@
 #![deny(missing_copy_implementations, missing_debug_implementations)]
 #![deny(rustdoc::broken_intra_doc_links)]
 #![warn(missing_docs)]
-
-
 // Compiler directive to get docs.rs (which uses the nightly version of the rust compiler) to show
 // info about featurer required for various modules and functionality.
 //
