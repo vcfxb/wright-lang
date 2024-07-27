@@ -3,6 +3,8 @@
 //! [AST]: crate::ast
 //! [Token]: crate::lexer::token::Token
 
+use error::{ParserError, ParserErrorKind};
+
 use super::lexer::Lexer;
 use crate::{
     lexer::token::{Token, TokenTy},
@@ -13,6 +15,7 @@ use std::collections::VecDeque;
 pub mod error;
 mod identifier;
 mod path;
+mod literal;
 pub mod whitespace;
 
 /// The [Parser] struct wraps a [Lexer] and adds lookahead and functions that are useful for parsing.
@@ -31,11 +34,23 @@ impl Parser {
         }
     }
 
-    /// Get the next [Token] from this [Parser]. This may be a clone of a token that's already been peeked.
-    pub fn next_token(&mut self) -> Option<Token> {
-        self.lookahead
+    /// Get the next [Token] from this [Parser]. This may be a token that's already been peeked.
+    /// Return an error if a [Token] with [TokenTy::Unknown] is encountered.
+    pub fn next_token(&mut self) -> Result<Option<Token>, ParserError> {
+        let token = self.lookahead
             .pop_front()
-            .or_else(|| self.lexer.next_token())
+            .or_else(|| self.lexer.next_token());
+
+        // Check for unknown tokens, which should always convert to an error.
+        if let Some(Token { variant: TokenTy::Unknown, fragment }) = token {
+            Err(ParserError {
+                kind: ParserErrorKind::EncounteredUnknownToken,
+                location: fragment,
+                help: None,
+            })
+        } else {
+            Ok(token)
+        }
     }
 
     /// Advance this [Parser] by `n` [Token]s. If this [Parser] runs out of [Token]s, panic.
@@ -103,6 +118,7 @@ impl Parser {
     pub fn next_if_is(&mut self, token_ty: TokenTy) -> Option<Token> {
         // Peeking successfully first means that the lookahead vec will never be empty here.
         (self.peek()?.variant == token_ty)
+            // SAFETY: We just peeked a token to check its variant so this unwrap is alway ok.
             .then(|| unsafe { self.lookahead.pop_front().unwrap_unchecked() })
     }
 

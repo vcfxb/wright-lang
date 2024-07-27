@@ -34,6 +34,9 @@ pub fn try_consume_integer_literal(lexer: &mut Lexer) -> Option<Token> {
         }
     }
 
+    // The first character after the optional prefix is required to be a digit, not underscore.
+    bytes_consumed += chars.next_if(|c| c.is_digit(radix))?.len_utf8();
+
     // Add the rest of the integer literal.
     bytes_consumed += chars
         .take_while(|c| c.is_digit(radix) || *c == '_')
@@ -45,6 +48,8 @@ pub fn try_consume_integer_literal(lexer: &mut Lexer) -> Option<Token> {
 
 #[cfg(test)]
 mod tests {
+    use crate::lexer::integer_literal::try_consume_integer_literal;
+
     use super::{Lexer, TokenTy};
 
     #[test]
@@ -55,5 +60,15 @@ mod tests {
 
         assert_eq!(token.fragment.as_str(), "123_456_789");
         assert_eq!(token.variant, TokenTy::IntegerLiteral);
+        assert_eq!(lexer.remaining.as_str(), ".");
+    }
+
+    #[test]
+    fn cant_start_with_underscore() {
+        let mut lexer = Lexer::new_test("0x__10");
+
+        assert!(try_consume_integer_literal(&mut lexer).is_none());
+
+        assert_eq!(lexer.remaining.as_str(), "0x__10");
     }
 }

@@ -21,7 +21,7 @@ jobs:
           - source-tracking
           - reporting
           - file_memmap
-          - ast-model
+          - ast-models
           - lexer
           - parser
           - wright_library_defaults

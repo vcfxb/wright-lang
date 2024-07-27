@@ -73,8 +73,8 @@ fn parse_segment(parser: &mut Parser) -> Option<Identifier> {
     for sep_token_sequence in VALID_SEGMENT_SEQUENCES {
         if parser.matches(sep_token_sequence) {
             parser.advance(sep_token_sequence.len() - 1);
-            // We can unwrap here because we just checked/matched that this parser ends with an identifier.
-            return Some(Identifier::parse(parser).unwrap());
+            // SAFETY: We just checked/matched that this parser ends with an identifier.
+            return Some(unsafe { Identifier::parse(parser).unwrap_unchecked() });
         }
     }
 

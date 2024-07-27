@@ -23,7 +23,7 @@ fn test_parse_fail_identifier_to_diagnostic() -> anyhow::Result<()> {
     assert_eq!(
         std::str::from_utf8(buffer.as_slice())?,
         "\
-    error[WPE3]: expected identifier
+    error: expected identifier
   ┌─ <NO_NAME>:1:1
   │
 1 │ 12345

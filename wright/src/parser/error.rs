@@ -12,11 +12,13 @@ use std::borrow::Cow;
 #[allow(missing_docs)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ParserErrorKind {
-    UnterminatedStringLiteralEncountered,
-    UnterminatedMultilineCommentEncountered,
+    EncounteredUnknownToken,
+    EncounteredUnterminatedComment,
+    EncounteredUnterminatedString,
     ExpectedIdentifier,
     ExpectedPath,
     ExpectedWhitespace,
+    ExpectedIntegerLiteral,
 }
 
 impl ParserErrorKind {
@@ -25,21 +27,14 @@ impl ParserErrorKind {
         use ParserErrorKind::*;
 
         match self {
+            EncounteredUnknownToken => "encountered unknown token",
+            EncounteredUnterminatedComment => "encountered unterminated multiline comment while parsing",
+            EncounteredUnterminatedString => "encountered unterminated string literal while parsing",
             ExpectedIdentifier => "expected identifier",
+            ExpectedIntegerLiteral => "expected integer literal",
             ExpectedPath => "expected path or identifier",
             ExpectedWhitespace => "expected whitespace character(s)",
-            UnterminatedMultilineCommentEncountered => {
-                "encountered unterminated multiline comment while parsing"
-            }
-            UnterminatedStringLiteralEncountered => {
-                "encountered unterminated string literal while parsing"
-            }
         }
-    }
-
-    /// Return this [ParserErrorKind] cast to a [u64], adding 1, preceded by the letters "WPE" standing for "Wright Parser Error".
-    pub fn error_code_string(self) -> String {
-        format!("WPE{}", self as u64 + 1)
     }
 }
 
@@ -64,7 +59,6 @@ impl ParserError {
         let description = self.kind.describe();
 
         let mut diagnostic = Diagnostic::error()
-            .with_code(self.kind.error_code_string())
             .with_message(description)
             .with_highlights([Highlight::primary(self.location, "")]);
 

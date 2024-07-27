@@ -62,13 +62,14 @@ wright_library_defaults = ["file_memmap", "parser"]
 # Wright's parser depends on the ability to report parsing errors and construct AST models.
 parser = [
     "reporting",
-    "ast-model",
+    "ast-models",
     "lexer"
 ]
 
 # Wright's abstract syntax tree model is built on types from the "source_tracking" module.
-ast-model = [
+ast-models = [
     "source-tracking",
+    "dep:num",
     # "derive_more/from"
 ]
 
@@ -115,10 +116,13 @@ none = []
 # SIMPLE DEPENDENCIES: 
 [dependencies]
 
-# Big Integers
-# num = "0.4"
-
 # DEPENDENCIES:
+
+# Num gives us integer types of unbound size/domain.
+# Used in AST node representations for integer literals.
+[dependencies.num]
+version = "0.4"
+optional = true
 
 # Unicode identifier functions.
 # Used by:
