@@ -210,7 +210,7 @@ optional = true
 # See https://llvm.org/.
 # Optional: Currently not required by anything yet.
 [dependencies.llvm-sys]
-version = "180"
+version = "181"
 features = ["force-static"]
 optional = true
 
