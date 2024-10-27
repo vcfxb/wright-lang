@@ -33,12 +33,11 @@ jobs:
         include: 
           - os: macos-latest
             llvm-install-dir: /opt/homebrew/opt/llvm
-          - targets: --lib
           - targets: --tests
           - features: wright_binary
-            targets: --bins
+            targets: --bins --tests
           - features: default
-            targets: --bins
+            targets: --bins --tests
         exclude: 
           - os: windows-latest
             shell: bash
