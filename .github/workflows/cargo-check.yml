@@ -27,12 +27,19 @@ jobs:
           - parser
           - wright_library_defaults
           - wright_binary
-        
+          - default
+        targets:
+          - --lib
+          - --tests
         os: [ubuntu-24.04, windows-latest, macos-latest]
         shell: ["bash", "msys2 {0}"]
         include: 
           - os: macos-latest
             llvm-install-dir: /opt/homebrew/opt/llvm
+          - features: wright_binary
+            targets: --bins
+          - features: default
+            targets: --bins
         exclude: 
           - os: windows-latest
             shell: bash
@@ -100,10 +107,10 @@ jobs:
 
       - name: Run cargo check (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cargo check --no-default-features -F ${{ matrix.features }}
+        run: cargo check --no-default-features -F ${{ matrix.features }} ${{ matrix.targets }}
         env:
           LLVM_SYS_180_PREFIX: ${{ matrix.llvm-install-dir }} 
         
       - name: Run cargo check (Ubuntu & Windows)
         if: ${{ matrix.os != 'macos-latest' }}
-        run: cargo check --no-default-features -F ${{ matrix.features }}
+        run: cargo check --no-default-features -F ${{ matrix.features }} ${{ matrix.targets }}

@@ -54,7 +54,8 @@ harness = false
 # Also include support for detecting unicode capabilities on the host terminal.
 default = [
     "wright_binary",
-    "supports-unicode"
+    "supports-unicode",
+    "dep:llvm-sys"
 ]
 
 # Features and dependencies required for the wright binary (currently just the library defaults and `clap`).
@@ -207,9 +208,11 @@ optional = true
 
 # Unsafe bindings to LLVM 
 # See https://llvm.org/.
+# Optional: Currently not required by anything yet.
 [dependencies.llvm-sys]
 version = "180"
 features = ["force-static"]
+optional = true
 
 # TEST DEPENDENCIES
 [dev-dependencies]

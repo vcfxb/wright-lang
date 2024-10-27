@@ -1,4 +1,4 @@
-// //! Command line interface for wright.
+//! Command line interface for wright.
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
