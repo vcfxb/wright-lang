@@ -153,11 +153,10 @@ impl Source {
                     let mem_map: Mmap = unsafe {
                         Mmap::map(&file)
                             // Make sure we (at least try to) unlock the file if there's an issue memory mapping it.
-                            .map_err(|err| {
+                            .inspect_err(|_| {
                                 file.unlock()
                                     .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
                                     .ok();
-                                err
                             })
                     }?;
 
