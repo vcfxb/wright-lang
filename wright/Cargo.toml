@@ -76,7 +76,8 @@ ast-models = [
 # Wright's lexical analyzer is build using types from the "source_tracking" module.
 lexer = [
     "source-tracking",
-    "dep:unicode-ident"
+    "dep:unicode-ident",
+    "dep:supports-unicode"
 ]
 
 # Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
@@ -117,6 +118,12 @@ none = []
 [dependencies]
 
 # DEPENDENCIES:
+
+# Use supports-unicode to determine how we display tokens to the user in debug commands.
+# Optional -- required by `lexer` feature.
+[dependencies.supports-unicode]
+version = "3.0.0"
+optional = true
 
 # Num gives us integer types of unbound size/domain.
 # Used in AST node representations for integer literals.
