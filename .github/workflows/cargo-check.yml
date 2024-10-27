@@ -28,14 +28,13 @@ jobs:
           - wright_library_defaults
           - wright_binary
           - default
-        targets:
-          - --lib
-          - --tests
         os: [ubuntu-24.04, windows-latest, macos-latest]
         shell: ["bash", "msys2 {0}"]
         include: 
           - os: macos-latest
             llvm-install-dir: /opt/homebrew/opt/llvm
+          - targets: --lib
+          - targets: --tests
           - features: wright_binary
             targets: --bins
           - features: default
