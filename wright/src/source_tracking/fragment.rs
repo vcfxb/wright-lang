@@ -11,7 +11,7 @@ use crate::source_tracking::source::Source;
 ///
 /// This can be part of (or all of) a [Source].
 #[derive(Clone, Debug, Display)]
-#[display(fmt = "{}", "self.as_str()")]
+#[display("{}", "self.as_str()")]
 pub struct Fragment {
     /// The [Source] that this fragment is in.
     pub source: SourceRef,

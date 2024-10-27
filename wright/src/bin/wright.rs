@@ -11,24 +11,37 @@ use wright::{
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None, arg_required_else_help = true)]
 struct Cli {
+    /// Whether the output should be only ASCII characters (default auto-detected, if `supports-unicode` 
+    /// crate is compiled in).
+    /// 
+    /// This option does nothing if the `supports-unicode` crate was not enabled at compile time (in that case all 
+    /// output will be ASCII regardless).
+    #[arg(short = 'A', long = "ascii")]
+    force_ascii: bool,
     /// The subcommand passed to the wright cli.
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Command,
 }
 
 /// Different sub-commands that the wright cli supports.
 #[derive(Subcommand, Debug)]
-enum Commands {
+enum Command {
     /// Subcommand for debugging wright's source code and interpreter.
     Debug {
         #[command(subcommand)]
-        command: DebugCommands,
+        command: DebugCommand,
     },
+
+    /// Subcommand for showing information about this version of wright.
+    Show {
+        #[command(subcommand)] 
+        command: ShowCommand
+    }
 }
 
 /// Different sub-commands that the debug sub-command supports.
 #[derive(Subcommand, Debug)]
-enum DebugCommands {
+enum DebugCommand {
     /// Debug the tokens/lexemes for a source file.
     Tokens {
         /// A file of wright source code.
@@ -40,15 +53,29 @@ enum DebugCommands {
     },
 }
 
+/// Different subcommands that can be used to get info about a copy of the wright CLI/compiler/etc. 
+#[derive(Subcommand, Debug)]
+enum ShowCommand {
+    /// Get the version string of this copy of the wright compiler.
+    Version,
+
+    /// Get the full list of feature names/strings that were enabled when this copy of wright was compiled.
+    Features
+}
+
 fn main() -> Result<()> {
     // Parse the command line arguments.
     let cli: Cli = Cli::parse();
 
+    #[cfg(feature = "supports-unicode")] {
+        wright::util::supports_unicode::set_force_ascii(cli.force_ascii);
+    }
+
     match cli.command {
         // Print all the tokens for a given file.
-        Some(Commands::Debug {
-            command: DebugCommands::Tokens { file },
-        }) => {
+        Command::Debug {
+            command: DebugCommand::Tokens { file },
+        } => {
             let source_map: SourceMap = SourceMap::new();
             // Add the given file to the file map.
             let source_ref: SourceRef = source_map.add(Source::new_mapped_from_disk(file)?);
@@ -60,7 +87,15 @@ fn main() -> Result<()> {
             }
         }
 
-        _ => unimplemented!(),
+        Command::Show { command: ShowCommand::Version } => {
+            println!("wright {}", wright::build_info::PKG_VERSION);
+        }
+
+        Command::Show { command: ShowCommand::Features } => {
+            for feature in wright::build_info::FEATURES {
+                println!("{feature}");
+            }
+        }
     }
     
     Ok(())

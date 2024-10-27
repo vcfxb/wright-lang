@@ -101,7 +101,7 @@ impl Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // If the host terminal supports unicode, replace the newline & carriage return characters with pictures,
         // otherwise use ascii.
-        let replacements = match supports_unicode::supports_unicode() {
+        let replacements = match crate::util::supports_unicode::supports_unicode() {
             true => &[("\n", "\u{240A}"), ("\r", "\u{240D}")],
             false => &[("\n", "[nl]"), ("\r", "[cr]")],
         };

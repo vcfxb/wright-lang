@@ -1,5 +1,7 @@
 //! [Parse] implementation for [Identifier].
 
+#![warn(rustdoc::broken_intra_doc_links)]
+
 use super::{
     error::{ParserError, ParserErrorKind},
     Parser,

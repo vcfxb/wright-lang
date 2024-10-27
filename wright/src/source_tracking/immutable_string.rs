@@ -4,7 +4,7 @@
 use std::{str::CharIndices, sync::Arc};
 
 #[cfg(feature = "file_memmap")]
-use fs4::FileExt;
+use fs4::fs_std::FileExt;
 
 #[cfg(feature = "file_memmap")]
 use memmap2::Mmap;

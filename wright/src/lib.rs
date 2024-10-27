@@ -28,9 +28,6 @@ compile_error!("Memory mapped files not available on WASM targets");
 #[cfg(all(feature = "none", feature = "std"))]
 compile_error!("feature \"none\" is enabled, which restricts the usage of any other features including \"std\".");
 
-/// The version of this copy of Wright.
-pub const WRIGHT_VERSION: &str = build_info::PKG_VERSION;
-
 /// Build information about this copy of wright, provided using <https://crates.io/crates/built>.
 pub mod build_info {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
@@ -50,5 +47,7 @@ pub mod ast;
 
 #[cfg(feature = "parser")]
 pub mod parser;
+
+pub mod util;
 
 // pub mod repl;

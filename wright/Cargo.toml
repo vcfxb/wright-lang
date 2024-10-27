@@ -51,13 +51,23 @@ harness = false
 
 # By default include everything required for building the wright binary, which includes everything used for building 
 # wright as a library.  
-default = ["wright_binary"]
+# Also include support for detecting unicode capabilities on the host terminal.
+default = [
+    "wright_binary",
+    "supports-unicode"
+]
 
 # Features and dependencies required for the wright binary (currently just the library defaults and `clap`).
-wright_binary = ["wright_library_defaults", "dep:clap"]
+wright_binary = [
+    "wright_library_defaults", 
+    "dep:clap"
+]
 
 # Features and dependencies useful when the wright binary is not being built or used. 
-wright_library_defaults = ["file_memmap", "parser"]
+wright_library_defaults = [
+    "file_memmap", 
+    "parser"
+]
 
 # Wright's parser depends on the ability to report parsing errors and construct AST models.
 parser = [
@@ -76,8 +86,7 @@ ast-models = [
 # Wright's lexical analyzer is build using types from the "source_tracking" module.
 lexer = [
     "source-tracking",
-    "dep:unicode-ident",
-    "dep:supports-unicode"
+    "dep:unicode-ident"
 ]
 
 # Loading memory mapped files from the disk requires memmap2, fs4, and the reporting feature to correctly and efficiently 
@@ -104,10 +113,15 @@ source-tracking = [
     "derive_more/display",
 ]
 
+# Optional dependency that enables terminal unicode support selection.
+# There are fallbacks -- this is not required for anything else.
+supports-unicode = [
+    "dep:supports-unicode"
+]
+
 # Feature flag to indicate use of the standard library.
 std = [
-    # The "std" feature is not yet out for derive_more -- todo for the next version released.
-    # "derive_more?/std", 
+    "derive_more?/std", 
     "anyhow?/std"
 ]
 
@@ -120,7 +134,7 @@ none = []
 # DEPENDENCIES:
 
 # Use supports-unicode to determine how we display tokens to the user in debug commands.
-# Optional -- required by `lexer` feature.
+# Optional -- can be used in debugging token outputs.
 [dependencies.supports-unicode]
 version = "3.0.0"
 optional = true
@@ -142,7 +156,7 @@ optional = true
 # Currently used by features: 
 # - "source-tracking"
 [dependencies.derive_more]
-version = "0.99.18"
+version = "1.0.0"
 default-features = false
 optional = true
 
@@ -180,7 +194,7 @@ optional = true
 # Portable (windows, mac, linux) file locking
 # Optional: Required for memmory mapped file access. 
 [dependencies.fs4] 
-version = "0.7.0"
+version = "0.10.0"
 features = ["sync"]
 optional = true
 

@@ -1,5 +1,7 @@
 //! [Parse] implementation for [Path].
 
+#![warn(rustdoc::broken_intra_doc_links)]
+
 use std::sync::Arc;
 
 use super::error::ParserError;

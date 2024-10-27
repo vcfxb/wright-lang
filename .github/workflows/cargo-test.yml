@@ -18,6 +18,7 @@ jobs:
         features:
           - none
           - std
+          - supports-unicode
           - source-tracking
           - reporting
           - file_memmap
