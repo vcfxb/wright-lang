@@ -75,11 +75,11 @@ impl Lexer {
         }
     }
 
-    /// Unsafe version of [Lexer::split_token].
+    /// Unchecked version of [Lexer::split_token].
     ///
-    /// # Safety
-    /// - This function matches the safety guarantees of [Fragment::split_at_unchecked].
-    unsafe fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token {
+    /// # Panics
+    /// - This function has the same potential to cause logic bugs and panics as [Fragment::split_at_unchecked].
+    fn split_token_unchecked(&mut self, bytes: usize, kind: TokenTy) -> Token {
         let (token_fragment, new_remaining_fragment) = self.remaining.split_at_unchecked(bytes);
         self.remaining = new_remaining_fragment;
 

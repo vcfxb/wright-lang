@@ -91,6 +91,31 @@ impl Parser {
         self.peek().map(|token| &token.fragment)
     }
 
+    /// Peek the [Fragment] of the next [Token] and clone it or return a clone of the 
+    /// remainder [Fragment] of the internal [Lexer] 
+    /// (which will be empty, since there wasn't a [Token] to peek).
+    /// 
+    /// This is likely only useful for error reporting -- a clone of a potentially empty fragment is 
+    /// rarely ever useful otherwise.
+    pub fn peek_fragment_or_rest_cloned(&mut self) -> Fragment {
+        match self.peek() {
+            Some(Token { fragment, .. }) => fragment.clone(),
+            None => {
+                let rest = self.lexer.remaining.clone();
+
+                // Assert that we're making the right assumptions about the remaining fragment.
+                // These are (unidiomatically) done using debug_assert -- perhaps that changes eventually
+                // however it should be fine for now, since this can only produce logic bugs (never memory or 
+                // concurrency bugs).
+                debug_assert!(rest.is_valid());
+                debug_assert!(rest.is_empty());
+                debug_assert!(rest.is_empty_at_end_of_source());
+
+                rest
+            }
+        }
+    }
+
     /// Get the [Lexer] that's wrapped.
     pub fn lexer(&self) -> &Lexer {
         &self.lexer
@@ -123,7 +148,7 @@ impl Parser {
     pub fn next_if_is(&mut self, token_ty: TokenTy) -> Option<Token> {
         // Peeking successfully first means that the lookahead vec will never be empty here.
         (self.peek()?.variant == token_ty)
-            // SAFETY: We just peeked a token to check its variant so this unwrap is alway ok.
+            // SAFETY: We just peeked a token to check its variant so this unwrap is always ok.
             .then(|| unsafe { self.lookahead.pop_front().unwrap_unchecked() })
     }
 
