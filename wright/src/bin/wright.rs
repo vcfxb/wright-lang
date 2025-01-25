@@ -4,17 +4,18 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use wright::{
-    lexer::Lexer, source_tracking::{source::Source, SourceMap, SourceRef}
+    lexer::Lexer,
+    source_tracking::{source::Source, SourceMap, SourceRef},
 };
 
 /// The wright cli.
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None, arg_required_else_help = true)]
 struct Cli {
-    /// Whether the output should be only ASCII characters (default auto-detected, if `supports-unicode` 
+    /// Whether the output should be only ASCII characters (default auto-detected, if `supports-unicode`
     /// crate is compiled in).
-    /// 
-    /// This option does nothing if the `supports-unicode` crate was not enabled at compile time (in that case all 
+    ///
+    /// This option does nothing if the `supports-unicode` crate was not enabled at compile time (in that case all
     /// output will be ASCII regardless).
     #[arg(short = 'A', long = "ascii")]
     force_ascii: bool,
@@ -34,9 +35,9 @@ enum Command {
 
     /// Subcommand for showing information about this version of wright.
     Show {
-        #[command(subcommand)] 
-        command: ShowCommand
-    }
+        #[command(subcommand)]
+        command: ShowCommand,
+    },
 }
 
 /// Different sub-commands that the debug sub-command supports.
@@ -53,21 +54,22 @@ enum DebugCommand {
     },
 }
 
-/// Different subcommands that can be used to get info about a copy of the wright CLI/compiler/etc. 
+/// Different subcommands that can be used to get info about a copy of the wright CLI/compiler/etc.
 #[derive(Subcommand, Debug)]
 enum ShowCommand {
     /// Get the version string of this copy of the wright compiler.
     Version,
 
     /// Get the full list of feature names/strings that were enabled when this copy of wright was compiled.
-    Features
+    Features,
 }
 
 fn main() -> Result<()> {
     // Parse the command line arguments.
     let cli: Cli = Cli::parse();
 
-    #[cfg(feature = "supports-unicode")] {
+    #[cfg(feature = "supports-unicode")]
+    {
         wright::util::supports_unicode::set_force_ascii(cli.force_ascii);
     }
 
@@ -87,16 +89,20 @@ fn main() -> Result<()> {
             }
         }
 
-        Command::Show { command: ShowCommand::Version } => {
+        Command::Show {
+            command: ShowCommand::Version,
+        } => {
             println!("wright {}", wright::build_info::PKG_VERSION);
         }
 
-        Command::Show { command: ShowCommand::Features } => {
+        Command::Show {
+            command: ShowCommand::Features,
+        } => {
             for feature in wright::build_info::FEATURES {
                 println!("{feature}");
             }
         }
     }
-    
+
     Ok(())
 }

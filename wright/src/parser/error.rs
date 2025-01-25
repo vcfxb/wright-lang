@@ -46,7 +46,7 @@ impl ParserErrorKind {
         ParserError {
             kind: self,
             location: f,
-            help: None
+            help: None,
         }
     }
 }
@@ -79,7 +79,7 @@ impl ParserError {
 
         // Put a little clarification if the parser reached end of source and then produced an error.
         let message = if self.location.is_empty_at_end_of_source() {
-            Cow::Borrowed("found end of source here") 
+            Cow::Borrowed("found end of source here")
         } else {
             Cow::Borrowed("")
         };

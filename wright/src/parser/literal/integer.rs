@@ -2,9 +2,9 @@
 
 use num::{BigUint, Num};
 
+use crate::parser::error::{ParserError, ParserErrorKind};
 use crate::parser::Parser;
 use crate::{ast::literal::IntegerLiteral, lexer::token::TokenTy};
-use crate::parser::error::{ParserError, ParserErrorKind};
 
 impl IntegerLiteral {
     /// Parse an integer literal from the given [Parser].

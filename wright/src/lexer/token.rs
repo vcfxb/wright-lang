@@ -1,7 +1,7 @@
 //! Token models.
 
-use std::fmt::{self, Display};
 use crate::source_tracking::fragment::Fragment;
+use std::fmt::{self, Display};
 
 /// A token in wright source code.
 #[derive(Debug)]

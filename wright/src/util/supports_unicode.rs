@@ -21,14 +21,15 @@ pub fn set_force_ascii(force_ascii: bool) {
 
 /// Should we be writing unicode out to the user's terminal?
 pub fn supports_unicode() -> bool {
-    #[cfg(feature = "supports-unicode")] {
+    #[cfg(feature = "supports-unicode")]
+    {
         use core::sync::atomic::Ordering;
 
-        !FORCE_ASCII.load(Ordering::Acquire) &&
-        supports_unicode_crate::supports_unicode()
+        !FORCE_ASCII.load(Ordering::Acquire) && supports_unicode_crate::supports_unicode()
     }
 
-    #[cfg(not(feature = "supports-unicode"))] {
+    #[cfg(not(feature = "supports-unicode"))]
+    {
         false
     }
 }

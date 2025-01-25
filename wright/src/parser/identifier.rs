@@ -4,17 +4,16 @@ use super::{
     error::{ParserError, ParserErrorKind},
     Parser,
 };
-use crate::{
-    ast::identifier::Identifier,
-    lexer::token::TokenTy,
-};
+use crate::{ast::identifier::Identifier, lexer::token::TokenTy};
 
 impl Identifier {
     /// Parse an [Identifier] from a [Parser]. Leave the [Parser] unadvanced otherwise.
     pub fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
         parser
             .next_if_is(TokenTy::Identifier)
-            .map(|token| Identifier { fragment: token.fragment })
+            .map(|token| Identifier {
+                fragment: token.fragment,
+            })
             .ok_or_else(|| {
                 ParserErrorKind::ExpectedIdentifier.at(parser.peek_fragment_or_rest_cloned())
             })

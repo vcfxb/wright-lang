@@ -58,7 +58,7 @@ impl Fragment {
     }
 
     /// Check if this fragment is empty at the end of it's source.
-    /// 
+    ///
     /// Uses [debug_assert] to check for validity.
     pub fn is_empty_at_end_of_source(&self) -> bool {
         debug_assert!(self.is_valid());
@@ -158,7 +158,7 @@ impl Fragment {
     /// This is the same as [Fragment::split_at] except it does not check that the created fragments are valid or
     /// that either can call [Fragment::as_str] without panicking.
     /// Use with caution.
-    /// 
+    ///
     /// Note that this is not technically `unsafe`, since all bugs that may emerge from abuse/misuse here are logic
     /// bugs (not memory or concurrency bugs).
     pub fn split_at_unchecked(&self, bytes_from_start: usize) -> (Self, Self) {
