@@ -1,6 +1,4 @@
-//! [Parse] implementation for [Identifier].
-
-#![warn(rustdoc::broken_intra_doc_links)]
+//! Parsing implementation for [Identifier].
 
 use super::{
     error::{ParserError, ParserErrorKind},
@@ -8,29 +6,18 @@ use super::{
 };
 use crate::{
     ast::identifier::Identifier,
-    lexer::token::{Token, TokenTy},
+    lexer::token::TokenTy,
 };
 
 impl Identifier {
     /// Parse an [Identifier] from a [Parser]. Leave the [Parser] unadvanced otherwise.
     pub fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
-        match parser.next_if_is(TokenTy::Identifier) {
-            Some(Token { fragment, .. }) => Ok(Identifier { fragment }),
-
-            None => match parser.peek_fragment() {
-                Some(next_frag) => Err(ParserError {
-                    kind: ParserErrorKind::ExpectedIdentifier,
-                    location: next_frag.clone(),
-                    help: None,
-                }),
-
-                None => Err(ParserError {
-                    kind: ParserErrorKind::ExpectedIdentifier,
-                    location: parser.lexer.remaining.clone(),
-                    help: Some("found end of source".into()),
-                }),
-            },
-        }
+        parser
+            .next_if_is(TokenTy::Identifier)
+            .map(|token| Identifier { fragment: token.fragment })
+            .ok_or_else(|| {
+                ParserErrorKind::ExpectedIdentifier.at(parser.peek_fragment_or_rest_cloned())
+            })
     }
 }
 
