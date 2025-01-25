@@ -15,6 +15,7 @@ use crate::source_tracking::source::Source;
 pub struct Fragment {
     /// The [Source] that this fragment is in.
     pub source: SourceRef,
+
     /// Fragments are represented using byte ranges in the [Source] referenced by [Fragment::source].
     ///
     /// This [Fragment] is considered invalid if this range is out of order or either end of it is not
@@ -54,6 +55,15 @@ impl Fragment {
     /// Does not check this [Fragment] for validity.
     pub const fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    /// Check if this fragment is empty at the end of it's source.
+    /// 
+    /// Uses [debug_assert] to check for validity.
+    pub fn is_empty_at_end_of_source(&self) -> bool {
+        debug_assert!(self.is_valid());
+
+        self.source.source().as_str().len() <= self.range.start
     }
 
     /// Return true if this [Fragment] entirely contains another [Fragment] and they're from the same [Source] by
