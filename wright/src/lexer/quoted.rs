@@ -56,8 +56,8 @@ pub fn try_consume_quoted_literal(lexer: &mut Lexer) -> Option<Token> {
         _ => unreachable!("There are no other quoted literals"),
     };
 
-    // SAFETY: Summing char lengths from the iterator should never give us an invalid or out of bounds index.
-    Some(unsafe { lexer.split_token_unchecked(bytes_consumed, variant) })
+    // Summing char lengths from the iterator should never give us an invalid or out of bounds index.
+    Some(lexer.split_token_unchecked(bytes_consumed, variant))
 }
 
 #[cfg(test)]

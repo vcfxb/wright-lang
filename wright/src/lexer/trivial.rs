@@ -82,9 +82,9 @@ pub fn try_consume_trivial_token(lexer: &mut Lexer) -> Option<Token> {
         // Match against each possible token pattern.
         for (pattern, kind) in TWO_ASCII_TRIVIAL_TOKENS {
             if bytes == *pattern {
-                // SAFETY: We have already done bounds checking, and this cannot be a character
+                // We have already done bounds checking, and this cannot be a character
                 // boundary since we just matched against ASCII characters.
-                return Some(unsafe { lexer.split_token_unchecked(2, *kind) });
+                return Some(lexer.split_token_unchecked(2, *kind));
             }
         }
     }
@@ -95,9 +95,9 @@ pub fn try_consume_trivial_token(lexer: &mut Lexer) -> Option<Token> {
 
     for (pattern, kind) in SINGLE_ASCII_CHAR_TRIVIAL_TOKENS {
         if byte == pattern {
-            // SAFETTY: If we matched, then the first byte is ASCII, and therefor we don't have to worry
+            // If we matched, then the first byte is ASCII, and therefore we don't have to worry
             // about bounds or unicode boundaries.
-            return Some(unsafe { lexer.split_token_unchecked(1, *kind) });
+            return Some(lexer.split_token_unchecked(1, *kind));
         }
     }
 

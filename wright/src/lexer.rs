@@ -190,10 +190,8 @@ impl Lexer {
             let delta = unsafe { trimmed.offset_from(remaining_str.as_ptr()) };
 
             if delta > 0 {
-                // SAFETY: trim_start should always return a valid string, and delta is just checked to be > 0.
-                return unsafe {
-                    Some(self.split_token_unchecked(delta as usize, TokenTy::Whitespace))
-                };
+                // trim_start should always return a valid string, and delta is just checked to be > 0.
+                return Some(self.split_token_unchecked(delta as usize, TokenTy::Whitespace));
             }
         }
 
