@@ -115,7 +115,7 @@ impl Lexer {
     /// true. Otherwise return false.
     fn consume(&mut self, pattern: &str) -> bool {
         if self.matches(pattern) {
-            // SAFETY: We just checked that the pattern matches.
+            // SOUNDNESS: We just checked that the pattern matches.
             self.remaining.advance_by_unchecked(pattern.len());
             true
         } else {

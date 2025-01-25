@@ -1,6 +1,4 @@
-//! [Parse] implementation for [Path].
-
-#![warn(rustdoc::broken_intra_doc_links)]
+//! Parsing implementation for [Path].
 
 use std::sync::Arc;
 

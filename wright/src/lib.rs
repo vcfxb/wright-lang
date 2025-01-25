@@ -2,10 +2,12 @@
 
 // Compile without the standard library if the user chooses to do so.
 #![cfg_attr(not(any(feature = "std", test)), no_std)]
+
 // We want to enforce good stuff by default.
 #![deny(missing_copy_implementations, missing_debug_implementations)]
 #![deny(rustdoc::broken_intra_doc_links)]
 #![warn(missing_docs)]
+
 // Compiler directive to get docs.rs (which uses the nightly version of the rust compiler) to show
 // info about feature required for various modules and functionality.
 //
