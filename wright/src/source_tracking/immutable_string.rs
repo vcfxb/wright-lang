@@ -71,11 +71,7 @@ impl ImmutableString {
             let (index, next) = char_indices.next()?;
 
             // Determine whether to list this character's index as starting a new line.
-            let result = if last_was_newline {
-                Some(Some(index))
-            } else {
-                Some(None)
-            };
+            let result = Some(last_was_newline.then_some(index));
 
             // Update the boolean based on the consumed character.
             last_was_newline = next == '\n';
@@ -147,8 +143,7 @@ impl Drop for ImmutableStringInner {
         match self {
             // Unlock locked files.
             ImmutableStringInner::LockedFile { locked_file, .. } => {
-                locked_file
-                    .unlock()
+                FileExt::unlock(locked_file)
                     // Log the error if there is one,
                     .map_err(|io_err: io::Error| eprintln!("{}", io_err))
                     // Discard value of result

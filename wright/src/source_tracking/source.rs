@@ -147,14 +147,14 @@ impl Source {
 
                 // Handle success by finishing adding the file to the FileMap.
                 Ok(ChannelMessage::FileLocked(file)) => {
-                    // The file is now locked, we can memmory map it and add it ro the vec.
+                    // The file is now locked, we can memmory map it and add it to the vec.
                     // SAFETY: The file should be locked at this point so undefined behaviour from concurrent
                     // modification is avoided.
                     let mem_map: Mmap = unsafe {
                         Mmap::map(&file)
                             // Make sure we (at least try to) unlock the file if there's an issue memory mapping it.
                             .inspect_err(|_| {
-                                file.unlock()
+                                FileExt::unlock(&file)
                                     .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
                                     .ok();
                             })
@@ -165,7 +165,7 @@ impl Source {
 
                     if let Err(utf8_error) = std::str::from_utf8(raw_data) {
                         // The file is not valid for us so we should unlock it and return an error.
-                        file.unlock()
+                        FileExt::unlock(&file)
                             .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
                             .ok();
 

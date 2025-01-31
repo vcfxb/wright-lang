@@ -192,8 +192,8 @@ impl Fragment {
         self.advance_by_unchecked(bytes);
     }
 
-    /// This is the same as [Fragment::advance_by] except without the bounds checking. Use carefully or the created
-    /// [Fragment]s will be invalid.
+    /// This is the same as [Fragment::advance_by] except without the bounds checking. Use carefully or the updated
+    /// [Fragment] will be invalid.
     #[inline]
     pub fn advance_by_unchecked(&mut self, bytes: usize) {
         self.range.start += bytes;
@@ -212,8 +212,8 @@ impl Fragment {
         self.retain_unchecked(bytes);
     }
 
-    /// This is the same as [Fragment::retain] except without the bounds checking. Use carefully or the created
-    /// [Fragment]s will be invalid.
+    /// This is the same as [Fragment::retain] except without the bounds checking. Use carefully or the updated
+    /// [Fragment] will be invalid.
     #[inline]
     pub fn retain_unchecked(&mut self, bytes: usize) {
         self.range.end = self.range.start + bytes;
