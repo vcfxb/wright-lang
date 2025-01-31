@@ -187,7 +187,7 @@ optional = true
 # Portable (windows, mac, linux) file locking
 # Optional: Required for memmory mapped file access. 
 [dependencies.fs4] 
-version = "0.10.0"
+version = "0.12.0"
 features = ["sync"]
 optional = true
 
@@ -217,9 +217,6 @@ rayon = "1.8.0"
 
 # indoc is used for indentation in tests
 indoc = "2.0.5"
-
-# Anyhow is used for unifying/erasing errors.
-# anyhow = "1.0.86"
 
 # For creating in memory buffers to test reporting. 
 termcolor = "1.4.1"
