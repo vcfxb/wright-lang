@@ -3,7 +3,7 @@
 name = "wright"
 description = "The wright programming language compiler and tooling."
 license = "MIT"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Venus Xeon-Blonde <venusflameblonde@gmail.com>"]
 repository = "https://github.com/vcfxb/wright-lang"
 documentation = "https://docs.rs/wright"
@@ -54,8 +54,7 @@ harness = false
 # Also include support for detecting unicode capabilities on the host terminal.
 default = [
     "wright_binary",
-    "supports-unicode",
-    "dep:llvm-sys"
+    "supports-unicode"
 ]
 
 # Features and dependencies required for the wright binary (currently just the library defaults and `clap`).
@@ -198,13 +197,15 @@ version = "4"
 features = ["derive"]
 optional = true
 
-# Unsafe bindings to LLVM 
-# See https://llvm.org/.
-# Optional: Currently not required by anything yet.
-[dependencies.llvm-sys]
-version = "181"
-features = ["force-static"]
-optional = true
+# TODO: LLVM has been removed until I'm actually using it and have a better build system to go against it.
+# (currently the state of it breaking docs.rs builds and complicating everything else makes me kinda sad).
+# # Unsafe bindings to LLVM 
+# # See https://llvm.org/.
+# # Optional: Currently not required by anything yet.
+# [dependencies.llvm-sys]
+# version = "181"
+# features = ["force-static"]
+# optional = true
 
 # TEST DEPENDENCIES
 [dev-dependencies]
