@@ -208,6 +208,21 @@ impl Source {
         ))
     }
 
+    /// Attempt to open a file using [Self::new_mapped_from_disk] if that feature is designated 
+    /// as available at compile time. If that feature is not available at compile time, or if an [io::Error] is 
+    /// returned from [memmap2], fallback to reading the file from disk using [Self::new_read_from_disk].
+    pub fn new_mapped_or_read(path: PathBuf) -> io::Result<Self> {
+        #[cfg(feature = "file_memmap")]
+        match Self::new_mapped_from_disk(path.clone()) {
+            ok @ Ok(_) => return ok,
+            Err(e) => {
+                eprintln!("warn: attempted to map file at {} and got {e}, falling back to read", path.display());
+            }
+        };
+
+        Self::new_read_from_disk(path)
+    }
+
     /// Get byte indices of where lines start in this [Source].
     pub fn line_starts(&self) -> &[usize] {
         self.line_starts.as_slice()

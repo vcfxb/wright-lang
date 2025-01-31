@@ -79,7 +79,7 @@ fn main() -> io::Result<()> {
         } => {
             let source_map: SourceMap = SourceMap::new();
             // Add the given file to the file map.
-            let source_ref: SourceRef = source_map.add(Source::new_mapped_from_disk(file)?);
+            let source_ref: SourceRef = source_map.add(Source::new_mapped_or_read(file)?);
             // Make a lexer over the entirety of the given file.
             let mut lexer: Lexer = Lexer::new(source_ref);
             // Get all the tokens from the lexer and print them each.
