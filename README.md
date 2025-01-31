@@ -28,7 +28,7 @@ Pulling from all three of these excellent languages, Wright intends to offer a c
 | Releases | ![Github Releases](https://img.shields.io/github/downloads/vcfxb/wright-lang/latest/total.svg) |
 | Pre-Releases| ![Github Pre-Releases](https://img.shields.io/github/downloads-pre/vcfxb/wright-lang/latest/total.svg) |
 | Crates.io | [![Crates.io](https://img.shields.io/crates/d/wright.svg)](https://crates.io/crates/wright) |
-| Crates.io (Latest) | [![Crates.io](https://img.shields.io/crates/dv/wright.svg)](https://crates.io/crates/wright/0.8.0) |
+| Crates.io (Latest) | [![Crates.io](https://img.shields.io/crates/dv/wright.svg)](https://crates.io/crates/wright/0.9.0) |
 
 ### Syntax Samples
 ```
