@@ -95,8 +95,7 @@ lexer = [
 file_memmap = [
     "reporting",
     "dep:memmap2",
-    "dep:fs4",
-    "dep:anyhow"
+    "dep:fs4"
 ]
 
 # Reporting errors requires source tracking, codespan-reporting (for rendering diagnostics), and 
@@ -122,8 +121,7 @@ supports-unicode = [
 
 # Feature flag to indicate use of the standard library.
 std = [
-    "derive_more?/std", 
-    "anyhow?/std"
+    "derive_more?/std"
 ]
 
 # Feature flag indicating no features are enabled. 
@@ -158,12 +156,6 @@ optional = true
 # - "source-tracking"
 [dependencies.derive_more]
 version = "1.0.0"
-default-features = false
-optional = true
-
-# Anyhow is used to make error handling easier. 
-[dependencies.anyhow]
-version = "1.0.86"
 default-features = false
 optional = true
 
@@ -227,7 +219,7 @@ rayon = "1.8.0"
 indoc = "2.0.5"
 
 # Anyhow is used for unifying/erasing errors.
-anyhow = "1.0.86"
+# anyhow = "1.0.86"
 
 # For creating in memory buffers to test reporting. 
 termcolor = "1.4.1"

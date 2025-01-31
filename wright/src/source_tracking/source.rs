@@ -88,7 +88,7 @@ impl Source {
     ///
     /// This requires the "file_memmap" feature.
     #[cfg(feature = "file_memmap")]
-    pub fn new_mapped_from_disk(path: PathBuf) -> anyhow::Result<Self> {
+    pub fn new_mapped_from_disk(path: PathBuf) -> io::Result<Self> {
         use crate::source_tracking::SourceMap;
 
         // Make a one-off enum here to use for channel messages.
@@ -139,7 +139,10 @@ impl Source {
                         .with_message(message)
                         .with_notes(["This may be caused by another process holding or failing to release a lock on this file."])
                         // Create a dummy empty source map here, since this diagnostic does not have any highlights.
-                        .print(&SourceMap::new())?;
+                        .print(&SourceMap::new())
+                        // If printing a diagnostic fails, we just crash. We should never have to deal with this failing 
+                        // in practice.
+                        .expect("codespan-reporting error");
                 }
 
                 // Handle any io errors locking the file by returning them.

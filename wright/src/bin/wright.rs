@@ -1,8 +1,7 @@
 //! Command line interface for wright.
 
-use anyhow::Result;
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use std::{io, path::PathBuf};
 use wright::{
     lexer::Lexer,
     source_tracking::{source::Source, SourceMap, SourceRef},
@@ -64,7 +63,7 @@ enum ShowCommand {
     Features,
 }
 
-fn main() -> Result<()> {
+fn main() -> io::Result<()> {
     // Parse the command line arguments.
     let cli: Cli = Cli::parse();
 
