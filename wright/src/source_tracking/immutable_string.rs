@@ -179,7 +179,9 @@ mod tests {
 
     #[test]
     fn test_line_starts() {
-        let v: Vec<usize> = ImmutableString::new_static("a\n\nb\nc").line_starts().collect();
+        let v: Vec<usize> = ImmutableString::new_static("a\n\nb\nc")
+            .line_starts()
+            .collect();
 
         assert_eq!(v.as_slice(), &[0, 2, 3, 5]);
     }
