@@ -78,8 +78,7 @@ parser = [
 # Wright's abstract syntax tree model is built on types from the "source_tracking" module.
 ast-models = [
     "source-tracking",
-    "dep:num",
-    # "derive_more/from"
+    "dep:num"
 ]
 
 # Wright's lexical analyzer is build using types from the "source_tracking" module.
@@ -153,7 +152,7 @@ optional = true
 # Currently used by features: 
 # - "source-tracking"
 [dependencies.derive_more]
-version = "1.0.0"
+version = "2"
 default-features = false
 optional = true
 
