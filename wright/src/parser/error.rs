@@ -19,6 +19,7 @@ pub enum ParserErrorKind {
     ExpectedPath,
     ExpectedWhitespace,
     ExpectedIntegerLiteral,
+    ExpectedBooleanLiteral,
 }
 
 impl ParserErrorKind {
@@ -36,6 +37,7 @@ impl ParserErrorKind {
             }
             ExpectedIdentifier => "expected identifier",
             ExpectedIntegerLiteral => "expected integer literal",
+            ExpectedBooleanLiteral => "expected boolean literal",
             ExpectedPath => "expected path or identifier",
             ExpectedWhitespace => "expected whitespace character(s)",
         }

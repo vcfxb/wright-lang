@@ -43,18 +43,9 @@ impl Parser {
             .or_else(|| self.lexer.next_token());
 
         // Check for unknown tokens, which should always convert to an error.
-        if let Some(Token {
-            variant: TokenTy::Unknown,
-            fragment,
-        }) = token
-        {
-            Err(ParserError {
-                kind: ParserErrorKind::EncounteredUnknownToken,
-                location: fragment,
-                help: None,
-            })
-        } else {
-            Ok(token)
+        match token {
+            Some(Token { variant: TokenTy::Unknown, fragment }) => Err(ParserErrorKind::EncounteredUnknownToken.at(fragment)),
+            known_token_or_none => Ok(known_token_or_none)
         }
     }
 

@@ -14,3 +14,13 @@ pub struct IntegerLiteral {
     /// The value of the integer parsed from the matching source.
     pub value: BigUint,
 }
+
+/// A boolean literal from source.
+#[derive(Debug)]
+pub struct BooleanLiteral {
+    /// The [Fragment] of source code containing this boolean literal.
+    pub fragment: Fragment,
+
+    /// The value of the boolean literal.
+    pub value: bool,
+}
