@@ -16,16 +16,12 @@ pub fn optional_whitespace(parser: &mut Parser) {
 ///
 /// [Token]: crate::lexer::token::Token
 pub fn require_whitespace(parser: &mut Parser) -> Result<(), ParserError> {
-    if parser.next_if_is(TokenTy::Whitespace).is_none() {
-        Err(ParserError {
+    match parser.next_if_is(TokenTy::Whitespace) {
+        Some(_) => Ok(()),
+        None => Err(ParserError {
             kind: ParserErrorKind::ExpectedWhitespace,
-            location: parser
-                .peek_fragment()
-                .cloned()
-                .unwrap_or(parser.lexer().remaining.clone()),
+            location: parser.peek_fragment_or_rest_cloned(),
             help: None,
         })
-    } else {
-        Ok(())
     }
 }

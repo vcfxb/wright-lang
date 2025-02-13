@@ -10,21 +10,9 @@ impl IntegerLiteral {
     /// Parse an integer literal from the given [Parser].
     pub fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
         // Get the token containing the integer literal from the parser.
-        let Some(int_lit_token) = parser.next_if_is(TokenTy::IntegerLiteral) else {
-            return match parser.peek_fragment() {
-                Some(frag) => Err(ParserError {
-                    kind: ParserErrorKind::ExpectedIntegerLiteral,
-                    location: frag.clone(),
-                    help: None,
-                }),
-
-                None => Err(ParserError {
-                    kind: ParserErrorKind::ExpectedIntegerLiteral,
-                    location: parser.lexer.remaining.clone(),
-                    help: Some("found end of source".into()),
-                }),
-            };
-        };
+        let int_lit_token = parser
+            .next_if_is(TokenTy::IntegerLiteral)
+            .ok_or_else(|| ParserErrorKind::ExpectedIntegerLiteral.at(parser.peek_fragment_or_rest_cloned()))?;
 
         // Get the string to pass to num for the rest of parsing.
         let mut parse_str: &str = int_lit_token.fragment.as_str();
