@@ -22,6 +22,6 @@ pub fn require_whitespace(parser: &mut Parser) -> Result<(), ParserError> {
             kind: ParserErrorKind::ExpectedWhitespace,
             location: parser.peek_fragment_or_rest_cloned(),
             help: None,
-        })
+        }),
     }
 }
