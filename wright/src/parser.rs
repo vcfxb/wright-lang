@@ -44,8 +44,11 @@ impl Parser {
 
         // Check for unknown tokens, which should always convert to an error.
         match token {
-            Some(Token { variant: TokenTy::Unknown, fragment }) => Err(ParserErrorKind::EncounteredUnknownToken.at(fragment)),
-            known_token_or_none => Ok(known_token_or_none)
+            Some(Token {
+                variant: TokenTy::Unknown,
+                fragment,
+            }) => Err(ParserErrorKind::EncounteredUnknownToken.at(fragment)),
+            known_token_or_none => Ok(known_token_or_none),
         }
     }
 

@@ -1,9 +1,9 @@
 //! Integer literal parsing implementation.
 
-use num::{BigUint, Num};
 use crate::parser::error::{ParserError, ParserErrorKind};
 use crate::parser::Parser;
 use crate::{ast::literal::IntegerLiteral, lexer::token::TokenTy};
+use num::{BigUint, Num};
 
 impl IntegerLiteral {
     /// Parse an integer literal from the given [Parser].

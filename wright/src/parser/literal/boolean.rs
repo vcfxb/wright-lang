@@ -1,16 +1,29 @@
 //! Boolean literal parsing logic.
 
-use crate::{ast::literal::BooleanLiteral, lexer::token::TokenTy, parser::{error::{ParserError, ParserErrorKind}, Parser}};
+use crate::{
+    ast::literal::BooleanLiteral,
+    lexer::token::TokenTy,
+    parser::{
+        error::{ParserError, ParserErrorKind},
+        Parser,
+    },
+};
 
 impl BooleanLiteral {
     /// Parse a boolean literal from the given [Parser].
     pub fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
         if let Some(token) = parser.next_if_is(TokenTy::KwTrue) {
-            return Ok(BooleanLiteral { fragment: token.fragment, value: true });
+            return Ok(BooleanLiteral {
+                fragment: token.fragment,
+                value: true,
+            });
         }
 
         if let Some(token) = parser.next_if_is(TokenTy::KwFalse) {
-            return Ok(BooleanLiteral { fragment: token.fragment, value: false });
+            return Ok(BooleanLiteral {
+                fragment: token.fragment,
+                value: false,
+            });
         }
 
         Err(ParserErrorKind::ExpectedBooleanLiteral.at(parser.peek_fragment_or_rest_cloned()))
