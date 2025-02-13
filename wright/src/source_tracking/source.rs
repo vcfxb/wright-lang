@@ -66,7 +66,7 @@ impl Source {
             // neither will get the same number.
             id: SourceId(SOURCE_ID_GENERATOR.fetch_add(1, Ordering::Relaxed)),
             name,
-            line_starts: source.line_starts(),
+            line_starts: source.line_starts().collect(),
             source,
         }
     }

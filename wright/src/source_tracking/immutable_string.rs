@@ -58,7 +58,7 @@ impl ImmutableString {
     }
 
     /// Get a list of byte indices into this [ImmutableString] of the start of every line.
-    pub fn line_starts(&self) -> Vec<usize> {
+    pub fn line_starts(&self) -> impl Iterator<Item = usize> + use<'_> {
         // Make a iterator over this string's characters and their byte indices.
         let mut char_indices: CharIndices = self.as_ref().char_indices();
         // Track whether the previous character was a newline using a bool -- this starts as true, so that the first
@@ -80,7 +80,7 @@ impl ImmutableString {
             result
         });
 
-        iter.flatten().collect()
+        iter.flatten()
     }
 
     /// Get this [ImmutableString] as a [str] reference.
@@ -179,7 +179,7 @@ mod tests {
 
     #[test]
     fn test_line_starts() {
-        let v: Vec<usize> = ImmutableString::new_static("a\n\nb\nc").line_starts();
+        let v: Vec<usize> = ImmutableString::new_static("a\n\nb\nc").line_starts().collect();
 
         assert_eq!(v.as_slice(), &[0, 2, 3, 5]);
     }
