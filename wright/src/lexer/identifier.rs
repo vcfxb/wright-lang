@@ -28,6 +28,7 @@ fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
         "use" => KwUse,
         "as" => KwAs,
         "mod" => KwMod,
+        "pub" => KwPub,
 
         "if" => KwIf,
         "else" => KwElse,

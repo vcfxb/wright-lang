@@ -20,6 +20,8 @@ pub enum ParserErrorKind {
     ExpectedWhitespace,
     ExpectedIntegerLiteral,
     ExpectedBooleanLiteral,
+    ExpectedImportDeclaration,
+    ImportMustEndWithSemicolon,
 }
 
 impl ParserErrorKind {
@@ -40,6 +42,8 @@ impl ParserErrorKind {
             ExpectedBooleanLiteral => "expected boolean literal",
             ExpectedPath => "expected path or identifier",
             ExpectedWhitespace => "expected whitespace character(s)",
+            ExpectedImportDeclaration => "expected import declaration",
+            ImportMustEndWithSemicolon => "import declarations must end with a semicolon",
         }
     }
 

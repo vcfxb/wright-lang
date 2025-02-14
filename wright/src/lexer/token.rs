@@ -85,6 +85,7 @@ pub enum TokenTy {
     KwFalse,
     KwLoop,
     KwWhere,
+    KwPub,
 
     IntegerLiteral,
     StringLiteral { terminated: bool }, 

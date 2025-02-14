@@ -16,6 +16,7 @@ pub mod error;
 mod identifier;
 mod literal;
 mod path;
+mod decl;
 pub mod whitespace;
 
 /// The [Parser] struct wraps a [Lexer] and adds lookahead and functions that are useful for parsing.
@@ -159,10 +160,5 @@ impl Parser {
             .iter()
             .zip(seq.iter())
             .all(|(token, matches)| token.variant == *matches)
-    }
-
-    /// Peek at the next [Token], remove it if it's a [TokenTy::Whitespace].
-    pub fn ignore_whitespace(&mut self) {
-        self.next_if_is(TokenTy::Whitespace);
     }
 }
