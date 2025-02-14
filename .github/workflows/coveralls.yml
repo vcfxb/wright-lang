@@ -12,24 +12,21 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install LLVM
-        # See: https://apt.llvm.org/
-        # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
-        run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 18 all
-          sudo apt install libpolly-18-dev libz-dev
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
+      # - name: Install LLVM
+      #   # See: https://apt.llvm.org/
+      #   # Last line: https://gitlab.com/taricorp/llvm-sys.rs/-/issues/13
+      #   run: |
+      #     wget https://apt.llvm.org/llvm.sh
+      #     chmod +x llvm.sh
+      #     sudo ./llvm.sh 18 all
+      #     sudo apt install libpolly-18-dev libz-dev
+      - uses: dtolnay/rust-toolchain@nightly
       - name: Run tests
         run: cargo test --verbose
         env:
           CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+          RUSTFLAGS: '-Cinstrument-coverage=all -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+          RUSTDOCFLAGS: '-Cinstrument-coverage=all -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
       - name: rust-grcov
         id: coverage
         uses: actions-rs/grcov@v0.1
