@@ -249,18 +249,19 @@ impl Fragment {
         self.range.start - line_start_index
     }
 
-    /// Compute the "cover" over two [Fragment]s -- that is, the [Fragment] containing both of them and all the source 
+    /// Compute the "cover" over two [Fragment]s -- that is, the [Fragment] containing both of them and all the source
     /// code in between.
-    /// 
+    ///
     /// # Panics
     /// - If the [Fragment]s are from different sources.
     pub fn cover(lhs: Fragment, rhs: Fragment) -> Fragment {
         use std::cmp;
         assert_eq!(lhs.source.id, rhs.source.id);
 
-        Fragment { 
-            source: lhs.source, 
-            range: cmp::min(lhs.range.start, rhs.range.start)..cmp::max(lhs.range.end, rhs.range.end)
+        Fragment {
+            source: lhs.source,
+            range: cmp::min(lhs.range.start, rhs.range.start)
+                ..cmp::max(lhs.range.end, rhs.range.end),
         }
     }
 }

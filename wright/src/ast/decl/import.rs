@@ -1,6 +1,6 @@
 //! Import declarations.
-//! 
-//! These are similar to the rust `use ...;` style delcarations however with the caveat that wright currently 
+//!
+//! These are similar to the rust `use ...;` style delcarations however with the caveat that wright currently
 //! only supports a single path in declarations, rather than a tree of items with curly braces. (we also don't support
 //! starting with a `::` prefix yet).
 

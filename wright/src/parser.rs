@@ -12,11 +12,11 @@ use crate::{
 };
 use std::collections::VecDeque;
 
+mod decl;
 pub mod error;
 mod identifier;
 mod literal;
 mod path;
-mod decl;
 pub mod whitespace;
 
 /// The [Parser] struct wraps a [Lexer] and adds lookahead and functions that are useful for parsing.
