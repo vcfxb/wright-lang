@@ -256,7 +256,7 @@ impl Fragment {
     /// - If the [Fragment]s are from different sources.
     pub fn cover(lhs: Fragment, rhs: Fragment) -> Fragment {
         use std::cmp;
-        assert_eq!(lhs.source.id, rhs.source.id);
+        assert_eq!(lhs.source.id, rhs.source.id, "fragments must be from same source");
 
         Fragment {
             source: lhs.source,

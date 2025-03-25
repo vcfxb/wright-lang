@@ -158,7 +158,7 @@ impl Parser {
         // Use a zipped iterator to compare all the token variants.
         lookahead_window
             .iter()
-            .zip(seq.iter())
+            .zip(seq)
             .all(|(token, matches)| token.variant == *matches)
     }
 }
