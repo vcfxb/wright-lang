@@ -9,7 +9,9 @@ use crate::lexer::token::TokenTy;
 /// Consume and ignore a [TokenTy::Whitespace] from the front of the [Parser].
 /// If there is not one, do nothing.
 pub fn optional_whitespace(parser: &mut Parser) {
-    parser.next_if_is(TokenTy::Whitespace);
+    while parser.peek().is_some_and(|token| token.variant == TokenTy::Whitespace) {
+        parser.advance(1);
+    }
 }
 
 /// Require a whitespace from the [Parser]. Do not advance if the next [Token] is not a whitespace.
@@ -17,7 +19,12 @@ pub fn optional_whitespace(parser: &mut Parser) {
 /// [Token]: crate::lexer::token::Token
 pub fn require_whitespace(parser: &mut Parser) -> Result<(), ParserError> {
     match parser.next_if_is(TokenTy::Whitespace) {
-        Some(_) => Ok(()),
+        Some(_) => {
+            // Remove any other non-contiguous whitespaces that may have followed.
+            optional_whitespace(parser);
+            Ok(())
+        },
+
         None => Err(ParserError {
             kind: ParserErrorKind::ExpectedWhitespace,
             location: parser.peek_fragment_or_rest_cloned(),
