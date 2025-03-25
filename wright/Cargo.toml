@@ -3,7 +3,7 @@
 name = "wright"
 description = "The wright programming language compiler and tooling."
 license = "MIT"
-version = "0.10.0"
+version = "0.10.1"
 authors = ["Venus Xeon-Blonde <venusflameblonde@gmail.com>"]
 repository = "https://github.com/vcfxb/wright-lang"
 documentation = "https://docs.rs/wright"

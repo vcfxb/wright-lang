@@ -1,3 +1,6 @@
+## 0.10.1
+- Fix bug in release workflow that prevented wright binaries from being built
+
 ## 0.10.0
 - Boolean literal parsing
 - Import declaration parsing
