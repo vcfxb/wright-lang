@@ -1,6 +1,6 @@
 branch: true
 output-type: lcov
-output-path: ./lcov.info
+output-path: lcov.info
 ignore-not-existing: true
 llvm: true
 ignore:
