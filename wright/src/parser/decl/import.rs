@@ -24,13 +24,13 @@ impl ImportDecl {
         whitespace::require_whitespace(parser)?;
         // Parse the path.
         let path: Path = Path::parse(parser)?;
-        
+
         // Whitespace and then "as ...;" or optional whitespace and semi ";".
 
         // The "as ...;" requires a whitespace.
         let imported_as = if parser.matches(&[TokenTy::Whitespace, TokenTy::KwAs]) {
             parser.advance(2);
-            
+
             whitespace::require_whitespace(parser)
                 .map_err(|e| e.with_help("whitespace needed between \"as\" and binding."))?;
 
@@ -78,7 +78,7 @@ mod tests {
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
         assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
     }
-    
+
     #[test]
     fn test_import_as() {
         let mut parser = Parser::new(Lexer::new_test("use wright::util as u;"));
