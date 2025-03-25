@@ -1,5 +1,4 @@
-<!-- Put the icon at the top/in the title I guess... -->
-# <img src="./pages/static/assets/white_logo.png" height=50 /> The Wright Programming Language
+# <img src="https://github.com/vcfxb/wright-lang/blob/main/pages/static/assets/white_logo.png?raw=true" height=50 /> The Wright Programming Language
 ## *A language that flies*
 
 *Wright is an all-purpose programming language inspired by Rust, Ada, and Typescript. 
