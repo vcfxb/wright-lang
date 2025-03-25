@@ -1,3 +1,5 @@
+### Wright has not yet reached version 1.0.0 yet, and is currently in an incomplete/experimental state.
+
 # <img src="https://github.com/vcfxb/wright-lang/blob/main/pages/static/assets/white_logo.png?raw=true" height=50 /> The Wright Programming Language
 ## *A language that flies*
 
