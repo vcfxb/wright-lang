@@ -21,15 +21,10 @@ jobs:
       #     sudo ./llvm.sh 18 all
       #     sudo apt install libpolly-18-dev libz-dev
       - uses: dtolnay/rust-toolchain@nightly
-      - name: Run tests
-        run: cargo test --verbose
-        env:
-          CARGO_INCREMENTAL: '0'
-          RUSTFLAGS: '-Cinstrument-coverage=all -Ccodegen-units=1 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
-          RUSTDOCFLAGS: '-Cinstrument-coverage=all -Ccodegen-units=1 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
-      - name: rust-grcov
-        id: coverage
-        uses: actions-rs/grcov@v0.1
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Generate code coverage
+        run: cargo llvm-cov --workspace --no-fail-fast --lcov --output-path lcov.info
       - name: Coveralls upload
         uses: coverallsapp/github-action@master
         with:
