@@ -7,7 +7,6 @@ use crate::{
         Parser,
         error::{ParserError, ParserErrorKind},
     },
-    source_tracking::fragment::Fragment,
 };
 
 impl AtomicTy {
