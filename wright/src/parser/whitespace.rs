@@ -9,10 +9,7 @@ use crate::lexer::token::TokenTy;
 /// Consume and ignore a [TokenTy::Whitespace] from the front of the [Parser].
 /// If there is not one, do nothing.
 pub fn optional_whitespace(parser: &mut Parser) {
-    while parser
-        .peek()
-        .is_some_and(|token| token.variant == TokenTy::Whitespace)
-    {
+    while parser.peek_variant() == Some(TokenTy::Whitespace) {
         parser.advance(1);
     }
 }
