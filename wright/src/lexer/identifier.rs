@@ -39,8 +39,24 @@ fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
         "while" => KwWhile,
         "loop" => KwLoop,
 
+        "let" => KwLet,
+        "var" => KwVar,
+
         "true" => KwTrue,
         "false" => KwFalse,
+
+        "bool" => KwBool,
+        "u8" => KwU8,
+        "i8" => KwI8,
+        "u16" => KwU16,
+        "i16" => KwI16,
+        "u32" => KwU32,
+        "i32" => KwI32,
+        "f32" => KwF32,
+        "u64" => KwU64,
+        "i64" => KwI64,
+        "f64" => KwF64,
+        "char" => KwChar,
 
         "_" => Underscore,
 

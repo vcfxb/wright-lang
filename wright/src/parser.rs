@@ -17,6 +17,7 @@ pub mod error;
 mod identifier;
 mod literal;
 mod path;
+mod ty;
 pub mod whitespace;
 
 /// The [Parser] struct wraps a [Lexer] and adds lookahead and functions that are useful for parsing.
@@ -87,6 +88,11 @@ impl Parser {
     /// Peek the [Fragment] of the next [Token].
     pub fn peek_fragment(&mut self) -> Option<&Fragment> {
         self.peek().map(|token| &token.fragment)
+    }
+
+    /// Peek the [TokenTy] of the next [Token].
+    pub fn peek_variant(&mut self) -> Option<TokenTy> {
+        self.peek().map(|token| token.variant)
     }
 
     /// Peek the [Fragment] of the next [Token] and clone it or return a clone of the

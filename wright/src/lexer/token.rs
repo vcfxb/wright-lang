@@ -87,6 +87,23 @@ pub enum TokenTy {
     KwWhere,
     KwPub,
 
+    KwLet,
+    KwVar,
+
+    // Keyword primitive types.
+    KwBool,
+    KwU8,
+    KwI8,
+    KwU16,
+    KwI16,
+    KwU32,
+    KwI32,
+    KwF32,
+    KwU64,
+    KwI64,
+    KwF64,
+    KwChar,
+
     IntegerLiteral,
     StringLiteral { terminated: bool }, 
     FormatStringLiteral { terminated: bool },

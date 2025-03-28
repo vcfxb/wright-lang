@@ -4,6 +4,6 @@
 
 pub mod identifier;
 pub mod path;
-// pub mod ty;
+pub mod ty;
 pub mod decl;
 pub mod literal;

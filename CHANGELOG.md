@@ -1,3 +1,6 @@
+## 0.11.0
+- Atomic primitive type signature parsing
+
 ## 0.10.1
 - Fix bug in release workflow that prevented wright binaries from being built
 

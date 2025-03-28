@@ -15,12 +15,13 @@ pub enum ParserErrorKind {
     EncounteredUnknownToken,
     EncounteredUnterminatedComment,
     EncounteredUnterminatedString,
+    ExpectedAtomicTypeSignature,
+    ExpectedBooleanLiteral,
     ExpectedIdentifier,
+    ExpectedImportDeclaration,
+    ExpectedIntegerLiteral,
     ExpectedPath,
     ExpectedWhitespace,
-    ExpectedIntegerLiteral,
-    ExpectedBooleanLiteral,
-    ExpectedImportDeclaration,
     ImportMustEndWithSemicolon,
 }
 
@@ -37,12 +38,13 @@ impl ParserErrorKind {
             EncounteredUnterminatedString => {
                 "encountered unterminated string literal while parsing"
             }
-            ExpectedIdentifier => "expected identifier",
-            ExpectedIntegerLiteral => "expected integer literal",
+            ExpectedAtomicTypeSignature => "expected atomic primitive type",
             ExpectedBooleanLiteral => "expected boolean literal",
+            ExpectedIdentifier => "expected identifier",
+            ExpectedImportDeclaration => "expected import declaration",
+            ExpectedIntegerLiteral => "expected integer literal",
             ExpectedPath => "expected path or identifier",
             ExpectedWhitespace => "expected whitespace character(s)",
-            ExpectedImportDeclaration => "expected import declaration",
             ImportMustEndWithSemicolon => "import declarations must end with a semicolon",
         }
     }
