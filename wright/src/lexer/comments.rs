@@ -1,6 +1,6 @@
 //! Implementation of comment token lexing.
 
-use super::{token::TokenTy, Lexer};
+use super::{Lexer, token::TokenTy};
 
 /// The pattern that begins any single line comments (including doc comments).
 pub const SINGLE_LINE_COMMENT_PREFIX: &str = "//";
@@ -44,7 +44,9 @@ pub fn try_match_single_line_comment(lexer: &Lexer) -> (usize, Option<TokenTy>) 
             (true, false) => Some(TokenTy::InnerDocComment),
             (false, true) => Some(TokenTy::OuterDocComment),
             (false, false) => None,
-            (true, true) => unreachable!("It is impossible for the `remaining` fragment to start with an `!` and a `/` simultaneously.")
+            (true, true) => unreachable!(
+                "It is impossible for the `remaining` fragment to start with an `!` and a `/` simultaneously."
+            ),
         };
 
         // Return the number of bytes consumed and the type of token to

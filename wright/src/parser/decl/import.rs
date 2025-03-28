@@ -4,8 +4,9 @@ use crate::{
     ast::{decl::import::ImportDecl, identifier::Identifier, path::Path},
     lexer::token::{Token, TokenTy},
     parser::{
+        Parser,
         error::{ParserError, ParserErrorKind},
-        whitespace, Parser,
+        whitespace,
     },
     source_tracking::fragment::Fragment,
 };

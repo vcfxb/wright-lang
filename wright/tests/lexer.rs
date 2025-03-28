@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 use wright::{
-    lexer::{token::TokenTy, Lexer},
+    lexer::{Lexer, token::TokenTy},
     source_tracking::{filename::FileName, source::Source},
 };
 

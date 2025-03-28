@@ -1,8 +1,8 @@
 //! Trivial tokens and their implementation.
 
 use super::{
-    token::{Token, TokenTy},
     Lexer,
+    token::{Token, TokenTy},
 };
 
 /// Trivial tokens that are two ASCII characters and can be matched directly

@@ -1,7 +1,7 @@
 //! Build script for wright.
 //! This is used for capturing build environment info which is used at runtime.
 
-use rustc_version::{version_meta, Channel};
+use rustc_version::{Channel, version_meta};
 
 fn main() {
     // Set a cfg flag if we're on the nightly channel.

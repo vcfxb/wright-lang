@@ -6,8 +6,8 @@
 use self::comments::{try_match_block_comment, try_match_single_line_comment};
 use self::integer_literal::try_consume_integer_literal;
 use self::quoted::try_consume_quoted_literal;
-use crate::source_tracking::fragment::Fragment;
 use crate::source_tracking::SourceRef;
+use crate::source_tracking::fragment::Fragment;
 use std::str::Chars;
 use token::{Token, TokenTy};
 

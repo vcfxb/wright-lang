@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use criterion::{black_box, criterion_group, criterion_main, Bencher, Criterion};
+use criterion::{Bencher, Criterion, black_box, criterion_group, criterion_main};
 use wright::{
     lexer::Lexer,
     source_tracking::{filename::FileName, source::Source},

@@ -1,8 +1,8 @@
 //! Implementation for lexing integer literals.
 
 use super::{
-    token::{Token, TokenTy},
     Lexer,
+    token::{Token, TokenTy},
 };
 use std::{iter::Peekable, str::Chars};
 

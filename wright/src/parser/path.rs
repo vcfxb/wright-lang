@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
+use super::Parser;
 use super::error::ParserError;
 use super::error::ParserErrorKind;
-use super::Parser;
 use crate::ast::identifier::Identifier;
 use crate::ast::path::Path;
 use crate::lexer::token::TokenTy;
@@ -88,7 +88,7 @@ mod test_path {
         ast::path::Path,
         lexer::Lexer,
         parser::Parser,
-        source_tracking::{filename::FileName, source::Source, SourceMap},
+        source_tracking::{SourceMap, filename::FileName, source::Source},
     };
 
     /// Test the simple case path.

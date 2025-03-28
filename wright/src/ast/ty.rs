@@ -17,7 +17,7 @@ pub enum AtomicTyVariant {
     I64,
     F32,
     F64,
-    Char
+    Char,
 }
 
 /// An atomic type signature in wright source code.
@@ -25,7 +25,5 @@ pub enum AtomicTyVariant {
 #[allow(missing_docs)]
 pub struct AtomicTy {
     pub variant: AtomicTyVariant,
-    pub matching_source: Fragment
+    pub matching_source: Fragment,
 }
-
-

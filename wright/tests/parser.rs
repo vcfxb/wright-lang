@@ -5,7 +5,7 @@ use wright::{
     ast::identifier::Identifier,
     lexer::Lexer,
     parser::Parser,
-    source_tracking::{filename::FileName, source::Source, SourceMap, SourceRef},
+    source_tracking::{SourceMap, SourceRef, filename::FileName, source::Source},
 };
 
 #[test]

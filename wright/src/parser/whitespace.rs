@@ -1,15 +1,18 @@
 //! Utilities for parsing through whitespace.
 
 use super::{
-    error::{ParserError, ParserErrorKind},
     Parser,
+    error::{ParserError, ParserErrorKind},
 };
 use crate::lexer::token::TokenTy;
 
 /// Consume and ignore a [TokenTy::Whitespace] from the front of the [Parser].
 /// If there is not one, do nothing.
 pub fn optional_whitespace(parser: &mut Parser) {
-    while parser.peek().is_some_and(|token| token.variant == TokenTy::Whitespace) {
+    while parser
+        .peek()
+        .is_some_and(|token| token.variant == TokenTy::Whitespace)
+    {
         parser.advance(1);
     }
 }
@@ -23,7 +26,7 @@ pub fn require_whitespace(parser: &mut Parser) -> Result<(), ParserError> {
             // Remove any other non-contiguous whitespaces that may have followed.
             optional_whitespace(parser);
             Ok(())
-        },
+        }
 
         None => Err(ParserError {
             kind: ParserErrorKind::ExpectedWhitespace,

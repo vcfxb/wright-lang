@@ -1,6 +1,6 @@
 //! Lexing implementation for quoted literals.
 
-use super::{token::Token, token::TokenTy, Lexer};
+use super::{Lexer, token::Token, token::TokenTy};
 use std::str::Chars;
 
 /// Attempt to parse a quoted literal. This includes [TokenTy::StringLiteral], [TokenTy::CharLiteral], and
@@ -62,7 +62,7 @@ pub fn try_consume_quoted_literal(lexer: &mut Lexer) -> Option<Token> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::{token::TokenTy, Lexer};
+    use super::super::{Lexer, token::TokenTy};
 
     #[test]
     fn string_literal() {

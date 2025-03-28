@@ -1,8 +1,8 @@
 //! Parsing implementation for [Identifier].
 
 use super::{
-    error::{ParserError, ParserErrorKind},
     Parser,
+    error::{ParserError, ParserErrorKind},
 };
 use crate::{ast::identifier::Identifier, lexer::token::TokenTy};
 
@@ -25,7 +25,7 @@ mod tests {
     use crate::{
         ast::identifier::Identifier,
         lexer::Lexer,
-        parser::{error::ParserErrorKind, Parser},
+        parser::{Parser, error::ParserErrorKind},
     };
 
     #[test]

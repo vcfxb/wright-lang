@@ -4,8 +4,8 @@ use crate::{
     ast::literal::BooleanLiteral,
     lexer::token::TokenTy,
     parser::{
-        error::{ParserError, ParserErrorKind},
         Parser,
+        error::{ParserError, ParserErrorKind},
     },
 };
 

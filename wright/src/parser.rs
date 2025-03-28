@@ -37,9 +37,9 @@ impl Parser {
     }
 
     /// Get the next [Token] from this [Parser]. This may be a token that's already been peeked.
-    /// 
+    ///
     /// Skips any non-document comments encountered via the lexer implementation.
-    /// 
+    ///
     /// Return an error if a [Token] with [TokenTy::Unknown] is encountered.
     pub fn next_token(&mut self) -> Result<Option<Token>, ParserError> {
         let token = self

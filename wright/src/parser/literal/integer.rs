@@ -1,7 +1,7 @@
 //! Integer literal parsing implementation.
 
-use crate::parser::error::{ParserError, ParserErrorKind};
 use crate::parser::Parser;
+use crate::parser::error::{ParserError, ParserErrorKind};
 use crate::{ast::literal::IntegerLiteral, lexer::token::TokenTy};
 use num::{BigUint, Num};
 

@@ -1,6 +1,6 @@
 //! Implementation related to parsing keywords and identifiers.
 
-use super::{token::Token, token::TokenTy, Lexer};
+use super::{Lexer, token::Token, token::TokenTy};
 use crate::source_tracking::fragment::Fragment;
 use std::str::Chars;
 use unicode_ident::{is_xid_continue, is_xid_start};

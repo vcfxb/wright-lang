@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 use std::{io, path::PathBuf};
 use wright::{
     lexer::Lexer,
-    source_tracking::{source::Source, SourceMap, SourceRef},
+    source_tracking::{SourceMap, SourceRef, source::Source},
 };
 
 /// The wright cli.

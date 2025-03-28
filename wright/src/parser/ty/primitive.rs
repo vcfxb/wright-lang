@@ -1,6 +1,14 @@
 //! Parsing for primitive type signatures.
 
-use crate::{ast::ty::{AtomicTy, AtomicTyVariant}, lexer::token::TokenTy, parser::{error::{ParserError, ParserErrorKind}, Parser}, source_tracking::fragment::Fragment};
+use crate::{
+    ast::ty::{AtomicTy, AtomicTyVariant},
+    lexer::token::TokenTy,
+    parser::{
+        Parser,
+        error::{ParserError, ParserErrorKind},
+    },
+    source_tracking::fragment::Fragment,
+};
 
 impl AtomicTy {
     /// Parse an atomic primitive type from souce or error with [ParserErrorKind::ExpectedAtomicTypeSignature]
@@ -13,7 +21,7 @@ impl AtomicTy {
         fn accept(variant: AtomicTyVariant, parser: &mut Parser) -> Result<AtomicTy, ParserError> {
             Ok(AtomicTy { variant, matching_source: parser.next_token().unwrap().unwrap().fragment })
         }
-        
+
         match parser.peek_variant() {
             Some(TokenTy::KwBool) => accept(AtomicTyVariant::Bool, parser),
             Some(TokenTy::KwChar) => accept(AtomicTyVariant::Char, parser),

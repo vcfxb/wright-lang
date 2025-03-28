@@ -5,9 +5,9 @@
 //! [codespan-reporting]: https://crates.io/crates/codespan-reporting
 //! [ariadne]: https://crates.io/crates/ariadne
 
+use crate::source_tracking::SourceMap;
 use crate::source_tracking::filename::FileName;
 use crate::source_tracking::immutable_string::ImmutableString;
-use crate::source_tracking::SourceMap;
 use crate::source_tracking::{fragment::Fragment, source::SourceId};
 use codespan_reporting::diagnostic::Diagnostic as CRDiagnostic;
 use codespan_reporting::diagnostic::Label;
