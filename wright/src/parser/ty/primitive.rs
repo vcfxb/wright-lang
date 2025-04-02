@@ -38,3 +38,20 @@ impl AtomicTy {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        ast::ty::{AtomicTy, AtomicTyVariant},
+        lexer::Lexer,
+        parser::Parser,
+    };
+
+    #[test]
+    fn test_bool() {
+        let mut parser = Parser::new(Lexer::new_test("bool"));
+        let atomic_ty = AtomicTy::parse(&mut parser).unwrap();
+        assert_eq!(atomic_ty.matching_source.as_str(), "bool");
+        assert_eq!(atomic_ty.variant, AtomicTyVariant::Bool);
+    }
+}
