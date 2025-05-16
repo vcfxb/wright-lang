@@ -39,7 +39,8 @@ impl Parser {
     /// Get the number of remaining bytes on this parser. This is potentially useful for checking
     /// if a parser has advanced between two calls (or checking if a parser has reached end of input).
     pub fn bytes_remaining(&self) -> usize {
-        let bytes_remaining_in_lookahead_buffer = self.lookahead
+        let bytes_remaining_in_lookahead_buffer = self
+            .lookahead
             .iter()
             .map(|t| t.fragment.len())
             .sum::<usize>();

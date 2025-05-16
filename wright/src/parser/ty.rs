@@ -2,7 +2,10 @@
 
 use crate::ast::ty::{AtomicTy, ReferenceTy, Type};
 
-use super::{error::{ParserError, ParserErrorKind}, Parser};
+use super::{
+    Parser,
+    error::{ParserError, ParserErrorKind},
+};
 
 mod primitive;
 mod reference;
@@ -24,16 +27,17 @@ impl Type {
             Err(err) => {
                 // If the parser was advanced in parsing the reference type, error out here.
                 if bytes_remaining != parser.bytes_remaining() {
-                    return Err(err.with_help("encountered error while parsing reference type signature"));
+                    return Err(
+                        err.with_help("encountered error while parsing reference type signature")
+                    );
                 }
 
                 // If we didn't advance we can just ignore the error and try parsing other type signature
-                // forms or fall through to the catch all "expected type signature" error (since it means 
+                // forms or fall through to the catch all "expected type signature" error (since it means
                 // we would have not seen an `@` to start a reference type signature).
-            },
+            }
         }
 
         Err(ParserErrorKind::ExpectedTypeSignature.at(parser.peek_fragment_or_rest_cloned()))
     }
 }
-

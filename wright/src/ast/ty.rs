@@ -23,7 +23,7 @@ impl Type {
     pub fn downcast_primitive(&self) -> Option<&AtomicTy> {
         match self {
             Type::Atomic(atomic) => Some(atomic),
-            _ => None
+            _ => None,
         }
     }
 
@@ -31,7 +31,7 @@ impl Type {
     pub fn downcast_reference(&self) -> Option<&ReferenceTy> {
         match self {
             Type::Reference(reference) => Some(reference),
-            _ => None
+            _ => None,
         }
     }
 }
