@@ -21,6 +21,8 @@ pub enum ParserErrorKind {
     ExpectedImportDeclaration,
     ExpectedIntegerLiteral,
     ExpectedPath,
+    ExpectedReferenceTypeSignature,
+    ExpectedTypeSignature,
     ExpectedWhitespace,
     ImportMustEndWithSemicolon,
 }
@@ -44,6 +46,8 @@ impl ParserErrorKind {
             ExpectedImportDeclaration => "expected import declaration",
             ExpectedIntegerLiteral => "expected integer literal",
             ExpectedPath => "expected path or identifier",
+            ExpectedReferenceTypeSignature => "expected reference type signature",
+            ExpectedTypeSignature => "expected type signature",
             ExpectedWhitespace => "expected whitespace character(s)",
             ImportMustEndWithSemicolon => "import declarations must end with a semicolon",
         }
@@ -54,7 +58,7 @@ impl ParserErrorKind {
         ParserError {
             kind: self,
             location: f,
-            help: None,
+            help: Vec::new(),
         }
     }
 }
@@ -70,14 +74,14 @@ pub struct ParserError {
     /// Where this error occurred.
     pub location: Fragment,
 
-    /// Optionally, a help string that can be printed with this error.
-    pub help: Option<Cow<'static, str>>,
+    /// Optional help strings that can be printed with this error.
+    pub help: Vec<Cow<'static, str>>,
 }
 
 impl ParserError {
     /// Builder-style method to add a help string to a [ParserError].
     pub fn with_help(mut self, help: impl Into<Cow<'static, str>>) -> Self {
-        self.help = Some(help.into());
+        self.help.push(help.into());
         self
     }
 
@@ -96,8 +100,8 @@ impl ParserError {
             .with_message(description)
             .with_highlights([Highlight::primary(self.location.clone(), message)]);
 
-        if let Some(help) = self.help {
-            diagnostic = diagnostic.with_notes([help]);
+        if !self.help.is_empty() {
+            diagnostic = diagnostic.with_notes(self.help);
         }
 
         diagnostic

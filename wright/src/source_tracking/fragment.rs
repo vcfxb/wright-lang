@@ -254,12 +254,12 @@ impl Fragment {
     ///
     /// # Panics
     /// - If the [Fragment]s are from different sources.
-    pub fn cover(lhs: Fragment, rhs: Fragment) -> Fragment {
+    pub fn cover(lhs: &Fragment, rhs: &Fragment) -> Fragment {
         use std::cmp;
         assert_eq!(lhs.source.id, rhs.source.id, "fragments must be from same source");
 
         Fragment {
-            source: lhs.source,
+            source: Arc::clone(&lhs.source),
             range: cmp::min(lhs.range.start, rhs.range.start)
                 ..cmp::max(lhs.range.end, rhs.range.end),
         }

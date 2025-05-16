@@ -47,7 +47,7 @@ impl ImportDecl {
 
         if let Some(semi) = parser.next_if_is(TokenTy::Semi) {
             Ok(ImportDecl {
-                matching_source: Fragment::cover(use_kw.fragment, semi.fragment),
+                matching_source: Fragment::cover(&use_kw.fragment, &semi.fragment),
                 imported_item: path,
                 imported_as,
             })
