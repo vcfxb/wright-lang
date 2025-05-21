@@ -29,18 +29,33 @@ impl ImportDecl {
         // Whitespace and then "as ...;" or optional whitespace and semi ";".
 
         // The "as ...;" requires a whitespace.
-        let imported_as = if parser.matches(&[TokenTy::Whitespace, TokenTy::KwAs]) {
-            parser.advance(2);
+        let imported_as = match parser.next_if_is(TokenTy::Whitespace) {
+            // If there's no whitespace after the path, we expect it to be followed by a semicolon (no renaming).
+            None => None,
 
-            whitespace::require_whitespace(parser)
-                .map_err(|e| e.with_help("whitespace needed between \"as\" and binding."))?;
+            // If there is a whitespace, then it could be followed by `as ...;` or just `;`.
+            Some(_) => {
+                // Either way, consume any additional whitespace/comments.
+                whitespace::optional_whitespace(parser);
 
-            let imported_as = Identifier::parse(parser)
-                .map_err(|e| e.with_help("expected binding in \"use ... as\" declaration."))?;
+                // Check if we have an `as` and if so read the renaming clause.
+                // Otherwise pass on to reading the semicolon.
+                match parser.next_if_is(TokenTy::KwAs) {
+                    // No `as` -- do nothing (return no renaming clause).
+                    None => None,
 
-            Some(imported_as)
-        } else {
-            None
+                    // `as ...;` -- consume the ` ...` part.
+                    Some(_) => {
+                        whitespace::require_whitespace(parser)
+                            .map_err(|e| e.with_help("whitespace needed between \"as\" and binding."))?;
+
+                        let imported_as = Identifier::parse(parser)
+                            .map_err(|e| e.with_help("expected binding in \"use ... as\" declaration."))?;
+
+                        Some(imported_as)
+                    }
+                }
+            }
         };
 
         whitespace::optional_whitespace(parser);
@@ -93,6 +108,16 @@ mod tests {
     #[test]
     fn test_import_as_with_comment() {
         let mut parser = Parser::new(Lexer::new_test("use wright::util as /* old_name */ u;"));
+        let import_decl = ImportDecl::parse(&mut parser).unwrap();
+        assert!(parser.lexer.remaining.is_empty());
+        assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
+        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
+        assert_eq!(import_decl.imported_as.unwrap().fragment.as_str(), "u");
+    }
+
+    #[test]
+    fn test_import_as_with_preceding_comment() {
+        let mut parser = Parser::new(Lexer::new_test("use wright::util /* as old_name */ as u;"));
         let import_decl = ImportDecl::parse(&mut parser).unwrap();
         assert!(parser.lexer.remaining.is_empty());
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
