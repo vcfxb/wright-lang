@@ -73,10 +73,10 @@ impl Diagnostic {
         Self::new(Severity::Note)
     }
 
-    /// Construct a new [Diagnostic] representing a note to the user.
+    /// Construct a new [Diagnostic] representing a help message to the user.
     #[inline]
     pub fn help() -> Self {
-        Self::new(Severity::Note)
+        Self::new(Severity::Help)
     }
 
     /// Builder style function to set an error/warning code for this [Diagnostic].
