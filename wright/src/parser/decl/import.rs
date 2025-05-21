@@ -46,11 +46,13 @@ impl ImportDecl {
 
                     // `as ...;` -- consume the ` ...` part.
                     Some(_) => {
-                        whitespace::require_whitespace(parser)
-                            .map_err(|e| e.with_help("whitespace needed between \"as\" and binding."))?;
+                        whitespace::require_whitespace(parser).map_err(|e| {
+                            e.with_help("whitespace needed between \"as\" and binding.")
+                        })?;
 
-                        let imported_as = Identifier::parse(parser)
-                            .map_err(|e| e.with_help("expected binding in \"use ... as\" declaration."))?;
+                        let imported_as = Identifier::parse(parser).map_err(|e| {
+                            e.with_help("expected binding in \"use ... as\" declaration.")
+                        })?;
 
                         Some(imported_as)
                     }
