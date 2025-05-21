@@ -13,6 +13,7 @@ use codespan_reporting::diagnostic::Diagnostic as CRDiagnostic;
 use codespan_reporting::diagnostic::Label;
 use codespan_reporting::files::{Error as CRError, Files};
 use codespan_reporting::term::Config;
+use std::io::Write;
 use std::sync::Mutex;
 use termcolor::{ColorChoice, StandardStream, WriteColor};
 
@@ -118,7 +119,9 @@ impl Diagnostic {
     pub fn print(&self, map: &SourceMap) -> Result<(), codespan_reporting::files::Error> {
         let stream = StandardStream::stdout(get_stdout_color());
         let mut lock = stream.lock();
-        self.write(map, &mut lock, &Config::default())
+        self.write(map, &mut lock, &Config::default())?;
+        lock.flush()?;
+        Ok(())
     }
 }
 
