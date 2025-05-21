@@ -1,6 +1,8 @@
 ## 0.11.0
 - Atomic primitive type signature parsing
 - Referernce type signature parsing
+- Tweaks to printing/formatting of help messages in diagnostics
+- Tweaks/updates to links on website
 
 ## 0.10.1
 - Fix bug in release workflow that prevented wright binaries from being built
