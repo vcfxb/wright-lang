@@ -99,6 +99,8 @@ pub struct ReferenceTy {
 /// ```
 /// 
 /// The wright compiler can then optimize agressively around these constraints later on (I hope).
+/// 
+/// [pure]: https://en.wikipedia.org/w/index.php?title=Pure_function&oldid=1291437073
 #[derive(Debug)]
 pub struct ConstrainedTy {
     /// The entire type signature from the beginning of the base type 
