@@ -62,4 +62,22 @@ mod tests {
         assert_eq!(result.matching_source.as_str(), "@@u64");
         assert!(result.target_ty.downcast_reference().is_some());
     }
+
+    #[test]
+    fn test_u8_ref() {
+        let mut parser = Parser::new(Lexer::new_test("@u8"));
+        let ref_ty = ReferenceTy::parse(&mut parser).unwrap();
+        assert_eq!(ref_ty.matching_source.len(), 3);
+        assert_eq!(ref_ty.target_ty.downcast_primitive().unwrap().variant, AtomicTyVariant::U8);
+    }
+
+    #[test]
+    fn test_nested_ref() {
+        let mut parser = Parser::new(Lexer::new_test("@@u8"));
+        let ref_ty = ReferenceTy::parse(&mut parser).unwrap();
+        assert_eq!(ref_ty.matching_source.len(), 4);
+        let inner_ref = ref_ty.target_ty.downcast_reference().unwrap();
+        assert_eq!(inner_ref.matching_source.len(), 3);
+        assert_eq!(inner_ref.target_ty.downcast_primitive().unwrap().variant, AtomicTyVariant::U8);
+    }
 }
