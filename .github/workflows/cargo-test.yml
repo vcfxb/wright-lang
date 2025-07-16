@@ -82,21 +82,21 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         run: brew install llvm@18
       
-      - name: Get the LLVM version (Windows Only)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: llvm-config --version
+      # - name: Get the LLVM version (Windows Only)
+      #   if: ${{ matrix.os == 'windows-latest' }}
+      #   run: llvm-config --version
 
-      - name: Get the LLVM version (Mac Only)
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
-        # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
-        continue-on-error: true
+      # - name: Get the LLVM version (Mac Only)
+      #   if: ${{ matrix.os == 'macos-latest' }}
+      #   run: ${{ matrix.llvm-install-dir }}/bin/llvm-config --version
+      #   # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
+      #   continue-on-error: true
         
-      - name: Get the LLVM version (Ubuntu Only)
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
-        run: llvm-config --version
-        # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
-        continue-on-error: true
+      # - name: Get the LLVM version (Ubuntu Only)
+      #   if: ${{ matrix.os == 'ubuntu-24.04' }}
+      #   run: llvm-config --version
+      #   # For some reason, this seems to error even when llvm-config is available somewhere. Leaving it in for now. 
+      #   continue-on-error: true
 
       - name: Run cargo test (Mac Only)
         if: ${{ matrix.os == 'macos-latest' }}
