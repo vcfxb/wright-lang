@@ -17,6 +17,8 @@ fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
         "union" => KwUnion,
         "func" => KwFunc,
         "pure" => KwPure,
+        "unsafe" => KwUnsafe,
+        "naked" => KwNaked,
         "repr" => KwRepr,
         "impl" => KwImpl,
         "constraint" => KwConstraint,

@@ -66,6 +66,8 @@ pub enum TokenTy {
     KwUnion,
     KwFunc,
     KwPure,
+    KwNaked,
+    KwUnsafe,
     KwRepr,
     KwImpl,
     KwConstraint,
