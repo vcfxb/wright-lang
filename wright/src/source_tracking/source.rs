@@ -158,7 +158,7 @@ impl Source {
                             // Make sure we (at least try to) unlock the file if there's an issue memory mapping it.
                             .inspect_err(|_| {
                                 FileExt::unlock(&file)
-                                    .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
+                                    .map_err(|err| eprintln!("Error unlocking file: {err:?}"))
                                     .ok();
                             })
                     }?;
@@ -169,7 +169,7 @@ impl Source {
                     if let Err(utf8_error) = std::str::from_utf8(raw_data) {
                         // The file is not valid for us so we should unlock it and return an error.
                         FileExt::unlock(&file)
-                            .map_err(|err| eprintln!("Error unlocking file: {:?}", err))
+                            .map_err(|err| eprintln!("Error unlocking file: {err:?}"))
                             .ok();
 
                         Err(io::Error::new(io::ErrorKind::InvalidData, utf8_error))?;
@@ -261,7 +261,7 @@ impl Source {
     ///
     /// # Panics
     /// - This will panic if you ask for a line index that's higher than or equal to the number returned
-    ///     by [`Self::count_lines`].
+    ///   by [`Self::count_lines`].
     pub fn get_line(self: Arc<Source>, line_index: usize) -> Fragment {
         if line_index >= self.count_lines() {
             panic!("{} is greater than the number of lines in {}", line_index, self.name);

@@ -40,7 +40,7 @@ impl Fragment {
     ///
     /// # Panics
     /// - This will [panic] in the unlikely event that [Fragment::range] is out of bounds or lands between char
-    ///     boundaries for [Fragment::source].
+    ///   boundaries for [Fragment::source].
     pub fn as_str(&self) -> &str {
         &self.source.source().as_str()[self.range.clone()]
     }
@@ -145,7 +145,7 @@ impl Fragment {
     ///
     /// # Panics
     /// - This will panic if the provided `bytes_from_start` does not land on a unicode character boundary or is larger
-    ///     than the length of this fragment according to [str::is_char_boundary].
+    ///   than the length of this fragment according to [str::is_char_boundary].
     pub fn split_at(&self, bytes_from_start: usize) -> (Self, Self) {
         // Check boundaries.
         if !self.as_str().is_char_boundary(bytes_from_start) {

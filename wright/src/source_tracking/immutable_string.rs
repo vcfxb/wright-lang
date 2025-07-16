@@ -127,11 +127,11 @@ enum ImmutableStringInner {
         ///
         /// # Safety
         /// - Undefined  behavior occurs if the file on disk is modified while memory mapped. Always lock the
-        ///     file (in this crate's case, using [fs4]) before creating this [Mmap] for it.
-        ///     See [Mmap] for more details.
+        ///   file (in this crate's case, using [fs4]) before creating this [Mmap] for it.
+        ///   See [Mmap] for more details.
         /// - This struct assumes that any memory-mapped files have their UTF-8 validity checked by the caller.
-        ///     Specificically the [ImmutableString::as_ref] method relies on [std::str::from_utf8_unchecked],
-        ///     so if you do not ensure the [Mmap] is valid UTF-8, you will run into undefined behavior.
+        ///   Specificically the [ImmutableString::as_ref] method relies on [std::str::from_utf8_unchecked],
+        ///   so if you do not ensure the [Mmap] is valid UTF-8, you will run into undefined behavior.
         mem_map: Mmap,
     },
 }
@@ -145,7 +145,7 @@ impl Drop for ImmutableStringInner {
             ImmutableStringInner::LockedFile { locked_file, .. } => {
                 FileExt::unlock(locked_file)
                     // Log the error if there is one,
-                    .map_err(|io_err: io::Error| eprintln!("{}", io_err))
+                    .map_err(|io_err: io::Error| eprintln!("{io_err}"))
                     // Discard value of result
                     .ok();
             }

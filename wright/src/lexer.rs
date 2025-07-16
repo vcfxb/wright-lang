@@ -101,7 +101,7 @@ impl Lexer {
     /// # Panics
     /// - This function panics under the same conditions as [`Fragment::offset_from`].
     /// - Generally the best way to avoid panics is to only call this function on
-    ///     [Lexer]s created using [Lexer::fork] on the `origin` lexer.
+    ///   [Lexer]s created using [Lexer::fork] on the `origin` lexer.
     pub fn offset_from(&self, origin: &Self) -> usize {
         self.remaining.offset_from(&origin.remaining)
     }
@@ -165,9 +165,9 @@ impl Lexer {
     ///
     /// # Safety
     /// - This lexer will be left in an invalid/undefined state if the number of bytes is greater than the length
-    ///     of the [Lexer::remaining] fragment.
+    ///   of the [Lexer::remaining] fragment.
     /// - This lexer will be left in an invalid/undefined state if after advancing, the next byte in the
-    ///     [Lexer::remaining] fragment is not the start of a unicode code point.
+    ///   [Lexer::remaining] fragment is not the start of a unicode code point.
     unsafe fn advance_unchecked(&mut self, bytes: usize) {
         self.remaining.range.start += bytes;
     }
