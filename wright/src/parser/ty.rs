@@ -2,7 +2,7 @@
 
 use crate::{
     ast::{
-        identifier::Identifier,
+        // identifier::Identifier,
         ty::{AtomicTy, ReferenceTy, Type},
     },
     lexer::token::TokenTy,
@@ -36,7 +36,7 @@ impl Type {
 
             match (parse_fn)(parser) {
                 // Successful parse, constraint clause follows.
-                Ok(t)
+                Ok(_t)
                     if parser
                         .peek_next_not_whitespace()
                         .is_some_and(|t| t.variant == TokenTy::KwConstrain) =>
@@ -47,7 +47,7 @@ impl Type {
                     // consume constrain keyword
                     assert_eq!(parser.next_token().unwrap().unwrap().variant, TokenTy::KwConstrain);
 
-                    let mut constraints: Vec<Identifier> = Vec::new();
+                    // let mut constraints: Vec<Identifier> = Vec::new();
 
                     // FIXME: This sucks for parsing and I'm increasingly thinking the syntax for constraints
                     // should be `type ~ a ~ b ~ c...` rather than `type constrain a, b, c`
