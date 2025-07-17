@@ -1,6 +1,6 @@
 //! Parser implementation for parsing types.
 
-use crate::ast::ty::{AtomicTy, ReferenceTy, Type};
+use crate::{ast::{identifier::Identifier, ty::{AtomicTy, ReferenceTy, Type}}, lexer::token::TokenTy};
 
 use super::{
     Parser,
@@ -14,28 +14,50 @@ mod constrained_ty;
 impl Type {
     /// Parse a type signature in source code.
     pub fn parse(parser: &mut Parser) -> Result<Self, ParserError> {
+        // First try to parse a type, then check to see if the `constrain` keyword follows it, 
+        // since that's effectively a type suffix.
+
         // Atempt to parse atomic types first -- they're the simplest. If we fail to parse, the parser doesn't advance.
         // Since they're all keywords we don't have to worry at all about under-greedy parsing (yet).
-        if let Ok(atomic) = AtomicTy::parse(parser) {
-            return Ok(Type::Atomic(atomic));
-        }
+        let atomic_ty_parse_fn = |parser: &mut Parser| AtomicTy::parse(parser).map(Type::Atomic);
+        let reference_ty_parse_fn = |parser: &mut Parser| ReferenceTy::parse(parser).map(Type::Reference);
 
-        let bytes_remaining = parser.bytes_remaining();
+        let order = [
+            atomic_ty_parse_fn,
+            reference_ty_parse_fn
+        ];
 
-        match ReferenceTy::parse(parser) {
-            Ok(reference_ty) => return Ok(Type::Reference(reference_ty)),
+        for parse_fn in order {
+            let initial_bytes_remaining = parser.bytes_remaining();
+            
+            match (parse_fn)(parser) {
+                // Successful parse, constraint clause follows. 
+                Ok(t) if parser.peek_next_not_whitespace().is_some_and(|t| t.variant == TokenTy::KwConstrain) => {
+                    
+                    // Consume whitespace
+                    parser.consume_at_least_one_whitespace()?;
 
-            Err(err) => {
-                // If the parser was advanced in parsing the reference type, error out here.
-                if bytes_remaining != parser.bytes_remaining() {
-                    return Err(
-                        err.with_help("encountered error while parsing reference type signature")
-                    );
-                }
+                    // consume constrain keyword
+                    assert_eq!(parser.next_token().unwrap().unwrap().variant, TokenTy::KwConstrain);
 
-                // If we didn't advance we can just ignore the error and try parsing other type signature
-                // forms or fall through to the catch all "expected type signature" error (since it means
-                // we would have not seen an `@` to start a reference type signature).
+                    let mut constraints: Vec<Identifier> = Vec::new();
+                    
+
+                    // FIXME: This sucks for parsing and I'm increasingly thinking the syntax for constraints
+                    // should be `type ~ a ~ b ~ c...` rather than `type constrain a, b, c`
+                    while let Some(peek) = parser.peek_next_not_whitespace() && peek.variant == TokenTy::Identifier  {
+                        
+                    }
+                },
+
+                // Successful parse, no constraint clause.
+                Ok(t) => return Ok(t),
+
+                // Partial parse with error.
+                Err(err) if parser.bytes_remaining() != initial_bytes_remaining => return Err(err),
+
+                // Parsing error with no tokens consumed.
+                Err(_) => continue,
             }
         }
 

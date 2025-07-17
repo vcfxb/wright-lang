@@ -70,6 +70,7 @@ pub enum TokenTy {
     KwUnsafe,
     KwRepr,
     KwImpl,
+    KwConstrain,
     KwConstraint,
     KwReferences,
     KwTrait,
