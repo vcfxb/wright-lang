@@ -18,7 +18,6 @@ mod identifier;
 mod literal;
 mod path;
 mod ty;
-pub mod whitespace;
 
 /// The [Parser] struct wraps a [Lexer] and adds lookahead and functions that are useful for parsing.
 #[derive(Debug)]
@@ -34,6 +33,75 @@ impl Parser {
             lexer,
             lookahead: VecDeque::new(),
         }
+    }
+
+    /// Get the [Lexer] that's wrapped.
+    pub fn lexer(&self) -> &Lexer {
+        &self.lexer
+    }
+
+    /// Lookahead `k` [Token]s.
+    ///
+    /// If `k == 0` then this is effectively peeking at the next [Token] from the wrapped [Lexer].
+    pub fn lookahead(&mut self, k: usize) -> Option<&Token> {
+        while self.lookahead.len() <= k {
+            self.lookahead.push_back(self.lexer.next_token()?);
+        }
+
+        // SAFETY: It's certain that if this function reaches this line, this access is infallible.
+        Some(unsafe { self.lookahead.get(k).unwrap_unchecked() })
+    }
+
+    /// Peek at the next token from the [Lexer] (cached in the lookahead queue if peeked before).
+    pub fn peek(&mut self) -> Option<&Token> {
+        self.lookahead(0)
+    }
+    
+    /// Peek the [Fragment] of the next [Token].
+    pub fn peek_fragment(&mut self) -> Option<&Fragment> {
+        self.peek().map(|token| &token.fragment)
+    }
+
+    /// Peek the [TokenTy] of the next [Token].
+    pub fn peek_variant(&mut self) -> Option<TokenTy> {
+        self.peek().map(|token| token.variant)
+    }
+
+    /// Similar to [Parser::lookahead] but instead returns a slice of `n` [Token]s, starting with the next [Token].
+    ///
+    /// Returns [None] if `n` is greater than the number of remaining [Token]s for this [Parser].
+    pub fn lookahead_window(&mut self, n: usize) -> Option<&[Token]> {
+        // Pull tokens from lexer
+        while self.lookahead.len() < n {
+            self.lookahead.push_back(self.lexer.next_token()?);
+        }
+
+        // Use make contiguous here to get a unified/single slice.
+        Some(&self.lookahead.make_contiguous()[..n])
+    }
+
+    /// Peek the next token that's not whitespace.
+    pub fn peek_next_not_whitespace(&mut self) -> Option<&Token> {
+        // There's no way to do this in safe rust, despite the memory accesses being fine,
+        // so we do it unsafely here 
+        
+        for i in 0.. {
+            let peek = self.lookahead(i)?;
+
+            if peek.variant != TokenTy::Whitespace {
+                // This bit prevents the rust compiler from thinking we're breaking 
+                // lifetime/aliasing rules by mutating the internal state in the next 
+                // iteration of the loop while still holding a reference to the peeked token.
+                unsafe {
+                    let const_ref = &raw const *peek;
+                    let upcast = &*const_ref;
+                    return Some(upcast);
+                }
+            }
+        }
+
+        // Safety: For large enough values of `i`, self.lookahead eventually has to return `None`
+        unsafe { std::hint::unreachable_unchecked() }
     }
 
     /// Get the number of remaining bytes on this parser. This is potentially useful for checking
@@ -62,12 +130,12 @@ impl Parser {
             .or_else(|| self.lexer.next_token());
 
         // Check for unknown tokens, which should always convert to an error.
-        match token {
-            Some(Token {
-                variant: TokenTy::Unknown,
-                fragment,
-            }) => Err(ParserErrorKind::EncounteredUnknownToken.at(fragment)),
-            known_token_or_none => Ok(known_token_or_none),
+        if let Some(ref t) = token && t.variant == TokenTy::Unknown {
+            // Clone here is avoidable but this code path is super unlikely and
+            // probably optimized heavily. 
+            Err(ParserErrorKind::EncounteredUnknownToken.at(t.fragment.clone()))
+        } else {
+            Ok(token)
         }
     }
 
@@ -88,25 +156,6 @@ impl Parser {
 
         // Split them off.
         self.lookahead = self.lookahead.split_off(n);
-    }
-
-    /// Peek at the next token from the [Lexer] (cached in the lookahead queue if peeked before).
-    pub fn peek(&mut self) -> Option<&Token> {
-        if self.lookahead.is_empty() {
-            self.lookahead.push_back(self.lexer.next_token()?);
-        }
-
-        self.lookahead.front()
-    }
-
-    /// Peek the [Fragment] of the next [Token].
-    pub fn peek_fragment(&mut self) -> Option<&Fragment> {
-        self.peek().map(|token| &token.fragment)
-    }
-
-    /// Peek the [TokenTy] of the next [Token].
-    pub fn peek_variant(&mut self) -> Option<TokenTy> {
-        self.peek().map(|token| token.variant)
     }
 
     /// Peek the [Fragment] of the next [Token] and clone it or return a clone of the
@@ -134,38 +183,10 @@ impl Parser {
         }
     }
 
-    /// Get the [Lexer] that's wrapped.
-    pub fn lexer(&self) -> &Lexer {
-        &self.lexer
-    }
-
-    /// Lookahead `k` [Token]s.
-    ///
-    /// If `k == 0` then this is effectively peeking at the next [Token] from the wrapped [Lexer].
-    pub fn lookahead(&mut self, k: usize) -> Option<&Token> {
-        while self.lookahead.len() <= k {
-            self.lookahead.push_back(self.lexer.next_token()?);
-        }
-
-        self.lookahead.get(k)
-    }
-
-    /// Similar to [Parser::lookahead] but instead returns a slice of `n` [Token]s, starting with the next [Token].
-    ///
-    /// Returns [None] if `n` is greater than the number of remaining [Token]s for this [Parser].
-    pub fn lookahead_window(&mut self, n: usize) -> Option<&[Token]> {
-        while self.lookahead.len() < n {
-            self.lookahead.push_back(self.lexer.next_token()?);
-        }
-
-        // Use make contiguous here to get a unified/single slice.
-        Some(&self.lookahead.make_contiguous()[..n])
-    }
-
     /// Get the next [Token] from this parser if its [Token::variant] is the given `token_ty`.
     pub fn next_if_is(&mut self, token_ty: TokenTy) -> Option<Token> {
         // Peeking successfully first means that the lookahead vec will never be empty here.
-        (self.peek()?.variant == token_ty)
+        (self.peek_variant()? == token_ty)
             // SAFETY: We just peeked a token to check its variant so this unwrap is always ok.
             .then(|| unsafe { self.lookahead.pop_front().unwrap_unchecked() })
     }
@@ -183,5 +204,21 @@ impl Parser {
             .iter()
             .zip(seq)
             .all(|(token, matches)| token.variant == *matches)
+    }
+
+    /// Consume & remove all whitespace tokens from the front of the parser.
+    pub fn consume_optional_whitespace(&mut self) {
+        // Iterate until the next token is not whitespace.
+        while self.next_if_is(TokenTy::Whitespace).is_some() {}
+    }
+
+    /// Require a whitespace from the [Parser]. Do not advance if the next [Token] is not a whitespace.
+    pub fn consume_at_least_one_whitespace(&mut self) -> Result<(), ParserError> {
+        if self.next_if_is(TokenTy::Whitespace).is_some() {
+            self.consume_optional_whitespace();
+            Ok(())
+        } else {
+            Err(ParserErrorKind::ExpectedWhitespace.at(self.peek_fragment_or_rest_cloned()))
+        }
     }
 }

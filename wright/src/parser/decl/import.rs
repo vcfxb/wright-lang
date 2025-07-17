@@ -5,8 +5,7 @@ use crate::{
     lexer::token::{Token, TokenTy},
     parser::{
         Parser,
-        error::{ParserError, ParserErrorKind},
-        whitespace,
+        error::{ParserError, ParserErrorKind}
     },
     source_tracking::fragment::Fragment,
 };
@@ -22,7 +21,7 @@ impl ImportDecl {
         )?;
 
         // Require a whitespace after the keyword.
-        whitespace::require_whitespace(parser)?;
+        parser.consume_at_least_one_whitespace()?;
         // Parse the path.
         let path: Path = Path::parse(parser)?;
 
@@ -36,7 +35,7 @@ impl ImportDecl {
             // If there is a whitespace, then it could be followed by `as ...;` or just `;`.
             Some(_) => {
                 // Either way, consume any additional whitespace/comments.
-                whitespace::optional_whitespace(parser);
+                parser.consume_optional_whitespace();
 
                 // Check if we have an `as` and if so read the renaming clause.
                 // Otherwise pass on to reading the semicolon.
@@ -46,7 +45,7 @@ impl ImportDecl {
 
                     // `as ...;` -- consume the ` ...` part.
                     Some(_) => {
-                        whitespace::require_whitespace(parser).map_err(|e| {
+                        parser.consume_at_least_one_whitespace().map_err(|e| {
                             e.with_help("whitespace needed between \"as\" and binding.")
                         })?;
 
@@ -60,7 +59,7 @@ impl ImportDecl {
             }
         };
 
-        whitespace::optional_whitespace(parser);
+        parser.consume_optional_whitespace();
 
         if let Some(semi) = parser.next_if_is(TokenTy::Semi) {
             Ok(ImportDecl {

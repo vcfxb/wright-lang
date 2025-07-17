@@ -9,6 +9,7 @@ use super::{
 
 mod primitive;
 mod reference;
+mod constrained_ty;
 
 impl Type {
     /// Parse a type signature in source code.

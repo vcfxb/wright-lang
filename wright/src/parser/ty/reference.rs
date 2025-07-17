@@ -6,7 +6,6 @@ use crate::{
     parser::{
         Parser,
         error::{ParserError, ParserErrorKind},
-        whitespace,
     },
     source_tracking::fragment::Fragment,
 };
@@ -23,7 +22,7 @@ impl ReferenceTy {
                 .at(parser.peek_fragment_or_rest_cloned()));
         };
 
-        whitespace::optional_whitespace(parser);
+        parser.consume_optional_whitespace();
 
         let referenced_type = Type::parse(parser)?;
 
