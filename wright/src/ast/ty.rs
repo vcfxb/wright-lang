@@ -82,34 +82,34 @@ pub struct ReferenceTy {
 }
 
 /// A type with a given set of constraints.
-/// 
+///
 /// Constraints in wright are functions that the compiler can verify are strictly [pure]
 /// (which is informally defined here, and a point of further work eventually).
-/// 
+///
 /// A constrained type declaration lists a base type and then one or more "strictly pure"
 /// functions that have a signature exactly matching T -> bool (where T is the constrained type).
-/// 
-/// An example of this could be 
+///
+/// An example of this could be
 /// ```text
 /// pure func is_even(i: u8) -> bool {
 ///     i % 2 == 0
 /// }
-/// 
+///
 /// type EvenU8 = u8 constrain is_even;
 /// ```
-/// 
+///
 /// The wright compiler can then optimize agressively around these constraints later on (I hope).
-/// 
+///
 /// [pure]: https://en.wikipedia.org/w/index.php?title=Pure_function&oldid=1291437073
 #[derive(Debug)]
 pub struct ConstrainedTy {
-    /// The entire type signature from the beginning of the base type 
+    /// The entire type signature from the beginning of the base type
     /// to the end of the last constraining item.
     pub matching_source: Fragment,
 
-    /// The type being constrained. 
+    /// The type being constrained.
     pub base_ty: Box<Type>,
 
     /// The functions constraining it.
-    pub constraining_items: Vec<Path>,    
+    pub constraining_items: Vec<Path>,
 }

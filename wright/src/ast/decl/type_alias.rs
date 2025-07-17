@@ -1,7 +1,10 @@
 //! Type alias declarations in wright source code.
-//! 
+//!
 
-use crate::{ast::{identifier::Identifier, ty::Type}, source_tracking::fragment::Fragment};
+use crate::{
+    ast::{identifier::Identifier, ty::Type},
+    source_tracking::fragment::Fragment,
+};
 
 /// A type alias in wright source code.
 #[derive(Debug)]

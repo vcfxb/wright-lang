@@ -21,7 +21,7 @@ fn identifier_or_keyword(fragment: Fragment) -> TokenTy {
         "naked" => KwNaked,
         "repr" => KwRepr,
         "impl" => KwImpl,
-        "constrain"  => KwConstrain,
+        "constrain" => KwConstrain,
         "constraint" => KwConstraint,
         "references" => KwReferences,
         "trait" => KwTrait,

@@ -56,7 +56,7 @@ impl Parser {
     pub fn peek(&mut self) -> Option<&Token> {
         self.lookahead(0)
     }
-    
+
     /// Peek the [Fragment] of the next [Token].
     pub fn peek_fragment(&mut self) -> Option<&Fragment> {
         self.peek().map(|token| &token.fragment)
@@ -83,14 +83,14 @@ impl Parser {
     /// Peek the next token that's not whitespace.
     pub fn peek_next_not_whitespace(&mut self) -> Option<&Token> {
         // There's no way to do this in safe rust, despite the memory accesses being fine,
-        // so we do it unsafely here 
-        
+        // so we do it unsafely here
+
         for i in 0.. {
             let peek = self.lookahead(i)?;
 
             if peek.variant != TokenTy::Whitespace {
-                // This bit prevents the rust compiler from thinking we're breaking 
-                // lifetime/aliasing rules by mutating the internal state in the next 
+                // This bit prevents the rust compiler from thinking we're breaking
+                // lifetime/aliasing rules by mutating the internal state in the next
                 // iteration of the loop while still holding a reference to the peeked token.
                 unsafe {
                     let const_ref = &raw const *peek;
@@ -130,9 +130,11 @@ impl Parser {
             .or_else(|| self.lexer.next_token());
 
         // Check for unknown tokens, which should always convert to an error.
-        if let Some(ref t) = token && t.variant == TokenTy::Unknown {
+        if let Some(ref t) = token
+            && t.variant == TokenTy::Unknown
+        {
             // Clone here is avoidable but this code path is super unlikely and
-            // probably optimized heavily. 
+            // probably optimized heavily.
             Err(ParserErrorKind::EncounteredUnknownToken.at(t.fragment.clone()))
         } else {
             Ok(token)

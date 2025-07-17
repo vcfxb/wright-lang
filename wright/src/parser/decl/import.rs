@@ -5,7 +5,7 @@ use crate::{
     lexer::token::{Token, TokenTy},
     parser::{
         Parser,
-        error::{ParserError, ParserErrorKind}
+        error::{ParserError, ParserErrorKind},
     },
     source_tracking::fragment::Fragment,
 };
