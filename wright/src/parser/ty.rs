@@ -35,28 +35,7 @@ impl Type {
             let initial_bytes_remaining = parser.bytes_remaining();
 
             match (parse_fn)(parser) {
-                // Successful parse, constraint clause follows.
-                Ok(_t)
-                    if parser
-                        .peek_next_not_whitespace()
-                        .is_some_and(|t| t.variant == TokenTy::KwConstrain) =>
-                {
-                    // Consume whitespace
-                    parser.consume_at_least_one_whitespace()?;
-
-                    // consume constrain keyword
-                    assert_eq!(parser.next_token().unwrap().unwrap().variant, TokenTy::KwConstrain);
-
-                    // let mut constraints: Vec<Identifier> = Vec::new();
-
-                    // FIXME: This sucks for parsing and I'm increasingly thinking the syntax for constraints
-                    // should be `type ~ a ~ b ~ c...` rather than `type constrain a, b, c`
-                    while let Some(peek) = parser.peek_next_not_whitespace()
-                        && peek.variant == TokenTy::Identifier
-                    {}
-                }
-
-                // Successful parse, no constraint clause.
+                // Successful parse.
                 Ok(t) => return Ok(t),
 
                 // Partial parse with error.
