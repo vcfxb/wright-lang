@@ -25,6 +25,7 @@ pub enum ParserErrorKind {
     ExpectedTypeSignature,
     ExpectedWhitespace,
     ImportMustEndWithSemicolon,
+    UnterminatedGenericTypeSignature,
 }
 
 impl ParserErrorKind {
@@ -35,11 +36,11 @@ impl ParserErrorKind {
         match self {
             EncounteredUnknownToken => "encountered unknown token",
             EncounteredUnterminatedComment => {
-                "encountered unterminated multiline comment while parsing"
-            }
+                        "encountered unterminated multiline comment while parsing"
+                    }
             EncounteredUnterminatedString => {
-                "encountered unterminated string literal while parsing"
-            }
+                        "encountered unterminated string literal while parsing"
+                    }
             ExpectedAtomicTypeSignature => "expected atomic primitive type",
             ExpectedBooleanLiteral => "expected boolean literal",
             ExpectedIdentifier => "expected identifier",
@@ -50,6 +51,7 @@ impl ParserErrorKind {
             ExpectedTypeSignature => "expected type signature",
             ExpectedWhitespace => "expected whitespace character(s)",
             ImportMustEndWithSemicolon => "import declarations must end with a semicolon",
+            UnterminatedGenericTypeSignature => "generic type signature must end with a `>`",
         }
     }
 

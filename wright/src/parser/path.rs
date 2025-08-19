@@ -49,36 +49,22 @@ fn parse_head(parser: &mut Parser) -> Result<Identifier, ParserError> {
 /// Attempt to parse a segment of this path indivisbly (never just parse a seperator without another [Identifier]
 /// at the end of it).
 fn parse_segment(parser: &mut Parser) -> Option<Identifier> {
-    // The list of valid segment sequences we will accept is always the same.
-    const VALID_SEGMENT_SEQUENCES: [&[TokenTy]; 4] = [
-        &[
-            TokenTy::Whitespace,
-            TokenTy::ColonColon,
-            TokenTy::Whitespace,
-            TokenTy::Identifier,
-        ],
-        &[
-            TokenTy::Whitespace,
-            TokenTy::ColonColon,
-            TokenTy::Identifier,
-        ],
-        &[
-            TokenTy::ColonColon,
-            TokenTy::Whitespace,
-            TokenTy::Identifier,
-        ],
-        &[TokenTy::ColonColon, TokenTy::Identifier],
-    ];
+    if parser.matches_ignore_whitespace(&[TokenTy::ColonColon, TokenTy::Identifier]) {
+        // Consume any whitespace
+        parser.consume_optional_whitespace();
 
-    for sep_token_sequence in VALID_SEGMENT_SEQUENCES {
-        if parser.matches(sep_token_sequence) {
-            parser.advance(sep_token_sequence.len() - 1);
-            // SAFETY: We just checked/matched that this parser ends with an identifier.
-            return Some(unsafe { Identifier::parse(parser).unwrap_unchecked() });
-        }
+        // Skip the double colon
+        parser.advance(1);
+
+        // Consume any more whitespace
+        parser.consume_optional_whitespace();
+
+        // Consume the identifier we know is at the end of the sequence.
+        // SAFETY: We just checked/matched that this parser ends with an identifier.
+        return Some(unsafe { Identifier::parse(parser).unwrap_unchecked() });
     }
 
-    // If none of the valid segment sequences match, return None.
+    // If the sequence doesn't match, there's no segment/tail.
     None
 }
 

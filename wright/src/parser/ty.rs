@@ -1,12 +1,6 @@
 //! Parser implementation for parsing types.
 
-use crate::{
-    ast::{
-        // identifier::Identifier,
-        ty::{AtomicTy, ReferenceTy, Type},
-    },
-    lexer::token::TokenTy,
-};
+use crate::ast::ty::{AtomicTy, NamedTy, ReferenceTy, Type};
 
 use super::{
     Parser,
@@ -16,6 +10,7 @@ use super::{
 mod constrained_ty;
 mod primitive;
 mod reference;
+mod named;
 
 impl Type {
     /// Parse a type signature in source code.
@@ -28,8 +23,13 @@ impl Type {
         let atomic_ty_parse_fn = |parser: &mut Parser| AtomicTy::parse(parser).map(Type::Atomic);
         let reference_ty_parse_fn =
             |parser: &mut Parser| ReferenceTy::parse(parser).map(Type::Reference);
+        let named_ty_parse_fn = |parser: &mut Parser| NamedTy::parse(parser).map(Type::Named);
 
-        let order = [atomic_ty_parse_fn, reference_ty_parse_fn];
+        let order = &[
+            atomic_ty_parse_fn, 
+            reference_ty_parse_fn,
+            named_ty_parse_fn
+        ];
 
         for parse_fn in order {
             let initial_bytes_remaining = parser.bytes_remaining();

@@ -4,6 +4,8 @@
 - Tweaks to printing/formatting of help messages in diagnostics
 - Tweaks/updates to links on website
 - Fix bug with import declaration parsing not accepting comments in certain places
+- Add named type parsing
+- Tweak implementation for parsing paths.
 
 ## 0.10.1
 - Fix bug in release workflow that prevented wright binaries from being built

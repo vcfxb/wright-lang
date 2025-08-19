@@ -208,6 +208,36 @@ impl Parser {
             .all(|(token, matches)| token.variant == *matches)
     }
 
+    /// Check if the given sequence of token types equals the next ones (looking ahead through the lexer/parser)
+    /// if all future whitespaces are ignored.
+    pub fn matches_ignore_whitespace(&mut self, seq: &[TokenTy]) -> bool {
+        let mut non_whitespace_in_lookahead: usize = self.lookahead.iter()
+            .filter(|t| t.variant != TokenTy::Whitespace)
+            .count();
+
+        while non_whitespace_in_lookahead < seq.len() {
+            let Some(pop) = self.lexer.next_token() else {
+                return false;
+            };
+
+            if pop.variant != TokenTy::Whitespace {
+                non_whitespace_in_lookahead += 1;
+            }
+
+            self.lookahead.push_back(pop);
+        }
+
+        let lookahead_iter = self.lookahead.iter()
+            .filter(|t| t.variant != TokenTy::Whitespace)
+            .map(|t| t.variant);
+        
+        // Check that all the variants are the same.
+        seq.iter()
+            .zip(lookahead_iter)
+            .all(|(seq_item, lookahead_item)| *seq_item == lookahead_item)
+
+    }
+
     /// Consume & remove all whitespace tokens from the front of the parser.
     pub fn consume_optional_whitespace(&mut self) {
         // Iterate until the next token is not whitespace.

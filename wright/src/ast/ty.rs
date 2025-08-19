@@ -8,7 +8,8 @@ use crate::{ast::path::Path, source_tracking::fragment::Fragment};
 pub enum Type {
     Atomic(AtomicTy),
     Reference(ReferenceTy),
-    Constrained(ConstrainedTy),
+    Named(NamedTy),
+    // Constrained(ConstrainedTy),
 }
 
 impl Type {
@@ -17,7 +18,8 @@ impl Type {
         match self {
             Type::Atomic(atomic_ty) => &atomic_ty.matching_source,
             Type::Reference(reference_ty) => &reference_ty.matching_source,
-            Type::Constrained(constrained_ty) => &constrained_ty.matching_source,
+            Type::Named(named_ty) => &named_ty.matching_source,
+            // Type::Constrained(constrained_ty) => &constrained_ty.matching_source,
         }
     }
 
@@ -37,13 +39,21 @@ impl Type {
         }
     }
 
-    /// Attempt to "downcast" this to a constrained type signature if it is one.
-    pub fn downcast_constrained_ty(&self) -> Option<&ConstrainedTy> {
+    /// Attempt to "downcast" this to a named type signature if it is one.
+    pub fn downcast_named(&self) -> Option<&NamedTy> {
         match self {
-            Type::Constrained(constrained) => Some(constrained),
-            _ => None,
+            Type::Named(named) => Some(named),
+            _ => None,            
         }
     }
+
+    // /// Attempt to "downcast" this to a constrained type signature if it is one.
+    // pub fn downcast_constrained_ty(&self) -> Option<&ConstrainedTy> {
+    //     match self {
+    //         Type::Constrained(constrained) => Some(constrained),
+    //         _ => None,
+    //     }
+    // }
 }
 
 /// The atomic types of wright -- primitive numeric types, boolean, char, etc.
@@ -81,35 +91,53 @@ pub struct ReferenceTy {
     pub matching_source: Fragment,
 }
 
-/// A type with a given set of constraints.
-///
-/// Constraints in wright are functions that the compiler can verify are strictly [pure]
-/// (which is informally defined here, and a point of further work eventually).
-///
-/// A constrained type declaration lists a base type and then one or more "strictly pure"
-/// functions that have a signature exactly matching T -> bool (where T is the constrained type).
-///
-/// An example of this could be
-/// ```text
-/// pure func is_even(i: u8) -> bool {
-///     i % 2 == 0
-/// }
-///
-/// type EvenU8 = u8 constrain is_even;
-/// ```
-///
-/// The wright compiler can then optimize agressively around these constraints later on (I hope).
-///
-/// [pure]: https://en.wikipedia.org/w/index.php?title=Pure_function&oldid=1291437073
+/// A named type (such as a reference to a type from the standard libarary or a user defined struct).
+/// 
+/// i.e. `MyType<Generics>`
 #[derive(Debug)]
-pub struct ConstrainedTy {
-    /// The entire type signature from the beginning of the base type
-    /// to the end of the last constraining item.
+pub struct NamedTy {
+    /// The matching source code of the type signature.
     pub matching_source: Fragment,
 
-    /// The type being constrained.
-    pub base_ty: Box<Type>,
+    /// The name/identifier of the type.
+    pub name: Path,
 
-    /// The functions constraining it.
-    pub constraining_items: Vec<Path>,
+    /// An ordered series of generic type parameters passed to it.
+    pub generic_tys: Vec<Type>,
+    
+    // // eventually: 
+    // pub generic_consts: (),
 }
+
+// /// A type with a given set of constraints.
+// ///
+// /// Constraints in wright are functions that the compiler can verify are strictly [pure]
+// /// (which is informally defined here, and a point of further work eventually).
+// ///
+// /// A constrained type declaration lists a base type and then one or more "strictly pure"
+// /// functions that have a signature exactly matching T -> bool (where T is the constrained type).
+// ///
+// /// An example of this could be
+// /// ```text
+// /// pure func is_even(i: u8) -> bool {
+// ///     i % 2 == 0
+// /// }
+// ///
+// /// type EvenU8 = u8 constrain is_even;
+// /// ```
+// ///
+// /// The wright compiler can then optimize agressively around these constraints later on (I hope).
+// ///
+// /// [pure]: https://en.wikipedia.org/w/index.php?title=Pure_function&oldid=1291437073
+// #[derive(Debug)]
+// struct ConstrainedTy {
+//     /// The entire type signature from the beginning of the base type
+//     /// to the end of the last constraining item.
+//     pub matching_source: Fragment,
+
+//     /// The type being constrained.
+//     pub base_ty: Box<Type>,
+
+//     /// The functions constraining it.
+//     pub constraining_items: Vec<Path>,
+// }
