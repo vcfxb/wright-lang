@@ -1,4 +1,15 @@
-use crate::{ast::{path::Path, ty::{NamedTy, Type}}, lexer::token::TokenTy, parser::{error::{ParserError, ParserErrorKind}, Parser}, source_tracking::fragment::Fragment};
+use crate::{
+    ast::{
+        path::Path,
+        ty::{NamedTy, Type},
+    },
+    lexer::token::TokenTy,
+    parser::{
+        Parser,
+        error::{ParserError, ParserErrorKind},
+    },
+    source_tracking::fragment::Fragment,
+};
 
 impl NamedTy {
     /// Parse a named type from source code.
@@ -17,17 +28,15 @@ impl NamedTy {
             parser.advance(1);
 
             loop {
-                // Parse a generic type 
+                // Parse a generic type
                 let t = Type::parse(parser)?;
-                
+
                 // Push the type to the list of generics.
                 generic_tys.push(t);
 
                 // Check if it was the last one.
-                const ENDING_SEQUENCES: &[&[TokenTy]] = &[
-                    &[TokenTy::Comma, TokenTy::Gt],
-                    &[TokenTy::Gt]
-                ];
+                const ENDING_SEQUENCES: &[&[TokenTy]] =
+                    &[&[TokenTy::Comma, TokenTy::Gt], &[TokenTy::Gt]];
 
                 for seq in ENDING_SEQUENCES {
                     if parser.matches_ignore_whitespace(seq) {
@@ -40,12 +49,12 @@ impl NamedTy {
                         parser.consume_optional_whitespace();
 
                         // SAFETY: We have confirmed that there's a token here and it's not an unknown.
-                        let last_token = unsafe {
-                            parser.next_token().unwrap_unchecked().unwrap_unchecked() 
-                        };
+                        let last_token =
+                            unsafe { parser.next_token().unwrap_unchecked().unwrap_unchecked() };
 
                         // Compute the fragment to cover the whole thing.
-                        let matching_source = Fragment::cover(&path.full_path, &last_token.fragment);
+                        let matching_source =
+                            Fragment::cover(&path.full_path, &last_token.fragment);
 
                         return Ok(NamedTy {
                             matching_source,
@@ -70,10 +79,9 @@ impl NamedTy {
 
                 // Loop back and consume next type.
             }
-
         }
-        
-        // If parser does not match the angle bracket for generics, just return a named 
+
+        // If parser does not match the angle bracket for generics, just return a named
         // type without them
         Ok(NamedTy {
             matching_source: path.full_path.clone(),
@@ -81,14 +89,16 @@ impl NamedTy {
             generic_tys,
             // generic_consts: (),
         })
-
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::{ast::ty::{AtomicTyVariant, NamedTy}, lexer::Lexer, parser::Parser};
+    use crate::{
+        ast::ty::{AtomicTyVariant, NamedTy},
+        lexer::Lexer,
+        parser::Parser,
+    };
 
     #[test]
     fn test_basic_named_type() {
@@ -104,9 +114,30 @@ mod tests {
         let mut parser = Parser::new(Lexer::new_test("MyType<i8, @@@i8, OtherType<ThirdType>, >"));
         let named_ty = NamedTy::parse(&mut parser).unwrap();
         assert_eq!(named_ty.name.full_path.as_str(), "MyType");
-        assert_eq!(named_ty.generic_tys[0].downcast_primitive().unwrap().variant, AtomicTyVariant::I8);
+        assert_eq!(
+            named_ty.generic_tys[0]
+                .downcast_primitive()
+                .unwrap()
+                .variant,
+            AtomicTyVariant::I8
+        );
         assert_eq!(named_ty.generic_tys[1].matching_source().as_str(), "@@@i8");
-        assert_eq!(named_ty.generic_tys[2].downcast_named().unwrap().name.full_path.as_str(), "OtherType");
-        assert_eq!(named_ty.generic_tys[2].downcast_named().unwrap().matching_source.as_str(), "OtherType<ThirdType>");
+        assert_eq!(
+            named_ty.generic_tys[2]
+                .downcast_named()
+                .unwrap()
+                .name
+                .full_path
+                .as_str(),
+            "OtherType"
+        );
+        assert_eq!(
+            named_ty.generic_tys[2]
+                .downcast_named()
+                .unwrap()
+                .matching_source
+                .as_str(),
+            "OtherType<ThirdType>"
+        );
     }
 }

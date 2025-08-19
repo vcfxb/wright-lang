@@ -8,9 +8,9 @@ use super::{
 };
 
 mod constrained_ty;
+mod named;
 mod primitive;
 mod reference;
-mod named;
 
 impl Type {
     /// Parse a type signature in source code.
@@ -25,11 +25,7 @@ impl Type {
             |parser: &mut Parser| ReferenceTy::parse(parser).map(Type::Reference);
         let named_ty_parse_fn = |parser: &mut Parser| NamedTy::parse(parser).map(Type::Named);
 
-        let order = &[
-            atomic_ty_parse_fn, 
-            reference_ty_parse_fn,
-            named_ty_parse_fn
-        ];
+        let order = &[atomic_ty_parse_fn, reference_ty_parse_fn, named_ty_parse_fn];
 
         for parse_fn in order {
             let initial_bytes_remaining = parser.bytes_remaining();

@@ -43,7 +43,7 @@ impl Type {
     pub fn downcast_named(&self) -> Option<&NamedTy> {
         match self {
             Type::Named(named) => Some(named),
-            _ => None,            
+            _ => None,
         }
     }
 
@@ -92,7 +92,7 @@ pub struct ReferenceTy {
 }
 
 /// A named type (such as a reference to a type from the standard libarary or a user defined struct).
-/// 
+///
 /// i.e. `MyType<Generics>`
 #[derive(Debug)]
 pub struct NamedTy {
@@ -104,8 +104,7 @@ pub struct NamedTy {
 
     /// An ordered series of generic type parameters passed to it.
     pub generic_tys: Vec<Type>,
-    
-    // // eventually: 
+    // // eventually:
     // pub generic_consts: (),
 }
 

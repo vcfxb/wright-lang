@@ -36,11 +36,11 @@ impl ParserErrorKind {
         match self {
             EncounteredUnknownToken => "encountered unknown token",
             EncounteredUnterminatedComment => {
-                        "encountered unterminated multiline comment while parsing"
-                    }
+                "encountered unterminated multiline comment while parsing"
+            }
             EncounteredUnterminatedString => {
-                        "encountered unterminated string literal while parsing"
-                    }
+                "encountered unterminated string literal while parsing"
+            }
             ExpectedAtomicTypeSignature => "expected atomic primitive type",
             ExpectedBooleanLiteral => "expected boolean literal",
             ExpectedIdentifier => "expected identifier",
