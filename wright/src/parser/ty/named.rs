@@ -48,7 +48,7 @@ impl NamedTy {
 
                         parser.consume_optional_whitespace();
 
-                        // SAFETY: We have confirmed that there's a token here and it's not an unknown.
+                        // SAFETY: We have confirmed that there's a token here, and it's not an unknown.
                         let last_token =
                             unsafe { parser.next_token().unwrap_unchecked().unwrap_unchecked() };
 
@@ -72,7 +72,7 @@ impl NamedTy {
                     return Err(ParserErrorKind::UnterminatedGenericTypeSignature.at(fragment));
                 }
 
-                // Chew through whitespace and comment
+                // Chew through whitespace and comma
                 parser.consume_optional_whitespace();
                 parser.advance(1);
                 parser.consume_optional_whitespace();
