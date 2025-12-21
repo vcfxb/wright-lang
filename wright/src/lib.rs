@@ -10,7 +10,7 @@
 // info about feature required for various modules and functionality.
 //
 // See: https://stackoverflow.com/a/70914430.
-#![cfg_attr(all(doc, CHANNEL_NIGHTLY), feature(doc_auto_cfg))]
+#![cfg_attr(all(doc, CHANNEL_NIGHTLY), feature(doc_cfg))]
 
 // We cannot use memory mapped files on architectures that do not support memmap2.
 #[cfg(all(
