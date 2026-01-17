@@ -2,3 +2,4 @@
 
 pub mod import;
 pub mod type_alias;
+pub mod constant;

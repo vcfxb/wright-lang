@@ -41,7 +41,7 @@ impl SourceMap {
         source
     }
 
-    /// Get a reference to a [Source] stored in this [SourceMap] using it's [Source::id].
+    /// Get a reference to a [Source] stored in this [SourceMap] using its [Source::id].
     ///
     /// This is currently `O(1)` since [SourceMap] uses a [DashMap] internally.
     ///
