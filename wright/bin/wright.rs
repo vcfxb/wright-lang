@@ -69,7 +69,7 @@ fn main() -> io::Result<()> {
 
     #[cfg(feature = "supports-unicode")]
     {
-        wright::util::supports_unicode::set_force_ascii(cli.force_ascii);
+        wright::terminal_interface::supports_unicode::set_force_ascii(cli.force_ascii);
     }
 
     match cli.command {

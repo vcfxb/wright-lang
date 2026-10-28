@@ -80,49 +80,49 @@ mod tests {
 
     #[test]
     fn test_import() {
-        let mut parser = Parser::new(Lexer::new_test("use wright::util;"));
+        let mut parser = Parser::new(Lexer::new_test("use wright::terminal_interface;"));
         let import_decl = ImportDecl::parse(&mut parser).unwrap();
         assert!(parser.lexer.remaining.is_empty());
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
-        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
+        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "terminal_interface");
     }
 
     #[test]
     fn test_import_with_whitespace() {
-        let mut parser = Parser::new(Lexer::new_test("use wright :: util ;"));
+        let mut parser = Parser::new(Lexer::new_test("use wright :: terminal_interface ;"));
         let import_decl = ImportDecl::parse(&mut parser).unwrap();
         assert!(parser.lexer.remaining.is_empty());
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
-        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
+        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "terminal_interface");
     }
 
     #[test]
     fn test_import_as() {
-        let mut parser = Parser::new(Lexer::new_test("use wright::util as u;"));
+        let mut parser = Parser::new(Lexer::new_test("use wright::terminal_interface as u;"));
         let import_decl = ImportDecl::parse(&mut parser).unwrap();
         assert!(parser.lexer.remaining.is_empty());
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
-        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
+        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "terminal_interface");
         assert_eq!(import_decl.imported_as.unwrap().fragment.as_str(), "u");
     }
 
     #[test]
     fn test_import_as_with_comment() {
-        let mut parser = Parser::new(Lexer::new_test("use wright::util as /* old_name */ u;"));
+        let mut parser = Parser::new(Lexer::new_test("use wright::terminal_interface as /* old_name */ u;"));
         let import_decl = ImportDecl::parse(&mut parser).unwrap();
         assert!(parser.lexer.remaining.is_empty());
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
-        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
+        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "terminal_interface");
         assert_eq!(import_decl.imported_as.unwrap().fragment.as_str(), "u");
     }
 
     #[test]
     fn test_import_as_with_preceding_comment() {
-        let mut parser = Parser::new(Lexer::new_test("use wright::util /* as old_name */ as u;"));
+        let mut parser = Parser::new(Lexer::new_test("use wright::terminal_interface /* as old_name */ as u;"));
         let import_decl = ImportDecl::parse(&mut parser).unwrap();
         assert!(parser.lexer.remaining.is_empty());
         assert_eq!(import_decl.imported_item.head.fragment.as_str(), "wright");
-        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "util");
+        assert_eq!(import_decl.imported_item.tail[0].fragment.as_str(), "terminal_interface");
         assert_eq!(import_decl.imported_as.unwrap().fragment.as_str(), "u");
     }
 }

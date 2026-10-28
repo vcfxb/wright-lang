@@ -118,22 +118,3 @@ pub enum TokenTy {
     /// Unknown character in lexer fragment. 
     Unknown
 }
-
-impl Display for Token {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // If the host terminal supports unicode, replace the newline & carriage return characters with pictures,
-        // otherwise use ascii.
-        let replacements = match crate::util::supports_unicode::supports_unicode() {
-            true => &[("\n", "\u{240A}"), ("\r", "\u{240D}")],
-            false => &[("\n", "[nl]"), ("\r", "[cr]")],
-        };
-
-        let mut with_replacements = self.fragment.as_str().to_owned();
-
-        for (replace, replace_with) in replacements {
-            with_replacements = with_replacements.replace(replace, replace_with);
-        }
-
-        write!(f, "\"{with_replacements}\" ({:?})", self.variant)
-    }
-}

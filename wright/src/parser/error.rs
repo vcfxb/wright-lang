@@ -1,9 +1,8 @@
 //! Representation and implementation relating to errors that may be encountered in parsing.
 
-use crate::{
-    reporting::{Diagnostic, Highlight},
-    source_tracking::fragment::Fragment,
-};
+use crate::terminal_interface::reporting::{Diagnostic, Highlight};
+use crate::
+source_tracking::fragment::Fragment;
 use std::borrow::Cow;
 
 /// All the different errors that can be produced in the process of parsing.

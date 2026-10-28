@@ -19,7 +19,7 @@ use fs4::fs_std::FileExt;
 use memmap2::Mmap;
 
 #[cfg(feature = "file_memmap")]
-use crate::reporting::Diagnostic;
+use crate::terminal_interface::reporting::Diagnostic;
 
 /// Amount of time before we should warn the user about locking the file taking too long.
 #[cfg(feature = "file_memmap")]

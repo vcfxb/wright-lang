@@ -34,6 +34,7 @@ test = false
 doc = false
 doctest = false
 required-features = []
+path = "bin/wright.rs"
 
 # BENCHMARKS
 [[bench]]
@@ -164,7 +165,7 @@ features = ["rayon"]
 optional = true
 
 # codespan-reporting is the internal engine used to render diagnostics.
-# Optional since it's only used when error reporting is required. 
+# Optional since it's only used when error reporting is required.
 [dependencies.codespan-reporting]
 version = "0.11.1"
 optional = true

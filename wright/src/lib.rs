@@ -38,9 +38,6 @@ pub mod build_info {
 #[cfg(feature = "source-tracking")]
 pub mod source_tracking;
 
-#[cfg(feature = "reporting")]
-pub mod reporting;
-
 #[cfg(feature = "lexer")]
 pub mod lexer;
 
@@ -50,6 +47,6 @@ pub mod ast;
 #[cfg(feature = "parser")]
 pub mod parser;
 
-pub mod util;
+pub mod terminal_interface;
 
 // pub mod repl;

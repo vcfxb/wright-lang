@@ -9,7 +9,7 @@ use core::sync::atomic::AtomicBool;
 
 /// Should all output force the use of ASCII characters only?
 #[cfg(feature = "supports-unicode")]
-pub static FORCE_ASCII: AtomicBool = AtomicBool::new(false);
+static FORCE_ASCII: AtomicBool = AtomicBool::new(false);
 
 /// Set the global [FORCE_ASCII] static.
 #[cfg(feature = "supports-unicode")]
